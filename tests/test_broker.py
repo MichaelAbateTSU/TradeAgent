@@ -57,3 +57,19 @@ def test_paper_broker_rejects_short_sale(bar: MarketBar, timestamp: datetime) ->
 
     with pytest.raises(ValueError, match="short"):
         broker.submit(make_order(timestamp, side=Side.SELL), bar)
+
+
+def test_paper_broker_state_restores_idempotently(bar: MarketBar, timestamp: datetime) -> None:
+    config = BrokerConfig()
+    broker = PaperBroker(config)
+    broker.mark(bar)
+    order = make_order(timestamp)
+    original_fill = broker.submit(order, bar)
+    original_account = broker.account(timestamp)
+
+    restored = PaperBroker.from_state(config, broker.export_state())
+    repeated_fill = restored.submit(order, bar)
+
+    assert repeated_fill == original_fill
+    assert restored.fill_count == 1
+    assert restored.account(timestamp) == original_account

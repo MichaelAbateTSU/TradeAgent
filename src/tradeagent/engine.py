@@ -44,11 +44,13 @@ class TradingEngine:
         intent = self._strategy.on_bar(bar)
         account = self._broker.account(bar.timestamp)
         if intent is None:
-            return EngineStep(
+            step = EngineStep(
                 timestamp=bar.timestamp,
                 symbol=bar.symbol,
                 equity=account.equity,
             )
+            self._record_progress(bar, self._bar_trace_id(bar))
+            return step
 
         trace_id = self._decision_id(intent)
         self._ledger.append(
@@ -59,12 +61,14 @@ class TradingEngine:
         )
         order = self._plan_order(intent, account.equity, bar)
         if order is None:
-            return EngineStep(
+            step = EngineStep(
                 timestamp=bar.timestamp,
                 symbol=bar.symbol,
                 intent=intent,
                 equity=account.equity,
             )
+            self._record_progress(bar, trace_id)
+            return step
 
         self._orders += 1
         decision = self._risk.evaluate(
@@ -82,7 +86,7 @@ class TradingEngine:
         )
         if not decision.approved:
             self._rejections += 1
-            return EngineStep(
+            step = EngineStep(
                 timestamp=bar.timestamp,
                 symbol=bar.symbol,
                 intent=intent,
@@ -90,6 +94,8 @@ class TradingEngine:
                 risk=decision,
                 equity=account.equity,
             )
+            self._record_progress(bar, trace_id)
+            return step
 
         self._ledger.append(
             "order_submitted",
@@ -105,7 +111,13 @@ class TradingEngine:
             trace_id=trace_id,
         )
         updated_account = self._broker.account(bar.timestamp)
-        return EngineStep(
+        self._ledger.append(
+            "broker_checkpoint",
+            self._broker.export_state(),
+            occurred_at=bar.timestamp,
+            trace_id=trace_id,
+        )
+        step = EngineStep(
             timestamp=bar.timestamp,
             symbol=bar.symbol,
             intent=intent,
@@ -114,22 +126,31 @@ class TradingEngine:
             fill=fill,
             equity=updated_account.equity,
         )
+        self._record_progress(bar, trace_id)
+        return step
 
     def run(self, bars: Iterable[MarketBar]) -> BacktestReport:
         first_bar: MarketBar | None = None
         last_bar: MarketBar | None = None
-        equities = [self._config.broker.starting_cash]
+        equities: list[Decimal] = []
+        starting_equity: Decimal | None = None
+        starting_traded_notional = sum((fill.notional for fill in self._broker.fills), Decimal(0))
         for bar in bars:
-            first_bar = first_bar or bar
+            if first_bar is None:
+                first_bar = bar
+                starting_equity = self._broker.account(bar.timestamp).equity
+                equities.append(starting_equity)
             last_bar = bar
             step = self.process_bar(bar)
             equities.append(step.equity)
 
-        if first_bar is None or last_bar is None:
+        if first_bar is None or last_bar is None or starting_equity is None:
             raise ValueError("at least one market bar is required")
         final_account = self._broker.account(last_bar.timestamp)
-        starting_equity = self._config.broker.starting_cash
-        traded_notional = sum((fill.notional for fill in self._broker.fills), Decimal(0))
+        traded_notional = (
+            sum((fill.notional for fill in self._broker.fills), Decimal(0))
+            - starting_traded_notional
+        )
         metrics = performance_metrics(equities, traded_notional)
         return BacktestReport(
             symbol=first_bar.symbol,
@@ -149,6 +170,14 @@ class TradingEngine:
             fills=self._broker.fill_count,
             rejected_orders=self._rejections,
             final_positions=final_account.positions,
+        )
+
+    def _record_progress(self, bar: MarketBar, trace_id: str) -> None:
+        self._ledger.append(
+            "engine_progress",
+            {"symbol": bar.symbol, "timestamp": bar.timestamp.isoformat()},
+            occurred_at=bar.timestamp,
+            trace_id=trace_id,
         )
 
     def _plan_order(
@@ -180,4 +209,9 @@ class TradingEngine:
             f"{intent.strategy_id}|{intent.symbol}|{intent.generated_at.isoformat()}|"
             f"{intent.target_weight}"
         )
+        return sha256(raw.encode()).hexdigest()[:24]
+
+    @staticmethod
+    def _bar_trace_id(bar: MarketBar) -> str:
+        raw = f"{bar.symbol}|{bar.timestamp.isoformat()}|{bar.close}"
         return sha256(raw.encode()).hexdigest()[:24]

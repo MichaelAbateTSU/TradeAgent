@@ -95,6 +95,25 @@ class SQLiteLedger:
         )
         return {str(row["event_type"]): int(row["count"]) for row in rows}
 
+    def latest_event(self, event_type: str) -> dict[str, Any] | None:
+        row = self._connection.execute(
+            """
+            SELECT sequence, occurred_at, recorded_at, event_type, trace_id, payload
+            FROM events WHERE event_type = ? ORDER BY sequence DESC LIMIT 1
+            """,
+            (event_type,),
+        ).fetchone()
+        if row is None:
+            return None
+        return {
+            "sequence": row["sequence"],
+            "occurred_at": row["occurred_at"],
+            "recorded_at": row["recorded_at"],
+            "event_type": row["event_type"],
+            "trace_id": row["trace_id"],
+            "payload": json.loads(row["payload"]),
+        }
+
     def close(self) -> None:
         self._connection.close()
 

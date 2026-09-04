@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 from pathlib import Path
 
 from tradeagent.cli import main
@@ -25,7 +26,7 @@ def test_backtest_command_prints_paper_report(capsys: object) -> None:
 
     assert report["mode"] == "paper"
     assert report["symbol"] == "SPY"
-    assert report["starting_equity"] == "100000"
+    assert Decimal(report["starting_equity"]) == Decimal("100000")
 
 
 def test_paper_and_status_commands_share_audit_ledger(tmp_path: Path, capsys: object) -> None:
@@ -107,3 +108,18 @@ def test_volatility_trend_evaluation_is_available(tmp_path: Path, capsys: object
     output = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
 
     assert output["report"]["scenarios"][0]["strategy_id"] == "volatility-target-trend-v1"
+
+
+def test_paper_command_resumes_without_replaying_orders(tmp_path: Path, capsys: object) -> None:
+    database = tmp_path / "resume.db"
+    common = ["paper", "--database", str(database), "--seed", "21"]
+    main([*common, "--synthetic-bars", "60"])
+    first = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+    main([*common, "--synthetic-bars", "80"])
+    resumed = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+    main([*common, "--synthetic-bars", "80"])
+    up_to_date = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+
+    assert first["ended_at"] < resumed["started_at"]
+    assert up_to_date["status"] == "up_to_date"
+    assert up_to_date["account"]["equity"] == resumed["ending_equity"]

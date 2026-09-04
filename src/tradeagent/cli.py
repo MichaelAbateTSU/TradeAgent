@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections.abc import Callable, Sequence
+from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,7 @@ from pydantic import BaseModel
 from tradeagent.broker import PaperBroker
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig
 from tradeagent.data import read_bars, synthetic_bars
+from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.research import (
@@ -41,11 +43,17 @@ def _json(value: Any) -> str:
     )
 
 
-def _build_engine(config: AppConfig, ledger: SQLiteLedger) -> TradingEngine:
+def _build_engine(
+    config: AppConfig,
+    ledger: SQLiteLedger,
+    *,
+    strategy: Strategy | None = None,
+    broker: PaperBroker | None = None,
+) -> TradingEngine:
     return TradingEngine(
         config=config,
-        strategy=SmaCrossoverStrategy(config.strategy),
-        broker=PaperBroker(config.broker),
+        strategy=strategy or SmaCrossoverStrategy(config.strategy),
+        broker=broker or PaperBroker(config.broker),
         risk=RiskEngine(config.risk),
         ledger=ledger,
     )
@@ -187,13 +195,72 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     config = AppConfig(database_path=args.database)
-    paper_bars = (
+    all_bars = list(
         read_bars(args.csv, symbol=args.symbol)
         if args.csv
-        else synthetic_bars(symbol=args.symbol, count=args.synthetic_bars, seed=args.seed)
+        else synthetic_bars(
+            symbol=args.symbol,
+            count=args.synthetic_bars,
+            seed=args.seed,
+        )
     )
+    if not all_bars:
+        raise ValueError("paper simulation requires at least one market bar")
     with SQLiteLedger(config.database_path) as ledger:
-        paper_report = _build_engine(config, ledger).run(paper_bars)
+        progress = ledger.latest_event("engine_progress")
+        checkpoint = ledger.latest_event("broker_checkpoint")
+        broker = (
+            PaperBroker.from_state(
+                config.broker,
+                PaperBrokerState.model_validate(checkpoint["payload"]),
+            )
+            if checkpoint is not None
+            else PaperBroker(config.broker)
+        )
+        strategy = SmaCrossoverStrategy(config.strategy)
+        last_timestamp = (
+            datetime.fromisoformat(str(progress["payload"]["timestamp"]))
+            if progress is not None
+            else None
+        )
+        processed = (
+            [bar for bar in all_bars if bar.timestamp <= last_timestamp]
+            if last_timestamp is not None
+            else []
+        )
+        checkpoint_time = (
+            datetime.fromisoformat(str(checkpoint["occurred_at"]))
+            if checkpoint is not None
+            else None
+        )
+        for historical_bar in processed:
+            strategy.on_bar(historical_bar)
+            if checkpoint_time is None or historical_bar.timestamp > checkpoint_time:
+                broker.mark(historical_bar)
+        pending = (
+            [bar for bar in all_bars if bar.timestamp > last_timestamp]
+            if last_timestamp is not None
+            else all_bars
+        )
+        if not pending:
+            as_of = last_timestamp or all_bars[-1].timestamp
+            print(
+                _json(
+                    {
+                        "mode": "paper",
+                        "status": "up_to_date",
+                        "as_of": as_of,
+                        "account": broker.account(as_of),
+                    }
+                )
+            )
+            return
+        paper_report = _build_engine(
+            config,
+            ledger,
+            strategy=strategy,
+            broker=broker,
+        ).run(pending)
         print(_json(paper_report))
 
 

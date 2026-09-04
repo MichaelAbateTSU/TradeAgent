@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any
@@ -180,6 +180,23 @@ class BacktestReport(FrozenModel):
     fills: int
     rejected_orders: int
     final_positions: tuple[Position, ...]
+
+
+class PaperPositionState(FrozenModel):
+    symbol: str
+    quantity: Decimal
+    average_price: Decimal = Field(ge=0)
+    realized_pnl: Decimal
+
+
+class PaperBrokerState(FrozenModel):
+    cash: Decimal
+    positions: tuple[PaperPositionState, ...]
+    marks: dict[str, Decimal]
+    fills: tuple[Fill, ...]
+    session_date: date | None
+    day_start_equity: Decimal = Field(gt=0)
+    high_watermark: Decimal = Field(gt=0)
 
 
 class DatasetManifest(FrozenModel):

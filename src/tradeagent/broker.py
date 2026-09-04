@@ -6,7 +6,16 @@ from decimal import ROUND_HALF_UP, Decimal
 from hashlib import sha256
 
 from tradeagent.config import BrokerConfig
-from tradeagent.domain import AccountSnapshot, Fill, MarketBar, OrderRequest, Position, Side
+from tradeagent.domain import (
+    AccountSnapshot,
+    Fill,
+    MarketBar,
+    OrderRequest,
+    PaperBrokerState,
+    PaperPositionState,
+    Position,
+    Side,
+)
 
 MONEY_QUANTUM = Decimal("0.0001")
 PRICE_QUANTUM = Decimal("0.000001")
@@ -43,6 +52,44 @@ class PaperBroker:
     @property
     def fills(self) -> tuple[Fill, ...]:
         return tuple(self._fills.values())
+
+    @classmethod
+    def from_state(cls, config: BrokerConfig, state: PaperBrokerState) -> PaperBroker:
+        broker = cls(config)
+        broker._cash = state.cash
+        broker._positions = {
+            position.symbol: _PositionState(
+                quantity=position.quantity,
+                average_price=position.average_price,
+                realized_pnl=position.realized_pnl,
+            )
+            for position in state.positions
+        }
+        broker._marks = dict(state.marks)
+        broker._fills = {fill.client_order_id: fill for fill in state.fills}
+        broker._session_date = state.session_date
+        broker._day_start_equity = state.day_start_equity
+        broker._high_watermark = state.high_watermark
+        return broker
+
+    def export_state(self) -> PaperBrokerState:
+        return PaperBrokerState(
+            cash=self._cash,
+            positions=tuple(
+                PaperPositionState(
+                    symbol=symbol,
+                    quantity=state.quantity,
+                    average_price=state.average_price,
+                    realized_pnl=state.realized_pnl,
+                )
+                for symbol, state in sorted(self._positions.items())
+            ),
+            marks=dict(self._marks),
+            fills=self.fills,
+            session_date=self._session_date,
+            day_start_equity=self._day_start_equity,
+            high_watermark=self._high_watermark,
+        )
 
     def mark(self, bar: MarketBar) -> None:
         self._marks[bar.symbol] = bar.close

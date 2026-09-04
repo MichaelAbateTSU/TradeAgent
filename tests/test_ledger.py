@@ -20,3 +20,5 @@ def test_ledger_is_append_only_and_returns_latest_first(
         assert ledger.event_count() == 2
         assert events[0]["event_type"] == "health"
         assert events[1]["payload"]["symbol"] == "SPY"
+        assert ledger.latest_event("health") == events[0]
+        assert ledger.latest_event("missing") is None
