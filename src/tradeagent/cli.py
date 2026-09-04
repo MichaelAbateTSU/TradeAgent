@@ -11,6 +11,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from tradeagent.alpaca import AlpacaDataClient, AlpacaDataSettings
+from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
 from tradeagent.broker import PaperBroker
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
@@ -162,6 +163,11 @@ def _parser() -> argparse.ArgumentParser:
     download.add_argument("--timeframe", choices=["1Day", "1Hour", "5Min"], default="1Day")
     download.add_argument("--output", type=Path, required=True)
     download.add_argument("--overwrite", action="store_true")
+
+    subparsers.add_parser(
+        "alpaca-paper-status",
+        help="verify the Alpaca paper account and list positions without trading",
+    )
     return parser
 
 
@@ -214,9 +220,9 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     if args.command == "download-alpaca":
-        settings = AlpacaDataSettings.model_validate({})
-        with AlpacaDataClient(settings) as client:
-            bars = client.bars(
+        data_settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(data_settings) as data_client:
+            bars = data_client.bars(
                 args.symbol,
                 start=_parse_utc(args.start),
                 end=_parse_utc(args.end),
@@ -227,10 +233,27 @@ def main(argv: Sequence[str] | None = None) -> None:
             _json(
                 {
                     "provider": "alpaca",
-                    "feed": settings.feed,
+                    "feed": data_settings.feed,
                     "symbol": args.symbol.upper(),
                     "rows": count,
                     "output": str(args.output),
+                }
+            )
+        )
+        return
+
+    if args.command == "alpaca-paper-status":
+        paper_settings = AlpacaPaperSettings.model_validate({})
+        with AlpacaPaperClient(paper_settings) as paper_client:
+            account = paper_client.account()
+            positions = paper_client.positions()
+        print(
+            _json(
+                {
+                    "mode": "paper",
+                    "account": account,
+                    "positions": positions,
+                    "live_trading_available": False,
                 }
             )
         )
