@@ -78,6 +78,13 @@ def test_research_suite_stresses_costs_and_records_trial(tmp_path: Path) -> None
         Decimal(2),
         Decimal(3),
     ]
+    assert len(report.benchmark_comparisons) == 3
+    assert all(
+        comparison.benchmark_strategy_id == "buy-and-hold-v1"
+        for comparison in report.benchmark_comparisons
+    )
+    assert not report.qualified
+    assert "BENCHMARK_NOT_BEATEN" in report.qualification_reasons
     assert report.git_sha == "abc123"
     with ExperimentRegistry(tmp_path / "experiments.db") as registry:
         experiment_id = registry.record(report)

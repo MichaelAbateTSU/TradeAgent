@@ -210,12 +210,21 @@ class WalkForwardReport(FrozenModel):
     qualification_reasons: tuple[str, ...]
 
 
+class BenchmarkComparison(FrozenModel):
+    benchmark_strategy_id: str
+    cost_multiplier: Decimal = Field(ge=1)
+    average_excess_return: Decimal
+    beat_fold_ratio: Decimal = Field(ge=0, le=1)
+    passed: bool
+
+
 class ResearchReport(FrozenModel):
     dataset: DatasetManifest
     config_hash: str = Field(min_length=64, max_length=64)
     git_sha: str
     random_seed: int
     scenarios: tuple[WalkForwardReport, ...]
+    benchmark_comparisons: tuple[BenchmarkComparison, ...]
     qualified: bool
     qualification_reasons: tuple[str, ...]
 

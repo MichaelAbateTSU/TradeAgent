@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from tradeagent.broker import PaperBroker
 from tradeagent.config import AppConfig, BrokerConfig
 from tradeagent.domain import (
+    BenchmarkComparison,
     DatasetManifest,
     MarketBar,
     ResearchReport,
@@ -23,7 +24,7 @@ from tradeagent.domain import (
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.risk import RiskEngine
-from tradeagent.strategy import Strategy
+from tradeagent.strategy import ConstantWeightStrategy, Strategy
 
 StrategyFactory = Callable[[], Strategy]
 
@@ -178,6 +179,10 @@ def evaluate_research_suite(
     git_sha: str | None = None,
 ) -> ResearchReport:
     strategy_id = strategy_factory().strategy_id
+
+    def benchmark_factory() -> Strategy:
+        return ConstantWeightStrategy("buy-and-hold-v1", app_config.strategy.target_weight)
+
     scenarios = tuple(
         evaluate_walk_forward(
             bars,
@@ -188,17 +193,53 @@ def evaluate_research_suite(
         )
         for multiplier in (Decimal(1), Decimal(2), Decimal(3))
     )
+    benchmark_scenarios = tuple(
+        evaluate_walk_forward(
+            bars,
+            app_config,
+            walk_forward,
+            benchmark_factory,
+            cost_multiplier=multiplier,
+        )
+        for multiplier in (Decimal(1), Decimal(2), Decimal(3))
+    )
+    comparisons: list[BenchmarkComparison] = []
+    for scenario, benchmark in zip(scenarios, benchmark_scenarios, strict=True):
+        excess_returns = [
+            candidate_fold.report.total_return - benchmark_fold.report.total_return
+            for candidate_fold, benchmark_fold in zip(scenario.folds, benchmark.folds, strict=True)
+        ]
+        wins = sum(excess > 0 for excess in excess_returns)
+        beat_fold_ratio = Decimal(wins) / Decimal(len(excess_returns))
+        average_excess_return = sum(excess_returns, Decimal(0)) / Decimal(len(excess_returns))
+        comparisons.append(
+            BenchmarkComparison(
+                benchmark_strategy_id=benchmark.strategy_id,
+                cost_multiplier=scenario.cost_multiplier,
+                average_excess_return=average_excess_return,
+                beat_fold_ratio=beat_fold_ratio,
+                passed=(
+                    beat_fold_ratio >= walk_forward.minimum_positive_fold_ratio
+                    and average_excess_return > 0
+                ),
+            )
+        )
     reasons: list[str] = []
     if not scenarios[0].qualified:
         reasons.append("BASE_SCENARIO_FAILED")
     if any(not scenario.qualified for scenario in scenarios[1:]):
         reasons.append("COST_STRESS_FAILED")
+    if not comparisons[0].passed:
+        reasons.append("BENCHMARK_NOT_BEATEN")
+    if any(not comparison.passed for comparison in comparisons[1:]):
+        reasons.append("BENCHMARK_COST_STRESS_FAILED")
     return ResearchReport(
         dataset=dataset_manifest(bars),
         config_hash=evaluation_config_hash(app_config, walk_forward, strategy_id),
         git_sha=git_sha or current_git_sha(),
         random_seed=random_seed,
         scenarios=scenarios,
+        benchmark_comparisons=tuple(comparisons),
         qualified=not reasons,
         qualification_reasons=tuple(reasons),
     )
