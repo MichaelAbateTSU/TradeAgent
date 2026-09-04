@@ -233,6 +233,10 @@ class BenchmarkComparison(FrozenModel):
     cost_multiplier: Decimal = Field(ge=1)
     execution_delay_bars: int = Field(ge=0)
     average_excess_return: Decimal
+    excess_return_ci_lower: Decimal
+    excess_return_ci_upper: Decimal
+    confidence_level: Decimal = Field(gt=0, lt=1)
+    bootstrap_samples: int = Field(ge=100)
     beat_fold_ratio: Decimal = Field(ge=0, le=1)
     passed: bool
 

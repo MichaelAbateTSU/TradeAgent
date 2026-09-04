@@ -10,6 +10,7 @@ from tradeagent.data import synthetic_bars
 from tradeagent.research import (
     ExperimentRegistry,
     WalkForwardConfig,
+    bootstrap_mean_confidence_interval,
     config_hash,
     dataset_manifest,
     evaluate_research_suite,
@@ -30,6 +31,27 @@ def test_dataset_and_configuration_hashes_are_reproducible() -> None:
     )
     assert len(config_hash(config)) == 64
     assert len(evaluation_config_hash(config, WalkForwardConfig(), "sma-crossover-v1")) == 64
+
+
+def test_bootstrap_confidence_interval_is_deterministic_and_conservative() -> None:
+    values = [Decimal("0.01"), Decimal("0.02"), Decimal("0.03")]
+
+    first = bootstrap_mean_confidence_interval(
+        values,
+        samples=500,
+        confidence_level=Decimal("0.95"),
+        random_seed=17,
+    )
+    second = bootstrap_mean_confidence_interval(
+        values,
+        samples=500,
+        confidence_level=Decimal("0.95"),
+        random_seed=17,
+    )
+
+    assert first == second
+    assert first[0] > 0
+    assert first[0] <= sum(values) / len(values) <= first[1]
 
 
 def test_walk_forward_runs_disjoint_test_folds() -> None:
@@ -92,6 +114,12 @@ def test_research_suite_stresses_costs_and_records_trial(tmp_path: Path) -> None
     ]
     assert len(report.benchmark_comparisons) == 6
     assert all(
+        comparison.excess_return_ci_lower
+        <= comparison.average_excess_return
+        <= comparison.excess_return_ci_upper
+        for comparison in report.benchmark_comparisons
+    )
+    assert all(
         comparison.benchmark_strategy_id == "buy-and-hold-v1"
         for comparison in report.benchmark_comparisons
     )
@@ -130,3 +158,24 @@ def test_research_validates_empty_data_and_invalid_benchmarks() -> None:
         ConstantWeightStrategy("invalid", Decimal("1.1"))
     with pytest.raises(ValueError, match="warmup_bars"):
         WalkForwardConfig(training_bars=20, warmup_bars=21)
+    with pytest.raises(ValueError, match="at least one"):
+        bootstrap_mean_confidence_interval(
+            [],
+            samples=100,
+            confidence_level=Decimal("0.95"),
+            random_seed=1,
+        )
+    with pytest.raises(ValueError, match="at least 100"):
+        bootstrap_mean_confidence_interval(
+            [Decimal(0)],
+            samples=99,
+            confidence_level=Decimal("0.95"),
+            random_seed=1,
+        )
+    with pytest.raises(ValueError, match="between zero and one"):
+        bootstrap_mean_confidence_interval(
+            [Decimal(0)],
+            samples=100,
+            confidence_level=Decimal(1),
+            random_seed=1,
+        )

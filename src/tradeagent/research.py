@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import random
 import sqlite3
 import subprocess
 from collections.abc import Callable, Sequence
@@ -39,6 +40,8 @@ class WalkForwardConfig(BaseModel):
     warmup_bars: int = Field(default=50, ge=0)
     minimum_positive_fold_ratio: Decimal = Field(default=Decimal("0.60"), ge=0, le=1)
     minimum_average_sharpe: Decimal = Decimal(0)
+    bootstrap_samples: int = Field(default=2_000, ge=100, le=100_000)
+    confidence_level: Decimal = Field(default=Decimal("0.95"), gt=0, lt=1)
 
     @model_validator(mode="after")
     def validate_warmup(self) -> WalkForwardConfig:
@@ -79,6 +82,36 @@ def evaluation_config_hash(
         sort_keys=True,
     )
     return sha256(payload.encode()).hexdigest()
+
+
+def bootstrap_mean_confidence_interval(
+    values: Sequence[Decimal],
+    *,
+    samples: int,
+    confidence_level: Decimal,
+    random_seed: int,
+) -> tuple[Decimal, Decimal]:
+    if not values:
+        raise ValueError("bootstrap requires at least one value")
+    if samples < 100:
+        raise ValueError("bootstrap requires at least 100 samples")
+    if not Decimal(0) < confidence_level < Decimal(1):
+        raise ValueError("confidence_level must be between zero and one")
+
+    generator = random.Random(random_seed)
+    count = len(values)
+    means = sorted(
+        sum(
+            (values[generator.randrange(count)] for _ in range(count)),
+            Decimal(0),
+        )
+        / Decimal(count)
+        for _ in range(samples)
+    )
+    tail_probability = (Decimal(1) - confidence_level) / Decimal(2)
+    lower_index = int(tail_probability * samples)
+    upper_index = min(samples - 1, int((Decimal(1) - tail_probability) * samples))
+    return means[lower_index], means[upper_index]
 
 
 def current_git_sha() -> str:
@@ -219,7 +252,9 @@ def evaluate_research_suite(
         for multiplier, delay in scenario_specs
     )
     comparisons: list[BenchmarkComparison] = []
-    for scenario, benchmark in zip(scenarios, benchmark_scenarios, strict=True):
+    for scenario_index, (scenario, benchmark) in enumerate(
+        zip(scenarios, benchmark_scenarios, strict=True)
+    ):
         excess_returns = [
             candidate_fold.report.total_return - benchmark_fold.report.total_return
             for candidate_fold, benchmark_fold in zip(scenario.folds, benchmark.folds, strict=True)
@@ -227,16 +262,27 @@ def evaluate_research_suite(
         wins = sum(excess > 0 for excess in excess_returns)
         beat_fold_ratio = Decimal(wins) / Decimal(len(excess_returns))
         average_excess_return = sum(excess_returns, Decimal(0)) / Decimal(len(excess_returns))
+        confidence_lower, confidence_upper = bootstrap_mean_confidence_interval(
+            excess_returns,
+            samples=walk_forward.bootstrap_samples,
+            confidence_level=walk_forward.confidence_level,
+            random_seed=random_seed + scenario_index,
+        )
         comparisons.append(
             BenchmarkComparison(
                 benchmark_strategy_id=benchmark.strategy_id,
                 cost_multiplier=scenario.cost_multiplier,
                 execution_delay_bars=scenario.execution_delay_bars,
                 average_excess_return=average_excess_return,
+                excess_return_ci_lower=confidence_lower,
+                excess_return_ci_upper=confidence_upper,
+                confidence_level=walk_forward.confidence_level,
+                bootstrap_samples=walk_forward.bootstrap_samples,
                 beat_fold_ratio=beat_fold_ratio,
                 passed=(
                     beat_fold_ratio >= walk_forward.minimum_positive_fold_ratio
                     and average_excess_return > 0
+                    and confidence_lower > 0
                 ),
             )
         )
