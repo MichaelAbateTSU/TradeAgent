@@ -30,6 +30,7 @@ SQLite ledger.
 - Deterministic 95% bootstrap confidence bounds on benchmark excess return
 - Dataset/configuration hashes and an append-only experiment registry
 - Read-only local dashboard, JSON endpoints, health check, and Prometheus-style metrics
+- Typed Alpaca paper account, position, and order client fixed to the paper endpoint
 - Strict typing, linting, and a high-coverage test suite
 
 ## Quick start
@@ -72,6 +73,15 @@ Download adjusted Alpaca historical data after setting `ALPACA_KEY_ID` and
   --symbol SPY --start 2020-01-01 --end 2026-01-01 `
   --timeframe 1Day --output .\data\spy.csv
 ```
+
+Verify the fake-money brokerage account without submitting an order:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe alpaca-paper-status
+```
+
+The brokerage client contains typed submission and cancellation methods for the future
+OMS, but no CLI or autonomous path invokes them yet.
 
 Run the promotion-gated research suite:
 

@@ -46,6 +46,8 @@ flowchart LR
 | `research` | Dataset/config hashes, walk-forward folds, benchmark gates, and trials |
 | `metrics` | Return, volatility, drawdown, risk-adjusted return, and turnover |
 | `api` | Local read-only dashboard, health, status, events, experiments, and metrics |
+| `alpaca` | Historical market-data client fixed to Alpaca's data endpoint |
+| `alpaca_paper` | Typed brokerage client fixed to Alpaca's paper endpoint |
 | `cli` | Backtest, persistent paper simulation, and ledger inspection |
 
 ## Deliberate MVP boundaries
@@ -56,6 +58,7 @@ flowchart LR
 - Deterministic SMA baseline, not an asserted source of alpha
 - No LLM, external data vendor, or brokerage credentials
 
-The next architecture increment adds an external Alpaca paper adapter, a complete order
-state machine, broker-authoritative reconciliation, durable kill-switch controls, and
-structured telemetry. The current local console is intentionally read-only.
+The next architecture increment connects the typed Alpaca paper client to a complete
+OMS state machine and broker-authoritative reconciliation. That integration must preserve
+the deterministic risk boundary and durable kill switch; direct model-to-client access
+is prohibited. The current local console is intentionally read-only.

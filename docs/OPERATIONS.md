@@ -52,6 +52,16 @@ Start the read-only local console:
 tradeagent serve --database data\tradeagent.db --experiments data\experiments.db
 ```
 
+Verify configured Alpaca fake-money brokerage access:
+
+```powershell
+tradeagent alpaca-paper-status
+```
+
+This reads account and positions from `https://paper-api.alpaca.markets`. The endpoint is
+a literal validated setting and cannot be changed to Alpaca's live URL. Trade submission
+is not wired to the CLI or autonomous engine.
+
 Endpoints:
 
 | Path | Purpose |
