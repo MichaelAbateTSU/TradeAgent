@@ -311,6 +311,12 @@ class ExperimentRegistry:
         row = self._connection.execute("SELECT COUNT(*) FROM experiments").fetchone()
         return int(row[0])
 
+    def qualified_count(self) -> int:
+        row = self._connection.execute(
+            "SELECT COUNT(*) FROM experiments WHERE qualified = 1"
+        ).fetchone()
+        return int(row[0])
+
     def recent(self, *, limit: int = 20) -> list[dict[str, object]]:
         self._connection.row_factory = sqlite3.Row
         rows = self._connection.execute(

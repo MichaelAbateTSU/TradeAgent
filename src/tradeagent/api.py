@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 # ruff: noqa: E501
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
+from tradeagent.broker import PaperBroker
+from tradeagent.config import BrokerConfig
+from tradeagent.domain import AccountSnapshot, PaperBrokerState
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.research import ExperimentRegistry
 
@@ -34,6 +38,9 @@ DASHBOARD = """<!doctype html>
   <header><div><h1>TradeAgent</h1><div>Local paper-trading console</div></div><span class="badge">PAPER ONLY</span></header>
   <p class="warning">No live broker is connected. Qualification means a research gate passed, not that profit is guaranteed.</p>
   <section class="grid">
+    <div class="card"><div>NAV</div><div id="nav" class="value">-</div></div>
+    <div class="card"><div>Gross exposure</div><div id="exposure" class="value">-</div></div>
+    <div class="card"><div>Kill switch</div><div id="kill-switch" class="value">-</div></div>
     <div class="card"><div>Audit events</div><div id="events" class="value">-</div></div>
     <div class="card"><div>Experiments</div><div id="experiments" class="value">-</div></div>
     <div class="card"><div>Qualified trials</div><div id="qualified" class="value">-</div></div>
@@ -54,9 +61,13 @@ DASHBOARD = """<!doctype html>
         fetch('/api/experiments?limit=10').then(r => r.json())
       ]);
       document.querySelector('#events').textContent = status.event_count;
+      document.querySelector('#nav').textContent =
+        status.account ? `$${Number(status.account.equity).toLocaleString()}` : 'No run';
+      document.querySelector('#exposure').textContent =
+        status.account ? `${(Number(status.account.gross_exposure_ratio) * 100).toFixed(2)}%` : '-';
+      document.querySelector('#kill-switch').textContent = status.kill_switch;
       document.querySelector('#experiments').textContent = experiments.total;
-      document.querySelector('#qualified').textContent =
-        experiments.items.filter(item => item.qualified).length;
+      document.querySelector('#qualified').textContent = experiments.qualified_total;
       document.querySelector('#experiment-rows').innerHTML = experiments.items.map(item =>
         `<tr><td>${escapeHtml(item.experiment_id)}</td><td>${escapeHtml(item.strategy_id)}</td>` +
         `<td>${escapeHtml(item.random_seed)}</td><td>${item.qualified ? 'yes' : 'no'}</td>` +
@@ -69,6 +80,15 @@ DASHBOARD = """<!doctype html>
 </body>
 </html>
 """
+
+
+def _latest_account(ledger: SQLiteLedger) -> AccountSnapshot | None:
+    checkpoint = ledger.latest_event("broker_checkpoint")
+    if checkpoint is None:
+        return None
+    state = PaperBrokerState.model_validate(checkpoint["payload"])
+    broker = PaperBroker.from_state(BrokerConfig(), state)
+    return broker.account(datetime.fromisoformat(str(checkpoint["occurred_at"])))
 
 
 def create_app(
@@ -97,12 +117,22 @@ def create_app(
     @app.get("/api/status")
     def status() -> dict[str, object]:
         with SQLiteLedger(ledger_path) as ledger:
+            account = _latest_account(ledger)
             return {
                 "mode": "paper",
                 "trading_enabled": False,
                 "live_trading_available": False,
+                "kill_switch": ledger.get_control("kill_switch", default="inactive"),
                 "event_count": ledger.event_count(),
                 "event_counts": ledger.event_counts(),
+                "account": (
+                    {
+                        **account.model_dump(mode="json"),
+                        "gross_exposure_ratio": str(account.gross_exposure / account.equity),
+                    }
+                    if account is not None
+                    else None
+                ),
             }
 
     @app.get("/api/events")
@@ -113,7 +143,11 @@ def create_app(
     @app.get("/api/experiments")
     def experiments(limit: int = Query(default=20, ge=1, le=100)) -> dict[str, object]:
         with ExperimentRegistry(experiments_path) as registry:
-            return {"total": registry.count(), "items": registry.recent(limit=limit)}
+            return {
+                "total": registry.count(),
+                "qualified_total": registry.qualified_count(),
+                "items": registry.recent(limit=limit),
+            }
 
     @app.get("/metrics", response_class=PlainTextResponse)
     def metrics() -> str:
@@ -127,6 +161,18 @@ def create_app(
                     for event_type, count in sorted(counts.items())
                 ],
             ]
+            account = _latest_account(ledger)
+            if account is not None:
+                lines.extend(
+                    [
+                        "# HELP tradeagent_nav Paper account net asset value.",
+                        "# TYPE tradeagent_nav gauge",
+                        f"tradeagent_nav {account.equity}",
+                        "# HELP tradeagent_gross_exposure_dollars Paper gross exposure.",
+                        "# TYPE tradeagent_gross_exposure_dollars gauge",
+                        f"tradeagent_gross_exposure_dollars {account.gross_exposure}",
+                    ]
+                )
         with ExperimentRegistry(experiments_path) as registry:
             lines.extend(
                 [

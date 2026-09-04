@@ -51,12 +51,13 @@ def _build_engine(
     *,
     strategy: Strategy | None = None,
     broker: PaperBroker | None = None,
+    risk: RiskEngine | None = None,
 ) -> TradingEngine:
     return TradingEngine(
         config=config,
         strategy=strategy or SmaCrossoverStrategy(config.strategy),
         broker=broker or PaperBroker(config.broker),
-        risk=RiskEngine(config.risk),
+        risk=risk or RiskEngine(config.risk),
         ledger=ledger,
     )
 
@@ -102,6 +103,17 @@ def _parser() -> argparse.ArgumentParser:
     status = subparsers.add_parser("status", help="inspect the local audit ledger")
     status.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
     status.add_argument("--limit", type=int, default=10)
+
+    kill_switch = subparsers.add_parser(
+        "kill-switch", help="inspect or change the durable paper kill switch"
+    )
+    kill_switch.add_argument("action", choices=["status", "activate", "reset"])
+    kill_switch.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
+    kill_switch.add_argument(
+        "--confirm-reconciled",
+        action="store_true",
+        help="required to reset after account and data reconciliation",
+    )
 
     serve = subparsers.add_parser("serve", help="serve the localhost-only read-only paper console")
     serve.add_argument(
@@ -165,6 +177,26 @@ def main(argv: Sequence[str] | None = None) -> None:
                 "events": list(ledger.events(limit=args.limit)),
             }
             print(_json(status))
+        return
+
+    if args.command == "kill-switch":
+        with SQLiteLedger(args.database) as ledger:
+            current = ledger.get_control("kill_switch", default="inactive")
+            if args.action == "status":
+                print(_json({"kill_switch": current}))
+                return
+            if args.action == "reset" and not args.confirm_reconciled:
+                raise ValueError(
+                    "reset requires --confirm-reconciled after account and data checks"
+                )
+            value = "active" if args.action == "activate" else "inactive"
+            ledger.set_control(
+                "kill_switch",
+                value,
+                occurred_at=datetime.now(UTC),
+                trace_id=f"operator:kill-switch:{value}",
+            )
+            print(_json({"kill_switch": value}))
         return
 
     if args.command == "serve":
@@ -283,6 +315,9 @@ def main(argv: Sequence[str] | None = None) -> None:
             else PaperBroker(config.broker)
         )
         strategy = SmaCrossoverStrategy(config.strategy)
+        risk = RiskEngine(config.risk)
+        if ledger.get_control("kill_switch", default="inactive") == "active":
+            risk.activate_kill_switch()
         last_timestamp = (
             datetime.fromisoformat(str(progress["payload"]["timestamp"]))
             if progress is not None
@@ -325,6 +360,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             ledger,
             strategy=strategy,
             broker=broker,
+            risk=risk,
         ).run(pending)
         print(_json(paper_report))
 

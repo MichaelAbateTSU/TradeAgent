@@ -22,3 +22,20 @@ def test_ledger_is_append_only_and_returns_latest_first(
         assert events[1]["payload"]["symbol"] == "SPY"
         assert ledger.latest_event("health") == events[0]
         assert ledger.latest_event("missing") is None
+
+
+def test_ledger_controls_are_durable_and_audited(timestamp: datetime) -> None:
+    with SQLiteLedger(":memory:") as ledger:
+        assert ledger.get_control("kill_switch", default="inactive") == "inactive"
+
+        ledger.set_control(
+            "kill_switch",
+            "active",
+            occurred_at=timestamp,
+            trace_id="operator:kill-switch:active",
+        )
+
+        assert ledger.get_control("kill_switch") == "active"
+        event = ledger.latest_event("control_changed")
+        assert event is not None
+        assert event["payload"] == {"key": "kill_switch", "value": "active"}

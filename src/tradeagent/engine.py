@@ -147,6 +147,12 @@ class TradingEngine:
         if first_bar is None or last_bar is None or starting_equity is None:
             raise ValueError("at least one market bar is required")
         final_account = self._broker.account(last_bar.timestamp)
+        self._ledger.append(
+            "broker_checkpoint",
+            self._broker.export_state(),
+            occurred_at=last_bar.timestamp,
+            trace_id=self._bar_trace_id(last_bar),
+        )
         traded_notional = (
             sum((fill.notional for fill in self._broker.fills), Decimal(0))
             - starting_traded_notional

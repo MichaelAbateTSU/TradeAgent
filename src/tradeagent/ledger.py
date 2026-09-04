@@ -38,6 +38,15 @@ class SQLiteLedger:
             )
             """
         )
+        self._connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS controls (
+                control_key TEXT PRIMARY KEY,
+                control_value TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
         self._connection.commit()
 
     def append(
@@ -113,6 +122,48 @@ class SQLiteLedger:
             "trace_id": row["trace_id"],
             "payload": json.loads(row["payload"]),
         }
+
+    def get_control(self, key: str, *, default: str | None = None) -> str | None:
+        row = self._connection.execute(
+            "SELECT control_value FROM controls WHERE control_key = ?",
+            (key,),
+        ).fetchone()
+        return str(row["control_value"]) if row is not None else default
+
+    def set_control(
+        self,
+        key: str,
+        value: str,
+        *,
+        occurred_at: datetime,
+        trace_id: str,
+    ) -> None:
+        recorded_at = datetime.now(UTC).isoformat()
+        payload = json.dumps({"key": key, "value": value}, sort_keys=True)
+        with self._connection:
+            self._connection.execute(
+                """
+                INSERT INTO controls (control_key, control_value, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(control_key) DO UPDATE SET
+                    control_value = excluded.control_value,
+                    updated_at = excluded.updated_at
+                """,
+                (key, value, recorded_at),
+            )
+            self._connection.execute(
+                """
+                INSERT INTO events (
+                    occurred_at, recorded_at, event_type, trace_id, payload
+                ) VALUES (?, ?, 'control_changed', ?, ?)
+                """,
+                (
+                    occurred_at.astimezone(UTC).isoformat(),
+                    recorded_at,
+                    trace_id,
+                    payload,
+                ),
+            )
 
     def close(self) -> None:
         self._connection.close()

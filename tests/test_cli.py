@@ -4,6 +4,8 @@ import json
 from decimal import Decimal
 from pathlib import Path
 
+import pytest
+
 from tradeagent.cli import main
 
 
@@ -123,3 +125,47 @@ def test_paper_command_resumes_without_replaying_orders(tmp_path: Path, capsys: 
     assert first["ended_at"] < resumed["started_at"]
     assert up_to_date["status"] == "up_to_date"
     assert up_to_date["account"]["equity"] == resumed["ending_equity"]
+
+
+def test_kill_switch_requires_reconciliation_to_reset(tmp_path: Path, capsys: object) -> None:
+    database = tmp_path / "controls.db"
+
+    main(["kill-switch", "status", "--database", str(database)])
+    assert json.loads(capsys.readouterr().out)["kill_switch"] == "inactive"  # type: ignore[attr-defined]
+    main(["kill-switch", "activate", "--database", str(database)])
+    assert json.loads(capsys.readouterr().out)["kill_switch"] == "active"  # type: ignore[attr-defined]
+    with pytest.raises(ValueError, match="confirm-reconciled"):
+        main(["kill-switch", "reset", "--database", str(database)])
+    main(
+        [
+            "kill-switch",
+            "reset",
+            "--confirm-reconciled",
+            "--database",
+            str(database),
+        ]
+    )
+    assert json.loads(capsys.readouterr().out)["kill_switch"] == "inactive"  # type: ignore[attr-defined]
+
+
+def test_active_kill_switch_blocks_new_paper_exposure(tmp_path: Path, capsys: object) -> None:
+    database = tmp_path / "blocked.db"
+    main(["kill-switch", "activate", "--database", str(database)])
+    capsys.readouterr()  # type: ignore[attr-defined]
+
+    main(
+        [
+            "paper",
+            "--synthetic-bars",
+            "150",
+            "--database",
+            str(database),
+            "--seed",
+            "7",
+        ]
+    )
+    report = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+
+    assert report["fills"] == 0
+    assert report["rejected_orders"] > 0
+    assert report["final_positions"] == []
