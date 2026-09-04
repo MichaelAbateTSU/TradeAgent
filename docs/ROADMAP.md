@@ -46,7 +46,7 @@ bounded live capital only after prolonged forward evidence.
 ## Phase 4: strategy challengers
 
 - [x] Volatility-targeted trend challenger
-- [ ] Simple mean-reversion challenger
+- [x] Simple mean-reversion challenger
 - [ ] Purged/embargoed cross-validation and bootstrap confidence intervals
 - [ ] Multiple-testing controls such as Deflated Sharpe Ratio and PBO
 - [ ] Classical ML challenger only after deterministic baselines pass

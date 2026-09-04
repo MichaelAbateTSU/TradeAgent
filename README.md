@@ -87,10 +87,11 @@ docker compose up --build
 ## Qualification status
 
 **No candidate strategy is qualified.** On the deterministic synthetic validation set,
-both current trend candidates failed to beat the equal-risk buy-and-hold benchmark
-consistently across rolling out-of-sample folds. This blocks promotion exactly as
-designed. Synthetic data validates the machinery, not market alpha; real,
-point-in-time market data is required before strategy conclusions are meaningful.
+the SMA, volatility-targeted trend, and z-score mean-reversion candidates failed to beat
+the equal-risk buy-and-hold benchmark consistently across rolling out-of-sample folds.
+This blocks promotion exactly as designed. Synthetic data validates the machinery, not
+market alpha; real, point-in-time market data is required before strategy conclusions
+are meaningful.
 
 ## Development
 

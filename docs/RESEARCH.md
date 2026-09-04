@@ -50,6 +50,14 @@ High absolute Sharpe values here must not be interpreted as market evidence. The
 synthetic generator contains designed regimes, and both candidates still underperform
 buy-and-hold at the same small allocation.
 
+The mean-reversion challenger was added at commit `5d43365` and failed every seed:
+
+| Candidate | Seed | Positive folds | Average Sharpe | Folds beating benchmark | Average excess return | Qualified |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Z-score mean reversion | 7 | 45.5% | -0.179 | 27.3% | -0.0883% | No |
+| Z-score mean reversion | 17 | 45.5% | 0.529 | 27.3% | -0.0911% | No |
+| Z-score mean reversion | 29 | 45.5% | 1.692 | 27.3% | -0.1512% | No |
+
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,
