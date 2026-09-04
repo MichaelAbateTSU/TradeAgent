@@ -39,6 +39,7 @@ bounded live capital only after prolonged forward evidence.
 - [x] Typed Alpaca paper account, position, and order client
 - [x] Risk-gated Alpaca client integration behind the OMS protocol
 - [x] On-demand broker-authoritative reconciliation
+- [x] Audited manual paper take-profit monitor
 - [ ] Scheduled startup and periodic reconciliation
 - [x] Local paper-broker checkpoints and restart recovery
 - [ ] Partial fills, cancels, rejects, and deterministic order state machine

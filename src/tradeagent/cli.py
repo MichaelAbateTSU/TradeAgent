@@ -18,6 +18,7 @@ from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.monitor import monitor_take_profit
 from tradeagent.oms import PaperOrderManager
 from tradeagent.research import (
     ExperimentRegistry,
@@ -174,6 +175,15 @@ def _parser() -> argparse.ArgumentParser:
         help="record and verify broker-authoritative paper state without trading",
     )
     reconcile.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
+    take_profit = subparsers.add_parser(
+        "alpaca-paper-take-profit",
+        help="monitor and close a paper position after it becomes profitable",
+    )
+    take_profit.add_argument("--symbol", default="BTC/USD")
+    take_profit.add_argument("--minimum-profit", type=Decimal, default=Decimal(0))
+    take_profit.add_argument("--poll-seconds", type=float, default=15)
+    take_profit.add_argument("--database", type=Path, default=Path("data/alpaca-paper.db"))
+    take_profit.add_argument("--confirm-paper", action="store_true")
     return parser
 
 
@@ -278,6 +288,40 @@ def main(argv: Sequence[str] | None = None) -> None:
                 ledger,
             ).reconcile(observed_at=datetime.now(UTC))
         print(_json(result))
+        return
+
+    if args.command == "alpaca-paper-take-profit":
+        if not args.confirm_paper:
+            raise ValueError("take-profit monitoring requires --confirm-paper")
+        paper_settings = AlpacaPaperSettings.model_validate({})
+        with (
+            AlpacaPaperClient(paper_settings) as paper_client,
+            SQLiteLedger(args.database) as ledger,
+        ):
+            monitor_result = monitor_take_profit(
+                paper_client,
+                ledger,
+                symbol=args.symbol,
+                minimum_profit=args.minimum_profit,
+                poll_seconds=args.poll_seconds,
+                on_sample=lambda position: print(
+                    _json(
+                        {
+                            "status": "monitoring",
+                            "symbol": position.symbol,
+                            "quantity": position.quantity,
+                            "unrealized_pnl": position.unrealized_pnl,
+                        }
+                    ),
+                    flush=True,
+                ),
+            )
+            reconciliation = PaperOrderManager(
+                paper_client,
+                RiskEngine(AppConfig(database_path=args.database).risk),
+                ledger,
+            ).reconcile(observed_at=datetime.now(UTC))
+        print(_json({"result": monitor_result, "reconciliation": reconciliation}))
         return
 
     if args.command == "backtest":

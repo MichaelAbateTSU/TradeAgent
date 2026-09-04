@@ -82,6 +82,14 @@ Verify the fake-money brokerage account without submitting an order:
 .\.venv\Scripts\tradeagent.exe alpaca-paper-reconcile
 ```
 
+Monitor an existing BTC paper position and sell the full quantity after unrealized P&L
+becomes positive:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe alpaca-paper-take-profit `
+  --symbol BTC/USD --minimum-profit 0 --poll-seconds 15 --confirm-paper
+```
+
 Reconciliation journals broker-authoritative account, position, and open-order state.
 Missing or duplicate orders and blocked accounts activate the durable kill switch. The
 OMS contains a submission path, but new exposure fails closed unless the strategy's

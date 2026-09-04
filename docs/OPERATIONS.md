@@ -75,8 +75,28 @@ The OMS submission method always:
 6. journals the returned broker state.
 
 Missing or failed qualification rejects new exposure as `STRATEGY_NOT_QUALIFIED`.
-Risk-reducing exits remain eligible. Submission remains unavailable from the CLI and
-autonomous engine.
+New-exposure submission remains unavailable from the CLI and autonomous engine.
+Risk-reducing exits remain eligible through the explicitly confirmed monitor below.
+
+## Manual paper take-profit monitor
+
+An explicitly confirmed operator command can monitor an existing paper position and
+submit a full risk-reducing exit once Alpaca reports unrealized profit above a threshold:
+
+```powershell
+tradeagent alpaca-paper-take-profit `
+  --symbol BTC/USD `
+  --minimum-profit 0 `
+  --poll-seconds 15 `
+  --database data\alpaca-paper.db `
+  --confirm-paper
+```
+
+The terminal must remain running. Each observation is printed without account balances.
+The trigger and broker order states are audited, the fill is polled, and broker
+reconciliation runs before the command exits. A positive observed unrealized value does
+not guarantee positive realized proceeds because price can move before the market order
+fills.
 
 Endpoints:
 
