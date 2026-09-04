@@ -44,6 +44,8 @@ class StrategyConfig(BaseModel):
     strategy_id: str = "sma-crossover-v1"
     fast_window: int = Field(default=20, ge=2)
     slow_window: int = Field(default=50, ge=3)
+    volatility_window: int = Field(default=20, ge=2)
+    target_annual_volatility: Decimal = Field(default=Decimal("0.10"), gt=0, le=1)
     target_weight: Decimal = Field(default=Decimal("0.02"), gt=0, le=1)
 
     @model_validator(mode="after")

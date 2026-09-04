@@ -20,7 +20,12 @@ from tradeagent.research import (
     evaluate_research_suite,
 )
 from tradeagent.risk import RiskEngine
-from tradeagent.strategy import ConstantWeightStrategy, SmaCrossoverStrategy, Strategy
+from tradeagent.strategy import (
+    ConstantWeightStrategy,
+    SmaCrossoverStrategy,
+    Strategy,
+    VolatilityTargetTrendStrategy,
+)
 
 
 def _json(value: Any) -> str:
@@ -53,6 +58,8 @@ def _strategy_factory(name: str, config: AppConfig) -> Callable[[], Strategy]:
         return lambda: ConstantWeightStrategy(
             "buy-and-hold-v1", target_weight=config.strategy.target_weight
         )
+    if name == "volatility-trend":
+        return lambda: VolatilityTargetTrendStrategy(config.strategy)
     return lambda: SmaCrossoverStrategy(config.strategy)
 
 
@@ -86,7 +93,11 @@ def _parser() -> argparse.ArgumentParser:
     evaluate = subparsers.add_parser(
         "evaluate", help="run cost-stressed rolling walk-forward research"
     )
-    evaluate.add_argument("--strategy", choices=["sma", "buy-and-hold", "cash"], default="sma")
+    evaluate.add_argument(
+        "--strategy",
+        choices=["sma", "volatility-trend", "buy-and-hold", "cash"],
+        default="sma",
+    )
     evaluate.add_argument("--symbol", default="SPY")
     evaluate.add_argument("--bars", type=int, default=1000)
     evaluate.add_argument("--seed", type=int, default=7)

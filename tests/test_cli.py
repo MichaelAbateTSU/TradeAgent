@@ -78,3 +78,32 @@ def test_evaluate_command_records_cost_stressed_research(tmp_path: Path, capsys:
     assert output["experiment_id"] == 1
     assert len(output["report"]["scenarios"]) == 3
     assert database.exists()
+
+
+def test_volatility_trend_evaluation_is_available(tmp_path: Path, capsys: object) -> None:
+    main(
+        [
+            "evaluate",
+            "--strategy",
+            "volatility-trend",
+            "--bars",
+            "50",
+            "--fast-window",
+            "2",
+            "--slow-window",
+            "3",
+            "--training-bars",
+            "20",
+            "--testing-bars",
+            "10",
+            "--step-bars",
+            "10",
+            "--embargo-bars",
+            "0",
+            "--database",
+            str(tmp_path / "volatility.db"),
+        ]
+    )
+    output = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+
+    assert output["report"]["scenarios"][0]["strategy_id"] == "volatility-target-trend-v1"

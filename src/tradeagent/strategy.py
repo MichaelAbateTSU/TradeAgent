@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 from decimal import Decimal
+from math import sqrt
+from statistics import stdev
 from typing import Protocol
 
 from tradeagent.config import StrategyConfig
@@ -70,4 +72,57 @@ class ConstantWeightStrategy:
             target_weight=self._target_weight,
             generated_at=bar.timestamp,
             rationale=f"constant target weight {self._target_weight}",
+        )
+
+
+class VolatilityTargetTrendStrategy:
+    """Long-only trend challenger that reduces exposure as realized volatility rises."""
+
+    def __init__(self, config: StrategyConfig) -> None:
+        self._config = config
+        history = max(config.slow_window, config.volatility_window + 1)
+        self._prices: dict[str, deque[Decimal]] = defaultdict(lambda: deque(maxlen=history))
+
+    @property
+    def strategy_id(self) -> str:
+        return "volatility-target-trend-v1"
+
+    def on_bar(self, bar: MarketBar) -> TradeIntent | None:
+        prices = self._prices[bar.symbol]
+        prices.append(bar.close)
+        minimum_history = max(self._config.slow_window, self._config.volatility_window + 1)
+        if len(prices) < minimum_history:
+            return None
+
+        values = list(prices)
+        fast_average = sum(values[-self._config.fast_window :], Decimal(0)) / Decimal(
+            self._config.fast_window
+        )
+        slow_average = sum(values[-self._config.slow_window :], Decimal(0)) / Decimal(
+            self._config.slow_window
+        )
+        if fast_average <= slow_average:
+            target = Decimal(0)
+            rationale = "trend is non-positive"
+        else:
+            volatility_prices = values[-(self._config.volatility_window + 1) :]
+            returns = [
+                float(volatility_prices[index] / volatility_prices[index - 1] - 1)
+                for index in range(1, len(volatility_prices))
+            ]
+            annualized_volatility = Decimal(str(stdev(returns) * sqrt(252)))
+            scale = min(
+                Decimal(1),
+                self._config.target_annual_volatility
+                / max(annualized_volatility, Decimal("0.000001")),
+            )
+            target = self._config.target_weight * scale
+            rationale = f"positive trend with {annualized_volatility:.4f} realized volatility"
+
+        return TradeIntent(
+            strategy_id=self.strategy_id,
+            symbol=bar.symbol,
+            target_weight=target,
+            generated_at=bar.timestamp,
+            rationale=rationale,
         )
