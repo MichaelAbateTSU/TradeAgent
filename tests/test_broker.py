@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 import pytest
@@ -73,3 +73,25 @@ def test_paper_broker_state_restores_idempotently(bar: MarketBar, timestamp: dat
     assert repeated_fill == original_fill
     assert restored.fill_count == 1
     assert restored.account(timestamp) == original_account
+
+
+def test_new_session_baseline_preserves_overnight_loss(bar: MarketBar, timestamp: datetime) -> None:
+    broker = PaperBroker(BrokerConfig(slippage_bps=Decimal(0), commission_bps=Decimal(0)))
+    broker.mark(bar)
+    broker.submit(make_order(timestamp, quantity=Decimal("100")), bar)
+    next_session = bar.model_copy(
+        update={
+            "timestamp": bar.timestamp + timedelta(days=1),
+            "open": Decimal("80"),
+            "high": Decimal("81"),
+            "low": Decimal("79"),
+            "close": Decimal("80"),
+        }
+    )
+
+    broker.mark(next_session)
+    account = broker.account(next_session.timestamp)
+
+    assert account.day_start_equity == Decimal("100000.0000")
+    assert account.equity == Decimal("98000.0000")
+    assert account.daily_return == Decimal("-0.02")

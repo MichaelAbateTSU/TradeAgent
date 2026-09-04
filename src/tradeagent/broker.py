@@ -92,11 +92,12 @@ class PaperBroker:
         )
 
     def mark(self, bar: MarketBar) -> None:
-        self._marks[bar.symbol] = bar.close
-        equity = self._calculate_equity()
+        prior_equity = self._calculate_equity()
         if self._session_date != bar.timestamp.date():
             self._session_date = bar.timestamp.date()
-            self._day_start_equity = equity
+            self._day_start_equity = prior_equity
+        self._marks[bar.symbol] = bar.close
+        equity = self._calculate_equity()
         self._high_watermark = max(self._high_watermark, equity)
 
     def submit(self, order: OrderRequest, bar: MarketBar) -> Fill:
