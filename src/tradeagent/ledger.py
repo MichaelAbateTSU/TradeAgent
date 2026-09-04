@@ -89,6 +89,12 @@ class SQLiteLedger:
         row = self._connection.execute("SELECT COUNT(*) AS count FROM events").fetchone()
         return int(row["count"])
 
+    def event_counts(self) -> dict[str, int]:
+        rows = self._connection.execute(
+            "SELECT event_type, COUNT(*) AS count FROM events GROUP BY event_type"
+        )
+        return {str(row["event_type"]): int(row["count"]) for row in rows}
+
     def close(self) -> None:
         self._connection.close()
 

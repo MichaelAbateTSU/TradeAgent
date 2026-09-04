@@ -90,6 +90,16 @@ def _parser() -> argparse.ArgumentParser:
     status.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
     status.add_argument("--limit", type=int, default=10)
 
+    serve = subparsers.add_parser("serve", help="serve the localhost-only read-only paper console")
+    serve.add_argument(
+        "--host",
+        choices=["127.0.0.1", "localhost", "0.0.0.0"],
+        default="127.0.0.1",
+    )
+    serve.add_argument("--port", type=int, default=8000)
+    serve.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
+    serve.add_argument("--experiments", type=Path, default=Path("data/experiments.db"))
+
     evaluate = subparsers.add_parser(
         "evaluate", help="run cost-stressed rolling walk-forward research"
     )
@@ -120,6 +130,18 @@ def main(argv: Sequence[str] | None = None) -> None:
                 "events": list(ledger.events(limit=args.limit)),
             }
             print(_json(status))
+        return
+
+    if args.command == "serve":
+        import uvicorn
+
+        from tradeagent.api import create_app
+
+        app = create_app(
+            ledger_path=args.database,
+            experiments_path=args.experiments,
+        )
+        uvicorn.run(app, host=args.host, port=args.port)
         return
 
     if args.command == "backtest":

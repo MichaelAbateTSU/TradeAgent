@@ -297,6 +297,31 @@ class ExperimentRegistry:
         row = self._connection.execute("SELECT COUNT(*) FROM experiments").fetchone()
         return int(row[0])
 
+    def recent(self, *, limit: int = 20) -> list[dict[str, object]]:
+        self._connection.row_factory = sqlite3.Row
+        rows = self._connection.execute(
+            """
+            SELECT experiment_id, created_at, dataset_hash, config_hash, git_sha,
+                   random_seed, strategy_id, qualified, report
+            FROM experiments ORDER BY experiment_id DESC LIMIT ?
+            """,
+            (limit,),
+        )
+        return [
+            {
+                "experiment_id": int(row["experiment_id"]),
+                "created_at": str(row["created_at"]),
+                "dataset_hash": str(row["dataset_hash"]),
+                "config_hash": str(row["config_hash"]),
+                "git_sha": str(row["git_sha"]),
+                "random_seed": int(row["random_seed"]),
+                "strategy_id": str(row["strategy_id"]),
+                "qualified": bool(row["qualified"]),
+                "report": json.loads(row["report"]),
+            }
+            for row in rows
+        ]
+
     def close(self) -> None:
         self._connection.close()
 
