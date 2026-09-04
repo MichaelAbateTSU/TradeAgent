@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 from decimal import Decimal
 
@@ -138,6 +139,30 @@ def test_paper_client_submits_idempotent_market_order_and_tracks_state(
     assert open_orders == (submitted,)
     assert [request.method for request in requests] == ["POST", "GET", "GET", "DELETE"]
     assert requests[0].read().decode().count(order.client_order_id) == 1
+
+
+def test_crypto_market_order_uses_gtc_time_in_force(timestamp: datetime) -> None:
+    captured_payload: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured_payload.update(json.loads(request.read()))
+        return httpx.Response(
+            200,
+            json=_order_payload(symbol="BTC/USD", qty="0.0001"),
+        )
+
+    client = AlpacaPaperClient(
+        _settings(),
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    order = make_order(timestamp).model_copy(
+        update={"symbol": "BTC/USD", "quantity": Decimal("0.0001")}
+    )
+
+    submitted = client.submit_market_order(order)
+
+    assert submitted.symbol == "BTC/USD"
+    assert captured_payload["time_in_force"] == "gtc"
 
 
 def test_paper_client_rejects_invalid_endpoint_and_long_client_id(

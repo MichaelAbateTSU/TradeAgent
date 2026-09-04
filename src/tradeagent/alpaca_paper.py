@@ -114,6 +114,7 @@ class AlpacaPaperClient:
     def submit_market_order(self, order: OrderRequest) -> AlpacaPaperOrder:
         if len(order.client_order_id) > 48:
             raise ValueError("Alpaca client_order_id cannot exceed 48 characters")
+        time_in_force = "gtc" if "/" in order.symbol else "day"
         payload = self._request(
             "POST",
             "/v2/orders",
@@ -122,7 +123,7 @@ class AlpacaPaperClient:
                 "qty": format(order.quantity, "f"),
                 "side": order.side.value,
                 "type": "market",
-                "time_in_force": "day",
+                "time_in_force": time_in_force,
                 "client_order_id": order.client_order_id,
             },
         )
