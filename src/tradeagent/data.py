@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import csv
 import random
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -11,6 +11,7 @@ from tradeagent.domain import MarketBar
 
 
 def read_bars(path: Path, *, symbol: str | None = None) -> Iterator[MarketBar]:
+    latest_by_symbol: dict[str, datetime] = {}
     with path.open(encoding="utf-8", newline="") as source:
         reader = csv.DictReader(source)
         required = {"timestamp", "symbol", "open", "high", "low", "close", "volume"}
@@ -20,7 +21,7 @@ def read_bars(path: Path, *, symbol: str | None = None) -> Iterator[MarketBar]:
         for row in reader:
             if symbol is not None and row["symbol"].strip().upper() != symbol.strip().upper():
                 continue
-            yield MarketBar(
+            bar = MarketBar(
                 symbol=row["symbol"],
                 timestamp=datetime.fromisoformat(row["timestamp"].replace("Z", "+00:00")),
                 open=Decimal(row["open"]),
@@ -29,6 +30,38 @@ def read_bars(path: Path, *, symbol: str | None = None) -> Iterator[MarketBar]:
                 close=Decimal(row["close"]),
                 volume=Decimal(row["volume"]),
             )
+            latest = latest_by_symbol.get(bar.symbol)
+            if latest is not None and bar.timestamp <= latest:
+                raise ValueError(f"bars for {bar.symbol} must be unique and strictly chronological")
+            latest_by_symbol[bar.symbol] = bar.timestamp
+            yield bar
+
+
+def write_bars(path: Path, bars: Iterable[MarketBar], *, overwrite: bool = False) -> int:
+    if path.exists() and not overwrite:
+        raise FileExistsError(f"{path} already exists; use overwrite to replace it")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    count = 0
+    with path.open("w", encoding="utf-8", newline="") as destination:
+        writer = csv.DictWriter(
+            destination,
+            fieldnames=["timestamp", "symbol", "open", "high", "low", "close", "volume"],
+        )
+        writer.writeheader()
+        for bar in bars:
+            writer.writerow(
+                {
+                    "timestamp": bar.timestamp.isoformat().replace("+00:00", "Z"),
+                    "symbol": bar.symbol,
+                    "open": bar.open,
+                    "high": bar.high,
+                    "low": bar.low,
+                    "close": bar.close,
+                    "volume": bar.volume,
+                }
+            )
+            count += 1
+    return count
 
 
 def synthetic_bars(

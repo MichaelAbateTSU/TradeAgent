@@ -12,6 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Michael Abate" }]
 dependencies = [
   "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.9,<3",
   "uvicorn>=0.35,<1",
@@ -20,7 +21,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "hypothesis>=6.131,<7",
-  "httpx>=0.28,<1",
   "mypy>=1.15,<2",
   "pytest>=8.3,<9",
   "pytest-cov>=6.1,<7",

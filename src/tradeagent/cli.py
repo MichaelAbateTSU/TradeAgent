@@ -3,16 +3,17 @@ from __future__ import annotations
 import argparse
 import json
 from collections.abc import Callable, Sequence
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel
 
+from tradeagent.alpaca import AlpacaDataClient, AlpacaDataSettings
 from tradeagent.broker import PaperBroker
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig
-from tradeagent.data import read_bars, synthetic_bars
+from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
@@ -85,6 +86,7 @@ def _parser() -> argparse.ArgumentParser:
     backtest.add_argument("--cash", type=str, default="100000")
     backtest.add_argument("--fast-window", type=int, default=20)
     backtest.add_argument("--slow-window", type=int, default=50)
+    backtest.add_argument("--csv", type=Path)
 
     paper = subparsers.add_parser("paper", help="run a persistent fake-money simulation")
     source = paper.add_mutually_exclusive_group()
@@ -125,8 +127,24 @@ def _parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--testing-bars", type=int, default=63)
     evaluate.add_argument("--step-bars", type=int, default=63)
     evaluate.add_argument("--embargo-bars", type=int, default=5)
+    evaluate.add_argument("--csv", type=Path)
     evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
+
+    download = subparsers.add_parser(
+        "download-alpaca", help="download adjusted historical bars to canonical CSV"
+    )
+    download.add_argument("--symbol", required=True)
+    download.add_argument("--start", required=True, help="ISO date or timestamp")
+    download.add_argument("--end", required=True, help="ISO date or timestamp")
+    download.add_argument("--timeframe", choices=["1Day", "1Hour", "5Min"], default="1Day")
+    download.add_argument("--output", type=Path, required=True)
+    download.add_argument("--overwrite", action="store_true")
     return parser
+
+
+def _parse_utc(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed.astimezone(UTC)
 
 
 def main(argv: Sequence[str] | None = None) -> None:
@@ -152,6 +170,29 @@ def main(argv: Sequence[str] | None = None) -> None:
         uvicorn.run(app, host=args.host, port=args.port)
         return
 
+    if args.command == "download-alpaca":
+        settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(settings) as client:
+            bars = client.bars(
+                args.symbol,
+                start=_parse_utc(args.start),
+                end=_parse_utc(args.end),
+                timeframe=args.timeframe,
+            )
+            count = write_bars(args.output, bars, overwrite=args.overwrite)
+        print(
+            _json(
+                {
+                    "provider": "alpaca",
+                    "feed": settings.feed,
+                    "symbol": args.symbol.upper(),
+                    "rows": count,
+                    "output": str(args.output),
+                }
+            )
+        )
+        return
+
     if args.command == "backtest":
         config = AppConfig(
             broker=BrokerConfig(starting_cash=args.cash),
@@ -161,9 +202,16 @@ def main(argv: Sequence[str] | None = None) -> None:
             ),
         )
         with SQLiteLedger(":memory:") as ledger:
-            backtest_report = _build_engine(config, ledger).run(
-                synthetic_bars(symbol=args.symbol, count=args.bars, seed=args.seed)
+            backtest_bars = (
+                read_bars(args.csv, symbol=args.symbol)
+                if args.csv
+                else synthetic_bars(
+                    symbol=args.symbol,
+                    count=args.bars,
+                    seed=args.seed,
+                )
             )
+            backtest_report = _build_engine(config, ledger).run(backtest_bars)
         print(_json(backtest_report))
         return
 
@@ -174,7 +222,15 @@ def main(argv: Sequence[str] | None = None) -> None:
                 slow_window=args.slow_window,
             )
         )
-        bars = list(synthetic_bars(symbol=args.symbol, count=args.bars, seed=args.seed))
+        evaluation_bars = list(
+            read_bars(args.csv, symbol=args.symbol)
+            if args.csv
+            else synthetic_bars(
+                symbol=args.symbol,
+                count=args.bars,
+                seed=args.seed,
+            )
+        )
         walk_forward = WalkForwardConfig(
             training_bars=args.training_bars,
             testing_bars=args.testing_bars,
@@ -183,7 +239,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             warmup_bars=min(args.slow_window, args.training_bars),
         )
         research_report = evaluate_research_suite(
-            bars,
+            evaluation_bars,
             config,
             walk_forward,
             _strategy_factory(args.strategy, config),
