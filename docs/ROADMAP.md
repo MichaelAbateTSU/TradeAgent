@@ -17,6 +17,8 @@ bounded live capital only after prolonged forward evidence.
 
 ## Phase 2: research validity
 
+- [x] Canonical, strictly chronological CSV ingestion
+- [x] Credential-safe Alpaca historical bar downloader
 - [x] Dataset manifests and provenance hashes
 - [x] Buy-and-hold and cash/no-trade benchmarks
 - [x] Rolling walk-forward evaluation with embargo
@@ -26,6 +28,7 @@ bounded live capital only after prolonged forward evidence.
 - [x] Relative outperformance gate against equal-risk buy-and-hold
 - [ ] Decision-delay stress tests
 - [ ] Capacity estimates
+- [ ] Corporate-action and symbol-history cross-checks against a second vendor
 - [ ] Locked terminal holdout
 
 ## Phase 3: production paper operation

@@ -15,6 +15,8 @@ from tradeagent.domain import MarketBar
 class AlpacaDataSettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="ALPACA_",
+        env_file=".env",
+        env_file_encoding="utf-8",
         frozen=True,
         extra="ignore",
     )

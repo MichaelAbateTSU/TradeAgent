@@ -56,11 +56,20 @@ UTC offset. Historical inputs should be point-in-time correct and include delist
 and corporate-action handling where applicable; this repository does not supply market
 data.
 
+Download adjusted Alpaca historical data after setting `ALPACA_KEY_ID` and
+`ALPACA_SECRET_KEY`:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe download-alpaca `
+  --symbol SPY --start 2020-01-01 --end 2026-01-01 `
+  --timeframe 1Day --output .\data\spy.csv
+```
+
 Run the promotion-gated research suite:
 
 ```powershell
-.\.venv\Scripts\tradeagent.exe evaluate --strategy sma --bars 1000 --seed 7
-.\.venv\Scripts\tradeagent.exe evaluate --strategy volatility-trend --bars 1000 --seed 7
+.\.venv\Scripts\tradeagent.exe evaluate --strategy sma --csv .\data\spy.csv
+.\.venv\Scripts\tradeagent.exe evaluate --strategy volatility-trend --csv .\data\spy.csv
 ```
 
 Start the read-only console at <http://127.0.0.1:8000>:
@@ -96,6 +105,7 @@ The design is grounded in the four research reports committed at the repository 
 See the implementation guides:
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/DATA.md`](docs/DATA.md)
 - [`docs/RESEARCH.md`](docs/RESEARCH.md)
 - [`docs/RISK.md`](docs/RISK.md)
 - [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
