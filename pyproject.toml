@@ -51,6 +51,7 @@ strict = true
 packages = ["tradeagent"]
 
 [tool.ruff]
+extend-exclude = ["deep-research-report*.md"]
 line-length = 100
 target-version = "py312"
 
