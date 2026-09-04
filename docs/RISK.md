@@ -27,6 +27,20 @@ This preserves a path to flatten without permitting the strategy to add exposure
 operator control will make activation durable across restarts. Reset must only happen
 after data health, account state, and the event ledger have been reconciled.
 
+## Research promotion gates
+
+A strategy cannot qualify on total return alone. Each evaluation uses rolling
+out-of-sample folds with an embargo and requires:
+
+- at least 60% positive folds;
+- positive average Sharpe ratio;
+- the same absolute tests under 2x and 3x simulated costs;
+- positive average excess return versus equal-risk buy-and-hold;
+- buy-and-hold outperformance in at least 60% of folds at every cost level.
+
+Passing these gates is evidence for more paper testing, never authorization for live
+capital.
+
 ## What paper controls do not cover
 
 The paper broker cannot reproduce queue position, venue rejects, halts, borrow
@@ -35,4 +49,3 @@ or broker outages. Passing these limits is necessary but not sufficient for live
 trading. Any future live path requires a written regulatory assessment, separate
 credentials, broker reconciliation, shadow operation, a multi-month paper qualification,
 and an explicit human approval gate.
-

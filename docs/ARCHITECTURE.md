@@ -14,6 +14,7 @@ flowchart LR
     B --> A[Account and positions]
     B --> L
     A --> P
+    L --> C[Read-only operator console]
 ```
 
 ## Safety invariants
@@ -26,6 +27,8 @@ flowchart LR
 6. Intent, risk decision, submitted order, and fill share a deterministic trace ID.
 7. The ledger is an audit copy. A future external broker must remain authoritative and
    be reconciled before trading after every restart.
+8. Paper runs checkpoint broker state after fills and record progress after every bar;
+   restart restores state and warms the strategy before processing only unseen bars.
 
 ## Modules
 
@@ -38,6 +41,9 @@ flowchart LR
 | `risk` | Fail-closed hard limits independent of strategy logic |
 | `broker` | Fake-money fills, costs, cash, positions, and mark-to-market accounting |
 | `ledger` | Append-only SQLite audit events |
+| `research` | Dataset/config hashes, walk-forward folds, benchmark gates, and trials |
+| `metrics` | Return, volatility, drawdown, risk-adjusted return, and turnover |
+| `api` | Local read-only dashboard, health, status, events, experiments, and metrics |
 | `cli` | Backtest, persistent paper simulation, and ledger inspection |
 
 ## Deliberate MVP boundaries
@@ -46,8 +52,8 @@ flowchart LR
 - One long-only instrument per CLI run
 - SQLite for local transactional state; no distributed services
 - Deterministic SMA baseline, not an asserted source of alpha
-- No LLM, web dashboard, external data vendor, or brokerage credentials
+- No LLM, external data vendor, or brokerage credentials
 
-The next architecture increment adds point-in-time dataset manifests, walk-forward trial
-tracking, reconciliation checkpoints, observability, and a read-only local operator API.
-
+The next architecture increment adds an external Alpaca paper adapter, a complete order
+state machine, broker-authoritative reconciliation, durable kill-switch controls, and
+structured telemetry. The current local console is intentionally read-only.

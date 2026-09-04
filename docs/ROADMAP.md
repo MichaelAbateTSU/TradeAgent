@@ -17,27 +17,33 @@ bounded live capital only after prolonged forward evidence.
 
 ## Phase 2: research validity
 
-- [ ] Dataset manifests and point-in-time provenance hashes
-- [ ] Buy-and-hold and cash/no-trade benchmarks
-- [ ] Rolling and expanding walk-forward evaluation
-- [ ] Cost and decision-delay stress tests
-- [ ] Sharpe, Sortino, Calmar, turnover, capacity, and fold stability
-- [ ] Append-only experiment registry with immutable configurations
-- [ ] Locked holdout and explicit promotion gates
+- [x] Dataset manifests and provenance hashes
+- [x] Buy-and-hold and cash/no-trade benchmarks
+- [x] Rolling walk-forward evaluation with embargo
+- [x] 1x/2x/3x transaction-cost stress tests
+- [x] Sharpe, Sortino, Calmar, turnover, drawdown, and fold stability
+- [x] Append-only experiment registry with immutable configuration hashes
+- [x] Relative outperformance gate against equal-risk buy-and-hold
+- [ ] Decision-delay stress tests
+- [ ] Capacity estimates
+- [ ] Locked terminal holdout
 
 ## Phase 3: production paper operation
 
 - [ ] Alpaca paper adapter behind the existing broker protocol
 - [ ] Startup and periodic broker reconciliation
+- [x] Local paper-broker checkpoints and restart recovery
 - [ ] Partial fills, cancels, rejects, and deterministic order state machine
-- [ ] Read-only operator API and NAV/drawdown dashboard
-- [ ] Structured logs, metrics, traces, health checks, and alerting
+- [x] Read-only local operator API and research dashboard
+- [x] Health checks and Prometheus-style counters
+- [ ] Structured logs, NAV metrics, traces, and alerting
 - [ ] Durable kill switch and incident runbooks
 - [ ] Failure injection for stale data, disconnects, duplicates, and lost acknowledgements
 
 ## Phase 4: strategy challengers
 
-- [ ] Volatility-targeted trend and simple mean-reversion baselines
+- [x] Volatility-targeted trend challenger
+- [ ] Simple mean-reversion challenger
 - [ ] Purged/embargoed cross-validation and bootstrap confidence intervals
 - [ ] Multiple-testing controls such as Deflated Sharpe Ratio and PBO
 - [ ] Classical ML challenger only after deterministic baselines pass
@@ -51,4 +57,3 @@ stable, reproducible advantage after realistic costs.
 No calendar date authorizes live trading. A future canary would require at least 60
 paper-trading days, user-defined minimum trade counts, all operational gates passing,
 legal/broker review, and explicit human approval.
-

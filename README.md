@@ -20,8 +20,12 @@ SQLite ledger.
   concentration, loss, drawdown, order rate, and kill-switch state
 - Idempotent paper fills with configurable slippage and commission
 - Cash, positions, realized/unrealized P&L, NAV, and drawdown accounting
-- Append-only SQLite events linking intent, risk decision, order, and fill by trace ID
+- Durable checkpoints and progress markers that safely resume interrupted paper runs
+- Append-only SQLite events linking intent, risk decision, order, fill, and state by trace ID
 - CSV replay and synthetic backtests through a local CLI
+- Rolling walk-forward folds, 1x/2x/3x cost stress, and buy-and-hold comparison
+- Dataset/configuration hashes and an append-only experiment registry
+- Read-only local dashboard, JSON endpoints, health check, and Prometheus-style metrics
 - Strict typing, linting, and a high-coverage test suite
 
 ## Quick start
@@ -52,6 +56,33 @@ UTC offset. Historical inputs should be point-in-time correct and include delist
 and corporate-action handling where applicable; this repository does not supply market
 data.
 
+Run the promotion-gated research suite:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe evaluate --strategy sma --bars 1000 --seed 7
+.\.venv\Scripts\tradeagent.exe evaluate --strategy volatility-trend --bars 1000 --seed 7
+```
+
+Start the read-only console at <http://127.0.0.1:8000>:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe serve
+```
+
+Or run it in a container, published only on the host loopback interface:
+
+```powershell
+docker compose up --build
+```
+
+## Qualification status
+
+**No candidate strategy is qualified.** On the deterministic synthetic validation set,
+both current trend candidates failed to beat the equal-risk buy-and-hold benchmark
+consistently across rolling out-of-sample folds. This blocks promotion exactly as
+designed. Synthetic data validates the machinery, not market alpha; real,
+point-in-time market data is required before strategy conclusions are meaningful.
+
 ## Development
 
 ```powershell
@@ -62,5 +93,10 @@ data.
 ```
 
 The design is grounded in the four research reports committed at the repository root.
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and
-[`docs/ROADMAP.md`](docs/ROADMAP.md) as those implementation guides are added.
+See the implementation guides:
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/RESEARCH.md`](docs/RESEARCH.md)
+- [`docs/RISK.md`](docs/RISK.md)
+- [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
+- [`docs/ROADMAP.md`](docs/ROADMAP.md)
