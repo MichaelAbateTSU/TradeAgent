@@ -38,6 +38,8 @@ out-of-sample folds with an embargo and requires:
 - the same absolute tests under 2x and 3x simulated costs and one- and two-bar delays;
 - positive average excess return versus equal-risk buy-and-hold;
 - buy-and-hold outperformance in at least 60% of folds at every cost and delay level.
+- a positive lower bound on the deterministic 95% bootstrap interval of fold excess
+  returns in every scenario.
 
 Passing these gates is evidence for more paper testing, never authorization for live
 capital.

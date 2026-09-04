@@ -26,45 +26,45 @@ its trailing bars warm indicator state without opening positions. Every test fol
 with a fresh fake-money broker.
 
 The suite delays every close-derived signal by one bar and then two bars. At each delay
-it repeats every fold at baseline, 2x, and 3x commission and slippage. The benchmark is
-subject to the same delay. The suite computes total and annualized return, annualized
-volatility, Sharpe, Sortino, Calmar, maximum drawdown, turnover, positive-fold ratio, and
-relative results against equal-risk buy-and-hold.
+it repeats every fold at baseline, 2x, and 3x commission, spread, and slippage. Orders
+are limited to 1% of bar volume. The benchmark is subject to the same assumptions. The
+suite computes total and annualized return, annualized volatility, Sharpe, Sortino,
+Calmar, maximum drawdown, turnover, positive-fold ratio, and relative results against
+equal-risk buy-and-hold.
+
+Each relative comparison also uses 2,000 deterministic bootstrap resamples of fold
+excess returns. Promotion requires the lower bound of the 95% interval to remain above
+zero in every delay-and-cost scenario.
 
 ## Current evidence
 
 The following pipeline smoke test used 1,000 synthetic daily bars per seed and commit
-`547861f`. Values shown are the one-bar-delay, baseline-cost scenario; all candidates
-also failed at one- and two-bar delays under 2x and 3x costs.
+`f7dd207`. Values shown are the one-bar-delay, baseline-cost scenario. Every candidate
+also failed at two-bar delay and higher costs.
 
-| Candidate | Seed | Positive folds | Average Sharpe | Folds beating benchmark | Average excess return | Qualified |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| SMA crossover | 7 | 54.5% | 1.259 | 36.4% | -0.0079% | No |
-| SMA crossover | 17 | 63.6% | 1.335 | 18.2% | +0.0011% | No |
-| SMA crossover | 29 | 81.8% | 2.675 | 27.3% | -0.0072% | No |
-| Volatility trend | 7 | 54.5% | 1.139 | 18.2% | -0.0321% | No |
-| Volatility trend | 17 | 63.6% | 1.327 | 27.3% | -0.0230% | No |
-| Volatility trend | 29 | 81.8% | 2.740 | 27.3% | -0.0492% | No |
+| Candidate | Seed | Positive folds | Avg. Sharpe | Benchmark wins | Avg. excess | 95% excess interval | Qualified |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| SMA crossover | 7 | 54.5% | 1.256 | 36.4% | -0.0079% | [-0.0677%, +0.0554%] | No |
+| SMA crossover | 17 | 63.6% | 1.331 | 18.2% | +0.0010% | [-0.0367%, +0.0414%] | No |
+| SMA crossover | 29 | 81.8% | 2.672 | 27.3% | -0.0072% | [-0.0399%, +0.0199%] | No |
+| Volatility trend | 7 | 54.5% | 1.134 | 18.2% | -0.0322% | [-0.0939%, +0.0329%] | No |
+| Volatility trend | 17 | 63.6% | 1.321 | 27.3% | -0.0231% | [-0.0725%, +0.0263%] | No |
+| Volatility trend | 29 | 81.8% | 2.734 | 27.3% | -0.0493% | [-0.0863%, -0.0113%] | No |
+| Z-score mean reversion | 7 | 45.5% | -0.190 | 27.3% | -0.0885% | [-0.1752%, -0.0068%] | No |
+| Z-score mean reversion | 17 | 45.5% | 0.518 | 27.3% | -0.0911% | [-0.1928%, -0.0134%] | No |
+| Z-score mean reversion | 29 | 45.5% | 1.681 | 27.3% | -0.1512% | [-0.2503%, -0.0342%] | No |
 
 High absolute Sharpe values here must not be interpreted as market evidence. The
-synthetic generator contains designed regimes, and both candidates still underperform
-buy-and-hold at the same small allocation.
-
-The mean-reversion challenger was added at commit `5d43365` and failed every seed:
-
-| Candidate | Seed | Positive folds | Average Sharpe | Folds beating benchmark | Average excess return | Qualified |
-| --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Z-score mean reversion | 7 | 45.5% | -0.179 | 27.3% | -0.0883% | No |
-| Z-score mean reversion | 17 | 45.5% | 0.529 | 27.3% | -0.0911% | No |
-| Z-score mean reversion | 29 | 45.5% | 1.692 | 27.3% | -0.1512% | No |
+synthetic generator contains designed regimes. Seed 17's SMA has slightly positive
+average excess return, but its confidence interval crosses zero and therefore blocks
+promotion.
 
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,
    exchange calendars, symbol history, and delisted instruments.
 2. Lock an untouched terminal holdout before strategy iteration.
-3. Add execution-delay, spread, missing-bar, and higher-cost stress.
+3. Add missing-bar, halt, and variable-spread stress.
 4. Compare against cash, buy-and-hold, and volatility-matched benchmarks.
-5. Add bootstrap confidence intervals, Deflated Sharpe Ratio, and Probability of
-   Backtest Overfitting.
+5. Add Deflated Sharpe Ratio and Probability of Backtest Overfitting.
 6. Only promote a candidate to continuous paper operation after all gates pass.

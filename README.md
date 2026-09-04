@@ -20,12 +20,14 @@ SQLite ledger.
   concentration, loss, drawdown, order rate, and kill-switch state
 - Durable audited kill switch with explicit reconciliation confirmation before reset
 - Idempotent paper fills with configurable slippage and commission
+- Bid-ask spread, bar-volume participation limits, and deterministic partial fills
 - Cash, positions, realized/unrealized P&L, NAV, and drawdown accounting
 - Durable checkpoints and progress markers that safely resume interrupted paper runs
 - Append-only SQLite events linking intent, risk decision, order, fill, and state by trace ID
 - CSV replay and synthetic backtests through a local CLI
 - Rolling walk-forward folds, 1x/2x/3x cost stress, and buy-and-hold comparison
 - One-bar ordinary paper delay plus one- and two-bar research delay stress
+- Deterministic 95% bootstrap confidence bounds on benchmark excess return
 - Dataset/configuration hashes and an append-only experiment registry
 - Read-only local dashboard, JSON endpoints, health check, and Prometheus-style metrics
 - Strict typing, linting, and a high-coverage test suite

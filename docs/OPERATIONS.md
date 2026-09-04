@@ -18,6 +18,11 @@ resume with changed strategy, delay, risk, cost, or database configuration fails
 of combining incompatible account histories. Start a separate database for a changed
 policy.
 
+Paper fills cross half the configured spread, add directional slippage, and cannot
+consume more than the configured fraction of bar volume. Oversized fills are partial at
+the broker layer; the risk gate rejects orders above its participation limit before
+submission.
+
 Inspect events:
 
 ```powershell
