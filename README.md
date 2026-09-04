@@ -25,6 +25,7 @@ SQLite ledger.
 - Append-only SQLite events linking intent, risk decision, order, fill, and state by trace ID
 - CSV replay and synthetic backtests through a local CLI
 - Rolling walk-forward folds, 1x/2x/3x cost stress, and buy-and-hold comparison
+- One-bar ordinary paper delay plus one- and two-bar research delay stress
 - Dataset/configuration hashes and an append-only experiment registry
 - Read-only local dashboard, JSON endpoints, health check, and Prometheus-style metrics
 - Strict typing, linting, and a high-coverage test suite
@@ -51,6 +52,10 @@ Replay canonical CSV bars:
 ```powershell
 .\.venv\Scripts\tradeagent.exe paper --csv .\data\bars.csv --symbol SPY
 ```
+
+Close-derived signals are delayed by one bar by default; use
+`--execution-delay-bars` on an offline backtest only when testing a different explicit
+assumption.
 
 CSV columns are `timestamp,symbol,open,high,low,close,volume`. Timestamps must include a
 UTC offset. Historical inputs should be point-in-time correct and include delisted assets

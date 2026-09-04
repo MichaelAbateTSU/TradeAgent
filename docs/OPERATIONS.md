@@ -13,6 +13,11 @@ appending newer CSV rows restores the last broker checkpoint, replays prior bars
 reconstruct marks and indicator state, and processes unseen timestamps. Use a separate
 database for an intentionally independent account.
 
+The complete application configuration is fingerprinted in every progress event. A
+resume with changed strategy, delay, risk, cost, or database configuration fails instead
+of combining incompatible account histories. Start a separate database for a changed
+policy.
+
 Inspect events:
 
 ```powershell

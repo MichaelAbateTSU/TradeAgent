@@ -29,6 +29,8 @@ flowchart LR
    be reconciled before trading after every restart.
 8. Paper runs checkpoint broker state after fills and record progress after every bar;
    restart restores state and warms the strategy before processing only unseen bars.
+9. Ordinary paper and backtest signals wait one bar before execution. Progress records
+   contain a runtime configuration fingerprint, and resume fails on configuration drift.
 
 ## Modules
 
