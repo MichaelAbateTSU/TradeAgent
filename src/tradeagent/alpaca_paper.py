@@ -62,7 +62,7 @@ class AlpacaPaperAccount(BaseModel):
 
 
 class AlpacaPaperPosition(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="ignore")
+    model_config = ConfigDict(frozen=True, extra="ignore", populate_by_name=True)
 
     symbol: str
     quantity: Decimal = Field(alias="qty")
@@ -72,7 +72,7 @@ class AlpacaPaperPosition(BaseModel):
 
 
 class AlpacaPaperOrder(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="ignore")
+    model_config = ConfigDict(frozen=True, extra="ignore", populate_by_name=True)
 
     id: str
     client_order_id: str
@@ -139,6 +139,14 @@ class AlpacaPaperClient:
         if not isinstance(payload, dict):
             raise ValueError("Alpaca order response must be an object")
         return AlpacaPaperOrder.model_validate(payload)
+
+    def find_order_by_client_id(self, client_order_id: str) -> AlpacaPaperOrder | None:
+        try:
+            return self.order_by_client_id(client_order_id)
+        except httpx.HTTPStatusError as error:
+            if error.response.status_code == 404:
+                return None
+            raise
 
     def open_orders(self) -> tuple[AlpacaPaperOrder, ...]:
         payload = self._request(

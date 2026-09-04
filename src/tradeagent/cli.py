@@ -18,6 +18,7 @@ from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.oms import PaperOrderManager
 from tradeagent.research import (
     ExperimentRegistry,
     WalkForwardConfig,
@@ -168,6 +169,11 @@ def _parser() -> argparse.ArgumentParser:
         "alpaca-paper-status",
         help="verify the Alpaca paper account and list positions without trading",
     )
+    reconcile = subparsers.add_parser(
+        "alpaca-paper-reconcile",
+        help="record and verify broker-authoritative paper state without trading",
+    )
+    reconcile.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
     return parser
 
 
@@ -257,6 +263,21 @@ def main(argv: Sequence[str] | None = None) -> None:
                 }
             )
         )
+        return
+
+    if args.command == "alpaca-paper-reconcile":
+        paper_settings = AlpacaPaperSettings.model_validate({})
+        config = AppConfig(database_path=args.database)
+        with (
+            AlpacaPaperClient(paper_settings) as paper_client,
+            SQLiteLedger(args.database) as ledger,
+        ):
+            result = PaperOrderManager(
+                paper_client,
+                RiskEngine(config.risk),
+                ledger,
+            ).reconcile(observed_at=datetime.now(UTC))
+        print(_json(result))
         return
 
     if args.command == "backtest":

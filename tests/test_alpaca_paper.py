@@ -156,3 +156,12 @@ def test_paper_order_model_parses_utc_timestamp() -> None:
     order = client.order_by_client_id("strategy:decision:1")
 
     assert order.created_at.tzinfo is not None
+
+
+def test_find_order_returns_none_only_for_not_found() -> None:
+    client = AlpacaPaperClient(
+        _settings(),
+        client=httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(404))),
+    )
+
+    assert client.find_order_by_client_id("missing") is None
