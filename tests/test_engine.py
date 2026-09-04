@@ -59,3 +59,28 @@ def test_engine_rejects_empty_dataset() -> None:
             assert "at least one" in str(error)
         else:
             raise AssertionError("empty datasets must fail")
+
+
+def test_engine_client_order_ids_fit_alpaca_limit() -> None:
+    config = AppConfig(
+        strategy=StrategyConfig(
+            strategy_id="an-intentionally-long-versioned-strategy-identifier",
+            fast_window=2,
+            slow_window=3,
+        )
+    )
+    with SQLiteLedger(":memory:") as ledger:
+        engine = TradingEngine(
+            config=config,
+            strategy=SmaCrossoverStrategy(config.strategy),
+            broker=PaperBroker(config.broker),
+            risk=RiskEngine(config.risk),
+            ledger=ledger,
+        )
+        engine.run(synthetic_bars(count=20, seed=2))
+        submitted = [
+            event for event in ledger.events(limit=100) if event["event_type"] == "order_submitted"
+        ]
+
+    assert submitted
+    assert all(len(event["payload"]["client_order_id"]) <= 48 for event in submitted)

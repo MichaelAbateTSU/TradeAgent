@@ -365,6 +365,17 @@ class ExperimentRegistry:
         ).fetchone()
         return int(row[0])
 
+    def is_strategy_qualified(self, strategy_id: str) -> bool:
+        row = self._connection.execute(
+            """
+            SELECT qualified FROM experiments
+            WHERE strategy_id = ?
+            ORDER BY experiment_id DESC LIMIT 1
+            """,
+            (strategy_id,),
+        ).fetchone()
+        return bool(row[0]) if row is not None else False
+
     def recent(self, *, limit: int = 20) -> list[dict[str, object]]:
         self._connection.row_factory = sqlite3.Row
         rows = self._connection.execute(

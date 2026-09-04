@@ -130,6 +130,8 @@ def test_research_suite_stresses_costs_and_records_trial(tmp_path: Path) -> None
         experiment_id = registry.record(report)
         assert experiment_id == 1
         assert registry.count() == 1
+        assert not registry.is_strategy_qualified("benchmark-v1")
+        assert not registry.is_strategy_qualified("missing-v1")
 
 
 def test_walk_forward_rejects_short_dataset() -> None:

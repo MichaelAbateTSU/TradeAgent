@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from datetime import datetime
+from decimal import Decimal
 from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
@@ -12,7 +13,7 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperOrder,
     AlpacaPaperPosition,
 )
-from tradeagent.domain import AccountSnapshot, MarketBar, OrderRequest, RiskDecision
+from tradeagent.domain import AccountSnapshot, MarketBar, OrderRequest, RiskDecision, Side
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.risk import RiskEngine
 
@@ -41,6 +42,10 @@ class AlpacaPaperGateway(Protocol):
     def open_orders(self) -> tuple[AlpacaPaperOrder, ...]: ...
 
 
+class QualificationGate(Protocol):
+    def is_strategy_qualified(self, strategy_id: str) -> bool: ...
+
+
 class OmsSubmission(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -67,10 +72,12 @@ class PaperOrderManager:
         gateway: AlpacaPaperGateway,
         risk: RiskEngine,
         ledger: SQLiteLedger,
+        qualification_gate: QualificationGate | None = None,
     ) -> None:
         self._gateway = gateway
         self._risk = risk
         self._ledger = ledger
+        self._qualification_gate = qualification_gate
 
     def submit(
         self,
@@ -92,6 +99,21 @@ class PaperOrderManager:
             observed_at=observed_at,
             trading_enabled=True,
         )
+        current = account.position_for(order.symbol)
+        current_quantity = current.quantity if current is not None else Decimal(0)
+        signed_quantity = order.quantity if order.side is Side.BUY else -order.quantity
+        risk_reducing = abs(current_quantity + signed_quantity) < abs(current_quantity)
+        qualified = (
+            self._qualification_gate is not None
+            and self._qualification_gate.is_strategy_qualified(order.strategy_id)
+        )
+        if decision.approved and not qualified and not risk_reducing:
+            decision = RiskDecision(
+                approved=False,
+                codes=("STRATEGY_NOT_QUALIFIED",),
+                message="rejected: STRATEGY_NOT_QUALIFIED",
+                projected_gross_exposure=decision.projected_gross_exposure,
+            )
         self._ledger.append(
             "risk_decision",
             decision,

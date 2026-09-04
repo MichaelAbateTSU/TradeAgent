@@ -203,7 +203,8 @@ class TradingEngine:
             return None
         side = Side.BUY if difference > 0 else Side.SELL
         decision_id = self._decision_id(intent)
-        client_order_id = f"{intent.strategy_id}:{decision_id}:1"
+        strategy_token = sha256(intent.strategy_id.encode()).hexdigest()[:10]
+        client_order_id = f"ta-{strategy_token}:{decision_id}:1"
         return OrderRequest(
             client_order_id=client_order_id,
             decision_id=decision_id,

@@ -12,7 +12,7 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperPosition,
 )
 from tradeagent.config import RiskLimits
-from tradeagent.domain import MarketBar
+from tradeagent.domain import MarketBar, Side
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.oms import PaperOrderManager
 from tradeagent.risk import RiskEngine
@@ -83,6 +83,14 @@ class FakeGateway:
         return self._open_orders
 
 
+class FakeQualificationGate:
+    def __init__(self, qualified: bool) -> None:
+        self._qualified = qualified
+
+    def is_strategy_qualified(self, strategy_id: str) -> bool:
+        return self._qualified
+
+
 def test_oms_recovers_existing_idempotent_order(bar: MarketBar, timestamp: datetime) -> None:
     existing = _broker_order()
     gateway = FakeGateway(existing=existing)
@@ -91,6 +99,7 @@ def test_oms_recovers_existing_idempotent_order(bar: MarketBar, timestamp: datet
             gateway,
             RiskEngine(RiskLimits()),
             ledger,
+            FakeQualificationGate(True),
         ).submit(
             make_order(timestamp),
             bar,
@@ -108,7 +117,12 @@ def test_oms_recovers_existing_idempotent_order(bar: MarketBar, timestamp: datet
 def test_oms_submits_only_after_risk_approval(bar: MarketBar, timestamp: datetime) -> None:
     gateway = FakeGateway()
     with SQLiteLedger(":memory:") as ledger:
-        manager = PaperOrderManager(gateway, RiskEngine(RiskLimits()), ledger)
+        manager = PaperOrderManager(
+            gateway,
+            RiskEngine(RiskLimits()),
+            ledger,
+            FakeQualificationGate(True),
+        )
         approved = manager.submit(
             make_order(timestamp),
             bar,
@@ -132,6 +146,51 @@ def test_oms_submits_only_after_risk_approval(bar: MarketBar, timestamp: datetim
     assert gateway.submissions == 1
     assert not rejected.risk.approved
     assert rejected.broker_order is None
+
+
+def test_oms_fails_closed_without_strategy_qualification(
+    bar: MarketBar, timestamp: datetime
+) -> None:
+    gateway = FakeGateway()
+    with SQLiteLedger(":memory:") as ledger:
+        result = PaperOrderManager(
+            gateway,
+            RiskEngine(RiskLimits()),
+            ledger,
+        ).submit(
+            make_order(timestamp),
+            bar,
+            make_account(timestamp),
+            observed_at=timestamp,
+        )
+
+    assert not result.risk.approved
+    assert result.risk.codes == ("STRATEGY_NOT_QUALIFIED",)
+    assert result.broker_order is None
+    assert gateway.submissions == 0
+
+
+def test_unqualified_strategy_can_still_reduce_risk(bar: MarketBar, timestamp: datetime) -> None:
+    gateway = FakeGateway()
+    with SQLiteLedger(":memory:") as ledger:
+        result = PaperOrderManager(
+            gateway,
+            RiskEngine(RiskLimits()),
+            ledger,
+        ).submit(
+            make_order(timestamp, side=Side.SELL, quantity=Decimal("1")),
+            bar,
+            make_account(
+                timestamp,
+                cash=Decimal("99000"),
+                position_quantity=Decimal("10"),
+            ),
+            observed_at=timestamp,
+        )
+
+    assert result.risk.approved
+    assert result.broker_order is not None
+    assert gateway.submissions == 1
 
 
 def test_reconciliation_activates_kill_switch_for_missing_order(
