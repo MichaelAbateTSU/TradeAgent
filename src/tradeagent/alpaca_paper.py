@@ -55,7 +55,7 @@ class AlpacaPaperAccount(BaseModel):
     cash: Decimal
     portfolio_value: Decimal
     buying_power: Decimal
-    pattern_day_trader: bool
+    pattern_day_trader: bool = False
     trading_blocked: bool
     transfers_blocked: bool
     account_blocked: bool

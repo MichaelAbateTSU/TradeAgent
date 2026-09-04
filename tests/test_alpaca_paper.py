@@ -10,6 +10,7 @@ from pydantic import SecretStr, ValidationError
 
 from tradeagent.alpaca_paper import (
     AlpacaOrderStatus,
+    AlpacaPaperAccount,
     AlpacaPaperClient,
     AlpacaPaperSettings,
 )
@@ -82,6 +83,24 @@ def test_paper_client_reads_account_and_positions() -> None:
 
     assert account.portfolio_value == Decimal("100500")
     assert positions[0].quantity == Decimal("5")
+
+
+def test_paper_account_allows_omitted_legacy_pdt_flag() -> None:
+    payload = {
+        "id": "account-1",
+        "status": "ACTIVE",
+        "currency": "USD",
+        "cash": "100000",
+        "portfolio_value": "100000",
+        "buying_power": "100000",
+        "trading_blocked": False,
+        "transfers_blocked": False,
+        "account_blocked": False,
+    }
+
+    account = AlpacaPaperAccount.model_validate(payload)
+
+    assert not account.pattern_day_trader
 
 
 def test_paper_client_submits_idempotent_market_order_and_tracks_state(
