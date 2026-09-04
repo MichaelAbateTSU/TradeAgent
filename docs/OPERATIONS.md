@@ -19,6 +19,23 @@ Inspect events:
 tradeagent status --database data\tradeagent.db --limit 20
 ```
 
+Block all new exposure immediately:
+
+```powershell
+tradeagent kill-switch activate --database data\tradeagent.db
+tradeagent kill-switch status --database data\tradeagent.db
+```
+
+Risk-reducing orders remain eligible. Reset only after checking the data source, latest
+broker checkpoint, positions, cash, and event sequence:
+
+```powershell
+tradeagent kill-switch reset --confirm-reconciled --database data\tradeagent.db
+```
+
+Activation and reset are appended as `control_changed` events. The control value is
+stored independently of process memory and enforced when a paper session resumes.
+
 Start the read-only local console:
 
 ```powershell
@@ -31,10 +48,10 @@ Endpoints:
 | --- | --- |
 | `/` | Paper-only operator dashboard |
 | `/health` | Process health and mode |
-| `/api/status` | Event counts and execution availability |
+| `/api/status` | Kill switch, latest account/NAV, exposure, and event counts |
 | `/api/events` | Recent audit events |
 | `/api/experiments` | Recent qualification trials |
-| `/metrics` | Prometheus text-format counters |
+| `/metrics` | Prometheus text-format event, experiment, NAV, and exposure metrics |
 
 The default server binds to `127.0.0.1`. The container binds internally to `0.0.0.0`,
 but Compose publishes it only to host loopback.
@@ -49,13 +66,13 @@ completed data.
 ## Incident response
 
 1. Stop the process and preserve the SQLite database.
-2. Do not delete events or manually manufacture a checkpoint.
-3. Inspect the last progress, risk, order, fill, and checkpoint events.
-4. Validate source data ordering and timestamps.
-5. Restart only with the same configuration and dataset, or use a separate database.
-6. Confirm `up_to_date` or a strictly newer `started_at` before trusting resumed output.
+2. Activate the durable kill switch if it is not already active.
+3. Do not delete events or manually manufacture a checkpoint.
+4. Inspect the last progress, risk, order, fill, and checkpoint events.
+5. Validate source data ordering and timestamps.
+6. Restart only with the same configuration and dataset, or use a separate database.
+7. Confirm `up_to_date` or a strictly newer `started_at` before trusting resumed output.
 
 For a future external broker, this becomes **freeze, broker-authoritative reconcile,
 repair, validate, and canary resume**. Local checkpoint recovery is not a substitute for
 broker reconciliation.
-

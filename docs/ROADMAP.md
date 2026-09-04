@@ -40,7 +40,7 @@ bounded live capital only after prolonged forward evidence.
 - [x] Read-only local operator API and research dashboard
 - [x] Health checks and Prometheus-style counters
 - [ ] Structured logs, NAV metrics, traces, and alerting
-- [ ] Durable kill switch and incident runbooks
+- [x] Durable audited kill switch and incident runbook
 - [ ] Failure injection for stale data, disconnects, duplicates, and lost acknowledgements
 
 ## Phase 4: strategy challengers

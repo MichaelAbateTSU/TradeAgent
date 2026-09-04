@@ -23,9 +23,10 @@ This preserves a path to flatten without permitting the strategy to add exposure
 
 ## Kill-switch operations
 
-`RiskEngine.activate_kill_switch()` blocks new risk in-process. A later persistent
-operator control will make activation durable across restarts. Reset must only happen
-after data health, account state, and the event ledger have been reconciled.
+`tradeagent kill-switch activate` persists the stop state in SQLite and appends an audit
+event. Every paper start reads that state before processing bars. Reset requires
+`--confirm-reconciled`; use it only after data health, account state, and the event ledger
+have been checked.
 
 ## Research promotion gates
 

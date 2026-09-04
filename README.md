@@ -18,6 +18,7 @@ SQLite ledger.
 - Long-only SMA crossover baseline producing target weights, not raw orders
 - Independent, fail-closed risk checks for stale data, shorts, leverage, exposure,
   concentration, loss, drawdown, order rate, and kill-switch state
+- Durable audited kill switch with explicit reconciliation confirmation before reset
 - Idempotent paper fills with configurable slippage and commission
 - Cash, positions, realized/unrealized P&L, NAV, and drawdown accounting
 - Durable checkpoints and progress markers that safely resume interrupted paper runs
@@ -76,6 +77,13 @@ Start the read-only console at <http://127.0.0.1:8000>:
 
 ```powershell
 .\.venv\Scripts\tradeagent.exe serve
+```
+
+Emergency-stop new exposure and inspect the durable state:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe kill-switch activate
+.\.venv\Scripts\tradeagent.exe kill-switch status
 ```
 
 Or run it in a container, published only on the host loopback interface:
