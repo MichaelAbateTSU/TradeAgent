@@ -6,7 +6,7 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from tradeagent.config import AppConfig, RiskLimits, StrategyConfig
+from tradeagent.config import AppConfig, RiskLimits, StrategyConfig, config_fingerprint
 from tradeagent.domain import MarketBar
 
 
@@ -62,3 +62,11 @@ def test_configuration_rejects_inconsistent_limits() -> None:
             strategy=StrategyConfig(target_weight=Decimal("0.03")),
             risk=RiskLimits(max_order_exposure=Decimal("0.02")),
         )
+
+
+def test_configuration_fingerprint_changes_with_runtime_policy() -> None:
+    default = AppConfig()
+    changed = AppConfig(trading_enabled=False)
+
+    assert len(config_fingerprint(default)) == 64
+    assert config_fingerprint(default) != config_fingerprint(changed)

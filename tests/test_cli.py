@@ -169,3 +169,24 @@ def test_active_kill_switch_blocks_new_paper_exposure(tmp_path: Path, capsys: ob
     assert report["fills"] == 0
     assert report["rejected_orders"] > 0
     assert report["final_positions"] == []
+
+
+def test_paper_resume_rejects_configuration_drift(
+    tmp_path: Path,
+    capsys: object,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database = tmp_path / "drift.db"
+    command = [
+        "paper",
+        "--synthetic-bars",
+        "60",
+        "--database",
+        str(database),
+    ]
+    main(command)
+    capsys.readouterr()  # type: ignore[attr-defined]
+    monkeypatch.setenv("TRADEAGENT_STRATEGY__EXECUTION_DELAY_BARS", "2")
+
+    with pytest.raises(ValueError, match="configuration differs"):
+        main(command)

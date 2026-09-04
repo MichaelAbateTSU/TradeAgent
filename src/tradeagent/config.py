@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from hashlib import sha256
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -49,6 +50,7 @@ class StrategyConfig(BaseModel):
     mean_reversion_window: int = Field(default=20, ge=3)
     mean_reversion_entry_z: Decimal = Field(default=Decimal("-1.5"), lt=0)
     mean_reversion_exit_z: Decimal = Field(default=Decimal("-0.25"), le=0)
+    execution_delay_bars: int = Field(default=1, ge=0, le=10)
     target_weight: Decimal = Field(default=Decimal("0.02"), gt=0, le=1)
 
     @model_validator(mode="after")
@@ -82,3 +84,7 @@ class AppConfig(BaseSettings):
         if self.strategy.target_weight > self.risk.max_order_exposure:
             raise ValueError("strategy target_weight cannot exceed max_order_exposure")
         return self
+
+
+def config_fingerprint(config: AppConfig) -> str:
+    return sha256(config.model_dump_json().encode()).hexdigest()

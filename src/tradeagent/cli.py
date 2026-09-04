@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from tradeagent.alpaca import AlpacaDataClient, AlpacaDataSettings
 from tradeagent.broker import PaperBroker
-from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig
+from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
@@ -25,6 +25,7 @@ from tradeagent.research import (
 from tradeagent.risk import RiskEngine
 from tradeagent.strategy import (
     ConstantWeightStrategy,
+    DelayedStrategy,
     MeanReversionStrategy,
     SmaCrossoverStrategy,
     Strategy,
@@ -90,6 +91,7 @@ def _parser() -> argparse.ArgumentParser:
     backtest.add_argument("--cash", type=str, default="100000")
     backtest.add_argument("--fast-window", type=int, default=20)
     backtest.add_argument("--slow-window", type=int, default=50)
+    backtest.add_argument("--execution-delay-bars", type=int, default=1)
     backtest.add_argument("--csv", type=Path)
 
     paper = subparsers.add_parser("paper", help="run a persistent fake-money simulation")
@@ -240,6 +242,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             strategy=StrategyConfig(
                 fast_window=args.fast_window,
                 slow_window=args.slow_window,
+                execution_delay_bars=args.execution_delay_bars,
             ),
         )
         with SQLiteLedger(":memory:") as ledger:
@@ -252,7 +255,15 @@ def main(argv: Sequence[str] | None = None) -> None:
                     seed=args.seed,
                 )
             )
-            backtest_report = _build_engine(config, ledger).run(backtest_bars)
+            strategy = DelayedStrategy(
+                SmaCrossoverStrategy(config.strategy),
+                config.strategy.execution_delay_bars,
+            )
+            backtest_report = _build_engine(
+                config,
+                ledger,
+                strategy=strategy,
+            ).run(backtest_bars)
         print(_json(backtest_report))
         return
 
@@ -314,7 +325,14 @@ def main(argv: Sequence[str] | None = None) -> None:
             if checkpoint is not None
             else PaperBroker(config.broker)
         )
-        strategy = SmaCrossoverStrategy(config.strategy)
+        if progress is not None and progress["payload"].get(
+            "config_fingerprint"
+        ) != config_fingerprint(config):
+            raise ValueError("existing paper run configuration differs; use a separate database")
+        strategy = DelayedStrategy(
+            SmaCrossoverStrategy(config.strategy),
+            config.strategy.execution_delay_bars,
+        )
         risk = RiskEngine(config.risk)
         if ledger.get_control("kill_switch", default="inactive") == "active":
             risk.activate_kill_switch()

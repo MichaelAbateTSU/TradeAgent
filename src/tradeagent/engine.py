@@ -6,7 +6,7 @@ from decimal import ROUND_DOWN, Decimal
 from hashlib import sha256
 
 from tradeagent.broker import PaperBroker
-from tradeagent.config import AppConfig
+from tradeagent.config import AppConfig, config_fingerprint
 from tradeagent.domain import (
     BacktestReport,
     EngineStep,
@@ -35,6 +35,7 @@ class TradingEngine:
         self._broker = broker
         self._risk = risk
         self._ledger = ledger
+        self._config_fingerprint = config_fingerprint(config)
         self._orders = 0
         self._rejections = 0
 
@@ -181,7 +182,11 @@ class TradingEngine:
     def _record_progress(self, bar: MarketBar, trace_id: str) -> None:
         self._ledger.append(
             "engine_progress",
-            {"symbol": bar.symbol, "timestamp": bar.timestamp.isoformat()},
+            {
+                "symbol": bar.symbol,
+                "timestamp": bar.timestamp.isoformat(),
+                "config_fingerprint": self._config_fingerprint,
+            },
             occurred_at=bar.timestamp,
             trace_id=trace_id,
         )

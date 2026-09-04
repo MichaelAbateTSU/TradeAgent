@@ -26,6 +26,9 @@ def test_end_to_end_paper_backtest_is_deterministic() -> None:
                 ledger=ledger,
             )
             report = engine.run(synthetic_bars(count=250, seed=17))
+            progress = ledger.latest_event("engine_progress")
+            assert progress is not None
+            assert len(progress["payload"]["config_fingerprint"]) == 64
             return report, ledger.event_count()
 
     first, first_event_count = execute()
