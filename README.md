@@ -84,7 +84,9 @@ Verify the fake-money brokerage account without submitting an order:
 
 Reconciliation journals broker-authoritative account, position, and open-order state.
 Missing or duplicate orders and blocked accounts activate the durable kill switch. The
-OMS contains a risk-gated submission path, but no CLI or autonomous loop invokes it yet.
+OMS contains a submission path, but new exposure fails closed unless the strategy's
+latest registered experiment is qualified; risk-reducing exits remain available. No CLI
+or autonomous loop invokes submission yet.
 
 Run the promotion-gated research suite:
 

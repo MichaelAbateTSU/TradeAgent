@@ -31,6 +31,8 @@ flowchart LR
    restart restores state and warms the strategy before processing only unseen bars.
 9. Ordinary paper and backtest signals wait one bar before execution. Progress records
    contain a runtime configuration fingerprint, and resume fails on configuration drift.
+10. The external paper OMS cannot add exposure without a qualified latest experiment.
+    Unqualified strategies retain only a risk-reducing exit path.
 
 ## Modules
 
@@ -61,6 +63,7 @@ flowchart LR
 
 The OMS checks the durable kill switch and deterministic risk policy before submission,
 looks up every client order ID before creating an order, and journals returned broker
-state. Reconciliation treats Alpaca as authoritative and activates the kill switch for
+state. Client order IDs use a bounded strategy hash plus decision ID to fit Alpaca's
+limit. Reconciliation treats Alpaca as authoritative and activates the kill switch for
 missing or duplicate orders and blocked accounts. Direct model-to-client access is
 prohibited. A continuous scheduling loop remains deliberately disconnected.

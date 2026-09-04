@@ -26,6 +26,7 @@ bounded live capital only after prolonged forward evidence.
 - [x] Sharpe, Sortino, Calmar, turnover, drawdown, and fold stability
 - [x] Append-only experiment registry with immutable configuration hashes
 - [x] Relative outperformance gate against equal-risk buy-and-hold
+- [x] Fail-closed OMS qualification enforcement
 - [x] One- and two-bar decision-delay stress tests
 - [x] Spread and bar-volume participation constraints
 - [x] Bootstrap confidence interval on benchmark excess return

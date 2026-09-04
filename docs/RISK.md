@@ -48,6 +48,10 @@ out-of-sample folds with an embargo and requires:
 Passing these gates is evidence for more paper testing, never authorization for live
 capital.
 
+The external paper OMS reads the latest experiment for the order's versioned strategy
+ID. Missing or unqualified evidence blocks new exposure while preserving risk-reducing
+orders.
+
 ## What paper controls do not cover
 
 The paper broker cannot reproduce queue position, venue rejects, halts, borrow

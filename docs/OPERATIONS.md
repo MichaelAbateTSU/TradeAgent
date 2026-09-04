@@ -69,11 +69,14 @@ The OMS submission method always:
 
 1. reads the durable kill switch;
 2. runs the independent risk engine;
-3. queries Alpaca by client order ID to recover a lost acknowledgement;
-4. submits only when no broker order exists;
-5. journals the returned broker state.
+3. verifies the strategy's latest experiment is qualified for new exposure;
+4. queries Alpaca by client order ID to recover a lost acknowledgement;
+5. submits only when no broker order exists;
+6. journals the returned broker state.
 
-Submission remains unavailable from the CLI and autonomous engine.
+Missing or failed qualification rejects new exposure as `STRATEGY_NOT_QUALIFIED`.
+Risk-reducing exits remain eligible. Submission remains unavailable from the CLI and
+autonomous engine.
 
 Endpoints:
 
