@@ -56,11 +56,24 @@ Verify configured Alpaca fake-money brokerage access:
 
 ```powershell
 tradeagent alpaca-paper-status
+tradeagent alpaca-paper-reconcile --database data\tradeagent.db
 ```
 
 This reads account and positions from `https://paper-api.alpaca.markets`. The endpoint is
-a literal validated setting and cannot be changed to Alpaca's live URL. Trade submission
-is not wired to the CLI or autonomous engine.
+a literal validated setting and cannot be changed to Alpaca's live URL. Reconciliation
+records account, positions, open orders, and recovered order states in the audit ledger.
+Missing local orders, duplicate broker client IDs, or a blocked broker account make the
+result unhealthy and activate the durable kill switch.
+
+The OMS submission method always:
+
+1. reads the durable kill switch;
+2. runs the independent risk engine;
+3. queries Alpaca by client order ID to recover a lost acknowledgement;
+4. submits only when no broker order exists;
+5. journals the returned broker state.
+
+Submission remains unavailable from the CLI and autonomous engine.
 
 Endpoints:
 

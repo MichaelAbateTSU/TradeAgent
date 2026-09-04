@@ -36,8 +36,9 @@ bounded live capital only after prolonged forward evidence.
 ## Phase 3: production paper operation
 
 - [x] Typed Alpaca paper account, position, and order client
-- [ ] Risk-gated Alpaca client integration behind the OMS protocol
-- [ ] Startup and periodic broker reconciliation
+- [x] Risk-gated Alpaca client integration behind the OMS protocol
+- [x] On-demand broker-authoritative reconciliation
+- [ ] Scheduled startup and periodic reconciliation
 - [x] Local paper-broker checkpoints and restart recovery
 - [ ] Partial fills, cancels, rejects, and deterministic order state machine
 - [x] Read-only local operator API and research dashboard

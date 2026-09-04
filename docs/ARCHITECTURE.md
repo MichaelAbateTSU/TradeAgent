@@ -48,6 +48,7 @@ flowchart LR
 | `api` | Local read-only dashboard, health, status, events, experiments, and metrics |
 | `alpaca` | Historical market-data client fixed to Alpaca's data endpoint |
 | `alpaca_paper` | Typed brokerage client fixed to Alpaca's paper endpoint |
+| `oms` | Risk-gated idempotent submission, order journal, and reconciliation |
 | `cli` | Backtest, persistent paper simulation, and ledger inspection |
 
 ## Deliberate MVP boundaries
@@ -58,7 +59,8 @@ flowchart LR
 - Deterministic SMA baseline, not an asserted source of alpha
 - No LLM, external data vendor, or brokerage credentials
 
-The next architecture increment connects the typed Alpaca paper client to a complete
-OMS state machine and broker-authoritative reconciliation. That integration must preserve
-the deterministic risk boundary and durable kill switch; direct model-to-client access
-is prohibited. The current local console is intentionally read-only.
+The OMS checks the durable kill switch and deterministic risk policy before submission,
+looks up every client order ID before creating an order, and journals returned broker
+state. Reconciliation treats Alpaca as authoritative and activates the kill switch for
+missing or duplicate orders and blocked accounts. Direct model-to-client access is
+prohibited. A continuous scheduling loop remains deliberately disconnected.

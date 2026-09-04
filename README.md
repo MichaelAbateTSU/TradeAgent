@@ -31,6 +31,7 @@ SQLite ledger.
 - Dataset/configuration hashes and an append-only experiment registry
 - Read-only local dashboard, JSON endpoints, health check, and Prometheus-style metrics
 - Typed Alpaca paper account, position, and order client fixed to the paper endpoint
+- Risk-gated paper OMS with idempotent recovery and fail-closed reconciliation
 - Strict typing, linting, and a high-coverage test suite
 
 ## Quick start
@@ -78,10 +79,12 @@ Verify the fake-money brokerage account without submitting an order:
 
 ```powershell
 .\.venv\Scripts\tradeagent.exe alpaca-paper-status
+.\.venv\Scripts\tradeagent.exe alpaca-paper-reconcile
 ```
 
-The brokerage client contains typed submission and cancellation methods for the future
-OMS, but no CLI or autonomous path invokes them yet.
+Reconciliation journals broker-authoritative account, position, and open-order state.
+Missing or duplicate orders and blocked accounts activate the durable kill switch. The
+OMS contains a risk-gated submission path, but no CLI or autonomous loop invokes it yet.
 
 Run the promotion-gated research suite:
 

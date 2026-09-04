@@ -28,6 +28,10 @@ event. Every paper start reads that state before processing bars. Reset requires
 `--confirm-reconciled`; use it only after data health, account state, and the event ledger
 have been checked.
 
+`tradeagent alpaca-paper-reconcile` also activates the switch automatically when the
+broker reports a blocked account, duplicate client order IDs, or an unresolved local
+nonterminal order missing from broker truth.
+
 ## Research promotion gates
 
 A strategy cannot qualify on total return alone. Each evaluation uses rolling
