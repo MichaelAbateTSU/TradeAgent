@@ -34,9 +34,9 @@ out-of-sample folds with an embargo and requires:
 
 - at least 60% positive folds;
 - positive average Sharpe ratio;
-- the same absolute tests under 2x and 3x simulated costs;
+- the same absolute tests under 2x and 3x simulated costs and one- and two-bar delays;
 - positive average excess return versus equal-risk buy-and-hold;
-- buy-and-hold outperformance in at least 60% of folds at every cost level.
+- buy-and-hold outperformance in at least 60% of folds at every cost and delay level.
 
 Passing these gates is evidence for more paper testing, never authorization for live
 capital.
