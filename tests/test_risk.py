@@ -129,3 +129,25 @@ def test_risk_engine_rejects_shorting(bar: MarketBar, timestamp: datetime) -> No
     )
 
     assert "SHORTING_DISABLED" in decision.codes
+
+
+def test_risk_engine_rejects_illiquid_orders(bar: MarketBar, timestamp: datetime) -> None:
+    limits = RiskLimits(max_volume_participation=Decimal("0.01"))
+    low_volume_bar = bar.model_copy(update={"volume": Decimal("100")})
+    oversized = RiskEngine(limits).evaluate(
+        make_order(timestamp, quantity=Decimal("2")),
+        low_volume_bar,
+        make_account(timestamp),
+        observed_at=timestamp,
+        trading_enabled=True,
+    )
+    no_liquidity = RiskEngine(limits).evaluate(
+        make_order(timestamp),
+        bar.model_copy(update={"volume": Decimal(0)}),
+        make_account(timestamp),
+        observed_at=timestamp,
+        trading_enabled=True,
+    )
+
+    assert "MAX_VOLUME_PARTICIPATION" in oversized.codes
+    assert "NO_LIQUIDITY" in no_liquidity.codes

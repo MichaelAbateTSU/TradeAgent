@@ -51,6 +51,10 @@ class RiskEngine:
             codes.append("TRADING_DISABLED")
         if projected_quantity < 0 and not self._limits.allow_shorting:
             codes.append("SHORTING_DISABLED")
+        if bar.volume <= 0:
+            codes.append("NO_LIQUIDITY")
+        elif order.quantity / bar.volume > self._limits.max_volume_participation:
+            codes.append("MAX_VOLUME_PARTICIPATION")
 
         equity = account.equity
         order_notional = order.quantity * bar.close

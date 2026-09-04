@@ -107,7 +107,9 @@ def evaluate_walk_forward(
     broker_config = BrokerConfig(
         starting_cash=app_config.broker.starting_cash,
         slippage_bps=app_config.broker.slippage_bps * cost_multiplier,
+        spread_bps=app_config.broker.spread_bps * cost_multiplier,
         commission_bps=app_config.broker.commission_bps * cost_multiplier,
+        max_volume_participation=app_config.broker.max_volume_participation,
     )
     scenario_config = app_config.model_copy(update={"broker": broker_config})
     folds: list[WalkForwardFold] = []

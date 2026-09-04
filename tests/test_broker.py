@@ -27,15 +27,21 @@ def test_paper_broker_applies_costs_and_is_idempotent(bar: MarketBar, timestamp:
     account = broker.account(timestamp)
 
     assert fill is repeated_fill
-    assert fill.price == Decimal("100.020000")
+    assert fill.price == Decimal("100.025000")
     assert fill.commission == Decimal("0.1000")
     assert broker.fill_count == 1
     assert account.position_for("SPY").quantity == Decimal("10")  # type: ignore[union-attr]
-    assert account.cash == Decimal("98999.7000")
+    assert account.cash == Decimal("98999.6500")
 
 
 def test_paper_broker_realizes_profit_on_sale(bar: MarketBar, timestamp: datetime) -> None:
-    broker = PaperBroker(BrokerConfig(slippage_bps=Decimal(0), commission_bps=Decimal(0)))
+    broker = PaperBroker(
+        BrokerConfig(
+            slippage_bps=Decimal(0),
+            spread_bps=Decimal(0),
+            commission_bps=Decimal(0),
+        )
+    )
     broker.mark(bar)
     broker.submit(make_order(timestamp), bar)
     higher_bar = bar.model_copy(update={"close": Decimal("110"), "high": Decimal("111")})
@@ -76,7 +82,13 @@ def test_paper_broker_state_restores_idempotently(bar: MarketBar, timestamp: dat
 
 
 def test_new_session_baseline_preserves_overnight_loss(bar: MarketBar, timestamp: datetime) -> None:
-    broker = PaperBroker(BrokerConfig(slippage_bps=Decimal(0), commission_bps=Decimal(0)))
+    broker = PaperBroker(
+        BrokerConfig(
+            slippage_bps=Decimal(0),
+            spread_bps=Decimal(0),
+            commission_bps=Decimal(0),
+        )
+    )
     broker.mark(bar)
     broker.submit(make_order(timestamp, quantity=Decimal("100")), bar)
     next_session = bar.model_copy(
@@ -95,3 +107,24 @@ def test_new_session_baseline_preserves_overnight_loss(bar: MarketBar, timestamp
     assert account.day_start_equity == Decimal("100000.0000")
     assert account.equity == Decimal("98000.0000")
     assert account.daily_return == Decimal("-0.02")
+
+
+def test_paper_broker_partially_fills_at_volume_cap(bar: MarketBar, timestamp: datetime) -> None:
+    low_volume_bar = bar.model_copy(update={"volume": Decimal("100")})
+    broker = PaperBroker(
+        BrokerConfig(
+            slippage_bps=Decimal(0),
+            spread_bps=Decimal(0),
+            commission_bps=Decimal(0),
+            max_volume_participation=Decimal("0.05"),
+        )
+    )
+    broker.mark(low_volume_bar)
+
+    fill = broker.submit(
+        make_order(timestamp, quantity=Decimal("10")),
+        low_volume_bar,
+    )
+
+    assert fill.quantity == Decimal("5")
+    assert broker.account(timestamp).position_for("SPY").quantity == Decimal("5")  # type: ignore[union-attr]

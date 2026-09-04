@@ -19,6 +19,7 @@ class RiskLimits(BaseModel):
     max_drawdown: Decimal = Field(default=Decimal("0.015"), gt=0, lt=1)
     max_orders_per_hour: int = Field(default=20, gt=0)
     max_data_age_seconds: int = Field(default=120, gt=0)
+    max_volume_participation: Decimal = Field(default=Decimal("0.01"), gt=0, le=1)
     allow_shorting: bool = False
     allow_leverage: bool = False
 
@@ -36,7 +37,9 @@ class BrokerConfig(BaseModel):
 
     starting_cash: Decimal = Field(default=Decimal("100000"), gt=0)
     slippage_bps: Decimal = Field(default=Decimal("2"), ge=0, le=100)
+    spread_bps: Decimal = Field(default=Decimal("1"), ge=0, le=100)
     commission_bps: Decimal = Field(default=Decimal("1"), ge=0, le=100)
+    max_volume_participation: Decimal = Field(default=Decimal("0.01"), gt=0, le=1)
 
 
 class StrategyConfig(BaseModel):

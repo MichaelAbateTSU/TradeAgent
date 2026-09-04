@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 from hashlib import sha256
 
 from tradeagent.config import BrokerConfig
@@ -106,42 +106,52 @@ class PaperBroker:
             return existing
         if order.symbol != bar.symbol:
             raise ValueError("order symbol does not match execution bar")
+        position = self._positions.setdefault(order.symbol, _PositionState())
+        if order.side is Side.SELL and order.quantity > position.quantity:
+            raise ValueError("paper broker rejected order that would create a short")
 
         slip = self._config.slippage_bps / Decimal(10_000)
-        multiplier = Decimal(1) + slip if order.side is Side.BUY else Decimal(1) - slip
+        half_spread = self._config.spread_bps / Decimal(20_000)
+        execution_cost = slip + half_spread
+        multiplier = (
+            Decimal(1) + execution_cost if order.side is Side.BUY else Decimal(1) - execution_cost
+        )
         fill_price = (bar.close * multiplier).quantize(PRICE_QUANTUM, rounding=ROUND_HALF_UP)
-        notional = fill_price * order.quantity
+        available_quantity = (bar.volume * self._config.max_volume_participation).to_integral_value(
+            rounding=ROUND_DOWN
+        )
+        fill_quantity = min(order.quantity, available_quantity)
+        if fill_quantity <= 0:
+            raise ValueError("paper broker rejected order for insufficient bar liquidity")
+        notional = fill_price * fill_quantity
         commission = _money(notional * self._config.commission_bps / Decimal(10_000))
-        position = self._positions.setdefault(order.symbol, _PositionState())
 
         if order.side is Side.BUY:
             required_cash = notional + commission
             if required_cash > self._cash:
                 raise ValueError("paper broker rejected order for insufficient cash")
-            new_quantity = position.quantity + order.quantity
+            new_quantity = position.quantity + fill_quantity
             position.average_price = (
                 (position.quantity * position.average_price) + notional
             ) / new_quantity
             position.quantity = new_quantity
             self._cash -= required_cash
         else:
-            if order.quantity > position.quantity:
-                raise ValueError("paper broker rejected order that would create a short")
             position.realized_pnl += (
-                (fill_price - position.average_price) * order.quantity
+                (fill_price - position.average_price) * fill_quantity
             ) - commission
-            position.quantity -= order.quantity
+            position.quantity -= fill_quantity
             self._cash += notional - commission
             if position.quantity == 0:
                 position.average_price = Decimal(0)
 
-        fill_key = f"{order.client_order_id}:{fill_price}:{order.quantity}"
+        fill_key = f"{order.client_order_id}:{fill_price}:{fill_quantity}"
         fill = Fill(
             fill_id=sha256(fill_key.encode()).hexdigest()[:24],
             client_order_id=order.client_order_id,
             symbol=order.symbol,
             side=order.side,
-            quantity=order.quantity,
+            quantity=fill_quantity,
             price=fill_price,
             commission=commission,
             filled_at=bar.timestamp,
