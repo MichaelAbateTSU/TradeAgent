@@ -19,6 +19,7 @@ bounded live capital only after prolonged forward evidence.
 
 - [x] Canonical, strictly chronological CSV ingestion
 - [x] Credential-safe Alpaca historical bar downloader
+- [x] Initial SPY real-data qualification on Alpaca IEX history
 - [x] Dataset manifests and provenance hashes
 - [x] Buy-and-hold and cash/no-trade benchmarks
 - [x] Rolling walk-forward evaluation with embargo

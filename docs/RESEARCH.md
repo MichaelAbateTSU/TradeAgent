@@ -59,6 +59,24 @@ synthetic generator contains designed regimes. Seed 17's SMA has slightly positi
 average excess return, but its confidence interval crosses zero and therefore blocks
 promotion.
 
+## Initial real-data evidence
+
+The first real-data run used 1,536 adjusted Alpaca IEX SPY daily bars from November 1,
+2018 through September 3, 2026. Dataset SHA-256:
+`6cc99afea9f27fd4fd708b67693bc2209279777533c11967a9bf40a99f98e284`.
+The table shows the one-bar-delay baseline-cost scenario over 20 walk-forward folds.
+Every candidate also failed the complete cost-and-delay suite.
+
+| Candidate | Positive folds | Avg. Sharpe | Benchmark wins | Avg. excess | 95% excess interval | Qualified |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| SMA crossover | 55% | 0.372 | 15% | -0.0399% | [-0.0640%, -0.0155%] | No |
+| Volatility trend | 55% | 0.191 | 20% | -0.0365% | [-0.0602%, -0.0113%] | No |
+| Z-score mean reversion | 60% | 0.585 | 40% | -0.0263% | [-0.0756%, +0.0229%] | No |
+
+These results are more relevant than the synthetic smoke tests but remain insufficient
+for market claims. IEX coverage, one instrument, daily bars, adjusted-only history, and
+the absence of an independent vendor cross-check limit the inference.
+
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,

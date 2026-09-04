@@ -127,9 +127,9 @@ docker compose up --build
 **No candidate strategy is qualified.** On the deterministic synthetic validation set,
 the SMA, volatility-targeted trend, and z-score mean-reversion candidates failed to beat
 the equal-risk buy-and-hold benchmark consistently across rolling out-of-sample folds.
-This blocks promotion exactly as designed. Synthetic data validates the machinery, not
-market alpha; real, point-in-time market data is required before strategy conclusions
-are meaningful.
+The same three candidates also failed on 1,536 adjusted Alpaca IEX SPY daily bars through
+September 3, 2026. This blocks promotion exactly as designed; broader point-in-time data
+and stronger strategies are required before continuous autonomous paper operation.
 
 ## Development
 
