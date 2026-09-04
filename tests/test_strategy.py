@@ -3,9 +3,15 @@ from __future__ import annotations
 from datetime import timedelta
 from decimal import Decimal
 
+import pytest
+
 from tradeagent.config import StrategyConfig
 from tradeagent.domain import MarketBar
-from tradeagent.strategy import SmaCrossoverStrategy, VolatilityTargetTrendStrategy
+from tradeagent.strategy import (
+    DelayedStrategy,
+    SmaCrossoverStrategy,
+    VolatilityTargetTrendStrategy,
+)
 
 
 def test_sma_strategy_waits_for_complete_window(bar: MarketBar) -> None:
@@ -55,3 +61,36 @@ def test_volatility_target_trend_scales_and_flattens(bar: MarketBar) -> None:
     assert Decimal(0) < intents[2].target_weight < config.target_weight
     assert intents[3] is not None
     assert intents[3].target_weight == Decimal(0)
+
+
+def test_delayed_strategy_never_emits_current_bar_signal(bar: MarketBar) -> None:
+    base = SmaCrossoverStrategy(StrategyConfig(fast_window=2, slow_window=3))
+    strategy = DelayedStrategy(base, delay_bars=1)
+    bars = [
+        bar.model_copy(
+            update={
+                "timestamp": bar.timestamp + timedelta(days=offset),
+                "close": price,
+            }
+        )
+        for offset, price in enumerate(
+            [Decimal("100"), Decimal("101"), Decimal("104"), Decimal("105")]
+        )
+    ]
+
+    assert strategy.on_bar(bars[0]) is None
+    assert strategy.on_bar(bars[1]) is None
+    assert strategy.on_bar(bars[2]) is None
+    delayed = strategy.on_bar(bars[3])
+    assert delayed is not None
+    assert delayed.generated_at == bars[3].timestamp
+    assert "1-bar delay" in delayed.rationale
+
+
+def test_delayed_strategy_validates_delay(bar: MarketBar) -> None:
+    base = SmaCrossoverStrategy(StrategyConfig())
+    with pytest.raises(ValueError, match="cannot be negative"):
+        DelayedStrategy(base, delay_bars=-1)
+    immediate = DelayedStrategy(base, delay_bars=0)
+    assert immediate.strategy_id == base.strategy_id
+    assert immediate.on_bar(bar) is None

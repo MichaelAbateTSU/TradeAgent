@@ -24,7 +24,7 @@ from tradeagent.domain import (
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.risk import RiskEngine
-from tradeagent.strategy import ConstantWeightStrategy, Strategy
+from tradeagent.strategy import ConstantWeightStrategy, DelayedStrategy, Strategy
 
 StrategyFactory = Callable[[], Strategy]
 
@@ -98,6 +98,7 @@ def evaluate_walk_forward(
     strategy_factory: StrategyFactory,
     *,
     cost_multiplier: Decimal = Decimal(1),
+    execution_delay_bars: int = 0,
 ) -> WalkForwardReport:
     required = walk_forward.training_bars + walk_forward.embargo_bars + walk_forward.testing_bars
     if len(bars) < required:
@@ -121,10 +122,11 @@ def evaluate_walk_forward(
 
         training = bars[training_start:training_end]
         testing = bars[testing_start:testing_end]
-        strategy = strategy_factory()
+        base_strategy = strategy_factory()
         if walk_forward.warmup_bars:
             for bar in training[-walk_forward.warmup_bars :]:
-                strategy.on_bar(bar)
+                base_strategy.on_bar(bar)
+        strategy = DelayedStrategy(base_strategy, execution_delay_bars)
         with SQLiteLedger(":memory:") as ledger:
             report = TradingEngine(
                 config=scenario_config,
@@ -160,6 +162,7 @@ def evaluate_walk_forward(
     return WalkForwardReport(
         strategy_id=strategy_factory().strategy_id,
         cost_multiplier=cost_multiplier,
+        execution_delay_bars=execution_delay_bars,
         folds=tuple(folds),
         positive_fold_ratio=positive_ratio,
         average_sharpe=average_sharpe,
@@ -183,6 +186,14 @@ def evaluate_research_suite(
     def benchmark_factory() -> Strategy:
         return ConstantWeightStrategy("buy-and-hold-v1", app_config.strategy.target_weight)
 
+    scenario_specs = (
+        (Decimal(1), 1),
+        (Decimal(2), 1),
+        (Decimal(3), 1),
+        (Decimal(1), 2),
+        (Decimal(2), 2),
+        (Decimal(3), 2),
+    )
     scenarios = tuple(
         evaluate_walk_forward(
             bars,
@@ -190,8 +201,9 @@ def evaluate_research_suite(
             walk_forward,
             strategy_factory,
             cost_multiplier=multiplier,
+            execution_delay_bars=delay,
         )
-        for multiplier in (Decimal(1), Decimal(2), Decimal(3))
+        for multiplier, delay in scenario_specs
     )
     benchmark_scenarios = tuple(
         evaluate_walk_forward(
@@ -200,8 +212,9 @@ def evaluate_research_suite(
             walk_forward,
             benchmark_factory,
             cost_multiplier=multiplier,
+            execution_delay_bars=delay,
         )
-        for multiplier in (Decimal(1), Decimal(2), Decimal(3))
+        for multiplier, delay in scenario_specs
     )
     comparisons: list[BenchmarkComparison] = []
     for scenario, benchmark in zip(scenarios, benchmark_scenarios, strict=True):
@@ -216,6 +229,7 @@ def evaluate_research_suite(
             BenchmarkComparison(
                 benchmark_strategy_id=benchmark.strategy_id,
                 cost_multiplier=scenario.cost_multiplier,
+                execution_delay_bars=scenario.execution_delay_bars,
                 average_excess_return=average_excess_return,
                 beat_fold_ratio=beat_fold_ratio,
                 passed=(
@@ -228,11 +242,11 @@ def evaluate_research_suite(
     if not scenarios[0].qualified:
         reasons.append("BASE_SCENARIO_FAILED")
     if any(not scenario.qualified for scenario in scenarios[1:]):
-        reasons.append("COST_STRESS_FAILED")
+        reasons.append("EXECUTION_STRESS_FAILED")
     if not comparisons[0].passed:
         reasons.append("BENCHMARK_NOT_BEATEN")
     if any(not comparison.passed for comparison in comparisons[1:]):
-        reasons.append("BENCHMARK_COST_STRESS_FAILED")
+        reasons.append("BENCHMARK_EXECUTION_STRESS_FAILED")
     return ResearchReport(
         dataset=dataset_manifest(bars),
         config_hash=evaluation_config_hash(app_config, walk_forward, strategy_id),

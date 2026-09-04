@@ -51,6 +51,7 @@ def test_walk_forward_runs_disjoint_test_folds() -> None:
 
     assert len(report.folds) == 6
     assert report.cost_multiplier == Decimal(1)
+    assert report.execution_delay_bars == 0
     assert all(fold.training_ended_at < fold.testing_started_at for fold in report.folds)
 
 
@@ -77,8 +78,19 @@ def test_research_suite_stresses_costs_and_records_trial(tmp_path: Path) -> None
         Decimal(1),
         Decimal(2),
         Decimal(3),
+        Decimal(1),
+        Decimal(2),
+        Decimal(3),
     ]
-    assert len(report.benchmark_comparisons) == 3
+    assert [scenario.execution_delay_bars for scenario in report.scenarios] == [
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+    ]
+    assert len(report.benchmark_comparisons) == 6
     assert all(
         comparison.benchmark_strategy_id == "buy-and-hold-v1"
         for comparison in report.benchmark_comparisons

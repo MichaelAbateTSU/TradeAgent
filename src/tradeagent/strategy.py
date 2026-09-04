@@ -126,3 +126,35 @@ class VolatilityTargetTrendStrategy:
             generated_at=bar.timestamp,
             rationale=rationale,
         )
+
+
+class DelayedStrategy:
+    """Delay target intents so a close-derived signal cannot fill on that close."""
+
+    def __init__(self, strategy: Strategy, delay_bars: int) -> None:
+        if delay_bars < 0:
+            raise ValueError("delay_bars cannot be negative")
+        self._strategy = strategy
+        self._delay_bars = delay_bars
+        self._pending: deque[TradeIntent | None] = deque()
+
+    @property
+    def strategy_id(self) -> str:
+        return self._strategy.strategy_id
+
+    def on_bar(self, bar: MarketBar) -> TradeIntent | None:
+        current = self._strategy.on_bar(bar)
+        if self._delay_bars == 0:
+            return current
+        self._pending.append(current)
+        if len(self._pending) <= self._delay_bars:
+            return None
+        delayed = self._pending.popleft()
+        if delayed is None:
+            return None
+        return delayed.model_copy(
+            update={
+                "generated_at": bar.timestamp,
+                "rationale": (f"{delayed.rationale}; executed after {self._delay_bars}-bar delay"),
+            }
+        )
