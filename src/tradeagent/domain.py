@@ -169,11 +169,55 @@ class BacktestReport(FrozenModel):
     starting_equity: Decimal
     ending_equity: Decimal
     total_return: Decimal
+    annualized_return: Decimal
+    annualized_volatility: Decimal
+    sharpe_ratio: Decimal | None
+    sortino_ratio: Decimal | None
+    calmar_ratio: Decimal | None
     max_drawdown: Decimal
+    turnover: Decimal
     orders: int
     fills: int
     rejected_orders: int
     final_positions: tuple[Position, ...]
+
+
+class DatasetManifest(FrozenModel):
+    dataset_hash: str = Field(min_length=64, max_length=64)
+    rows: int = Field(gt=0)
+    symbols: tuple[str, ...]
+    started_at: datetime
+    ended_at: datetime
+
+
+class WalkForwardFold(FrozenModel):
+    fold: int = Field(ge=1)
+    training_started_at: datetime
+    training_ended_at: datetime
+    testing_started_at: datetime
+    testing_ended_at: datetime
+    report: BacktestReport
+
+
+class WalkForwardReport(FrozenModel):
+    strategy_id: str
+    cost_multiplier: Decimal = Field(ge=1)
+    folds: tuple[WalkForwardFold, ...]
+    positive_fold_ratio: Decimal = Field(ge=0, le=1)
+    average_sharpe: Decimal | None
+    worst_drawdown: Decimal
+    qualified: bool
+    qualification_reasons: tuple[str, ...]
+
+
+class ResearchReport(FrozenModel):
+    dataset: DatasetManifest
+    config_hash: str = Field(min_length=64, max_length=64)
+    git_sha: str
+    random_seed: int
+    scenarios: tuple[WalkForwardReport, ...]
+    qualified: bool
+    qualification_reasons: tuple[str, ...]
 
 
 JsonObject = dict[str, Any]

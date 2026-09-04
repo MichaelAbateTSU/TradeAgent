@@ -48,3 +48,33 @@ def test_paper_and_status_commands_share_audit_ledger(tmp_path: Path, capsys: ob
     assert paper_output["mode"] == "paper"
     assert status_output["event_count"] > 0
     assert len(status_output["events"]) == 2
+
+
+def test_evaluate_command_records_cost_stressed_research(tmp_path: Path, capsys: object) -> None:
+    database = tmp_path / "experiments.db"
+    main(
+        [
+            "evaluate",
+            "--bars",
+            "90",
+            "--fast-window",
+            "2",
+            "--slow-window",
+            "3",
+            "--training-bars",
+            "20",
+            "--testing-bars",
+            "10",
+            "--step-bars",
+            "10",
+            "--embargo-bars",
+            "0",
+            "--database",
+            str(database),
+        ]
+    )
+    output = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
+
+    assert output["experiment_id"] == 1
+    assert len(output["report"]["scenarios"]) == 3
+    assert database.exists()

@@ -40,6 +40,10 @@ class PaperBroker:
     def fill_count(self) -> int:
         return len(self._fills)
 
+    @property
+    def fills(self) -> tuple[Fill, ...]:
+        return tuple(self._fills.values())
+
     def mark(self, bar: MarketBar) -> None:
         self._marks[bar.symbol] = bar.close
         equity = self._calculate_equity()

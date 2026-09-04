@@ -48,3 +48,26 @@ class SmaCrossoverStrategy:
             generated_at=bar.timestamp,
             rationale=f"fast SMA is {relationship} slow SMA",
         )
+
+
+class ConstantWeightStrategy:
+    """Cash/no-trade or buy-and-hold benchmark using the same execution path."""
+
+    def __init__(self, strategy_id: str, target_weight: Decimal) -> None:
+        if not Decimal(0) <= target_weight <= Decimal(1):
+            raise ValueError("target_weight must be between zero and one")
+        self._strategy_id = strategy_id
+        self._target_weight = target_weight
+
+    @property
+    def strategy_id(self) -> str:
+        return self._strategy_id
+
+    def on_bar(self, bar: MarketBar) -> TradeIntent:
+        return TradeIntent(
+            strategy_id=self.strategy_id,
+            symbol=bar.symbol,
+            target_weight=self._target_weight,
+            generated_at=bar.timestamp,
+            rationale=f"constant target weight {self._target_weight}",
+        )

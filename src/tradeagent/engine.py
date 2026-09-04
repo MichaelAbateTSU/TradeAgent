@@ -16,6 +16,7 @@ from tradeagent.domain import (
     TradeIntent,
 )
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.metrics import performance_metrics
 from tradeagent.risk import RiskEngine
 from tradeagent.strategy import Strategy
 
@@ -117,28 +118,33 @@ class TradingEngine:
     def run(self, bars: Iterable[MarketBar]) -> BacktestReport:
         first_bar: MarketBar | None = None
         last_bar: MarketBar | None = None
-        peak = self._config.broker.starting_cash
-        maximum_drawdown = Decimal(0)
+        equities = [self._config.broker.starting_cash]
         for bar in bars:
             first_bar = first_bar or bar
             last_bar = bar
             step = self.process_bar(bar)
-            peak = max(peak, step.equity)
-            drawdown = (step.equity / peak) - Decimal(1)
-            maximum_drawdown = min(maximum_drawdown, drawdown)
+            equities.append(step.equity)
 
         if first_bar is None or last_bar is None:
             raise ValueError("at least one market bar is required")
         final_account = self._broker.account(last_bar.timestamp)
         starting_equity = self._config.broker.starting_cash
+        traded_notional = sum((fill.notional for fill in self._broker.fills), Decimal(0))
+        metrics = performance_metrics(equities, traded_notional)
         return BacktestReport(
             symbol=first_bar.symbol,
             started_at=first_bar.timestamp,
             ended_at=last_bar.timestamp,
             starting_equity=starting_equity,
             ending_equity=final_account.equity,
-            total_return=(final_account.equity / starting_equity) - Decimal(1),
-            max_drawdown=maximum_drawdown,
+            total_return=metrics["total_return"],
+            annualized_return=metrics["annualized_return"],
+            annualized_volatility=metrics["annualized_volatility"],
+            sharpe_ratio=metrics["sharpe_ratio"],
+            sortino_ratio=metrics["sortino_ratio"],
+            calmar_ratio=metrics["calmar_ratio"],
+            max_drawdown=metrics["max_drawdown"],
+            turnover=metrics["turnover"],
             orders=self._orders,
             fills=self._broker.fill_count,
             rejected_orders=self._rejections,
