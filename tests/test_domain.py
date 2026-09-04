@@ -51,6 +51,12 @@ def test_configuration_rejects_inconsistent_limits() -> None:
     with pytest.raises(ValidationError, match="fast_window"):
         StrategyConfig(fast_window=20, slow_window=20)
 
+    with pytest.raises(ValidationError, match="mean_reversion_entry_z"):
+        StrategyConfig(
+            mean_reversion_entry_z=Decimal("-0.25"),
+            mean_reversion_exit_z=Decimal("-0.5"),
+        )
+
     with pytest.raises(ValidationError, match="target_weight"):
         AppConfig(
             strategy=StrategyConfig(target_weight=Decimal("0.03")),

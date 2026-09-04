@@ -9,6 +9,7 @@ from tradeagent.config import StrategyConfig
 from tradeagent.domain import MarketBar
 from tradeagent.strategy import (
     DelayedStrategy,
+    MeanReversionStrategy,
     SmaCrossoverStrategy,
     VolatilityTargetTrendStrategy,
 )
@@ -94,3 +95,51 @@ def test_delayed_strategy_validates_delay(bar: MarketBar) -> None:
     immediate = DelayedStrategy(base, delay_bars=0)
     assert immediate.strategy_id == base.strategy_id
     assert immediate.on_bar(bar) is None
+
+
+def test_mean_reversion_uses_entry_exit_hysteresis(bar: MarketBar) -> None:
+    config = StrategyConfig(
+        mean_reversion_window=3,
+        mean_reversion_entry_z=Decimal("-0.5"),
+        mean_reversion_exit_z=Decimal("0"),
+    )
+    strategy = MeanReversionStrategy(config)
+    prices = [
+        Decimal("100"),
+        Decimal("100"),
+        Decimal("95"),
+        Decimal("96"),
+        Decimal("105"),
+    ]
+    intents = []
+    for offset, price in enumerate(prices):
+        intents.append(
+            strategy.on_bar(
+                bar.model_copy(
+                    update={
+                        "timestamp": bar.timestamp + timedelta(days=offset),
+                        "close": price,
+                    }
+                )
+            )
+        )
+
+    assert intents[2] is not None
+    assert intents[2].target_weight == config.target_weight
+    assert intents[3] is not None
+    assert intents[3].target_weight == config.target_weight
+    assert intents[4] is not None
+    assert intents[4].target_weight == Decimal(0)
+
+
+def test_mean_reversion_handles_zero_volatility(bar: MarketBar) -> None:
+    strategy = MeanReversionStrategy(StrategyConfig(mean_reversion_window=3))
+
+    strategy.on_bar(bar)
+    strategy.on_bar(bar.model_copy(update={"timestamp": bar.timestamp + timedelta(days=1)}))
+    intent = strategy.on_bar(
+        bar.model_copy(update={"timestamp": bar.timestamp + timedelta(days=2)})
+    )
+
+    assert intent is not None
+    assert intent.target_weight == Decimal(0)

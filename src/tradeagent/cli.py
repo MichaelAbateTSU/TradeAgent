@@ -25,6 +25,7 @@ from tradeagent.research import (
 from tradeagent.risk import RiskEngine
 from tradeagent.strategy import (
     ConstantWeightStrategy,
+    MeanReversionStrategy,
     SmaCrossoverStrategy,
     Strategy,
     VolatilityTargetTrendStrategy,
@@ -69,6 +70,8 @@ def _strategy_factory(name: str, config: AppConfig) -> Callable[[], Strategy]:
         )
     if name == "volatility-trend":
         return lambda: VolatilityTargetTrendStrategy(config.strategy)
+    if name == "mean-reversion":
+        return lambda: MeanReversionStrategy(config.strategy)
     return lambda: SmaCrossoverStrategy(config.strategy)
 
 
@@ -115,7 +118,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     evaluate.add_argument(
         "--strategy",
-        choices=["sma", "volatility-trend", "buy-and-hold", "cash"],
+        choices=[
+            "sma",
+            "volatility-trend",
+            "mean-reversion",
+            "buy-and-hold",
+            "cash",
+        ],
         default="sma",
     )
     evaluate.add_argument("--symbol", default="SPY")

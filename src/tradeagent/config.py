@@ -46,12 +46,17 @@ class StrategyConfig(BaseModel):
     slow_window: int = Field(default=50, ge=3)
     volatility_window: int = Field(default=20, ge=2)
     target_annual_volatility: Decimal = Field(default=Decimal("0.10"), gt=0, le=1)
+    mean_reversion_window: int = Field(default=20, ge=3)
+    mean_reversion_entry_z: Decimal = Field(default=Decimal("-1.5"), lt=0)
+    mean_reversion_exit_z: Decimal = Field(default=Decimal("-0.25"), le=0)
     target_weight: Decimal = Field(default=Decimal("0.02"), gt=0, le=1)
 
     @model_validator(mode="after")
     def validate_windows(self) -> StrategyConfig:
         if self.fast_window >= self.slow_window:
             raise ValueError("fast_window must be less than slow_window")
+        if self.mean_reversion_entry_z >= self.mean_reversion_exit_z:
+            raise ValueError("mean_reversion_entry_z must be below mean_reversion_exit_z")
         return self
 
 

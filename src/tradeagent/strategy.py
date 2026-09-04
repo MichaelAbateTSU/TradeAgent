@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict, deque
 from decimal import Decimal
 from math import sqrt
-from statistics import stdev
+from statistics import mean, stdev
 from typing import Protocol
 
 from tradeagent.config import StrategyConfig
@@ -157,4 +157,47 @@ class DelayedStrategy:
                 "generated_at": bar.timestamp,
                 "rationale": (f"{delayed.rationale}; executed after {self._delay_bars}-bar delay"),
             }
+        )
+
+
+class MeanReversionStrategy:
+    """Long-only z-score mean reversion with hysteresis between entry and exit."""
+
+    def __init__(self, config: StrategyConfig) -> None:
+        self._config = config
+        self._prices: dict[str, deque[Decimal]] = defaultdict(
+            lambda: deque(maxlen=config.mean_reversion_window)
+        )
+        self._targets: dict[str, Decimal] = defaultdict(Decimal)
+
+    @property
+    def strategy_id(self) -> str:
+        return "zscore-mean-reversion-v1"
+
+    def on_bar(self, bar: MarketBar) -> TradeIntent | None:
+        prices = self._prices[bar.symbol]
+        prices.append(bar.close)
+        if len(prices) < self._config.mean_reversion_window:
+            return None
+
+        float_prices = [float(price) for price in prices]
+        standard_deviation = stdev(float_prices)
+        z_score = (
+            Decimal(str((float(bar.close) - mean(float_prices)) / standard_deviation))
+            if standard_deviation > 0
+            else Decimal(0)
+        )
+        target = self._targets[bar.symbol]
+        if z_score <= self._config.mean_reversion_entry_z:
+            target = self._config.target_weight
+        elif z_score >= self._config.mean_reversion_exit_z:
+            target = Decimal(0)
+        self._targets[bar.symbol] = target
+
+        return TradeIntent(
+            strategy_id=self.strategy_id,
+            symbol=bar.symbol,
+            target_weight=target,
+            generated_at=bar.timestamp,
+            rationale=f"close z-score is {z_score:.4f}",
         )
