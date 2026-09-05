@@ -77,6 +77,8 @@ class PortfolioResearchReport(BaseModel):
     random_seed: int
     scenarios: tuple[PortfolioWalkForwardReport, ...]
     benchmark_comparisons: tuple[PortfolioBenchmarkComparison, ...]
+    closed_trade_estimate: int = Field(ge=0)
+    minimum_closed_trades: int = Field(ge=0)
     qualified: bool
     qualification_reasons: tuple[str, ...]
 
@@ -192,6 +194,7 @@ def evaluate_portfolio_suite(
     benchmark_factory: PortfolioStrategyFactory,
     *,
     random_seed: int,
+    minimum_closed_trades: int = 0,
     git_sha: str | None = None,
 ) -> PortfolioResearchReport:
     strategy_id = strategy_factory().strategy_id
@@ -271,6 +274,9 @@ def evaluate_portfolio_suite(
         reasons.append("BENCHMARK_NOT_BEATEN")
     if any(not comparison.passed for comparison in comparisons[1:]):
         reasons.append("BENCHMARK_EXECUTION_STRESS_FAILED")
+    closed_trade_estimate = sum(fold.report.fills for fold in scenarios[0].folds) // 2
+    if closed_trade_estimate < minimum_closed_trades:
+        reasons.append("INSUFFICIENT_CLOSED_TRADES")
     return PortfolioResearchReport(
         dataset=manifest,
         config_hash=portfolio_config_hash(
@@ -283,6 +289,8 @@ def evaluate_portfolio_suite(
         random_seed=random_seed,
         scenarios=scenarios,
         benchmark_comparisons=tuple(comparisons),
+        closed_trade_estimate=closed_trade_estimate,
+        minimum_closed_trades=minimum_closed_trades,
         qualified=not reasons,
         qualification_reasons=tuple(reasons),
     )

@@ -66,6 +66,8 @@ def test_portfolio_walk_forward_and_suite_are_reproducible(tmp_path: Path) -> No
     assert len(report.scenarios) == 6
     assert len(report.scenarios[0].folds) == 7
     assert len(report.benchmark_comparisons) == 6
+    assert report.closed_trade_estimate >= 0
+    assert report.minimum_closed_trades == 0
     assert report.git_sha == "portfolio-test"
     assert len(report.config_hash) == 64
     assert (

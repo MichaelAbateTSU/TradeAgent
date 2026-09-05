@@ -19,6 +19,13 @@ from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fi
 from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
+from tradeagent.intraday import NyseSessionCalendar, regular_session_frames
+from tradeagent.intraday_strategy import (
+    IntradayEqualWeightBenchmark,
+    IntradayStrategyConfig,
+    OpeningRangeBreakoutStrategy,
+    SessionVwapMeanReversionStrategy,
+)
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.monitor import monitor_take_profit
 from tradeagent.notifications import (
@@ -56,7 +63,7 @@ from tradeagent.strategy import (
     Strategy,
     VolatilityTargetTrendStrategy,
 )
-from tradeagent.universe import load_universe, symbol_filename
+from tradeagent.universe import align_universe, load_universe, symbol_filename
 from tradeagent.worker import AutonomousPaperWorker, WorkerMode
 
 
@@ -248,6 +255,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     worker.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
     worker.add_argument("--instance-id", default="worker-1")
+    intraday_evaluate = subparsers.add_parser(
+        "intraday-evaluate",
+        help="qualify intraday strategies on aligned 5-minute bars",
+    )
+    intraday_evaluate.add_argument("--strategy", choices=["opening-range", "vwap"], required=True)
+    intraday_evaluate.add_argument("--symbols", default="SPY,QQQ")
+    intraday_evaluate.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
+    intraday_evaluate.add_argument("--training-frames", type=int, default=1_560)
+    intraday_evaluate.add_argument("--testing-frames", type=int, default=390)
+    intraday_evaluate.add_argument("--step-frames", type=int, default=390)
+    intraday_evaluate.add_argument("--embargo-frames", type=int, default=78)
+    intraday_evaluate.add_argument("--warmup-frames", type=int, default=390)
+    intraday_evaluate.add_argument("--minimum-closed-trades", type=int, default=200)
+    intraday_evaluate.add_argument("--seed", type=int, default=7)
+    intraday_evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
     return parser
 
 
@@ -522,6 +544,67 @@ def main(argv: Sequence[str] | None = None) -> None:
                     symbols=symbols,
                 )
             )
+        return
+
+    if args.command == "intraday-evaluate":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        source_dataset = load_universe(args.universe_directory, symbols)
+        intraday_config = AppConfig().intraday.model_copy(update={"enabled": True})
+        calendar = NyseSessionCalendar(intraday_config)
+        frames = regular_session_frames(source_dataset.frames, calendar)
+        bars_by_symbol = {symbol: [frame.bar_for(symbol) for frame in frames] for symbol in symbols}
+        dataset = align_universe(bars_by_symbol)
+        intraday_strategy_config = IntradayStrategyConfig()
+        app_config = AppConfig(intraday=intraday_config)
+        walk_forward = WalkForwardConfig(
+            training_bars=args.training_frames,
+            testing_bars=args.testing_frames,
+            step_bars=args.step_frames,
+            embargo_bars=args.embargo_frames,
+            warmup_bars=args.warmup_frames,
+        )
+
+        def intraday_strategy_factory() -> (
+            OpeningRangeBreakoutStrategy | SessionVwapMeanReversionStrategy
+        ):
+            if args.strategy == "opening-range":
+                return OpeningRangeBreakoutStrategy(
+                    intraday_strategy_config,
+                    intraday_config,
+                )
+            return SessionVwapMeanReversionStrategy(
+                intraday_strategy_config,
+                intraday_config,
+            )
+
+        gross_target = intraday_strategy_config.target_weight * intraday_strategy_config.top_n
+        report = evaluate_portfolio_suite(
+            dataset.frames,
+            dataset.manifest,
+            app_config,
+            walk_forward,
+            intraday_strategy_config,
+            intraday_strategy_factory,
+            lambda: IntradayEqualWeightBenchmark(
+                gross_target,
+                intraday_config,
+            ),
+            random_seed=args.seed,
+            minimum_closed_trades=args.minimum_closed_trades,
+        )
+        with ExperimentRegistry(args.database) as registry:
+            experiment_id = registry.record_model(
+                report,
+                dataset_hash=report.dataset.dataset_hash,
+                config_hash_value=report.config_hash,
+                git_sha=report.git_sha,
+                random_seed=report.random_seed,
+                strategy_id=report.scenarios[0].strategy_id,
+                qualified=report.qualified,
+            )
+        print(_json({"experiment_id": experiment_id, "report": report}))
         return
 
     if args.command == "backtest":
