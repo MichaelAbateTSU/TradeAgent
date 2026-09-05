@@ -85,7 +85,11 @@ class AutonomousPaperWorker:
         *,
         stop_event: asyncio.Event | None = None,
     ) -> WorkerRunResult:
-        if not self._repository.acquire_worker_lock("tradeagent-paper-worker", self._instance_id):
+        if not self._repository.acquire_worker_lock(
+            "tradeagent-paper-worker",
+            self._instance_id,
+            stale_after_seconds=self._config.intraday.heartbeat_max_age_seconds * 2,
+        ):
             raise WorkerStartupError("another paper worker owns the trading lock")
         counters = {
             "events": 0,
@@ -161,6 +165,11 @@ class AutonomousPaperWorker:
             raise StaleMarketDataError(f"{type(event).__name__} is stale by {age:.3f} seconds")
 
     def _heartbeat(self, state: str, counters: dict[str, int]) -> None:
+        self._repository.refresh_worker_lock(
+            "tradeagent-paper-worker",
+            self._instance_id,
+            observed_at=self._clock(),
+        )
         self._repository.heartbeat(
             "tradeagent-worker",
             self._instance_id,

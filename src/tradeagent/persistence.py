@@ -439,19 +439,64 @@ class ProductionRepository:
             quotes_count = connection.scalar(select(func.count()).select_from(market_quotes))
         return int(bars_count or 0), int(quotes_count or 0)
 
-    def acquire_worker_lock(self, lock_name: str, owner_id: str) -> bool:
+    def acquire_worker_lock(
+        self,
+        lock_name: str,
+        owner_id: str,
+        *,
+        stale_after_seconds: int = 120,
+        observed_at: datetime | None = None,
+    ) -> bool:
+        now = observed_at or datetime.now(UTC)
         try:
             with self._database.begin() as connection:
+                current = (
+                    connection.execute(
+                        select(worker_locks)
+                        .where(worker_locks.c.lock_name == lock_name)
+                        .with_for_update()
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+                if current is not None:
+                    acquired_at = current["acquired_at"]
+                    if acquired_at.tzinfo is None:
+                        acquired_at = acquired_at.replace(tzinfo=UTC)
+                    age = (now - acquired_at).total_seconds()
+                    if age <= stale_after_seconds:
+                        return False
+                    connection.execute(
+                        delete(worker_locks).where(worker_locks.c.lock_name == lock_name)
+                    )
                 connection.execute(
                     insert(worker_locks).values(
                         lock_name=lock_name,
                         owner_id=owner_id,
-                        acquired_at=datetime.now(UTC),
+                        acquired_at=now,
                     )
                 )
             return True
         except IntegrityError:
             return False
+
+    def refresh_worker_lock(
+        self,
+        lock_name: str,
+        owner_id: str,
+        *,
+        observed_at: datetime | None = None,
+    ) -> bool:
+        with self._database.begin() as connection:
+            result = connection.execute(
+                update(worker_locks)
+                .where(
+                    worker_locks.c.lock_name == lock_name,
+                    worker_locks.c.owner_id == owner_id,
+                )
+                .values(acquired_at=observed_at or datetime.now(UTC))
+            )
+            return bool(result.rowcount)
 
     def release_worker_lock(self, lock_name: str, owner_id: str) -> bool:
         with self._database.begin() as connection:

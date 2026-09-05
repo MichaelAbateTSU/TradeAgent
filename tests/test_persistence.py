@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -69,6 +69,30 @@ def test_worker_lock_allows_exactly_one_owner(tmp_path: Path) -> None:
         assert not repository.release_worker_lock("paper-worker", "owner-2")
         assert repository.release_worker_lock("paper-worker", "owner-1")
         assert repository.acquire_worker_lock("paper-worker", "owner-2")
+
+
+def test_stale_worker_lock_is_recovered(tmp_path: Path) -> None:
+    with Database(f"sqlite:///{tmp_path / 'stale-lock.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        first = datetime(2026, 1, 1, tzinfo=UTC)
+
+        assert repository.acquire_worker_lock(
+            "paper-worker",
+            "owner-1",
+            observed_at=first,
+        )
+        assert repository.acquire_worker_lock(
+            "paper-worker",
+            "owner-2",
+            stale_after_seconds=60,
+            observed_at=first + timedelta(seconds=61),
+        )
+        assert repository.refresh_worker_lock(
+            "paper-worker",
+            "owner-2",
+            observed_at=first + timedelta(seconds=62),
+        )
 
 
 def test_render_postgres_url_uses_psycopg_driver() -> None:

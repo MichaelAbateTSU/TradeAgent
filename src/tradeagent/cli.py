@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
+import socket
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -257,13 +259,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     notifier.add_argument("--once", action="store_true")
     notifier.add_argument("--poll-seconds", type=float, default=5)
-    notifier.add_argument("--instance-id", default="notifier-1")
+    notifier.add_argument("--instance-id")
     worker = subparsers.add_parser(
         "worker-shadow",
         help="run the always-on paper data and reconciliation worker without orders",
     )
     worker.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
-    worker.add_argument("--instance-id", default="worker-1")
+    worker.add_argument("--instance-id")
     intraday_evaluate = subparsers.add_parser(
         "intraday-evaluate",
         help="qualify intraday strategies on aligned 5-minute bars",
@@ -535,7 +537,9 @@ def main(argv: Sequence[str] | None = None) -> None:
             service = NotifierService(
                 NotificationDispatcher(notification_repository, provider),
                 ProductionRepository(database),
-                instance_id=args.instance_id,
+                instance_id=(
+                    args.instance_id or os.getenv("RENDER_INSTANCE_ID") or socket.gethostname()
+                ),
                 poll_seconds=args.poll_seconds,
             )
             if args.once:
@@ -574,14 +578,16 @@ def main(argv: Sequence[str] | None = None) -> None:
                     symbols=symbols,
                 ),
                 mode=WorkerMode.SHADOW,
-                instance_id=args.instance_id,
+                instance_id=(
+                    args.instance_id or os.getenv("RENDER_INSTANCE_ID") or socket.gethostname()
+                ),
                 strategy_authorized=lambda: False,
             )
             scheduler = ReconciliationScheduler(
                 repository,
                 reconciler,
                 interval_seconds=config.intraday.reconciliation_interval_seconds,
-                instance_id=f"{args.instance_id}-reconciler",
+                instance_id=f"{args.instance_id or socket.gethostname()}-reconciler",
             )
             asyncio.run(
                 run_shadow_runtime(
