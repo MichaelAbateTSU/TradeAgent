@@ -332,6 +332,27 @@ class ExperimentRegistry:
         self._connection.commit()
 
     def record(self, report: ResearchReport) -> int:
+        return self.record_model(
+            report,
+            dataset_hash=report.dataset.dataset_hash,
+            config_hash_value=report.config_hash,
+            git_sha=report.git_sha,
+            random_seed=report.random_seed,
+            strategy_id=report.scenarios[0].strategy_id,
+            qualified=report.qualified,
+        )
+
+    def record_model(
+        self,
+        report: BaseModel,
+        *,
+        dataset_hash: str,
+        config_hash_value: str,
+        git_sha: str,
+        random_seed: int,
+        strategy_id: str,
+        qualified: bool,
+    ) -> int:
         cursor = self._connection.execute(
             """
             INSERT INTO experiments (
@@ -341,12 +362,12 @@ class ExperimentRegistry:
             """,
             (
                 datetime.now(UTC).isoformat(),
-                report.dataset.dataset_hash,
-                report.config_hash,
-                report.git_sha,
-                report.random_seed,
-                report.scenarios[0].strategy_id,
-                int(report.qualified),
+                dataset_hash,
+                config_hash_value,
+                git_sha,
+                random_seed,
+                strategy_id,
+                int(qualified),
                 report.model_dump_json(),
             ),
         )

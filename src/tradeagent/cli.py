@@ -20,6 +20,12 @@ from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.monitor import monitor_take_profit
 from tradeagent.oms import PaperOrderManager
+from tradeagent.portfolio_research import evaluate_portfolio_suite
+from tradeagent.portfolio_strategy import (
+    CrossSectionalMomentumStrategy,
+    EqualWeightPortfolioStrategy,
+    PortfolioStrategyConfig,
+)
 from tradeagent.research import (
     ExperimentRegistry,
     WalkForwardConfig,
@@ -34,7 +40,7 @@ from tradeagent.strategy import (
     Strategy,
     VolatilityTargetTrendStrategy,
 )
-from tradeagent.universe import symbol_filename
+from tradeagent.universe import load_universe, symbol_filename
 
 
 def _json(value: Any) -> str:
@@ -195,6 +201,23 @@ def _parser() -> argparse.ArgumentParser:
     take_profit.add_argument("--poll-seconds", type=float, default=15)
     take_profit.add_argument("--database", type=Path, default=Path("data/alpaca-paper.db"))
     take_profit.add_argument("--confirm-paper", action="store_true")
+    portfolio_evaluate = subparsers.add_parser(
+        "portfolio-evaluate",
+        help="qualify cross-sectional momentum on an aligned local universe",
+    )
+    portfolio_evaluate.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
+    portfolio_evaluate.add_argument(
+        "--universe-directory", type=Path, default=Path("data/universe")
+    )
+    portfolio_evaluate.add_argument("--lookback-frames", type=int, default=63)
+    portfolio_evaluate.add_argument("--top-n", type=int, default=2)
+    portfolio_evaluate.add_argument("--gross-target", type=Decimal, default=Decimal("0.04"))
+    portfolio_evaluate.add_argument("--training-frames", type=int, default=252)
+    portfolio_evaluate.add_argument("--testing-frames", type=int, default=63)
+    portfolio_evaluate.add_argument("--step-frames", type=int, default=63)
+    portfolio_evaluate.add_argument("--embargo-frames", type=int, default=5)
+    portfolio_evaluate.add_argument("--seed", type=int, default=7)
+    portfolio_evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
     return parser
 
 
@@ -367,6 +390,47 @@ def main(argv: Sequence[str] | None = None) -> None:
                 ledger,
             ).reconcile(observed_at=datetime.now(UTC))
         print(_json({"result": monitor_result, "reconciliation": reconciliation}))
+        return
+
+    if args.command == "portfolio-evaluate":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        dataset = load_universe(args.universe_directory, symbols)
+        strategy_config = PortfolioStrategyConfig(
+            lookback_frames=args.lookback_frames,
+            top_n=args.top_n,
+            gross_target=args.gross_target,
+        )
+        walk_forward = WalkForwardConfig(
+            training_bars=args.training_frames,
+            testing_bars=args.testing_frames,
+            step_bars=args.step_frames,
+            embargo_bars=args.embargo_frames,
+            warmup_bars=min(args.lookback_frames + 1, args.training_frames),
+        )
+        config = AppConfig()
+        report = evaluate_portfolio_suite(
+            dataset.frames,
+            dataset.manifest,
+            config,
+            walk_forward,
+            strategy_config,
+            lambda: CrossSectionalMomentumStrategy(strategy_config),
+            lambda: EqualWeightPortfolioStrategy(strategy_config.gross_target),
+            random_seed=args.seed,
+        )
+        with ExperimentRegistry(args.database) as registry:
+            experiment_id = registry.record_model(
+                report,
+                dataset_hash=report.dataset.dataset_hash,
+                config_hash_value=report.config_hash,
+                git_sha=report.git_sha,
+                random_seed=report.random_seed,
+                strategy_id=report.scenarios[0].strategy_id,
+                qualified=report.qualified,
+            )
+        print(_json({"experiment_id": experiment_id, "report": report}))
         return
 
     if args.command == "backtest":
