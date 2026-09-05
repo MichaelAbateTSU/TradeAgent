@@ -92,6 +92,12 @@ class AlpacaMarketStream:
         normalized = tuple(sorted({symbol.strip().upper() for symbol in symbols}))
         if not normalized:
             raise ValueError("at least one stream symbol is required")
+        connection = self._decode(await websocket.recv())
+        if not any(
+            message.get("T") == "success" and message.get("msg") == "connected"
+            for message in connection
+        ):
+            raise StreamProtocolError("Alpaca stream connection banner was not received")
         await websocket.send(
             json.dumps(
                 {

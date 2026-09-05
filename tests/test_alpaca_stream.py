@@ -40,6 +40,7 @@ def _settings() -> AlpacaStreamSettings:
 def test_stream_authenticates_subscribes_and_parses_events() -> None:
     socket = FakeWebSocket(
         [
+            json.dumps([{"T": "success", "msg": "connected"}]),
             json.dumps([{"T": "success", "msg": "authenticated"}]),
             json.dumps(
                 [
@@ -98,13 +99,17 @@ def test_stream_rejects_authentication_and_protocol_errors() -> None:
         ]
 
     unauthenticated = FakeWebSocket(
-        [json.dumps([{"T": "error", "code": 401, "msg": "not authenticated"}])]
+        [
+            json.dumps([{"T": "success", "msg": "connected"}]),
+            json.dumps([{"T": "error", "code": 401, "msg": "not authenticated"}]),
+        ]
     )
     with pytest.raises(StreamProtocolError, match="authentication failed"):
         asyncio.run(collect(unauthenticated))
 
     stream_error = FakeWebSocket(
         [
+            json.dumps([{"T": "success", "msg": "connected"}]),
             json.dumps([{"T": "success", "msg": "authenticated"}]),
             json.dumps([{"T": "error", "code": 405, "msg": "symbol limit"}]),
         ]
@@ -124,6 +129,7 @@ def test_stream_validates_symbols_payload_and_quotes() -> None:
         asyncio.run(collect(FakeWebSocket([]), []))
     invalid_payload = FakeWebSocket(
         [
+            json.dumps([{"T": "success", "msg": "connected"}]),
             json.dumps([{"T": "success", "msg": "authenticated"}]),
             json.dumps({"T": "q"}),
         ]
