@@ -191,6 +191,28 @@ market_quotes = Table(
 )
 Index("ix_market_quotes_symbol_time", market_quotes.c.symbol, market_quotes.c.event_at)
 
+strategy_promotions = Table(
+    "strategy_promotions",
+    metadata,
+    Column("promotion_id", String(36), primary_key=True),
+    Column("strategy_id", String(128), nullable=False),
+    Column("dataset_hash", String(64), nullable=False),
+    Column("config_hash", String(64), nullable=False),
+    Column("holdout_hash", String(64), nullable=False),
+    Column("git_sha", String(64), nullable=False),
+    Column("approved_by", String(200), nullable=False),
+    Column("approved_at", DateTime(timezone=True), nullable=False),
+    Column("promotion_digest", String(64), nullable=False, unique=True),
+    Column("status", String(20), nullable=False),
+    UniqueConstraint(
+        "strategy_id",
+        "dataset_hash",
+        "config_hash",
+        name="uq_strategy_evidence_promotion",
+    ),
+)
+Index("ix_strategy_promotions_status", strategy_promotions.c.status)
+
 
 def normalize_database_url(url: str) -> str:
     if url.startswith("postgresql://"):
