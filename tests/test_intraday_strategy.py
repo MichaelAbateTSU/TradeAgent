@@ -9,6 +9,7 @@ from tradeagent.intraday_strategy import (
     IntradayEqualWeightBenchmark,
     IntradayStrategyConfig,
     OpeningRangeBreakoutStrategy,
+    RegimeFilteredMomentumStrategy,
     SessionVwapMeanReversionStrategy,
 )
 from tradeagent.universe import UniverseFrame
@@ -114,3 +115,32 @@ def test_intraday_benchmark_holds_only_during_session() -> None:
     assert pre_entry.target_weights["SPY"] == 0
     assert entry.target_weights["SPY"] == Decimal("0.01")
     assert flatten.target_weights["SPY"] == 0
+
+
+def test_regime_filtered_momentum_selects_strongest_trend() -> None:
+    intraday = IntradayConfig(enabled=True)
+    strategy = RegimeFilteredMomentumStrategy(
+        IntradayStrategyConfig(
+            minimum_momentum_15m=Decimal(0),
+            minimum_momentum_30m=Decimal(0),
+            minimum_momentum_60m=Decimal("0.001"),
+            maximum_realized_volatility=Decimal("10"),
+        ),
+        intraday,
+    )
+    start = datetime(2026, 9, 4, 14, 0, tzinfo=UTC)
+    intent = None
+    for index in range(13):
+        intent = strategy.on_frame(
+            _frame(
+                start + timedelta(minutes=index * 5),
+                {
+                    "SPY": Decimal("100") + Decimal(index) / 10,
+                    "QQQ": Decimal("100") + Decimal(index) / 5,
+                },
+            )
+        )
+
+    assert intent is not None
+    assert intent.target_weights["QQQ"] > 0
+    assert intent.target_weights["SPY"] == 0

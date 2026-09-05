@@ -8,7 +8,9 @@ from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from tradeagent.alpaca_stream import MarketQuote
 from tradeagent.config import IntradayConfig
+from tradeagent.features import IntradayFeatureEngine, IntradayFeatureVector, MarketRegime
 from tradeagent.intraday import NyseSessionCalendar, SessionPhase
 from tradeagent.portfolio import PortfolioIntent
 from tradeagent.universe import UniverseFrame
@@ -24,6 +26,12 @@ class IntradayStrategyConfig(BaseModel):
     vwap_exit_z: Decimal = Field(default=Decimal("-0.25"), le=0)
     target_weight: Decimal = Field(default=Decimal("0.0025"), gt=0, le=0.005)
     top_n: int = Field(default=1, ge=1, le=2)
+    minimum_momentum_15m: Decimal = Decimal("0.0005")
+    minimum_momentum_30m: Decimal = Decimal("0.001")
+    minimum_momentum_60m: Decimal = Decimal("0.002")
+    minimum_relative_volume: Decimal = Field(default=Decimal("0.8"), gt=0)
+    maximum_spread_bps: Decimal = Field(default=Decimal("10"), gt=0)
+    maximum_realized_volatility: Decimal = Field(default=Decimal("0.40"), gt=0)
 
     @model_validator(mode="after")
     def validate_vwap_thresholds(self) -> IntradayStrategyConfig:
@@ -210,4 +218,85 @@ class IntradayEqualWeightBenchmark:
             timestamp=frame.timestamp,
             target_weights={bar.symbol: weight for bar in frame.bars},
             rationale="regular-session equal-weight benchmark",
+        )
+
+
+class RegimeFilteredMomentumStrategy:
+    def __init__(
+        self,
+        strategy: IntradayStrategyConfig,
+        intraday: IntradayConfig,
+    ) -> None:
+        self._strategy = strategy
+        self._calendar = NyseSessionCalendar(intraday)
+        self._features = IntradayFeatureEngine(intraday)
+        self._active: set[str] = set()
+
+    @property
+    def strategy_id(self) -> str:
+        return "regime-filtered-intraday-momentum-v1"
+
+    def on_quote(self, quote: MarketQuote) -> None:
+        self._features.on_quote(quote)
+
+    def on_frame(self, frame: UniverseFrame) -> PortfolioIntent:
+        gate = self._calendar.gate(frame.timestamp)
+        vectors = {bar.symbol: self._features.on_bar(bar) for bar in frame.bars}
+        for symbol in tuple(self._active):
+            vector = vectors[symbol]
+            if (
+                vector.momentum_30m is None
+                or vector.momentum_30m <= 0
+                or vector.regime is MarketRegime.HIGH_VOLATILITY
+            ):
+                self._active.discard(symbol)
+
+        if gate.phase is SessionPhase.FLATTEN:
+            self._active.clear()
+        elif gate.phase is SessionPhase.ENTRY and not self._active:
+            eligible = [vector for vector in vectors.values() if self._eligible(vector)]
+            ranked = sorted(
+                eligible,
+                key=lambda vector: (
+                    -(vector.momentum_60m or Decimal(0)),
+                    vector.symbol,
+                ),
+            )
+            self._active.update(vector.symbol for vector in ranked[: self._strategy.top_n])
+
+        return PortfolioIntent(
+            strategy_id=self.strategy_id,
+            timestamp=frame.timestamp,
+            target_weights={
+                bar.symbol: (
+                    self._strategy.target_weight if bar.symbol in self._active else Decimal(0)
+                )
+                for bar in frame.bars
+            },
+            rationale=(
+                f"regime-filtered multi-horizon momentum; active="
+                f"{','.join(sorted(self._active)) or 'cash'}"
+            ),
+        )
+
+    def _eligible(self, vector: IntradayFeatureVector) -> bool:
+        return (
+            vector.regime is MarketRegime.TRENDING
+            and vector.momentum_15m is not None
+            and vector.momentum_15m >= self._strategy.minimum_momentum_15m
+            and vector.momentum_30m is not None
+            and vector.momentum_30m >= self._strategy.minimum_momentum_30m
+            and vector.momentum_60m is not None
+            and vector.momentum_60m >= self._strategy.minimum_momentum_60m
+            and (
+                vector.relative_volume is None
+                or vector.relative_volume >= self._strategy.minimum_relative_volume
+            )
+            and (
+                vector.spread_bps is None or vector.spread_bps <= self._strategy.maximum_spread_bps
+            )
+            and (
+                vector.realized_volatility is None
+                or vector.realized_volatility <= self._strategy.maximum_realized_volatility
+            )
         )

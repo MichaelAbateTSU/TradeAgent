@@ -24,6 +24,7 @@ from tradeagent.intraday_strategy import (
     IntradayEqualWeightBenchmark,
     IntradayStrategyConfig,
     OpeningRangeBreakoutStrategy,
+    RegimeFilteredMomentumStrategy,
     SessionVwapMeanReversionStrategy,
 )
 from tradeagent.ledger import SQLiteLedger
@@ -259,7 +260,11 @@ def _parser() -> argparse.ArgumentParser:
         "intraday-evaluate",
         help="qualify intraday strategies on aligned 5-minute bars",
     )
-    intraday_evaluate.add_argument("--strategy", choices=["opening-range", "vwap"], required=True)
+    intraday_evaluate.add_argument(
+        "--strategy",
+        choices=["opening-range", "vwap", "regime-momentum"],
+        required=True,
+    )
     intraday_evaluate.add_argument("--symbols", default="SPY,QQQ")
     intraday_evaluate.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
     intraday_evaluate.add_argument("--training-frames", type=int, default=1_560)
@@ -570,14 +575,21 @@ def main(argv: Sequence[str] | None = None) -> None:
         )
 
         def intraday_strategy_factory() -> (
-            OpeningRangeBreakoutStrategy | SessionVwapMeanReversionStrategy
+            OpeningRangeBreakoutStrategy
+            | SessionVwapMeanReversionStrategy
+            | RegimeFilteredMomentumStrategy
         ):
             if args.strategy == "opening-range":
                 return OpeningRangeBreakoutStrategy(
                     intraday_strategy_config,
                     intraday_config,
                 )
-            return SessionVwapMeanReversionStrategy(
+            if args.strategy == "vwap":
+                return SessionVwapMeanReversionStrategy(
+                    intraday_strategy_config,
+                    intraday_config,
+                )
+            return RegimeFilteredMomentumStrategy(
                 intraday_strategy_config,
                 intraday_config,
             )
