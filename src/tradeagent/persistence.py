@@ -18,6 +18,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Table,
+    Text,
     UniqueConstraint,
     create_engine,
     delete,
@@ -212,6 +213,25 @@ strategy_promotions = Table(
     ),
 )
 Index("ix_strategy_promotions_status", strategy_promotions.c.status)
+
+market_news = Table(
+    "market_news",
+    metadata,
+    Column("news_id", String(36), primary_key=True),
+    Column("source", String(100), nullable=False),
+    Column("source_url", Text, nullable=False),
+    Column("category", String(50), nullable=False),
+    Column("symbols", JSON, nullable=False),
+    Column("headline", Text, nullable=False),
+    Column("content_hash", String(64), nullable=False),
+    Column("published_at", DateTime(timezone=True), nullable=False),
+    Column("received_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=True),
+    Column("revision_of", String(36), nullable=True),
+    Column("reliability", String(30), nullable=False),
+    UniqueConstraint("source", "content_hash", name="uq_news_source_content"),
+)
+Index("ix_market_news_published", market_news.c.published_at)
 
 
 def normalize_database_url(url: str) -> str:
