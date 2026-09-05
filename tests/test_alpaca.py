@@ -108,6 +108,16 @@ def test_intraday_bars_are_normalized_to_close_time() -> None:
 
     assert bar.timestamp == datetime(2025, 1, 2, 14, 35, tzinfo=UTC)
 
+    minute_bar = next(
+        client.bars(
+            "SPY",
+            start=datetime(2025, 1, 2, tzinfo=UTC),
+            end=datetime(2025, 1, 3, tzinfo=UTC),
+            timeframe="1Min",
+        )
+    )
+    assert minute_bar.timestamp == datetime(2025, 1, 2, 14, 31, tzinfo=UTC)
+
 
 def test_alpaca_data_client_validates_range_and_response() -> None:
     http_client = httpx.Client(

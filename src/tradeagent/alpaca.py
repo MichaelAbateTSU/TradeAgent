@@ -46,7 +46,7 @@ class AlpacaDataClient:
         *,
         start: datetime,
         end: datetime,
-        timeframe: Literal["1Day", "1Hour", "5Min"] = "1Day",
+        timeframe: Literal["1Day", "1Hour", "5Min", "1Min"] = "1Day",
     ) -> Iterator[MarketBar]:
         if start.tzinfo is None or end.tzinfo is None:
             raise ValueError("start and end must be timezone-aware")
@@ -115,4 +115,5 @@ def _timeframe_duration(timeframe: str) -> timedelta:
         "1Day": timedelta(0),
         "1Hour": timedelta(hours=1),
         "5Min": timedelta(minutes=5),
+        "1Min": timedelta(minutes=1),
     }[timeframe]

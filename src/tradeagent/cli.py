@@ -216,7 +216,11 @@ def _parser() -> argparse.ArgumentParser:
     download.add_argument("--symbol", required=True)
     download.add_argument("--start", required=True, help="ISO date or timestamp")
     download.add_argument("--end", required=True, help="ISO date or timestamp")
-    download.add_argument("--timeframe", choices=["1Day", "1Hour", "5Min"], default="1Day")
+    download.add_argument(
+        "--timeframe",
+        choices=["1Day", "1Hour", "5Min", "1Min"],
+        default="1Day",
+    )
     download.add_argument("--output", type=Path, required=True)
     download.add_argument("--overwrite", action="store_true")
     download_universe = subparsers.add_parser(
@@ -226,7 +230,11 @@ def _parser() -> argparse.ArgumentParser:
     download_universe.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
     download_universe.add_argument("--start", required=True)
     download_universe.add_argument("--end", required=True)
-    download_universe.add_argument("--timeframe", choices=["1Day", "1Hour", "5Min"], default="1Day")
+    download_universe.add_argument(
+        "--timeframe",
+        choices=["1Day", "1Hour", "5Min", "1Min"],
+        default="1Day",
+    )
     download_universe.add_argument("--output-directory", type=Path, default=Path("data/universe"))
     download_universe.add_argument("--overwrite", action="store_true")
 
@@ -310,6 +318,7 @@ def _parser() -> argparse.ArgumentParser:
     intraday_evaluate.add_argument("--embargo-frames", type=int, default=78)
     intraday_evaluate.add_argument("--warmup-frames", type=int, default=1_560)
     intraday_evaluate.add_argument("--maximum-frames", type=int, default=10_000)
+    intraday_evaluate.add_argument("--bar-minutes", type=int, choices=[1, 5], default=5)
     intraday_evaluate.add_argument("--holdout-manifest", type=Path)
     intraday_evaluate.add_argument("--minimum-closed-trades", type=int, default=200)
     intraday_evaluate.add_argument("--seed", type=int, default=7)
@@ -684,7 +693,12 @@ def main(argv: Sequence[str] | None = None) -> None:
             symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
         )
         source_dataset = load_universe(args.universe_directory, symbols)
-        intraday_config = AppConfig().intraday.model_copy(update={"enabled": True})
+        intraday_config = AppConfig().intraday.model_copy(
+            update={
+                "enabled": True,
+                "primary_bar_minutes": args.bar_minutes,
+            }
+        )
         calendar = NyseSessionCalendar(intraday_config)
         frames = regular_session_frames(source_dataset.frames, calendar)
         if args.maximum_frames > 0:
@@ -767,7 +781,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             minimum_closed_trades=args.minimum_closed_trades,
             minimum_deflated_sharpe_probability=Decimal("0.95"),
             maximum_backtest_overfitting_probability=Decimal("0.20"),
-            number_of_trials=3,
+            number_of_trials=24,
         )
         with ExperimentRegistry(args.database) as registry:
             experiment_id = registry.record_model(

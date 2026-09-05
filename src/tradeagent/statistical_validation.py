@@ -76,7 +76,12 @@ def probability_of_backtest_overfitting(
 
     period_count = next(iter(periods))
     partitions = [
-        [index for index in range(period_count) if index % subsets == subset]
+        list(
+            range(
+                subset * period_count // subsets,
+                (subset + 1) * period_count // subsets,
+            )
+        )
         for subset in range(subsets)
     ]
     overfit = 0

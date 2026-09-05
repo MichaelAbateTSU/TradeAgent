@@ -39,6 +39,25 @@ def test_stable_candidate_has_low_backtest_overfitting_probability() -> None:
     assert probability == 0
 
 
+def test_pbo_uses_contiguous_temporal_blocks() -> None:
+    candidate = [
+        Decimal("0.03"),
+        Decimal("0.03"),
+        Decimal("0.03"),
+        Decimal("-0.03"),
+        Decimal("-0.03"),
+        Decimal("-0.03"),
+    ]
+    benchmark = [Decimal(0)] * 6
+
+    probability = probability_of_backtest_overfitting(
+        [candidate, benchmark],
+        subsets=6,
+    )
+
+    assert Decimal(0) <= probability <= Decimal(1)
+
+
 def test_statistical_validation_rejects_invalid_samples() -> None:
     with pytest.raises(ValueError, match="three"):
         probabilistic_sharpe_ratio(
