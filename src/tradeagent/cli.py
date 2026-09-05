@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
@@ -19,7 +20,15 @@ from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.monitor import monitor_take_profit
+from tradeagent.notifications import (
+    EmailSettings,
+    NotificationDispatcher,
+    ResendEmailProvider,
+    RoundTripNotificationRepository,
+)
+from tradeagent.notifier import NotifierService
 from tradeagent.oms import PaperOrderManager
+from tradeagent.persistence import Database, ProductionRepository
 from tradeagent.portfolio_research import evaluate_portfolio_suite
 from tradeagent.portfolio_strategy import (
     CrossSectionalMomentumStrategy,
@@ -218,6 +227,13 @@ def _parser() -> argparse.ArgumentParser:
     portfolio_evaluate.add_argument("--embargo-frames", type=int, default=5)
     portfolio_evaluate.add_argument("--seed", type=int, default=7)
     portfolio_evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
+    notifier = subparsers.add_parser(
+        "notifier",
+        help="deliver exactly-once round-trip emails from the production outbox",
+    )
+    notifier.add_argument("--once", action="store_true")
+    notifier.add_argument("--poll-seconds", type=float, default=5)
+    notifier.add_argument("--instance-id", default="notifier-1")
     return parser
 
 
@@ -431,6 +447,27 @@ def main(argv: Sequence[str] | None = None) -> None:
                 qualified=report.qualified,
             )
         print(_json({"experiment_id": experiment_id, "report": report}))
+        return
+
+    if args.command == "notifier":
+        config = AppConfig()
+        email_settings = EmailSettings.model_validate({})
+        with (
+            Database(config.database_url.get_secret_value()) as database,
+            ResendEmailProvider(email_settings) as provider,
+        ):
+            notification_repository = RoundTripNotificationRepository(database)
+            service = NotifierService(
+                NotificationDispatcher(notification_repository, provider),
+                ProductionRepository(database),
+                instance_id=args.instance_id,
+                poll_seconds=args.poll_seconds,
+            )
+            if args.once:
+                dispatched = service.run_once()
+                print(_json({"dispatched": dispatched}))
+            else:
+                asyncio.run(service.run())
         return
 
     if args.command == "backtest":
