@@ -54,8 +54,7 @@ def test_meta_label_evaluation_fails_closed_on_bad_samples() -> None:
     with pytest.raises(ValueError, match="both positive and negative"):
         evaluate_meta_labels(one_class)
     too_few_positive = [
-        event.model_copy(update={"label": int(index < 10)})
-        for index, event in enumerate(_events())
+        event.model_copy(update={"label": int(index < 10)}) for index, event in enumerate(_events())
     ]
     with pytest.raises(ValueError, match="20 positive"):
         evaluate_meta_labels(too_few_positive)
