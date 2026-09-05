@@ -20,6 +20,7 @@ dependencies = [
   "pydantic-settings>=2.9,<3",
   "sqlalchemy>=2.0,<3",
   "uvicorn>=0.35,<1",
+  "websockets>=15,<16",
 ]
 
 [project.optional-dependencies]
