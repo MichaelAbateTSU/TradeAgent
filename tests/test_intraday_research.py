@@ -16,22 +16,27 @@ from tradeagent.universe import UniverseFrame, UniverseManifest
 
 
 def _frames(count: int = 70) -> tuple[UniverseFrame, ...]:
-    start = datetime(2026, 9, 1, 13, 30, tzinfo=UTC)
+    day = datetime(2026, 8, 3, 13, 30, tzinfo=UTC)
     frames = []
     price = Decimal("100")
-    for index in range(count):
-        timestamp = start + timedelta(minutes=index * 5)
-        price += Decimal("0.05") if index % 10 >= 6 else Decimal("0")
-        bar = MarketBar(
-            symbol="SPY",
-            timestamp=timestamp,
-            open=price,
-            high=price + Decimal("0.1"),
-            low=price - Decimal("0.1"),
-            close=price,
-            volume=Decimal("10000"),
-        )
-        frames.append(UniverseFrame(timestamp=timestamp, bars=(bar,)))
+    while len(frames) < count:
+        if day.weekday() < 5:
+            for bar_index in range(7):
+                timestamp = day + timedelta(minutes=bar_index * 5)
+                price += Decimal("0.05") if bar_index >= 5 else Decimal(0)
+                bar = MarketBar(
+                    symbol="SPY",
+                    timestamp=timestamp,
+                    open=price,
+                    high=price + Decimal("0.1"),
+                    low=price - Decimal("0.1"),
+                    close=price,
+                    volume=Decimal("10000"),
+                )
+                frames.append(UniverseFrame(timestamp=timestamp, bars=(bar,)))
+                if len(frames) == count:
+                    break
+        day += timedelta(days=1)
     return tuple(frames)
 
 
