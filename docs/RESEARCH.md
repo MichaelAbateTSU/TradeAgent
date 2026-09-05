@@ -112,6 +112,27 @@ benchmark-relative performance. They are recorded as rejected baselines. Paramet
 not be tuned repeatedly against this same period; the next candidate requires a fresh
 development split and locked terminal holdout.
 
+## Regime-momentum development result
+
+A prospective 10,000-frame SPY/QQQ panel was sealed before evaluating the new
+regime-filtered candidate:
+
+- development frames: 8,000;
+- unopened terminal holdout: 2,000;
+- holdout starts July 30, 2026 at 15:50 UTC;
+- sealed dataset SHA-256:
+  `ada7e690cdc63c5a1578cca88c93f04afeb71924711e7420c1e5f33c564e227f`.
+
+The candidate required aligned 15/30/60-minute momentum, a trending regime, bounded
+realized volatility, acceptable spread, and relative volume.
+
+| Folds | Positive folds | Avg. Sharpe | Benchmark wins | Avg. excess | Closed trades | DSR probability | PBO | Qualified |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 16 | 37.5% | -3.990 | 37.5% | -0.00015% | 95 | 4.9% | 10.0% | No |
+
+It failed absolute, stress, benchmark, trade-count, and Deflated Sharpe gates. The
+terminal holdout remains unopened and must not be evaluated for this rejected candidate.
+
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,

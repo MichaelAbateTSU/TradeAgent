@@ -22,6 +22,7 @@ The deployed worker:
 - holds a database worker lock;
 - reconciles the Alpaca paper account;
 - consumes and audits IEX bars and quotes;
+- persists normalized bars and quotes with event/receive/process timestamps;
 - cannot place orders.
 
 The PostgreSQL instance rejects public inbound connections. Render injects its internal

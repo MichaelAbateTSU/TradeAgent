@@ -45,6 +45,9 @@ SQLite ledger.
 - Always-on notifier service and Azure Container Apps deployment template
 - $10–$25 fractional intraday backtesting with correct 5-minute annualization
 - Opening-range breakout and session-VWAP mean-reversion qualification
+- Normalized hosted bars/quotes with event, receive, and process timestamps
+- Point-in-time spread, volume, volatility, VWAP, momentum, and regime features
+- Regime-filtered intraday momentum with DSR/PBO and sealed-holdout gates
 
 ## Quick start
 
@@ -137,6 +140,18 @@ Download and qualify real five-minute candidates:
 .\.venv\Scripts\tradeagent.exe intraday-evaluate `
   --strategy vwap --symbols SPY,QQQ `
   --universe-directory .\data\intraday
+```
+
+Seal development data before a fresh candidate:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe seal-intraday-holdout `
+  --symbols SPY,QQQ --universe-directory .\data\intraday `
+  --manifest .\data\intraday-holdout.json
+.\.venv\Scripts\tradeagent.exe intraday-evaluate `
+  --strategy regime-momentum --symbols SPY,QQQ `
+  --universe-directory .\data\intraday `
+  --holdout-manifest .\data\intraday-holdout.json
 ```
 
 Start the read-only console at <http://127.0.0.1:8000>:

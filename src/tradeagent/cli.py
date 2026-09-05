@@ -19,6 +19,13 @@ from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fi
 from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
+from tradeagent.holdout import (
+    HOLDOUT_AUTHORIZATION,
+    development_frames,
+    load_holdout_manifest,
+    open_holdout_once,
+    seal_holdout,
+)
 from tradeagent.intraday import NyseSessionCalendar, regular_session_frames
 from tradeagent.intraday_strategy import (
     IntradayEqualWeightBenchmark,
@@ -273,9 +280,31 @@ def _parser() -> argparse.ArgumentParser:
     intraday_evaluate.add_argument("--embargo-frames", type=int, default=78)
     intraday_evaluate.add_argument("--warmup-frames", type=int, default=390)
     intraday_evaluate.add_argument("--maximum-frames", type=int, default=10_000)
+    intraday_evaluate.add_argument("--holdout-manifest", type=Path)
     intraday_evaluate.add_argument("--minimum-closed-trades", type=int, default=200)
     intraday_evaluate.add_argument("--seed", type=int, default=7)
     intraday_evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
+    seal = subparsers.add_parser(
+        "seal-intraday-holdout",
+        help="seal the terminal fraction of a regular-session intraday panel",
+    )
+    seal.add_argument("--symbols", default="SPY,QQQ")
+    seal.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
+    seal.add_argument("--manifest", type=Path, default=Path("data/intraday-holdout.json"))
+    seal.add_argument("--fraction", type=float, default=0.20)
+    seal.add_argument("--maximum-frames", type=int, default=10_000)
+    open_holdout = subparsers.add_parser(
+        "open-intraday-holdout",
+        help="open a sealed terminal holdout once and write an audit marker",
+    )
+    open_holdout.add_argument("--symbols", default="SPY,QQQ")
+    open_holdout.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
+    open_holdout.add_argument("--manifest", type=Path, default=Path("data/intraday-holdout.json"))
+    open_holdout.add_argument(
+        "--audit", type=Path, default=Path("data/intraday-holdout-opened.json")
+    )
+    open_holdout.add_argument("--maximum-frames", type=int, default=10_000)
+    open_holdout.add_argument("--authorization", required=True)
     return parser
 
 
@@ -562,6 +591,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         frames = regular_session_frames(source_dataset.frames, calendar)
         if args.maximum_frames > 0:
             frames = frames[-args.maximum_frames :]
+        if args.holdout_manifest is not None:
+            frames = development_frames(
+                frames,
+                load_holdout_manifest(args.holdout_manifest),
+            )
         bars_by_symbol = {symbol: [frame.bar_for(symbol) for frame in frames] for symbol in symbols}
         dataset = align_universe(bars_by_symbol)
         intraday_strategy_config = IntradayStrategyConfig()
@@ -623,6 +657,42 @@ def main(argv: Sequence[str] | None = None) -> None:
                 qualified=report.qualified,
             )
         print(_json({"experiment_id": experiment_id, "report": report}))
+        return
+
+    if args.command in {"seal-intraday-holdout", "open-intraday-holdout"}:
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        source = load_universe(args.universe_directory, symbols)
+        calendar = NyseSessionCalendar(AppConfig().intraday)
+        frames = regular_session_frames(source.frames, calendar)
+        if args.maximum_frames > 0:
+            frames = frames[-args.maximum_frames :]
+        if args.command == "seal-intraday-holdout":
+            manifest = seal_holdout(
+                frames,
+                args.manifest,
+                holdout_fraction=args.fraction,
+            )
+            print(_json(manifest))
+            return
+        manifest = load_holdout_manifest(args.manifest)
+        holdout = open_holdout_once(
+            frames,
+            manifest,
+            args.audit,
+            authorization=args.authorization,
+        )
+        print(
+            _json(
+                {
+                    "opened": True,
+                    "frames": len(holdout),
+                    "holdout_hash": manifest.holdout_hash,
+                    "authorization_matched": (args.authorization == HOLDOUT_AUTHORIZATION),
+                }
+            )
+        )
         return
 
     if args.command == "backtest":

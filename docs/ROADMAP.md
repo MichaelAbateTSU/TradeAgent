@@ -77,6 +77,12 @@ The detailed always-on intraday build and deployment sequence is in
 - [x] Opening-range breakout intraday baseline
 - [x] Session VWAP mean-reversion intraday baseline
 - [x] Real five-minute SPY/QQQ qualification with 200-trade gate
+- [x] Normalized hosted bar and quote persistence
+- [x] Point-in-time intraday feature engine
+- [x] Regime-filtered cross-sectional momentum candidate
+- [x] Deflated Sharpe and PBO promotion gates
+- [x] Immutable development/terminal holdout sealing
+- [x] One-time audited holdout opening control
 - [x] Cross-sectional momentum portfolio and equal-risk benchmark
 - [x] Portfolio walk-forward cost, delay, and bootstrap qualification
 - [x] Volatility-targeted trend challenger

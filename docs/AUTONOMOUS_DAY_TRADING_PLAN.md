@@ -103,6 +103,11 @@ regular-session filtering, opening-range breakout, session VWAP mean reversion, 
 intraday equal-risk benchmark, and a 200-closed-trade evidence gate. Both initial
 candidates failed real SPY/QQQ five-minute qualification and remain unauthorized.
 
+The v0.6.0 evidence-hardening batch adds normalized hosted bars/quotes, point-in-time
+features, regime-filtered intraday momentum, DSR/PBO gates, and an immutable one-time
+holdout workflow. The fresh candidate failed on the 8,000-frame development segment, so
+the 2,000-frame terminal holdout remains unopened.
+
 Render is the preferred hosted fallback when Azure RBAC is unavailable. The root
 `render.yaml` provisions managed PostgreSQL, dashboard, one shadow worker, and one
 notifier using paid always-on services.
