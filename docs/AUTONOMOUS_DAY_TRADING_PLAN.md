@@ -103,7 +103,8 @@ Render is the preferred hosted fallback when Azure RBAC is unavailable. The root
 notifier using paid always-on services.
 
 The Render PostgreSQL, dashboard, and shadow worker were deployed on September 4, 2026.
-The notifier remains undeployed until valid Resend sender/recipient credentials exist.
+The notifier was subsequently deployed with a private one-recipient Resend configuration
+after a successful test email.
 
 ## Target architecture
 
