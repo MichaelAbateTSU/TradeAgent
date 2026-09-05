@@ -128,3 +128,30 @@ def test_paper_broker_partially_fills_at_volume_cap(bar: MarketBar, timestamp: d
 
     assert fill.quantity == Decimal("5")
     assert broker.account(timestamp).position_for("SPY").quantity == Decimal("5")  # type: ignore[union-attr]
+
+
+def test_realized_pnl_includes_both_sides_commission(bar: MarketBar, timestamp: datetime) -> None:
+    broker = PaperBroker(
+        BrokerConfig(
+            slippage_bps=Decimal(0),
+            spread_bps=Decimal(0),
+            commission_bps=Decimal("1"),
+        )
+    )
+    broker.mark(bar)
+    broker.submit(make_order(timestamp, quantity=Decimal("1")), bar)
+    broker.submit(
+        make_order(
+            timestamp,
+            side=Side.SELL,
+            quantity=Decimal("1"),
+            client_order_id="sell-commission",
+        ),
+        bar,
+    )
+    account = broker.account(timestamp)
+
+    assert account.equity == Decimal("99999.9800")
+    state = broker.export_state()
+    assert state.positions[0].realized_pnl == Decimal("-0.0200")
+    assert state.positions[0].entry_commission == 0

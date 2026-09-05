@@ -187,6 +187,7 @@ class PaperPositionState(FrozenModel):
     quantity: Decimal
     average_price: Decimal = Field(ge=0)
     realized_pnl: Decimal
+    entry_commission: Decimal = Field(default=Decimal(0), ge=0)
 
 
 class PaperBrokerState(FrozenModel):

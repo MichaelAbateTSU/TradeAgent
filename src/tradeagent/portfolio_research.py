@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from collections.abc import Callable, Sequence
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from hashlib import sha256
+from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -128,16 +130,10 @@ def evaluate_portfolio_walk_forward(
     )
     scenario_config = app_config.model_copy(update={"broker": broker_config})
     folds: list[PortfolioWalkForwardFold] = []
-    training_start = 0
-    fold_index = 1
-    while True:
-        training_end = training_start + walk_forward.training_bars
-        testing_start = training_end + walk_forward.embargo_bars
-        testing_end = testing_start + walk_forward.testing_bars
-        if testing_end > len(frames):
-            break
-        training = frames[training_start:training_end]
-        testing = frames[testing_start:testing_end]
+    for fold_index, (training, testing) in enumerate(
+        _fold_windows(frames, walk_forward, scenario_config),
+        start=1,
+    ):
         base_strategy = strategy_factory()
         if walk_forward.warmup_bars:
             for frame in training[-walk_forward.warmup_bars :]:
@@ -145,6 +141,7 @@ def evaluate_portfolio_walk_forward(
         strategy = DelayedPortfolioStrategy(
             base_strategy,
             delay_frames=execution_delay_frames,
+            intraday=(scenario_config.intraday if scenario_config.intraday.enabled else None),
         )
         with SQLiteLedger(":memory:") as ledger:
             report = PortfolioEngine(
@@ -164,8 +161,6 @@ def evaluate_portfolio_walk_forward(
                 report=report,
             )
         )
-        fold_index += 1
-        training_start += walk_forward.step_bars
 
     positive = sum(fold.report.total_return > 0 for fold in folds)
     positive_ratio = Decimal(positive) / Decimal(len(folds))
@@ -339,3 +334,55 @@ def evaluate_portfolio_suite(
         qualified=not reasons,
         qualification_reasons=tuple(reasons),
     )
+
+
+def _fold_windows(
+    frames: Sequence[UniverseFrame],
+    walk_forward: WalkForwardConfig,
+    config: AppConfig,
+) -> list[tuple[list[UniverseFrame], list[UniverseFrame]]]:
+    if not config.intraday.enabled:
+        windows: list[tuple[list[UniverseFrame], list[UniverseFrame]]] = []
+        training_start = 0
+        while True:
+            training_end = training_start + walk_forward.training_bars
+            testing_start = training_end + walk_forward.embargo_bars
+            testing_end = testing_start + walk_forward.testing_bars
+            if testing_end > len(frames):
+                break
+            windows.append(
+                (
+                    list(frames[training_start:training_end]),
+                    list(frames[testing_start:testing_end]),
+                )
+            )
+            training_start += walk_forward.step_bars
+        return windows
+
+    timezone = ZoneInfo(config.intraday.timezone)
+    sessions: dict[date, list[UniverseFrame]] = defaultdict(list)
+    for frame in frames:
+        sessions[frame.timestamp.astimezone(timezone).date()].append(frame)
+    ordered_sessions = [sessions[key] for key in sorted(sessions)]
+    expected_per_day = 390 // config.intraday.primary_bar_minutes
+    training_sessions = max(1, round(walk_forward.training_bars / expected_per_day))
+    testing_sessions = max(1, round(walk_forward.testing_bars / expected_per_day))
+    embargo_sessions = max(0, round(walk_forward.embargo_bars / expected_per_day))
+    step_sessions = max(1, round(walk_forward.step_bars / expected_per_day))
+    windows = []
+    training_start = 0
+    while True:
+        training_end = training_start + training_sessions
+        testing_start = training_end + embargo_sessions
+        testing_end = testing_start + testing_sessions
+        if testing_end > len(ordered_sessions):
+            break
+        training = [
+            frame for session in ordered_sessions[training_start:training_end] for frame in session
+        ]
+        testing = [
+            frame for session in ordered_sessions[testing_start:testing_end] for frame in session
+        ]
+        windows.append((training, testing))
+        training_start += step_sessions
+    return windows

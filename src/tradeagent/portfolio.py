@@ -133,6 +133,17 @@ class PortfolioEngine:
 
         if first_frame is None or last_frame is None or starting_equity is None:
             raise ValueError("at least one universe frame is required")
+        if self._broker.account(last_frame.timestamp).positions:
+            self._execute_targets(
+                last_frame,
+                PortfolioIntent(
+                    strategy_id=self._strategy.strategy_id,
+                    timestamp=last_frame.timestamp,
+                    target_weights={bar.symbol: Decimal(0) for bar in last_frame.bars},
+                    rationale="forced end-of-run liquidation",
+                ),
+            )
+            equities[-1] = self._broker.account(last_frame.timestamp).equity
         final_account = self._broker.account(last_frame.timestamp)
         self._ledger.append(
             "broker_checkpoint",

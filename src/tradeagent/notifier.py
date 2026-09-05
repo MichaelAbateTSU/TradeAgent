@@ -79,11 +79,13 @@ class NotifierService:
             return
 
     def _heartbeat(self, state: str, *, dispatched: bool) -> None:
-        self._repository.refresh_worker_lock(
+        refreshed = self._repository.refresh_worker_lock(
             "tradeagent-notifier",
             self._instance_id,
             observed_at=self._clock(),
         )
+        if state == "running" and not refreshed:
+            raise NotifierAlreadyRunningError("notifier lost its delivery lease")
         self._repository.heartbeat(
             "tradeagent-notifier",
             self._instance_id,

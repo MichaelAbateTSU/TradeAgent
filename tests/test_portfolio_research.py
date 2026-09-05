@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
-from tradeagent.config import AppConfig
+from tradeagent.config import AppConfig, IntradayConfig
 from tradeagent.data import synthetic_bars
+from tradeagent.domain import MarketBar
 from tradeagent.portfolio_research import (
     evaluate_portfolio_suite,
     evaluate_portfolio_walk_forward,
@@ -18,7 +20,7 @@ from tradeagent.portfolio_strategy import (
     PortfolioStrategyConfig,
 )
 from tradeagent.research import ExperimentRegistry, WalkForwardConfig
-from tradeagent.universe import align_universe
+from tradeagent.universe import UniverseFrame, align_universe
 
 
 def _dataset(frame_count: int = 100):
@@ -114,3 +116,46 @@ def test_portfolio_walk_forward_rejects_short_history() -> None:
             cost_multiplier=Decimal(1),
             execution_delay_frames=1,
         )
+
+
+def test_intraday_walk_forward_uses_complete_sessions_and_finishes_flat() -> None:
+    frames: list[UniverseFrame] = []
+    day = datetime(2026, 8, 3, tzinfo=UTC)
+    while len(frames) < 32:
+        if day.weekday() < 5:
+            for hour, minute in ((13, 35), (14, 0), (19, 50), (19, 55)):
+                timestamp = day.replace(hour=hour, minute=minute)
+                bar = MarketBar(
+                    symbol="SPY",
+                    timestamp=timestamp,
+                    open=Decimal("100"),
+                    high=Decimal("101"),
+                    low=Decimal("99"),
+                    close=Decimal("100"),
+                    volume=Decimal("10000"),
+                )
+                frames.append(UniverseFrame(timestamp=timestamp, bars=(bar,)))
+        day += timedelta(days=1)
+    app_config = AppConfig(intraday=IntradayConfig(enabled=True))
+    walk_forward = WalkForwardConfig(
+        training_bars=20,
+        testing_bars=5,
+        step_bars=5,
+        embargo_bars=0,
+        warmup_bars=0,
+        bootstrap_samples=100,
+    )
+
+    report = evaluate_portfolio_walk_forward(
+        frames,
+        app_config,
+        walk_forward,
+        lambda: EqualWeightPortfolioStrategy(Decimal("0.01")),
+        cost_multiplier=Decimal(1),
+        execution_delay_frames=1,
+    )
+
+    assert report.folds
+    for fold in report.folds:
+        assert fold.testing_started_at.date() == fold.testing_ended_at.date()
+        assert fold.report.final_positions == ()

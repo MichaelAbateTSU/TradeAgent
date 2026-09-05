@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
 
+from tradeagent.config import IntradayConfig
 from tradeagent.data import synthetic_bars
 from tradeagent.portfolio_strategy import (
     CrossSectionalMomentumStrategy,
@@ -83,6 +84,29 @@ def test_delayed_portfolio_strategy_defers_intent() -> None:
     assert delayed.timestamp == frames[1].timestamp
     assert "1-frame delay" in delayed.rationale
     assert strategy.strategy_id == base.strategy_id
+
+
+def test_delayed_intraday_strategy_cannot_enter_after_cutoff() -> None:
+    frames = _momentum_frames()
+    intraday = IntradayConfig(enabled=True)
+    base = EqualWeightPortfolioStrategy(Decimal("0.01"))
+    strategy = DelayedPortfolioStrategy(base, delay_frames=1, intraday=intraday)
+    entry_frame = frames[0].model_copy(
+        update={"timestamp": datetime(2026, 9, 4, 19, 25, tzinfo=UTC)}
+    )
+    manage_frame = frames[1].model_copy(
+        update={"timestamp": datetime(2026, 9, 4, 19, 30, tzinfo=UTC)}
+    )
+    flatten_frame = frames[2].model_copy(
+        update={"timestamp": datetime(2026, 9, 4, 19, 50, tzinfo=UTC)}
+    )
+
+    assert strategy.on_frame(entry_frame) is None
+    assert strategy.on_frame(manage_frame) is None
+    flatten = strategy.on_frame(flatten_frame)
+
+    assert flatten is not None
+    assert set(flatten.target_weights.values()) == {Decimal(0)}
 
 
 def test_portfolio_strategy_configuration_fails_closed() -> None:

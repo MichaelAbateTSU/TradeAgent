@@ -165,11 +165,14 @@ class AutonomousPaperWorker:
             raise StaleMarketDataError(f"{type(event).__name__} is stale by {age:.3f} seconds")
 
     def _heartbeat(self, state: str, counters: dict[str, int]) -> None:
-        self._repository.refresh_worker_lock(
+        refreshed = self._repository.refresh_worker_lock(
             "tradeagent-paper-worker",
             self._instance_id,
             observed_at=self._clock(),
         )
+        if state == "running" and not refreshed:
+            self._repository.set_control("kill_switch", "active")
+            raise WorkerStartupError("paper worker lost its ownership lease")
         self._repository.heartbeat(
             "tradeagent-worker",
             self._instance_id,

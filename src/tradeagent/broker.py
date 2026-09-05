@@ -30,6 +30,7 @@ class _PositionState:
     quantity: Decimal = Decimal(0)
     average_price: Decimal = Decimal(0)
     realized_pnl: Decimal = Decimal(0)
+    entry_commission: Decimal = Decimal(0)
 
 
 class PaperBroker:
@@ -62,6 +63,7 @@ class PaperBroker:
                 quantity=position.quantity,
                 average_price=position.average_price,
                 realized_pnl=position.realized_pnl,
+                entry_commission=position.entry_commission,
             )
             for position in state.positions
         }
@@ -81,6 +83,7 @@ class PaperBroker:
                     quantity=state.quantity,
                     average_price=state.average_price,
                     realized_pnl=state.realized_pnl,
+                    entry_commission=state.entry_commission,
                 )
                 for symbol, state in sorted(self._positions.items())
             ),
@@ -135,15 +138,23 @@ class PaperBroker:
                 (position.quantity * position.average_price) + notional
             ) / new_quantity
             position.quantity = new_quantity
+            position.entry_commission += commission
             self._cash -= required_cash
         else:
+            allocated_entry_commission = (
+                position.entry_commission * fill_quantity / position.quantity
+            )
             position.realized_pnl += (
-                (fill_price - position.average_price) * fill_quantity
-            ) - commission
+                ((fill_price - position.average_price) * fill_quantity)
+                - commission
+                - allocated_entry_commission
+            )
+            position.entry_commission -= allocated_entry_commission
             position.quantity -= fill_quantity
             self._cash += notional - commission
             if position.quantity == 0:
                 position.average_price = Decimal(0)
+                position.entry_commission = Decimal(0)
 
         fill_key = f"{order.client_order_id}:{fill_price}:{fill_quantity}"
         fill = Fill(

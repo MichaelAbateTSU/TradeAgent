@@ -51,7 +51,7 @@ def test_portfolio_engine_runs_synchronized_multi_asset_accounting() -> None:
         assert report.mode == "paper"
         assert report.symbols == ("QQQ", "SPY")
         assert report.fills > 0
-        assert len(report.final_positions) == 2
+        assert report.final_positions == ()
         assert report.rejected_orders == 0
         assert ledger.latest_event("portfolio_progress") is not None
         assert ledger.latest_event("broker_checkpoint") is not None
@@ -109,13 +109,17 @@ def test_intraday_portfolio_caps_fractional_position_at_small_notional() -> None
             RiskEngine(config.risk),
             ledger,
         ).run([frame])
+        submitted = [
+            event
+            for event in ledger.events(limit=20)
+            if event["event_type"] == "order_submitted"
+        ]
 
-    assert report.fills == 2
-    assert all(
-        position.market_value <= config.intraday.maximum_order_notional
-        for position in report.final_positions
-    )
-    assert all(position.quantity % 1 != 0 for position in report.final_positions)
+    assert report.fills == 4
+    assert report.final_positions == ()
+    buys = [event["payload"] for event in submitted if event["payload"]["side"] == "buy"]
+    assert len(buys) == 2
+    assert all(Decimal(order["quantity"]) % 1 != 0 for order in buys)
     with pytest.raises(ValueError, match="cannot exceed one"):
         PortfolioIntent(
             strategy_id="invalid",

@@ -5,6 +5,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from tradeagent.config import IntradayConfig
+from tradeagent.intraday import NyseSessionCalendar, SessionPhase
 from tradeagent.portfolio import PortfolioIntent, PortfolioStrategy
 from tradeagent.universe import UniverseFrame
 
@@ -93,12 +95,18 @@ class EqualWeightPortfolioStrategy:
 
 
 class DelayedPortfolioStrategy:
-    def __init__(self, strategy: PortfolioStrategy, delay_frames: int) -> None:
+    def __init__(
+        self,
+        strategy: PortfolioStrategy,
+        delay_frames: int,
+        intraday: IntradayConfig | None = None,
+    ) -> None:
         if delay_frames < 0:
             raise ValueError("delay_frames cannot be negative")
         self._strategy = strategy
         self._delay_frames = delay_frames
         self._pending: deque[PortfolioIntent | None] = deque()
+        self._calendar = NyseSessionCalendar(intraday) if intraday is not None else None
 
     @property
     def strategy_id(self) -> str:
@@ -106,6 +114,22 @@ class DelayedPortfolioStrategy:
 
     def on_frame(self, frame: UniverseFrame) -> PortfolioIntent | None:
         current = self._strategy.on_frame(frame)
+        if self._calendar is not None:
+            phase = self._calendar.gate(frame.timestamp).phase
+            if phase is SessionPhase.FLATTEN:
+                self._pending.clear()
+                return PortfolioIntent(
+                    strategy_id=self.strategy_id,
+                    timestamp=frame.timestamp,
+                    target_weights={bar.symbol: Decimal(0) for bar in frame.bars},
+                    rationale="immediate session flatten",
+                )
+            if phase in {
+                SessionPhase.CLOSED,
+                SessionPhase.PRE_ENTRY,
+                SessionPhase.MANAGE_ONLY,
+            }:
+                return None
         if self._delay_frames == 0:
             return current
         self._pending.append(current)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Literal
 
@@ -79,7 +79,10 @@ class AlpacaDataClient:
             for raw_bar in raw_bars:
                 yield MarketBar(
                     symbol=normalized_symbol,
-                    timestamp=datetime.fromisoformat(str(raw_bar["t"]).replace("Z", "+00:00")),
+                    timestamp=(
+                        datetime.fromisoformat(str(raw_bar["t"]).replace("Z", "+00:00"))
+                        + _timeframe_duration(timeframe)
+                    ),
                     open=Decimal(str(raw_bar["o"])),
                     high=Decimal(str(raw_bar["h"])),
                     low=Decimal(str(raw_bar["l"])),
@@ -105,3 +108,11 @@ class AlpacaDataClient:
 
     def __exit__(self, *_: object) -> None:
         self.close()
+
+
+def _timeframe_duration(timeframe: str) -> timedelta:
+    return {
+        "1Day": timedelta(0),
+        "1Hour": timedelta(hours=1),
+        "5Min": timedelta(minutes=5),
+    }[timeframe]

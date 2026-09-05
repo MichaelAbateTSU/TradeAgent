@@ -72,6 +72,43 @@ def test_alpaca_data_client_paginates_and_normalizes_bars() -> None:
     assert bars[0].close == 101
 
 
+def test_intraday_bars_are_normalized_to_close_time() -> None:
+    client = AlpacaDataClient(
+        _settings(),
+        client=httpx.Client(
+            transport=httpx.MockTransport(
+                lambda _: httpx.Response(
+                    200,
+                    json={
+                        "bars": [
+                            {
+                                "t": "2025-01-02T14:30:00Z",
+                                "o": 100,
+                                "h": 101,
+                                "l": 99,
+                                "c": 100,
+                                "v": 1000,
+                            }
+                        ],
+                        "next_page_token": None,
+                    },
+                )
+            )
+        ),
+    )
+
+    bar = next(
+        client.bars(
+            "SPY",
+            start=datetime(2025, 1, 2, tzinfo=UTC),
+            end=datetime(2025, 1, 3, tzinfo=UTC),
+            timeframe="5Min",
+        )
+    )
+
+    assert bar.timestamp == datetime(2025, 1, 2, 14, 35, tzinfo=UTC)
+
+
 def test_alpaca_data_client_validates_range_and_response() -> None:
     http_client = httpx.Client(
         transport=httpx.MockTransport(lambda _: httpx.Response(200, json={}))
