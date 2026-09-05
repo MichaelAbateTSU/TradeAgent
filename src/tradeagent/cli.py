@@ -34,6 +34,7 @@ from tradeagent.strategy import (
     Strategy,
     VolatilityTargetTrendStrategy,
 )
+from tradeagent.universe import symbol_filename
 
 
 def _json(value: Any) -> str:
@@ -165,6 +166,16 @@ def _parser() -> argparse.ArgumentParser:
     download.add_argument("--timeframe", choices=["1Day", "1Hour", "5Min"], default="1Day")
     download.add_argument("--output", type=Path, required=True)
     download.add_argument("--overwrite", action="store_true")
+    download_universe = subparsers.add_parser(
+        "download-universe",
+        help="download a comma-separated Alpaca universe to canonical CSV files",
+    )
+    download_universe.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
+    download_universe.add_argument("--start", required=True)
+    download_universe.add_argument("--end", required=True)
+    download_universe.add_argument("--timeframe", choices=["1Day", "1Hour", "5Min"], default="1Day")
+    download_universe.add_argument("--output-directory", type=Path, default=Path("data/universe"))
+    download_universe.add_argument("--overwrite", action="store_true")
 
     subparsers.add_parser(
         "alpaca-paper-status",
@@ -253,6 +264,40 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "symbol": args.symbol.upper(),
                     "rows": count,
                     "output": str(args.output),
+                }
+            )
+        )
+        return
+
+    if args.command == "download-universe":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        if len(symbols) < 2:
+            raise ValueError("universe download requires at least two symbols")
+        data_settings = AlpacaDataSettings.model_validate({})
+        downloaded: dict[str, int] = {}
+        with AlpacaDataClient(data_settings) as data_client:
+            for symbol in symbols:
+                bars = data_client.bars(
+                    symbol,
+                    start=_parse_utc(args.start),
+                    end=_parse_utc(args.end),
+                    timeframe=args.timeframe,
+                )
+                downloaded[symbol] = write_bars(
+                    args.output_directory / symbol_filename(symbol),
+                    bars,
+                    overwrite=args.overwrite,
+                )
+        print(
+            _json(
+                {
+                    "provider": "alpaca",
+                    "feed": data_settings.feed,
+                    "symbols": symbols,
+                    "rows": downloaded,
+                    "output_directory": str(args.output_directory),
                 }
             )
         )
