@@ -6,6 +6,8 @@ bounded live capital only after prolonged forward evidence.
 
 The detailed always-on intraday build and deployment sequence is in
 [`AUTONOMOUS_DAY_TRADING_PLAN.md`](AUTONOMOUS_DAY_TRADING_PLAN.md).
+The fixed-budget strategy research program is in
+[`PROFITABILITY_STRATEGY_PLAN.md`](PROFITABILITY_STRATEGY_PLAN.md).
 
 ## Phase 1: paper-trading kernel
 
