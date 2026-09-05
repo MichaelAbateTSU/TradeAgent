@@ -251,6 +251,26 @@ class ProductionRepository:
                     .values(**values)
                 )
 
+    def latest_heartbeat(self, service_name: str) -> tuple[str, datetime, dict[str, Any]] | None:
+        with self._database.begin() as connection:
+            row = (
+                connection.execute(
+                    select(heartbeats).where(heartbeats.c.service_name == service_name)
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            return None
+        observed_at = row["observed_at"]
+        if observed_at.tzinfo is None:
+            observed_at = observed_at.replace(tzinfo=UTC)
+        return (
+            str(row["instance_id"]),
+            observed_at,
+            dict(row["details"]),
+        )
+
     def acquire_worker_lock(self, lock_name: str, owner_id: str) -> bool:
         try:
             with self._database.begin() as connection:

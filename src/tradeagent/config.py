@@ -88,6 +88,8 @@ class IntradayConfig(BaseModel):
     minimum_expected_edge_bps: Decimal = Field(default=Decimal("15"), gt=0)
     quote_max_age_seconds: int = Field(default=10, gt=0)
     bar_max_age_seconds: int = Field(default=90, gt=0)
+    reconciliation_interval_seconds: int = Field(default=60, gt=0)
+    heartbeat_max_age_seconds: int = Field(default=60, gt=0)
 
     @model_validator(mode="after")
     def validate_intraday_policy(self) -> IntradayConfig:
