@@ -37,17 +37,22 @@ az deployment group create `
   --template-file .\infra\azure\main.bicep `
   --parameters `
     containerImage="<registry>.azurecr.io/tradeagent:$sha" `
+    registryServer="<registry>.azurecr.io" `
+    registryUsername="$env:ACR_USERNAME" `
+    registryPassword="$env:ACR_PASSWORD" `
     databaseUrl="$env:TRADEAGENT_DATABASE_URL" `
     alpacaKeyId="$env:ALPACA_KEY_ID" `
     alpacaSecretKey="$env:ALPACA_SECRET_KEY" `
     emailApiKey="$env:EMAIL_API_KEY" `
     emailSender="$env:EMAIL_SENDER" `
-    emailRecipient="$env:EMAIL_RECIPIENT"
+    emailRecipient="$env:EMAIL_RECIPIENT" `
+    deployNotifier=true
 ```
 
-Both services use `minReplicas=1` and `maxReplicas=1`, so they remain running when the
+The worker uses `minReplicas=1` and `maxReplicas=1`, so it remains running when the
 laptop is off and cannot scale into duplicate workers. The database worker lock is an
-additional guard.
+additional guard. Omit the email parameters and leave `deployNotifier=false` until a
+verified sender, recipient, and provider key are available.
 
 ## Verify
 
@@ -64,4 +69,3 @@ PostgreSQL. Keep the durable kill switch active until the shadow soak is healthy
 The template stores secrets in Container Apps secret storage. A production hardening
 follow-up should replace direct values with Key Vault references and private PostgreSQL
 networking.
-

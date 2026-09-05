@@ -4,6 +4,12 @@ param location string = resourceGroup().location
 @description('Immutable TradeAgent container image, preferably tagged by Git SHA.')
 param containerImage string
 
+param registryServer string
+param registryUsername string
+
+@secure()
+param registryPassword string
+
 @secure()
 @description('SQLAlchemy PostgreSQL URL for a migrated managed database.')
 param databaseUrl string
@@ -15,10 +21,11 @@ param alpacaKeyId string
 param alpacaSecretKey string
 
 @secure()
-param emailApiKey string
+param emailApiKey string = ''
 
-param emailSender string
-param emailRecipient string
+param emailSender string = ''
+param emailRecipient string = ''
+param deployNotifier bool = false
 param symbols string = 'SPY,QQQ,IWM,TLT,GLD'
 
 resource logs 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -65,6 +72,17 @@ resource worker 'Microsoft.App/containerApps@2024-03-01' = {
         {
           name: 'alpaca-secret-key'
           value: alpacaSecretKey
+        }
+        {
+          name: 'registry-password'
+          value: registryPassword
+        }
+      ]
+      registries: [
+        {
+          server: registryServer
+          username: registryUsername
+          passwordSecretRef: 'registry-password'
         }
       ]
     }
@@ -115,7 +133,7 @@ resource worker 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
-resource notifier 'Microsoft.App/containerApps@2024-03-01' = {
+resource notifier 'Microsoft.App/containerApps@2024-03-01' = if (deployNotifier) {
   name: 'tradeagent-notifier'
   location: location
   properties: {
@@ -130,6 +148,17 @@ resource notifier 'Microsoft.App/containerApps@2024-03-01' = {
         {
           name: 'email-api-key'
           value: emailApiKey
+        }
+        {
+          name: 'registry-password'
+          value: registryPassword
+        }
+      ]
+      registries: [
+        {
+          server: registryServer
+          username: registryUsername
+          passwordSecretRef: 'registry-password'
         }
       ]
     }
@@ -184,4 +213,4 @@ resource notifier 'Microsoft.App/containerApps@2024-03-01' = {
 
 output environmentName string = environment.name
 output workerName string = worker.name
-output notifierName string = notifier.name
+output notifierName string = deployNotifier ? notifier.name : ''
