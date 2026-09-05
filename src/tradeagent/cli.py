@@ -18,6 +18,7 @@ from tradeagent.alpaca_news import AlpacaNewsClient
 from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
 from tradeagent.alpaca_stream import AlpacaMarketStream, AlpacaStreamSettings
 from tradeagent.broker import PaperBroker
+from tradeagent.candle_strategy import CandlePattern, CandleTrackingStrategy
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.domain import PaperBrokerState
@@ -280,7 +281,14 @@ def _parser() -> argparse.ArgumentParser:
     )
     intraday_evaluate.add_argument(
         "--strategy",
-        choices=["opening-range", "vwap", "regime-momentum"],
+        choices=[
+            "opening-range",
+            "vwap",
+            "regime-momentum",
+            "heikin-ashi",
+            "engulfing",
+            "inside-breakout",
+        ],
         required=True,
     )
     intraday_evaluate.add_argument("--symbols", default="SPY,QQQ")
@@ -670,6 +678,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             OpeningRangeBreakoutStrategy
             | SessionVwapMeanReversionStrategy
             | RegimeFilteredMomentumStrategy
+            | CandleTrackingStrategy
         ):
             if args.strategy == "opening-range":
                 return OpeningRangeBreakoutStrategy(
@@ -681,9 +690,15 @@ def main(argv: Sequence[str] | None = None) -> None:
                     intraday_strategy_config,
                     intraday_config,
                 )
-            return RegimeFilteredMomentumStrategy(
-                intraday_strategy_config,
+            if args.strategy == "regime-momentum":
+                return RegimeFilteredMomentumStrategy(
+                    intraday_strategy_config,
+                    intraday_config,
+                )
+            return CandleTrackingStrategy(
+                CandlePattern(args.strategy),
                 intraday_config,
+                target_weight=intraday_strategy_config.target_weight,
             )
 
         gross_target = intraday_strategy_config.target_weight * intraday_strategy_config.top_n
