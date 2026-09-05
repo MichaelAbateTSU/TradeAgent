@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from hashlib import sha256
@@ -45,6 +46,15 @@ class MarketNewsItem(BaseModel):
     def normalize_symbols(cls, symbols: tuple[str, ...]) -> tuple[str, ...]:
         return tuple(sorted({symbol.strip().upper() for symbol in symbols if symbol.strip()}))
 
+    @field_validator("published_at", "received_at", "updated_at")
+    @classmethod
+    def normalize_timestamp(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None or value.utcoffset() is None:
+            return value.replace(tzinfo=UTC)
+        return value.astimezone(UTC)
+
     @property
     def content_hash(self) -> str:
         canonical = "|".join(
@@ -88,6 +98,37 @@ class NewsRepository:
             )
         return news_id, True
 
+    def recent(
+        self,
+        *,
+        since: datetime,
+        until: datetime,
+    ) -> list[MarketNewsItem]:
+        with self._database.begin() as connection:
+            rows = connection.execute(
+                select(market_news)
+                .where(
+                    market_news.c.received_at >= since,
+                    market_news.c.received_at <= until,
+                )
+                .order_by(market_news.c.received_at.desc())
+            ).mappings()
+            return [
+                MarketNewsItem(
+                    source=str(row["source"]),
+                    source_url=str(row["source_url"]),
+                    category=NewsCategory(str(row["category"])),
+                    symbols=tuple(row["symbols"]),
+                    headline=str(row["headline"]),
+                    published_at=row["published_at"],
+                    received_at=row["received_at"],
+                    updated_at=row["updated_at"],
+                    reliability=SourceReliability(str(row["reliability"])),
+                    revision_of=UUID(str(row["revision_of"])) if row["revision_of"] else None,
+                )
+                for row in rows
+            ]
+
 
 class NewsBlackoutPolicy:
     def __init__(self, *, maximum_feed_age: timedelta = timedelta(minutes=15)) -> None:
@@ -123,3 +164,62 @@ class NewsBlackoutPolicy:
             ):
                 return False, "HIGH_IMPACT_NEWS_WINDOW"
         return True, "NEWS_CLEAR"
+
+
+class NewsContext(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    permits_entry: bool
+    reason: str
+    article_count: int
+    official_count: int
+    high_impact_count: int
+    latest_received_at: datetime | None
+    citations: tuple[str, ...]
+
+
+class NewsContextService:
+    def __init__(
+        self,
+        repository: NewsRepository,
+        policy: NewsBlackoutPolicy,
+        *,
+        latest_feed_at: Callable[[], datetime | None],
+    ) -> None:
+        self._repository = repository
+        self._policy = policy
+        self._latest_feed_at = latest_feed_at
+
+    def context(self, symbol: str, decision_at: datetime) -> NewsContext:
+        items = self._repository.recent(
+            since=decision_at - timedelta(hours=24),
+            until=decision_at,
+        )
+        relevant = [item for item in items if not item.symbols or symbol.upper() in item.symbols]
+        permitted, reason = self._policy.permits_entry(
+            relevant,
+            symbol=symbol,
+            decision_at=decision_at,
+            latest_feed_at=self._latest_feed_at(),
+        )
+        return NewsContext(
+            permits_entry=permitted,
+            reason=reason,
+            article_count=len(relevant),
+            official_count=sum(item.reliability is SourceReliability.OFFICIAL for item in relevant),
+            high_impact_count=sum(
+                item.category
+                in {
+                    NewsCategory.MACRO,
+                    NewsCategory.HALT,
+                    NewsCategory.FILING,
+                    NewsCategory.EARNINGS,
+                }
+                for item in relevant
+            ),
+            latest_received_at=max(
+                (item.received_at for item in relevant),
+                default=None,
+            ),
+            citations=tuple(item.source_url for item in relevant[:5]),
+        )

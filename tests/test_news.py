@@ -9,6 +9,7 @@ from tradeagent.news import (
     MarketNewsItem,
     NewsBlackoutPolicy,
     NewsCategory,
+    NewsContextService,
     NewsRepository,
     SourceReliability,
 )
@@ -78,3 +79,22 @@ def test_news_blackout_is_fail_closed_and_point_in_time() -> None:
         decision_at=NOW,
         latest_feed_at=NOW,
     ) == (True, "NEWS_CLEAR")
+
+
+def test_news_context_is_typed_cited_and_fail_closed(tmp_path: Path) -> None:
+    with Database(f"sqlite:///{tmp_path / 'context.db'}") as database:
+        repository = NewsRepository(database)
+        database.initialize()
+        repository.store(_item(NewsCategory.FILING))
+        context = NewsContextService(
+            repository,
+            NewsBlackoutPolicy(),
+            latest_feed_at=lambda: NOW,
+        ).context("SPY", NOW)
+
+        assert not context.permits_entry
+        assert context.reason == "HIGH_IMPACT_NEWS_WINDOW"
+        assert context.article_count == 1
+        assert context.official_count == 1
+        assert context.high_impact_count == 1
+        assert context.citations == ("https://www.sec.gov/example",)
