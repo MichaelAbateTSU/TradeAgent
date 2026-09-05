@@ -148,6 +148,8 @@ worker_locks = Table(
 
 class Database:
     def __init__(self, url: str) -> None:
+        if url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+psycopg://", 1)
         self.engine: Engine = create_engine(url, future=True)
 
     def initialize(self) -> None:

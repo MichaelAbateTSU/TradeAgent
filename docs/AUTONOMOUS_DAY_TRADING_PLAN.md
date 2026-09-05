@@ -98,6 +98,10 @@ The v0.4.0 shadow-runtime batch is complete:
 The deployment remains shadow-only. Autonomous entries stay blocked until an intraday
 strategy passes every research gate and is connected through the persisted OMS.
 
+Render is the preferred hosted fallback when Azure RBAC is unavailable. The root
+`render.yaml` provisions managed PostgreSQL, dashboard, one shadow worker, and one
+notifier using paid always-on services.
+
 ## Target architecture
 
 ```mermaid

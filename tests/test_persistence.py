@@ -64,3 +64,10 @@ def test_worker_lock_allows_exactly_one_owner(tmp_path: Path) -> None:
         assert not repository.release_worker_lock("paper-worker", "owner-2")
         assert repository.release_worker_lock("paper-worker", "owner-1")
         assert repository.acquire_worker_lock("paper-worker", "owner-2")
+
+
+def test_render_postgres_url_uses_psycopg_driver() -> None:
+    database = Database("postgresql://user:password@example.com/tradeagent")
+
+    assert database.engine.url.drivername == "postgresql+psycopg"
+    database.dispose()

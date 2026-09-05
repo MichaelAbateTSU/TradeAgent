@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+databases:
+  - name: tradeagent-postgres
+    databaseName: tradeagent
+    user: tradeagent
+    region: oregon
+    plan: basic-256mb
+    postgresMajorVersion: "17"
+    ipAllowList: []
+
+services:
+  - type: web
+    name: tradeagent-dashboard
+    runtime: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: tradeagent serve --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    numInstances: 1
+    disk:
+      name: tradeagent-dashboard-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: TRADEAGENT_MODE
+        value: paper
+
+  - type: worker
+    name: tradeagent-shadow-worker
+    runtime: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD
+    preDeployCommand: alembic upgrade head
+    autoDeployTrigger: commit
+    numInstances: 1
+    envVars:
+      - key: TRADEAGENT_MODE
+        value: paper
+      - key: TRADEAGENT_DATABASE_URL
+        fromDatabase:
+          name: tradeagent-postgres
+          property: connectionString
+      - key: TRADEAGENT_INTRADAY__ENABLED
+        value: "false"
+      - key: ALPACA_DATA_STREAM_URL
+        value: wss://stream.data.alpaca.markets/v2/iex
+      - key: ALPACA_KEY_ID
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
+
+  - type: worker
+    name: tradeagent-notifier
+    runtime: docker
+    region: oregon
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: tradeagent notifier
+    preDeployCommand: alembic upgrade head
+    autoDeployTrigger: commit
+    numInstances: 1
+    envVars:
+      - key: TRADEAGENT_MODE
+        value: paper
+      - key: TRADEAGENT_DATABASE_URL
+        fromDatabase:
+          name: tradeagent-postgres
+          property: connectionString
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_API_KEY
+        sync: false
+      - key: EMAIL_SENDER
+        sync: false
+      - key: EMAIL_RECIPIENT
+        sync: false
+
