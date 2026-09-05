@@ -108,6 +108,11 @@ features, regime-filtered intraday momentum, DSR/PBO gates, and an immutable one
 holdout workflow. The fresh candidate failed on the 8,000-frame development segment, so
 the 2,000-frame terminal holdout remains unopened.
 
+The v0.7.0 forward-shadow batch adds synchronized hosted five-minute decisions,
+hypothetical cost/P&L outcomes, PostgreSQL dashboard telemetry, and immutable promotions
+binding strategy, dataset, configuration, Git, holdout, and exact human approval.
+Autonomous entry remains blocked because no strategy qualifies.
+
 Render is the preferred hosted fallback when Azure RBAC is unavailable. The root
 `render.yaml` provisions managed PostgreSQL, dashboard, one shadow worker, and one
 notifier using paid always-on services.

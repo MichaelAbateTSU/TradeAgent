@@ -83,6 +83,10 @@ The detailed always-on intraday build and deployment sequence is in
 - [x] Deflated Sharpe and PBO promotion gates
 - [x] Immutable development/terminal holdout sealing
 - [x] One-time audited holdout opening control
+- [x] Hosted five-minute shadow decisions and outcomes
+- [x] PostgreSQL runtime dashboard telemetry
+- [x] Immutable evidence-bound strategy promotion and revocation
+- [ ] Autonomous small-notional paper entry (blocked: no qualified strategy)
 - [x] Cross-sectional momentum portfolio and equal-risk benchmark
 - [x] Portfolio walk-forward cost, delay, and bootstrap qualification
 - [x] Volatility-targeted trend challenger

@@ -9,9 +9,10 @@ Deployed September 4, 2026 in the `InSight AI` Render workspace.
 | `tradeagent-shadow-worker` | Oregon | Starter | Live |
 | `tradeagent-notifier` | Oregon | Starter | Live |
 
-Dashboard: <https://tradeagent-dashboard-wnu1.onrender.com>
+Dashboard: <https://tradeagent-runtime-dashboard.onrender.com>
 
-The dashboard `/health` endpoint reports `mode: paper`. The shadow worker completed its
+The PostgreSQL-connected dashboard `/health` endpoint reports `mode: paper` and exposes
+runtime heartbeats, normalized data counts, and shadow NAV. The shadow worker completed its
 Alembic migration, authenticated to the Alpaca IEX stream after the production handshake
 fix, and has no errors in the current instance.
 

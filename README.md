@@ -48,6 +48,8 @@ SQLite ledger.
 - Normalized hosted bars/quotes with event, receive, and process timestamps
 - Point-in-time spread, volume, volatility, VWAP, momentum, and regime features
 - Regime-filtered intraday momentum with DSR/PBO and sealed-holdout gates
+- Hosted synchronized shadow decisions, hypothetical costs/P&L, and shadow NAV
+- PostgreSQL-backed runtime dashboard and immutable signed strategy promotions
 
 ## Quick start
 
