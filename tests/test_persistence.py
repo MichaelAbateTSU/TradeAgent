@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 
 from sqlalchemy import inspect
@@ -79,3 +80,55 @@ def test_render_postgres_url_uses_psycopg_driver() -> None:
 
     assert database.engine.url.drivername == "postgresql+psycopg"
     database.dispose()
+
+
+def test_normalized_market_data_is_idempotent(tmp_path: Path) -> None:
+    with Database(f"sqlite:///{tmp_path / 'market.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 4, 15, tzinfo=UTC)
+
+        first_bar = repository.store_market_bar(
+            symbol="SPY",
+            timeframe="1Min",
+            event_at=now,
+            received_at=now,
+            open_price=Decimal("100"),
+            high_price=Decimal("101"),
+            low_price=Decimal("99"),
+            close_price=Decimal("100.5"),
+            volume=Decimal("1000"),
+        )
+        duplicate_bar = repository.store_market_bar(
+            symbol="SPY",
+            timeframe="1Min",
+            event_at=now,
+            received_at=now,
+            open_price=Decimal("100"),
+            high_price=Decimal("101"),
+            low_price=Decimal("99"),
+            close_price=Decimal("100.5"),
+            volume=Decimal("1000"),
+        )
+        first_quote = repository.store_market_quote(
+            symbol="SPY",
+            event_at=now,
+            received_at=now,
+            bid_price=Decimal("100.4"),
+            ask_price=Decimal("100.6"),
+            bid_size=Decimal("10"),
+            ask_size=Decimal("20"),
+        )
+        duplicate_quote = repository.store_market_quote(
+            symbol="SPY",
+            event_at=now,
+            received_at=now,
+            bid_price=Decimal("100.4"),
+            ask_price=Decimal("100.6"),
+            bid_size=Decimal("10"),
+            ask_size=Decimal("20"),
+        )
+
+        assert first_bar and not duplicate_bar
+        assert first_quote and not duplicate_quote
+        assert repository.market_data_counts() == (1, 1)

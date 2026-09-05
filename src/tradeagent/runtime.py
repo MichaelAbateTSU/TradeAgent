@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
@@ -78,6 +78,18 @@ class ShadowAuditProcessor:
         self._repository = repository
 
     async def on_bar(self, bar: MarketBar, *, can_enter: bool) -> None:
+        received_at = datetime.now(UTC)
+        self._repository.store_market_bar(
+            symbol=bar.symbol,
+            timeframe="1Min",
+            event_at=bar.timestamp,
+            received_at=received_at,
+            open_price=bar.open,
+            high_price=bar.high,
+            low_price=bar.low,
+            close_price=bar.close,
+            volume=bar.volume,
+        )
         self._repository.append_event(
             "shadow_market_bar",
             {
@@ -89,6 +101,16 @@ class ShadowAuditProcessor:
         )
 
     async def on_quote(self, quote: MarketQuote, *, can_enter: bool) -> None:
+        received_at = datetime.now(UTC)
+        self._repository.store_market_quote(
+            symbol=quote.symbol,
+            event_at=quote.timestamp,
+            received_at=received_at,
+            bid_price=quote.bid_price,
+            ask_price=quote.ask_price,
+            bid_size=quote.bid_size,
+            ask_size=quote.ask_size,
+        )
         self._repository.append_event(
             "shadow_market_quote",
             {

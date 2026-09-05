@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import AbstractContextManager
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -145,6 +146,51 @@ worker_locks = Table(
     Column("acquired_at", DateTime(timezone=True), nullable=False),
 )
 
+market_bars = Table(
+    "market_bars",
+    metadata,
+    Column("bar_id", String(36), primary_key=True),
+    Column("symbol", String(32), nullable=False),
+    Column("timeframe", String(20), nullable=False),
+    Column("event_at", DateTime(timezone=True), nullable=False),
+    Column("received_at", DateTime(timezone=True), nullable=False),
+    Column("processed_at", DateTime(timezone=True), nullable=False),
+    Column("open", Numeric(28, 12), nullable=False),
+    Column("high", Numeric(28, 12), nullable=False),
+    Column("low", Numeric(28, 12), nullable=False),
+    Column("close", Numeric(28, 12), nullable=False),
+    Column("volume", Numeric(28, 12), nullable=False),
+    UniqueConstraint(
+        "symbol",
+        "timeframe",
+        "event_at",
+        name="uq_market_bar_symbol_timeframe_event",
+    ),
+)
+Index("ix_market_bars_symbol_time", market_bars.c.symbol, market_bars.c.event_at)
+
+market_quotes = Table(
+    "market_quotes",
+    metadata,
+    Column("quote_id", String(36), primary_key=True),
+    Column("symbol", String(32), nullable=False),
+    Column("event_at", DateTime(timezone=True), nullable=False),
+    Column("received_at", DateTime(timezone=True), nullable=False),
+    Column("processed_at", DateTime(timezone=True), nullable=False),
+    Column("bid_price", Numeric(28, 12), nullable=False),
+    Column("ask_price", Numeric(28, 12), nullable=False),
+    Column("bid_size", Numeric(28, 12), nullable=False),
+    Column("ask_size", Numeric(28, 12), nullable=False),
+    UniqueConstraint(
+        "symbol",
+        "event_at",
+        "bid_price",
+        "ask_price",
+        name="uq_market_quote_event_prices",
+    ),
+)
+Index("ix_market_quotes_symbol_time", market_quotes.c.symbol, market_quotes.c.event_at)
+
 
 def normalize_database_url(url: str) -> str:
     if url.startswith("postgresql://"):
@@ -277,6 +323,89 @@ class ProductionRepository:
             observed_at,
             dict(row["details"]),
         )
+
+    def store_market_bar(
+        self,
+        *,
+        symbol: str,
+        timeframe: str,
+        event_at: datetime,
+        received_at: datetime,
+        open_price: Decimal,
+        high_price: Decimal,
+        low_price: Decimal,
+        close_price: Decimal,
+        volume: Decimal,
+    ) -> bool:
+        with self._database.begin() as connection:
+            existing = connection.scalar(
+                select(market_bars.c.bar_id).where(
+                    market_bars.c.symbol == symbol,
+                    market_bars.c.timeframe == timeframe,
+                    market_bars.c.event_at == event_at,
+                )
+            )
+            if existing is not None:
+                return False
+            connection.execute(
+                insert(market_bars).values(
+                    bar_id=str(uuid4()),
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    event_at=event_at,
+                    received_at=received_at,
+                    processed_at=datetime.now(UTC),
+                    open=open_price,
+                    high=high_price,
+                    low=low_price,
+                    close=close_price,
+                    volume=volume,
+                )
+            )
+        return True
+
+    def store_market_quote(
+        self,
+        *,
+        symbol: str,
+        event_at: datetime,
+        received_at: datetime,
+        bid_price: Decimal,
+        ask_price: Decimal,
+        bid_size: Decimal,
+        ask_size: Decimal,
+    ) -> bool:
+        with self._database.begin() as connection:
+            existing = connection.scalar(
+                select(market_quotes.c.quote_id).where(
+                    market_quotes.c.symbol == symbol,
+                    market_quotes.c.event_at == event_at,
+                    market_quotes.c.bid_price == bid_price,
+                    market_quotes.c.ask_price == ask_price,
+                )
+            )
+            if existing is not None:
+                return False
+            connection.execute(
+                insert(market_quotes).values(
+                    quote_id=str(uuid4()),
+                    symbol=symbol,
+                    event_at=event_at,
+                    received_at=received_at,
+                    processed_at=datetime.now(UTC),
+                    bid_price=bid_price,
+                    ask_price=ask_price,
+                    bid_size=bid_size,
+                    ask_size=ask_size,
+                )
+            )
+        return True
+
+    def market_data_counts(self) -> tuple[int, int]:
+        with self._database.begin() as connection:
+            bars_count = connection.scalar(select(func.count()).select_from(market_bars))
+            quotes_count = connection.scalar(select(func.count()).select_from(market_quotes))
+        return int(bars_count or 0), int(quotes_count or 0)
 
     def acquire_worker_lock(self, lock_name: str, owner_id: str) -> bool:
         try:
