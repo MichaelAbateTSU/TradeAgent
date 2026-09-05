@@ -11,6 +11,7 @@ from tradeagent.broker import PaperBroker
 from tradeagent.config import BrokerConfig
 from tradeagent.data import synthetic_bars
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.persistence import Database, ProductionRepository
 
 
 def test_read_only_console_exposes_health_status_events_and_metrics(
@@ -90,3 +91,37 @@ def test_console_exposes_latest_paper_account(tmp_path: Path) -> None:
     assert status["account"]["equity"] == "100000.0000"
     assert Decimal(status["account"]["gross_exposure_ratio"]) == 0
     assert "tradeagent_nav 100000.0000" in metrics
+
+
+def test_console_exposes_production_runtime_state(tmp_path: Path) -> None:
+    production_url = f"sqlite:///{tmp_path / 'production.db'}"
+    now = datetime(2026, 9, 4, 15, tzinfo=UTC)
+    with Database(production_url) as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        repository.heartbeat(
+            "tradeagent-worker",
+            "worker-1",
+            {"state": "running"},
+            observed_at=now,
+        )
+        repository.append_event(
+            "shadow_outcome",
+            {"shadow_nav": "100001.25"},
+            occurred_at=now,
+            trace_id="shadow-1",
+        )
+    client = TestClient(
+        create_app(
+            ledger_path=tmp_path / "ledger.db",
+            experiments_path=tmp_path / "experiments.db",
+            production_database_url=production_url,
+        )
+    )
+
+    runtime = client.get("/api/runtime").json()
+
+    assert runtime["connected"]
+    assert runtime["market_bars"] == 0
+    assert runtime["shadow_nav"] == "100001.25"
+    assert runtime["worker_heartbeat"] is not None

@@ -11,6 +11,7 @@ from tradeagent.broker import PaperBroker
 from tradeagent.config import BrokerConfig
 from tradeagent.domain import AccountSnapshot, PaperBrokerState
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.persistence import Database, ProductionRepository
 from tradeagent.research import ExperimentRegistry
 
 DASHBOARD = """<!doctype html>
@@ -44,6 +45,9 @@ DASHBOARD = """<!doctype html>
     <div class="card"><div>Audit events</div><div id="events" class="value">-</div></div>
     <div class="card"><div>Experiments</div><div id="experiments" class="value">-</div></div>
     <div class="card"><div>Qualified trials</div><div id="qualified" class="value">-</div></div>
+    <div class="card"><div>Hosted bars</div><div id="hosted-bars" class="value">-</div></div>
+    <div class="card"><div>Hosted quotes</div><div id="hosted-quotes" class="value">-</div></div>
+    <div class="card"><div>Shadow NAV</div><div id="shadow-nav" class="value">-</div></div>
   </section>
   <section class="card"><h2>Recent experiments</h2>
     <table><thead><tr><th>ID</th><th>Strategy</th><th>Seed</th><th>Qualified</th><th>Git SHA</th></tr></thead>
@@ -56,9 +60,10 @@ DASHBOARD = """<!doctype html>
       return element.innerHTML;
     }
     async function refresh() {
-      const [status, experiments] = await Promise.all([
+      const [status, experiments, runtime] = await Promise.all([
         fetch('/api/status').then(r => r.json()),
-        fetch('/api/experiments?limit=10').then(r => r.json())
+        fetch('/api/experiments?limit=10').then(r => r.json()),
+        fetch('/api/runtime').then(r => r.json())
       ]);
       document.querySelector('#events').textContent = status.event_count;
       document.querySelector('#nav').textContent =
@@ -68,6 +73,10 @@ DASHBOARD = """<!doctype html>
       document.querySelector('#kill-switch').textContent = status.kill_switch;
       document.querySelector('#experiments').textContent = experiments.total;
       document.querySelector('#qualified').textContent = experiments.qualified_total;
+      document.querySelector('#hosted-bars').textContent = runtime.market_bars ?? '-';
+      document.querySelector('#hosted-quotes').textContent = runtime.market_quotes ?? '-';
+      document.querySelector('#shadow-nav').textContent =
+        runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
       document.querySelector('#experiment-rows').innerHTML = experiments.items.map(item =>
         `<tr><td>${escapeHtml(item.experiment_id)}</td><td>${escapeHtml(item.strategy_id)}</td>` +
         `<td>${escapeHtml(item.random_seed)}</td><td>${item.qualified ? 'yes' : 'no'}</td>` +
@@ -95,6 +104,7 @@ def create_app(
     *,
     ledger_path: Path = Path("data/tradeagent.db"),
     experiments_path: Path = Path("data/experiments.db"),
+    production_database_url: str | None = None,
 ) -> FastAPI:
     app = FastAPI(
         title="TradeAgent Paper Console",
@@ -147,6 +157,32 @@ def create_app(
                 "total": registry.count(),
                 "qualified_total": registry.qualified_count(),
                 "items": registry.recent(limit=limit),
+            }
+
+    @app.get("/api/runtime")
+    def runtime() -> dict[str, object]:
+        if production_database_url is None:
+            return {
+                "connected": False,
+                "market_bars": None,
+                "market_quotes": None,
+                "shadow_nav": None,
+                "worker_heartbeat": None,
+                "notifier_heartbeat": None,
+            }
+        with Database(production_database_url) as database:
+            repository = ProductionRepository(database)
+            bars, quotes = repository.market_data_counts()
+            outcome = repository.latest_event_payload("shadow_outcome")
+            worker = repository.latest_heartbeat("tradeagent-worker")
+            notifier = repository.latest_heartbeat("tradeagent-notifier")
+            return {
+                "connected": True,
+                "market_bars": bars,
+                "market_quotes": quotes,
+                "shadow_nav": outcome.get("shadow_nav") if outcome else None,
+                "worker_heartbeat": worker[1].isoformat() if worker else None,
+                "notifier_heartbeat": notifier[1].isoformat() if notifier else None,
             }
 
     @app.get("/metrics", response_class=PlainTextResponse)

@@ -168,6 +168,7 @@ def _parser() -> argparse.ArgumentParser:
     serve.add_argument("--port", type=int, default=8000)
     serve.add_argument("--database", type=Path, default=Path("data/tradeagent.db"))
     serve.add_argument("--experiments", type=Path, default=Path("data/experiments.db"))
+    serve.add_argument("--production", action="store_true")
 
     evaluate = subparsers.add_parser(
         "evaluate", help="run cost-stressed rolling walk-forward research"
@@ -352,6 +353,9 @@ def main(argv: Sequence[str] | None = None) -> None:
         app = create_app(
             ledger_path=args.database,
             experiments_path=args.experiments,
+            production_database_url=(
+                AppConfig().database_url.get_secret_value() if args.production else None
+            ),
         )
         uvicorn.run(app, host=args.host, port=args.port)
         return

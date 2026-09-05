@@ -249,6 +249,16 @@ class ProductionRepository:
         with self._database.begin() as connection:
             return int(connection.scalar(select(func.count()).select_from(events)) or 0)
 
+    def latest_event_payload(self, event_type: str) -> dict[str, Any] | None:
+        with self._database.begin() as connection:
+            payload = connection.execute(
+                select(events.c.payload)
+                .where(events.c.event_type == event_type)
+                .order_by(events.c.occurred_at.desc())
+                .limit(1)
+            ).scalar_one_or_none()
+        return dict(payload) if payload is not None else None
+
     def set_control(self, key: str, value: str) -> None:
         now = datetime.now(UTC)
         with self._database.begin() as connection:
