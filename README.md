@@ -40,6 +40,9 @@ SQLite ledger.
 - PostgreSQL-compatible persistence, worker locks, heartbeats, and Alembic migrations
 - Persisted OMS transition state machine for partial fills, cancels, and recovery
 - Transactional exactly-once round-trip profit/loss email outbox
+- Typed Alpaca IEX websocket ingestion with reconnect backoff
+- Single-instance shadow worker with scheduled reconciliation and watchdogs
+- Always-on notifier service and Azure Container Apps deployment template
 
 ## Quick start
 
@@ -168,9 +171,18 @@ See the implementation guides:
 - [`docs/RISK.md`](docs/RISK.md)
 - [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
 - [`docs/ROADMAP.md`](docs/ROADMAP.md)
+- [`infra/azure/README.md`](infra/azure/README.md)
 
 Initialize the production-compatible schema locally:
 
 ```powershell
 .\.venv\Scripts\alembic.exe upgrade head
+```
+
+Run the PostgreSQL-backed shadow services with Docker:
+
+```powershell
+docker compose up -d postgres migrate api
+docker compose --profile runtime up -d shadow-worker
+docker compose --profile notifications up -d notifier
 ```

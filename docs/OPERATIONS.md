@@ -13,6 +13,34 @@ tradeagent --help
 The v2 schema includes events, controls, orders, fills, position cycles, experiments,
 heartbeats, notification outbox, and an exactly-one-worker lock.
 
+## Always-on local shadow stack
+
+Start PostgreSQL, apply migrations, and run the dashboard:
+
+```powershell
+docker compose up -d postgres migrate api
+```
+
+Add live paper-data shadow ingestion:
+
+```powershell
+docker compose --profile runtime up -d shadow-worker
+```
+
+Add email delivery after configuring the `EMAIL_*` variables:
+
+```powershell
+docker compose --profile notifications up -d notifier
+```
+
+The shadow worker consumes Alpaca IEX bars and quotes, applies NYSE calendar and freshness
+gates, reconciles the paper broker on startup and every 60 seconds, and records
+heartbeats. It cannot place orders. Both worker and notifier have one-replica locks and
+fail closed.
+
+For laptop-independent operation, build and deploy
+[`infra/azure/main.bicep`](../infra/azure/main.bicep) using the adjacent Azure guide.
+
 ## Round-trip email outbox
 
 Configure a Resend sender and recipient:

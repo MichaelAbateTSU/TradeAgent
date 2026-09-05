@@ -81,8 +81,22 @@ The first v0.3.0 foundation batch is complete:
 | Position-cycle accounting and unique notification outbox | Complete |
 | Idempotent Resend adapter | Complete |
 
-The next implementation batch starts with Alpaca websocket ingestion, then integrates
-the calendar-aware worker, scheduled reconciliation, and notifier service.
+The v0.4.0 shadow-runtime batch is complete:
+
+| Runtime foundation | Status |
+| --- | --- |
+| Typed Alpaca IEX bar/quote websocket | Complete |
+| Bounded reconnect backoff | Complete |
+| Single-instance calendar-aware shadow worker | Complete |
+| Startup and periodic broker reconciliation | Complete |
+| Market-data freshness kill switch | Complete |
+| Worker/reconciler/notifier heartbeats | Complete |
+| Always-on outbox notifier command | Complete |
+| PostgreSQL Docker Compose runtime | Complete |
+| Azure Container Apps shadow deployment template | Complete |
+
+The deployment remains shadow-only. Autonomous entries stay blocked until an intraday
+strategy passes every research gate and is connected through the persisted OMS.
 
 ## Target architecture
 

@@ -11,6 +11,8 @@ RUN addgroup --system tradeagent \
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
+COPY alembic.ini ./
+COPY migrations ./migrations
 
 RUN python -m pip install --upgrade pip \
     && python -m pip install .

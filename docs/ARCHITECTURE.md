@@ -59,6 +59,11 @@ flowchart LR
 | `persistence` | PostgreSQL/SQLite schema, repositories, locks, and heartbeats |
 | `order_state` | Validated persisted OMS lifecycle transitions |
 | `notifications` | Position cycles, transactional outbox, and email delivery |
+| `alpaca_stream` | Authenticated IEX bar/quote websocket with reconnect backoff |
+| `worker` | Single-instance calendar/freshness-gated event lifecycle |
+| `scheduler` | Periodic reconciliation and heartbeat watchdogs |
+| `runtime` | PostgreSQL-backed shadow worker composition |
+| `notifier` | Single-instance always-on outbox dispatcher |
 | `cli` | Backtest, persistent paper simulation, and ledger inspection |
 
 ## Deliberate MVP boundaries

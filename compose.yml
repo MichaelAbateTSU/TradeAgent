@@ -1,5 +1,32 @@
 services:
-  tradeagent:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: tradeagent
+      POSTGRES_USER: tradeagent
+      POSTGRES_PASSWORD: tradeagent-local-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tradeagent -d tradeagent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  migrate:
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      TRADEAGENT_DATABASE_URL: postgresql+psycopg://tradeagent:tradeagent-local-only@postgres:5432/tradeagent
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    restart: "no"
+
+  api:
     build: .
     command:
       - tradeagent
@@ -17,5 +44,47 @@ services:
       - /tmp
     restart: unless-stopped
 
+  shadow-worker:
+    profiles: ["runtime"]
+    build: .
+    command: ["tradeagent", "worker-shadow", "--symbols", "SPY,QQQ,IWM,TLT,GLD"]
+    environment:
+      TRADEAGENT_MODE: paper
+      TRADEAGENT_DATABASE_URL: postgresql+psycopg://tradeagent:tradeagent-local-only@postgres:5432/tradeagent
+      ALPACA_KEY_ID: ${ALPACA_KEY_ID:-}
+      ALPACA_SECRET_KEY: ${ALPACA_SECRET_KEY:-}
+      ALPACA_DATA_STREAM_URL: wss://stream.data.alpaca.markets/v2/iex
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      disable: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
+  notifier:
+    profiles: ["notifications"]
+    build: .
+    command: ["tradeagent", "notifier"]
+    environment:
+      TRADEAGENT_MODE: paper
+      TRADEAGENT_DATABASE_URL: postgresql+psycopg://tradeagent:tradeagent-local-only@postgres:5432/tradeagent
+      EMAIL_PROVIDER: resend
+      EMAIL_API_KEY: ${EMAIL_API_KEY:-}
+      EMAIL_SENDER: ${EMAIL_SENDER:-}
+      EMAIL_RECIPIENT: ${EMAIL_RECIPIENT:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      disable: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+
 volumes:
   tradeagent-data:
+  postgres-data:

@@ -64,9 +64,13 @@ The detailed always-on intraday build and deployment sequence is in
 - [x] Persisted order transition state machine
 - [x] Transactional position-cycle and notification outbox
 - [x] Idempotent Resend email provider adapter
-- [ ] Live Alpaca websocket data ingestion
-- [ ] Calendar-aware autonomous worker
-- [ ] Always-on cloud infrastructure
+- [x] Live Alpaca IEX websocket data ingestion
+- [x] Calendar-aware fail-closed shadow worker
+- [x] Scheduled reconciliation and heartbeat watchdogs
+- [x] Single-instance always-on notifier service
+- [x] Docker Compose PostgreSQL runtime profile
+- [x] Azure Container Apps always-on shadow template
+- [ ] Qualified strategy integration and autonomous order entry
 
 ## Phase 4: strategy challengers
 
