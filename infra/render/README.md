@@ -7,6 +7,8 @@ The root [`render.yaml`](../../render.yaml) creates:
 - one always-on shadow worker;
 - one always-on exactly-once email notifier.
 
+The current hosted resource status is recorded in [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
 All compute uses the smallest paid always-on plan. Render will display current pricing
 before Blueprint confirmation.
 
@@ -36,4 +38,3 @@ alive while the laptop is off.
 - The durable kill switch remains active.
 
 The deployed worker is shadow-only and cannot submit orders.
-

@@ -102,6 +102,9 @@ Render is the preferred hosted fallback when Azure RBAC is unavailable. The root
 `render.yaml` provisions managed PostgreSQL, dashboard, one shadow worker, and one
 notifier using paid always-on services.
 
+The Render PostgreSQL, dashboard, and shadow worker were deployed on September 4, 2026.
+The notifier remains undeployed until valid Resend sender/recipient credentials exist.
+
 ## Target architecture
 
 ```mermaid
