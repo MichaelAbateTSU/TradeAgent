@@ -9,6 +9,7 @@ from tradeagent.config import AppConfig
 from tradeagent.domain import MarketBar
 from tradeagent.intraday import IntradayDataGapError
 from tradeagent.intraday_strategy import RegimeFilteredMomentumStrategy
+from tradeagent.news import NewsContextService
 from tradeagent.persistence import ProductionRepository
 from tradeagent.runtime import ShadowAuditProcessor
 from tradeagent.universe import UniverseFrame
@@ -83,12 +84,14 @@ class LiveShadowDecisionProcessor:
         strategy: RegimeFilteredMomentumStrategy,
         *,
         symbols: tuple[str, ...],
+        news_context: NewsContextService | None = None,
     ) -> None:
         self._config = config
         self._repository = repository
         self._strategy = strategy
         self._audit = ShadowAuditProcessor(repository)
         self._builder = SynchronizedFiveMinuteBuilder(symbols)
+        self._news_context = news_context
         self._state = _ShadowState(
             nav=config.broker.starting_cash,
             closes={},
@@ -107,6 +110,13 @@ class LiveShadowDecisionProcessor:
         self._record_prior_outcome(frame)
         intent = self._strategy.on_frame(frame)
         next_targets = dict(intent.target_weights)
+        news = {}
+        if self._news_context is not None:
+            for symbol, target in tuple(next_targets.items()):
+                context = self._news_context.context(symbol, frame.timestamp)
+                news[symbol] = context.model_dump(mode="json")
+                if target > 0 and not context.permits_entry:
+                    next_targets[symbol] = Decimal(0)
         turnover = sum(
             (
                 abs(next_targets.get(symbol, Decimal(0)) - self._state.targets[symbol])
@@ -123,6 +133,7 @@ class LiveShadowDecisionProcessor:
                 "strategy_id": intent.strategy_id,
                 "targets": {key: str(value) for key, value in next_targets.items()},
                 "rationale": intent.rationale,
+                "news_context": news,
                 "shadow_nav": str(self._state.nav),
                 "execution_enabled": can_enter,
             },

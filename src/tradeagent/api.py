@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # ruff: noqa: E501
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from fastapi import FastAPI, Query
@@ -11,6 +11,7 @@ from tradeagent.broker import PaperBroker
 from tradeagent.config import BrokerConfig
 from tradeagent.domain import AccountSnapshot, PaperBrokerState
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.news import NewsRepository
 from tradeagent.persistence import Database, ProductionRepository
 from tradeagent.research import ExperimentRegistry
 
@@ -48,6 +49,7 @@ DASHBOARD = """<!doctype html>
     <div class="card"><div>Hosted bars</div><div id="hosted-bars" class="value">-</div></div>
     <div class="card"><div>Hosted quotes</div><div id="hosted-quotes" class="value">-</div></div>
     <div class="card"><div>Shadow NAV</div><div id="shadow-nav" class="value">-</div></div>
+    <div class="card"><div>Recent news</div><div id="news-count" class="value">-</div></div>
   </section>
   <section class="card"><h2>Recent experiments</h2>
     <table><thead><tr><th>ID</th><th>Strategy</th><th>Seed</th><th>Qualified</th><th>Git SHA</th></tr></thead>
@@ -60,10 +62,11 @@ DASHBOARD = """<!doctype html>
       return element.innerHTML;
     }
     async function refresh() {
-      const [status, experiments, runtime] = await Promise.all([
+      const [status, experiments, runtime, news] = await Promise.all([
         fetch('/api/status').then(r => r.json()),
         fetch('/api/experiments?limit=10').then(r => r.json()),
-        fetch('/api/runtime').then(r => r.json())
+        fetch('/api/runtime').then(r => r.json()),
+        fetch('/api/news?limit=20').then(r => r.json())
       ]);
       document.querySelector('#events').textContent = status.event_count;
       document.querySelector('#nav').textContent =
@@ -77,6 +80,7 @@ DASHBOARD = """<!doctype html>
       document.querySelector('#hosted-quotes').textContent = runtime.market_quotes ?? '-';
       document.querySelector('#shadow-nav').textContent =
         runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
+      document.querySelector('#news-count').textContent = news.items.length;
       document.querySelector('#experiment-rows').innerHTML = experiments.items.map(item =>
         `<tr><td>${escapeHtml(item.experiment_id)}</td><td>${escapeHtml(item.strategy_id)}</td>` +
         `<td>${escapeHtml(item.random_seed)}</td><td>${item.qualified ? 'yes' : 'no'}</td>` +
@@ -169,6 +173,7 @@ def create_app(
                 "shadow_nav": None,
                 "worker_heartbeat": None,
                 "notifier_heartbeat": None,
+                "news_heartbeat": None,
             }
         with Database(production_database_url) as database:
             repository = ProductionRepository(database)
@@ -176,6 +181,7 @@ def create_app(
             outcome = repository.latest_event_payload("shadow_outcome")
             worker = repository.latest_heartbeat("tradeagent-worker")
             notifier = repository.latest_heartbeat("tradeagent-notifier")
+            news = repository.latest_heartbeat("tradeagent-news-worker")
             return {
                 "connected": True,
                 "market_bars": bars,
@@ -183,6 +189,34 @@ def create_app(
                 "shadow_nav": outcome.get("shadow_nav") if outcome else None,
                 "worker_heartbeat": worker[1].isoformat() if worker else None,
                 "notifier_heartbeat": notifier[1].isoformat() if notifier else None,
+                "news_heartbeat": news[1].isoformat() if news else None,
+            }
+
+    @app.get("/api/news")
+    def news(limit: int = Query(default=20, ge=1, le=100)) -> dict[str, object]:
+        if production_database_url is None:
+            return {"items": [], "feed_heartbeat": None}
+        with Database(production_database_url) as database:
+            repository = ProductionRepository(database)
+            heartbeat = repository.latest_heartbeat("tradeagent-news-worker")
+            items = NewsRepository(database).recent(
+                since=datetime.now(UTC) - timedelta(hours=24),
+                until=datetime.now(UTC),
+            )[:limit]
+            return {
+                "feed_heartbeat": heartbeat[1].isoformat() if heartbeat else None,
+                "items": [
+                    {
+                        "headline": item.headline,
+                        "source": item.source,
+                        "source_url": item.source_url,
+                        "symbols": item.symbols,
+                        "category": item.category.value,
+                        "published_at": item.published_at.isoformat(),
+                        "received_at": item.received_at.isoformat(),
+                    }
+                    for item in items
+                ],
             }
 
     @app.get("/metrics", response_class=PlainTextResponse)

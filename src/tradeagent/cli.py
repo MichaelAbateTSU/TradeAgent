@@ -40,7 +40,7 @@ from tradeagent.intraday_strategy import (
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
 from tradeagent.monitor import monitor_take_profit
-from tradeagent.news import NewsRepository
+from tradeagent.news import NewsBlackoutPolicy, NewsContextService, NewsRepository
 from tradeagent.news_worker import NewsWorker, NewsWorkerSettings
 from tradeagent.notifications import (
     EmailSettings,
@@ -572,6 +572,12 @@ def main(argv: Sequence[str] | None = None) -> None:
         ):
             repository = ProductionRepository(database)
             reconciler = ProductionPaperReconciler(paper_client, repository)
+            news_repository = NewsRepository(database)
+
+            def latest_news_feed_at() -> datetime | None:
+                heartbeat = repository.latest_heartbeat("tradeagent-news-worker")
+                return heartbeat[1] if heartbeat else None
+
             worker = AutonomousPaperWorker(
                 config,
                 repository,
@@ -584,6 +590,11 @@ def main(argv: Sequence[str] | None = None) -> None:
                         config.intraday.model_copy(update={"enabled": True}),
                     ),
                     symbols=symbols,
+                    news_context=NewsContextService(
+                        news_repository,
+                        NewsBlackoutPolicy(),
+                        latest_feed_at=latest_news_feed_at,
+                    ),
                 ),
                 mode=WorkerMode.SHADOW,
                 instance_id=(

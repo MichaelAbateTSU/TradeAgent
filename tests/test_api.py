@@ -125,3 +125,7 @@ def test_console_exposes_production_runtime_state(tmp_path: Path) -> None:
     assert runtime["market_bars"] == 0
     assert runtime["shadow_nav"] == "100001.25"
     assert runtime["worker_heartbeat"] is not None
+    assert client.get("/api/news").json() == {
+        "items": [],
+        "feed_heartbeat": None,
+    }
