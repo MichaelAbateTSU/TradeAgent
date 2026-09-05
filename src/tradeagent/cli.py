@@ -35,6 +35,7 @@ from tradeagent.intraday_strategy import (
     SessionVwapMeanReversionStrategy,
 )
 from tradeagent.ledger import SQLiteLedger
+from tradeagent.live_shadow import LiveShadowDecisionProcessor
 from tradeagent.monitor import monitor_take_profit
 from tradeagent.notifications import (
     EmailSettings,
@@ -59,7 +60,6 @@ from tradeagent.research import (
 from tradeagent.risk import RiskEngine
 from tradeagent.runtime import (
     ProductionPaperReconciler,
-    ShadowAuditProcessor,
     run_shadow_runtime,
 )
 from tradeagent.scheduler import ReconciliationScheduler
@@ -560,7 +560,15 @@ def main(argv: Sequence[str] | None = None) -> None:
                 config,
                 repository,
                 reconciler,
-                ShadowAuditProcessor(repository),
+                LiveShadowDecisionProcessor(
+                    config,
+                    repository,
+                    RegimeFilteredMomentumStrategy(
+                        IntradayStrategyConfig(),
+                        config.intraday.model_copy(update={"enabled": True}),
+                    ),
+                    symbols=symbols,
+                ),
                 mode=WorkerMode.SHADOW,
                 instance_id=args.instance_id,
                 strategy_authorized=lambda: False,
