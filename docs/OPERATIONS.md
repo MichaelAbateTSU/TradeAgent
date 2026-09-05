@@ -1,5 +1,34 @@
 # Paper operations
 
+## Production-compatible database
+
+Set `TRADEAGENT_DATABASE_URL` to SQLite locally or PostgreSQL in an always-on deployment,
+then apply migrations:
+
+```powershell
+tradeagent --help
+.\.venv\Scripts\alembic.exe upgrade head
+```
+
+The v2 schema includes events, controls, orders, fills, position cycles, experiments,
+heartbeats, notification outbox, and an exactly-one-worker lock.
+
+## Round-trip email outbox
+
+Configure a Resend sender and recipient:
+
+```dotenv
+EMAIL_PROVIDER=resend
+EMAIL_API_KEY=...
+EMAIL_SENDER=TradeAgent <paper@example.com>
+EMAIL_RECIPIENT=owner@example.com
+```
+
+A reconciled cycle closure and its `round_trip_closed` outbox row are committed in one
+transaction. The notifier claims one row with locking, sends with the notification UUID
+as the provider idempotency key, and marks it sent. Failed delivery is retried from the
+same row, preserving one logical email per round trip.
+
 ## Local workflow
 
 Create or extend a durable fake-money run:

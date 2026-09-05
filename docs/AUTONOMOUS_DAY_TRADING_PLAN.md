@@ -59,12 +59,30 @@ Major gaps are:
 
 - no live intraday bar/quote stream;
 - no exchange-calendar-aware daemon;
-- no complete partial-fill/cancel/replace state machine;
-- no PostgreSQL or durable cloud storage;
-- no exactly-once round-trip email outbox;
+- the persisted OMS state machine is not yet wired to live Alpaca order updates;
+- the PostgreSQL schema is not yet deployed to a managed database;
+- the email outbox is not yet running as an always-on notifier service;
 - no intraday strategies with qualified evidence;
 - no always-on cloud deployment;
 - no 60-day autonomous paper qualification.
+
+## Implementation progress
+
+The first v0.3.0 foundation batch is complete:
+
+| Foundation | Status |
+| --- | --- |
+| Validated intraday mandate and small-size limits | Complete |
+| PostgreSQL-compatible schema and Alembic migration | Complete |
+| Exactly-one-worker lock and heartbeat repository | Complete |
+| NYSE holiday/early-close session gates | Complete |
+| Fail-closed 5/15-minute aggregation | Complete |
+| Persisted OMS transition state machine | Complete |
+| Position-cycle accounting and unique notification outbox | Complete |
+| Idempotent Resend adapter | Complete |
+
+The next implementation batch starts with Alpaca websocket ingestion, then integrates
+the calendar-aware worker, scheduled reconciliation, and notifier service.
 
 ## Target architecture
 
@@ -619,4 +637,3 @@ The autonomous paper day-trading phase is complete only when:
 
 If no strategy satisfies these conditions, TradeAgent remains a safe research and shadow
 system rather than manufacturing trades.
-

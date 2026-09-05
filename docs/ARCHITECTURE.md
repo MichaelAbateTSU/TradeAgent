@@ -55,6 +55,10 @@ flowchart LR
 | `portfolio` | Synchronized target execution and frame-level portfolio metrics |
 | `portfolio_strategy` | Cross-sectional momentum, passive benchmark, and delay |
 | `portfolio_research` | Portfolio walk-forward, stress, bootstrap, and promotion |
+| `intraday` | NYSE session gates and deterministic minute-bar aggregation |
+| `persistence` | PostgreSQL/SQLite schema, repositories, locks, and heartbeats |
+| `order_state` | Validated persisted OMS lifecycle transitions |
+| `notifications` | Position cycles, transactional outbox, and email delivery |
 | `cli` | Backtest, persistent paper simulation, and ledger inspection |
 
 ## Deliberate MVP boundaries

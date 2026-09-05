@@ -54,6 +54,20 @@ The detailed always-on intraday build and deployment sequence is in
 - [x] Durable audited kill switch and incident runbook
 - [ ] Failure injection for stale data, disconnects, duplicates, and lost acknowledgements
 
+## Phase 5: always-on intraday foundations
+
+- [x] Strict 5/15-minute low-turnover paper mandate
+- [x] NYSE holiday, early-close, entry, and flatten gates
+- [x] Complete-bar aggregation with minute-gap rejection
+- [x] PostgreSQL-compatible production schema and Alembic migration
+- [x] Exactly-one-worker lock and heartbeat persistence
+- [x] Persisted order transition state machine
+- [x] Transactional position-cycle and notification outbox
+- [x] Idempotent Resend email provider adapter
+- [ ] Live Alpaca websocket data ingestion
+- [ ] Calendar-aware autonomous worker
+- [ ] Always-on cloud infrastructure
+
 ## Phase 4: strategy challengers
 
 - [x] Cross-sectional momentum portfolio and equal-risk benchmark

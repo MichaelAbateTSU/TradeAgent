@@ -35,6 +35,11 @@ SQLite ledger.
 - Strict typing, linting, and a high-coverage test suite
 - Aligned multi-symbol panels with dropped-row accounting and provenance hashes
 - Synchronized portfolio execution and cross-sectional momentum qualification
+- Validated low-turnover 5/15-minute intraday paper mandate
+- NYSE holiday/early-close gates and fail-closed minute-bar aggregation
+- PostgreSQL-compatible persistence, worker locks, heartbeats, and Alembic migrations
+- Persisted OMS transition state machine for partial fills, cancels, and recovery
+- Transactional exactly-once round-trip profit/loss email outbox
 
 ## Quick start
 
@@ -163,3 +168,9 @@ See the implementation guides:
 - [`docs/RISK.md`](docs/RISK.md)
 - [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
 - [`docs/ROADMAP.md`](docs/ROADMAP.md)
+
+Initialize the production-compatible schema locally:
+
+```powershell
+.\.venv\Scripts\alembic.exe upgrade head
+```
