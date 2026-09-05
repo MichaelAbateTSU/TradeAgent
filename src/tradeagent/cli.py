@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from tradeagent.alpaca import AlpacaDataClient, AlpacaDataSettings
 from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
+from tradeagent.alpaca_stream import AlpacaMarketStream, AlpacaStreamSettings
 from tradeagent.broker import PaperBroker
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
@@ -41,6 +42,12 @@ from tradeagent.research import (
     evaluate_research_suite,
 )
 from tradeagent.risk import RiskEngine
+from tradeagent.runtime import (
+    ProductionPaperReconciler,
+    ShadowAuditProcessor,
+    run_shadow_runtime,
+)
+from tradeagent.scheduler import ReconciliationScheduler
 from tradeagent.strategy import (
     ConstantWeightStrategy,
     DelayedStrategy,
@@ -50,6 +57,7 @@ from tradeagent.strategy import (
     VolatilityTargetTrendStrategy,
 )
 from tradeagent.universe import load_universe, symbol_filename
+from tradeagent.worker import AutonomousPaperWorker, WorkerMode
 
 
 def _json(value: Any) -> str:
@@ -234,6 +242,12 @@ def _parser() -> argparse.ArgumentParser:
     notifier.add_argument("--once", action="store_true")
     notifier.add_argument("--poll-seconds", type=float, default=5)
     notifier.add_argument("--instance-id", default="notifier-1")
+    worker = subparsers.add_parser(
+        "worker-shadow",
+        help="run the always-on paper data and reconciliation worker without orders",
+    )
+    worker.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
+    worker.add_argument("--instance-id", default="worker-1")
     return parser
 
 
@@ -468,6 +482,46 @@ def main(argv: Sequence[str] | None = None) -> None:
                 print(_json({"dispatched": dispatched}))
             else:
                 asyncio.run(service.run())
+        return
+
+    if args.command == "worker-shadow":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        if not symbols:
+            raise ValueError("shadow worker requires at least one symbol")
+        config = AppConfig()
+        stream_settings = AlpacaStreamSettings.model_validate({})
+        paper_settings = AlpacaPaperSettings.model_validate({})
+        with (
+            Database(config.database_url.get_secret_value()) as database,
+            AlpacaPaperClient(paper_settings) as paper_client,
+        ):
+            repository = ProductionRepository(database)
+            reconciler = ProductionPaperReconciler(paper_client, repository)
+            worker = AutonomousPaperWorker(
+                config,
+                repository,
+                reconciler,
+                ShadowAuditProcessor(repository),
+                mode=WorkerMode.SHADOW,
+                instance_id=args.instance_id,
+                strategy_authorized=lambda: False,
+            )
+            scheduler = ReconciliationScheduler(
+                repository,
+                reconciler,
+                interval_seconds=config.intraday.reconciliation_interval_seconds,
+                instance_id=f"{args.instance_id}-reconciler",
+            )
+            asyncio.run(
+                run_shadow_runtime(
+                    AlpacaMarketStream(stream_settings),
+                    worker,
+                    scheduler,
+                    symbols=symbols,
+                )
+            )
         return
 
     if args.command == "backtest":
