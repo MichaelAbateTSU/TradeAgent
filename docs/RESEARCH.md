@@ -95,6 +95,23 @@ The base scenario had positive return in enough folds, but higher-cost/delay sce
 failed and benchmark-relative evidence was negative. The OMS therefore cannot authorize
 this strategy for autonomous paper entries.
 
+## Initial real intraday evidence
+
+The first intraday run used the most recent 10,000 aligned regular-session SPY/QQQ IEX
+five-minute frames from March 3 through September 3, 2026. Both candidates used $10–$25
+fractional orders, next-frame execution, spread/slippage/commission, one- and two-frame
+delays, 1×/2×/3× costs, and the same bootstrap benchmark gate.
+
+| Candidate | Folds | Positive folds | Avg. Sharpe | Benchmark wins | Avg. excess | 95% excess interval | Est. closed trades | Qualified |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Opening-range breakout | 21 | 14.3% | -9.302 | 47.6% | -0.00022% | [-0.00049%, +0.00005%] | 291 | No |
+| Session VWAP reversion | 21 | 9.5% | -10.138 | 33.3% | -0.00024% | [-0.00052%, +0.00004%] | 281 | No |
+
+Both candidates supplied enough estimated round trips but failed absolute and
+benchmark-relative performance. They are recorded as rejected baselines. Parameters must
+not be tuned repeatedly against this same period; the next candidate requires a fresh
+development split and locked terminal holdout.
+
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,

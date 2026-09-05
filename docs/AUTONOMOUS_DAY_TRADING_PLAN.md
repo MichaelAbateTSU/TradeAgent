@@ -62,7 +62,7 @@ Major gaps are:
 - the persisted OMS state machine is not yet wired to live Alpaca order updates;
 - the PostgreSQL schema is not yet deployed to a managed database;
 - the email outbox is not yet running as an always-on notifier service;
-- no intraday strategies with qualified evidence;
+- no intraday strategy has qualified evidence;
 - no always-on cloud deployment;
 - no 60-day autonomous paper qualification.
 
@@ -97,6 +97,11 @@ The v0.4.0 shadow-runtime batch is complete:
 
 The deployment remains shadow-only. Autonomous entries stay blocked until an intraday
 strategy passes every research gate and is connected through the persisted OMS.
+
+The v0.5.0 strategy-lab batch added fractional small-notional intraday replay,
+regular-session filtering, opening-range breakout, session VWAP mean reversion, an
+intraday equal-risk benchmark, and a 200-closed-trade evidence gate. Both initial
+candidates failed real SPY/QQQ five-minute qualification and remain unauthorized.
 
 Render is the preferred hosted fallback when Azure RBAC is unavailable. The root
 `render.yaml` provisions managed PostgreSQL, dashboard, one shadow worker, and one

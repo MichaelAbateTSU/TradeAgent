@@ -74,6 +74,9 @@ The detailed always-on intraday build and deployment sequence is in
 
 ## Phase 4: strategy challengers
 
+- [x] Opening-range breakout intraday baseline
+- [x] Session VWAP mean-reversion intraday baseline
+- [x] Real five-minute SPY/QQQ qualification with 200-trade gate
 - [x] Cross-sectional momentum portfolio and equal-risk benchmark
 - [x] Portfolio walk-forward cost, delay, and bootstrap qualification
 - [x] Volatility-targeted trend challenger

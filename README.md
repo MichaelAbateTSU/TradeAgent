@@ -43,6 +43,8 @@ SQLite ledger.
 - Typed Alpaca IEX websocket ingestion with reconnect backoff
 - Single-instance shadow worker with scheduled reconciliation and watchdogs
 - Always-on notifier service and Azure Container Apps deployment template
+- $10–$25 fractional intraday backtesting with correct 5-minute annualization
+- Opening-range breakout and session-VWAP mean-reversion qualification
 
 ## Quick start
 
@@ -123,6 +125,20 @@ Download and evaluate the default diversified ETF universe:
   --symbols SPY,QQQ,IWM,TLT,GLD --universe-directory .\data\universe
 ```
 
+Download and qualify real five-minute candidates:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe download-universe `
+  --symbols SPY,QQQ --start 2025-01-01 --end 2026-09-04 `
+  --timeframe 5Min --output-directory .\data\intraday
+.\.venv\Scripts\tradeagent.exe intraday-evaluate `
+  --strategy opening-range --symbols SPY,QQQ `
+  --universe-directory .\data\intraday
+.\.venv\Scripts\tradeagent.exe intraday-evaluate `
+  --strategy vwap --symbols SPY,QQQ `
+  --universe-directory .\data\intraday
+```
+
 Start the read-only console at <http://127.0.0.1:8000>:
 
 ```powershell
@@ -151,6 +167,8 @@ The same three candidates also failed on 1,536 adjusted Alpaca IEX SPY daily bar
 September 3, 2026. This blocks promotion exactly as designed; broader point-in-time data
 and stronger strategies are required before continuous autonomous paper operation. A
 five-ETF cross-sectional momentum portfolio also failed its equal-risk benchmark gate.
+The initial real five-minute opening-range and VWAP candidates also failed and remain
+unauthorized.
 
 ## Development
 

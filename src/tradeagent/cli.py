@@ -267,6 +267,7 @@ def _parser() -> argparse.ArgumentParser:
     intraday_evaluate.add_argument("--step-frames", type=int, default=390)
     intraday_evaluate.add_argument("--embargo-frames", type=int, default=78)
     intraday_evaluate.add_argument("--warmup-frames", type=int, default=390)
+    intraday_evaluate.add_argument("--maximum-frames", type=int, default=10_000)
     intraday_evaluate.add_argument("--minimum-closed-trades", type=int, default=200)
     intraday_evaluate.add_argument("--seed", type=int, default=7)
     intraday_evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
@@ -554,6 +555,8 @@ def main(argv: Sequence[str] | None = None) -> None:
         intraday_config = AppConfig().intraday.model_copy(update={"enabled": True})
         calendar = NyseSessionCalendar(intraday_config)
         frames = regular_session_frames(source_dataset.frames, calendar)
+        if args.maximum_frames > 0:
+            frames = frames[-args.maximum_frames :]
         bars_by_symbol = {symbol: [frame.bar_for(symbol) for frame in frames] for symbol in symbols}
         dataset = align_universe(bars_by_symbol)
         intraday_strategy_config = IntradayStrategyConfig()
