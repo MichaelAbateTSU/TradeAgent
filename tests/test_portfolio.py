@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 
 from tradeagent.broker import PaperBroker
-from tradeagent.config import AppConfig
+from tradeagent.config import AppConfig, IntradayConfig
 from tradeagent.data import synthetic_bars
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.portfolio import (
@@ -96,6 +96,26 @@ def test_portfolio_intent_validates_weights() -> None:
             target_weights={"SPY": Decimal("-0.1")},
             rationale="invalid",
         )
+
+
+def test_intraday_portfolio_caps_fractional_position_at_small_notional() -> None:
+    config = AppConfig(intraday=IntradayConfig(enabled=True))
+    frame = _frames()[0]
+    with SQLiteLedger(":memory:") as ledger:
+        report = PortfolioEngine(
+            config,
+            FixedPortfolioStrategy(),
+            PaperBroker(config.broker),
+            RiskEngine(config.risk),
+            ledger,
+        ).run([frame])
+
+    assert report.fills == 2
+    assert all(
+        position.market_value <= config.intraday.maximum_order_notional
+        for position in report.final_positions
+    )
+    assert all(position.quantity % 1 != 0 for position in report.final_positions)
     with pytest.raises(ValueError, match="cannot exceed one"):
         PortfolioIntent(
             strategy_id="invalid",

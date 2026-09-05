@@ -12,7 +12,9 @@ from tradeagent.intraday import (
     NyseSessionCalendar,
     SessionPhase,
     aggregate_minute_bars,
+    regular_session_frames,
 )
+from tradeagent.universe import UniverseFrame
 
 
 def _minute_bars(start: datetime, count: int) -> list[MarketBar]:
@@ -89,3 +91,19 @@ def test_aggregate_minute_bars_rejects_gaps_and_mixed_symbols() -> None:
             interval_minutes=5,
             calendar=calendar,
         )
+
+
+def test_regular_session_frames_remove_after_hours() -> None:
+    calendar = NyseSessionCalendar(IntradayConfig())
+    regular_bar = _minute_bars(datetime(2026, 9, 4, 13, 30, tzinfo=UTC), 1)[0]
+    after_hours = regular_bar.model_copy(
+        update={"timestamp": datetime(2026, 9, 4, 21, 0, tzinfo=UTC)}
+    )
+    frames = (
+        UniverseFrame(timestamp=regular_bar.timestamp, bars=(regular_bar,)),
+        UniverseFrame(timestamp=after_hours.timestamp, bars=(after_hours,)),
+    )
+
+    filtered = regular_session_frames(frames, calendar)
+
+    assert filtered == (frames[0],)

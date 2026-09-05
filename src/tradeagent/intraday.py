@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict
 
 from tradeagent.config import IntradayConfig
 from tradeagent.domain import MarketBar
+from tradeagent.universe import UniverseFrame
 
 
 class SessionPhase(StrEnum):
@@ -168,4 +169,13 @@ def aggregate_minute_bars(
     return AggregationResult(
         bars=tuple(output),
         dropped_incomplete_bars=dropped,
+    )
+
+
+def regular_session_frames(
+    frames: Sequence[UniverseFrame],
+    calendar: NyseSessionCalendar,
+) -> tuple[UniverseFrame, ...]:
+    return tuple(
+        frame for frame in frames if calendar.gate(frame.timestamp).phase is not SessionPhase.CLOSED
     )

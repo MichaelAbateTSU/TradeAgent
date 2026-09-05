@@ -143,7 +143,16 @@ class PortfolioEngine:
         traded_notional = (
             sum((fill.notional for fill in self._broker.fills), Decimal(0)) - starting_notional
         )
-        metrics = performance_metrics(equities, traded_notional)
+        periods_per_year = (
+            252 * (390 // self._config.intraday.primary_bar_minutes)
+            if self._config.intraday.enabled
+            else 252
+        )
+        metrics = performance_metrics(
+            equities,
+            traded_notional,
+            periods_per_year=periods_per_year,
+        )
         return PortfolioBacktestReport(
             strategy_id=self._strategy.strategy_id,
             symbols=symbols,
@@ -179,13 +188,32 @@ class PortfolioEngine:
         for bar in sorted(frame.bars, key=lambda item: item.symbol):
             account = self._broker.account(frame.timestamp)
             target_weight = intent.target_weights.get(bar.symbol, Decimal(0))
-            target_quantity = (account.equity * target_weight / bar.close).to_integral_value(
-                rounding=ROUND_DOWN
-            )
+            target_notional = account.equity * target_weight
+            if self._config.intraday.enabled and target_weight > 0:
+                target_notional = min(
+                    target_notional,
+                    self._config.intraday.maximum_order_notional,
+                )
+                if target_notional < self._config.intraday.minimum_order_notional:
+                    target_notional = Decimal(0)
+                target_quantity = (target_notional / bar.close).quantize(
+                    Decimal("0.000001"),
+                    rounding=ROUND_DOWN,
+                )
+            else:
+                target_quantity = (target_notional / bar.close).to_integral_value(
+                    rounding=ROUND_DOWN
+                )
             current = account.position_for(bar.symbol)
             current_quantity = current.quantity if current is not None else Decimal(0)
             difference = target_quantity - current_quantity
             if difference == 0:
+                continue
+            if (
+                self._config.intraday.enabled
+                and target_quantity > 0
+                and abs(difference) * bar.close < self._config.intraday.minimum_order_notional
+            ):
                 continue
             side = Side.BUY if difference > 0 else Side.SELL
             decision_id = self._decision_id(intent, bar)
