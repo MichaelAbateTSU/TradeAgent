@@ -12,6 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Michael Abate" }]
 dependencies = [
   "alembic>=1.16,<2",
+  "exchange-calendars>=4.11,<5",
   "fastapi>=0.116,<1",
   "httpx>=0.28,<1",
   "psycopg[binary]>=3.2,<4",
@@ -52,6 +53,10 @@ show_missing = true
 python_version = "3.12"
 strict = true
 packages = ["tradeagent"]
+
+[[tool.mypy.overrides]]
+module = ["exchange_calendars", "exchange_calendars.*"]
+ignore_missing_imports = true
 
 [tool.ruff]
 extend-exclude = ["deep-research-report*.md"]
