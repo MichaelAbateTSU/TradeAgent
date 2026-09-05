@@ -5,7 +5,11 @@ from pathlib import Path
 
 from sqlalchemy import inspect
 
-from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.persistence import (
+    Database,
+    ProductionRepository,
+    normalize_database_url,
+)
 
 
 def test_production_schema_and_repository_contracts(tmp_path: Path) -> None:
@@ -67,6 +71,10 @@ def test_worker_lock_allows_exactly_one_owner(tmp_path: Path) -> None:
 
 
 def test_render_postgres_url_uses_psycopg_driver() -> None:
+    assert (
+        normalize_database_url("postgresql://user:password@example.com/tradeagent")
+        == "postgresql+psycopg://user:password@example.com/tradeagent"
+    )
     database = Database("postgresql://user:password@example.com/tradeagent")
 
     assert database.engine.url.drivername == "postgresql+psycopg"
