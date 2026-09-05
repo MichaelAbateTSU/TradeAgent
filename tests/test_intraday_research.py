@@ -72,10 +72,15 @@ def test_intraday_suite_enforces_minimum_trade_evidence() -> None:
         ),
         random_seed=1,
         minimum_closed_trades=200,
+        minimum_deflated_sharpe_probability=Decimal("0.95"),
+        maximum_backtest_overfitting_probability=Decimal("0.20"),
+        number_of_trials=3,
         git_sha="intraday-test",
     )
 
     assert not report.qualified
     assert report.minimum_closed_trades == 200
     assert report.closed_trade_estimate < 200
+    assert report.deflated_sharpe_probability is not None
+    assert report.probability_backtest_overfitting is not None
     assert "INSUFFICIENT_CLOSED_TRADES" in report.qualification_reasons

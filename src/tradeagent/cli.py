@@ -608,6 +608,9 @@ def main(argv: Sequence[str] | None = None) -> None:
             ),
             random_seed=args.seed,
             minimum_closed_trades=args.minimum_closed_trades,
+            minimum_deflated_sharpe_probability=Decimal("0.95"),
+            maximum_backtest_overfitting_probability=Decimal("0.20"),
+            number_of_trials=3,
         )
         with ExperimentRegistry(args.database) as registry:
             experiment_id = registry.record_model(
