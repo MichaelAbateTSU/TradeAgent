@@ -14,6 +14,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from tradeagent.alpaca import AlpacaDataClient, AlpacaDataSettings
+from tradeagent.alpaca_news import AlpacaNewsClient
 from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
 from tradeagent.alpaca_stream import AlpacaMarketStream, AlpacaStreamSettings
 from tradeagent.broker import PaperBroker
@@ -39,6 +40,8 @@ from tradeagent.intraday_strategy import (
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
 from tradeagent.monitor import monitor_take_profit
+from tradeagent.news import NewsRepository
+from tradeagent.news_worker import NewsWorker, NewsWorkerSettings
 from tradeagent.notifications import (
     EmailSettings,
     NotificationDispatcher,
@@ -266,6 +269,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     worker.add_argument("--symbols", default="SPY,QQQ,IWM,TLT,GLD")
     worker.add_argument("--instance-id")
+    news_worker = subparsers.add_parser(
+        "news-worker",
+        help="poll and persist Alpaca news with a durable watermark",
+    )
+    news_worker.add_argument("--instance-id")
     intraday_evaluate = subparsers.add_parser(
         "intraday-evaluate",
         help="qualify intraday strategies on aligned 5-minute bars",
@@ -597,6 +605,27 @@ def main(argv: Sequence[str] | None = None) -> None:
                     symbols=symbols,
                 )
             )
+        return
+
+    if args.command == "news-worker":
+        config = AppConfig()
+        settings = NewsWorkerSettings.model_validate({})
+        alpaca_settings = AlpacaDataSettings.model_validate({})
+        with (
+            Database(config.database_url.get_secret_value()) as database,
+            AlpacaNewsClient(alpaca_settings) as news_source,
+        ):
+            instance_id = (
+                args.instance_id or os.getenv("RENDER_INSTANCE_ID") or socket.gethostname()
+            )
+            news_service = NewsWorker(
+                settings,
+                news_source,
+                NewsRepository(database),
+                ProductionRepository(database),
+                instance_id=instance_id,
+            )
+            asyncio.run(news_service.run())
         return
 
     if args.command == "intraday-evaluate":
