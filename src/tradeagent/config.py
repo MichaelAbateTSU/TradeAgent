@@ -5,7 +5,7 @@ from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -122,6 +122,7 @@ class AppConfig(BaseSettings):
     mode: str = Field(default="paper", pattern="^paper$")
     trading_enabled: bool = True
     database_path: Path = Path("data/tradeagent.db")
+    database_url: SecretStr = SecretStr("sqlite:///data/tradeagent-v2.db")
     risk: RiskLimits = RiskLimits()
     broker: BrokerConfig = BrokerConfig()
     strategy: StrategyConfig = StrategyConfig()

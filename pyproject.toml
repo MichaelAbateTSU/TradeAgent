@@ -11,10 +11,13 @@ requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Michael Abate" }]
 dependencies = [
+  "alembic>=1.16,<2",
   "fastapi>=0.116,<1",
   "httpx>=0.28,<1",
+  "psycopg[binary]>=3.2,<4",
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.9,<3",
+  "sqlalchemy>=2.0,<3",
   "uvicorn>=0.35,<1",
 ]
 
