@@ -161,6 +161,8 @@ def evaluate_portfolio_walk_forward(
                 report=report,
             )
         )
+    if not folds:
+        raise ValueError("portfolio walk-forward configuration produced no complete folds")
 
     positive = sum(fold.report.total_return > 0 for fold in folds)
     positive_ratio = Decimal(positive) / Decimal(len(folds))

@@ -306,7 +306,7 @@ def _parser() -> argparse.ArgumentParser:
     intraday_evaluate.add_argument("--testing-frames", type=int, default=390)
     intraday_evaluate.add_argument("--step-frames", type=int, default=390)
     intraday_evaluate.add_argument("--embargo-frames", type=int, default=78)
-    intraday_evaluate.add_argument("--warmup-frames", type=int, default=390)
+    intraday_evaluate.add_argument("--warmup-frames", type=int, default=1_560)
     intraday_evaluate.add_argument("--maximum-frames", type=int, default=10_000)
     intraday_evaluate.add_argument("--holdout-manifest", type=Path)
     intraday_evaluate.add_argument("--minimum-closed-trades", type=int, default=200)
