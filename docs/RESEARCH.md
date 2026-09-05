@@ -1,5 +1,10 @@
 # Research and qualification
 
+> [!IMPORTANT]
+> Earlier intraday tables below are preserved as experiment history but were superseded
+> by the focused backtest audit. Use [`AUDIT_REPORT.md`](AUDIT_REPORT.md) for corrected
+> close-time, session-aligned, forced-liquidation results.
+
 TradeAgent separates pipeline validation from claims of market alpha. Synthetic data is
 useful for deterministic tests, cost sensitivity, accounting, and promotion logic. It
 cannot establish profitability because it does not contain real price formation,

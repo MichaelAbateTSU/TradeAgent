@@ -202,6 +202,7 @@ See the implementation guides:
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - [`docs/AUTONOMOUS_DAY_TRADING_PLAN.md`](docs/AUTONOMOUS_DAY_TRADING_PLAN.md)
 - [`docs/PROFITABILITY_STRATEGY_PLAN.md`](docs/PROFITABILITY_STRATEGY_PLAN.md)
+- [`docs/AUDIT_REPORT.md`](docs/AUDIT_REPORT.md)
 - [`docs/DATA.md`](docs/DATA.md)
 - [`docs/RESEARCH.md`](docs/RESEARCH.md)
 - [`docs/RISK.md`](docs/RISK.md)

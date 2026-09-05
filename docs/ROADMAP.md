@@ -8,6 +8,8 @@ The detailed always-on intraday build and deployment sequence is in
 [`AUTONOMOUS_DAY_TRADING_PLAN.md`](AUTONOMOUS_DAY_TRADING_PLAN.md).
 The fixed-budget strategy research program is in
 [`PROFITABILITY_STRATEGY_PLAN.md`](PROFITABILITY_STRATEGY_PLAN.md).
+Corrected backtest findings and gross/net attribution are in
+[`AUDIT_REPORT.md`](AUDIT_REPORT.md).
 
 ## Phase 1: paper-trading kernel
 
