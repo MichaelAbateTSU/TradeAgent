@@ -27,6 +27,7 @@ from tradeagent.candle_strategy import CandlePattern, CandleTrackingStrategy
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.data_quality import analyze_dataset
+from tradeagent.diagnostics import diagnose_strategy
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.holdout import (
@@ -58,6 +59,7 @@ from tradeagent.notifications import (
 from tradeagent.notifier import NotifierService
 from tradeagent.oms import PaperOrderManager
 from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.portfolio import PortfolioStrategy
 from tradeagent.portfolio_research import evaluate_portfolio_suite
 from tradeagent.portfolio_strategy import (
     CrossSectionalMomentumStrategy,
@@ -339,6 +341,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     quality.add_argument("--symbols", default="SPY,QQQ")
     quality.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
+    diagnostics = subparsers.add_parser(
+        "intraday-diagnostics",
+        help="report gross/net trade attribution and MFE/MAE",
+    )
+    diagnostics.add_argument(
+        "--strategy",
+        choices=["noise-area", "donchian-atr", "volatility-squeeze"],
+        required=True,
+    )
+    diagnostics.add_argument("--symbols", default="SPY,QQQ")
+    diagnostics.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
+    diagnostics.add_argument(
+        "--holdout-manifest", type=Path, default=Path("data/intraday-holdout.json")
+    )
+    diagnostics.add_argument("--maximum-frames", type=int, default=10_000)
     return parser
 
 
@@ -814,6 +831,40 @@ def main(argv: Sequence[str] | None = None) -> None:
             )
         )
         print(_json(quality_report))
+        return
+
+    if args.command == "intraday-diagnostics":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        source = load_universe(args.universe_directory, symbols)
+        intraday = AppConfig().intraday.model_copy(update={"enabled": True})
+        frames = regular_session_frames(
+            source.frames,
+            NyseSessionCalendar(intraday),
+        )
+        if args.maximum_frames > 0:
+            frames = frames[-args.maximum_frames :]
+        frames = development_frames(
+            frames,
+            load_holdout_manifest(args.holdout_manifest),
+        )
+        dataset = align_universe(
+            {symbol: [frame.bar_for(symbol) for frame in frames] for symbol in symbols}
+        )
+        diagnostic_strategy: PortfolioStrategy
+        if args.strategy == "noise-area":
+            diagnostic_strategy = NoiseAreaMomentumStrategy(intraday)
+        elif args.strategy == "donchian-atr":
+            diagnostic_strategy = DonchianAtrBreakoutStrategy(intraday)
+        else:
+            diagnostic_strategy = VolatilitySqueezeBreakoutStrategy(intraday)
+        diagnostic_report = diagnose_strategy(
+            dataset.frames,
+            AppConfig(intraday=intraday),
+            diagnostic_strategy,
+        )
+        print(_json(diagnostic_report))
         return
 
     if args.command == "backtest":
