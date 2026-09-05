@@ -114,6 +114,68 @@ boundaries.
 No feature may use a revised future value, incomplete bar, current-day close, or future
 universe membership.
 
+## Recent news awareness
+
+The hosted agent must continuously ingest recent market news so its decisions have
+current context. News begins as a **risk and setup filter**, not an unconstrained
+directional trading signal.
+
+### Initial sources
+
+- SEC EDGAR filings and trading-suspension notices;
+- issuer investor-relations releases;
+- exchange halt/status feeds;
+- Federal Reserve, BLS, BEA, and Treasury calendars/releases;
+- a licensed timestamped market-news feed before production paper promotion.
+
+Every item stores source, source URL, symbol/entity mapping, original publication time,
+first received time, update time, content hash, and revision lineage. Duplicate,
+backfilled, revised, or future-dated items are quarantined.
+
+### Decision-time news features
+
+- minutes since latest relevant headline;
+- scheduled high-impact event proximity;
+- earnings/filing/event category;
+- source reliability class;
+- novelty versus recent headlines;
+- point-in-time sentiment and uncertainty;
+- cross-source confirmation count;
+- whether the item arrived before the decision cutoff.
+
+The first behavior is conservative:
+
+- disable new entries around FOMC, CPI, payroll, and other configured macro releases;
+- disable affected symbols around halts, unresolved filings, and breaking issuer events;
+- widen the required expected-edge threshold during high news uncertainty;
+- attach relevant headline references to shadow decisions and round-trip reports.
+
+### LLM boundary
+
+An LLM may summarize retrieved news for the dashboard and explain why a deterministic
+filter blocked or allowed a setup. It cannot:
+
+- generate an order;
+- alter a target or probability;
+- disable a news blackout;
+- change risk limits;
+- promote a strategy;
+- execute instructions embedded in article text.
+
+All external content is untrusted data. Strip active content, ignore embedded
+instructions, limit retrieved text, preserve source citations, and expose only a typed
+summary schema to the rest of the system.
+
+### Point-in-time validation
+
+Historical testing must use the first publication/receipt timestamp, not the latest
+revised article. Evaluation adds delayed receipt, missing-feed, duplicate-headline,
+incorrect-symbol, and sentiment-failure scenarios. A news-derived feature is eligible
+only if the same feed and latency are available in hosted paper operation.
+
+If the news feed is stale, disconnected, or reports an unresolved high-impact event, the
+agent fails closed for new entries while preserving risk-reducing exits.
+
 ### Models
 
 Champion candidate:
@@ -314,23 +376,28 @@ Final paper gates:
 
 ## Ordered implementation steps
 
-1. Add point-in-time candidate-event and label generation.
-2. Add dataset manifests for model features and labels.
-3. Add purged nested walk-forward splitters.
-4. Add logistic-regression pipeline and calibration.
-5. Add gradient-boosted challenger.
-6. Add Brier/calibration and trade-concentration metrics.
-7. Add missed-fill, halt, and variable-spread replay.
-8. Register the fixed 24-trial experiment budget.
-9. Run development experiments.
-10. Reject or freeze the best passing candidate.
-11. Add signed model-artifact storage.
-12. Deploy frozen candidate to hosted forward shadow.
-13. Run 20-day shadow qualification.
-14. Open the terminal holdout once if shadow passes.
-15. Promote exact evidence-bound version.
-16. Enable minimum-size autonomous paper entries.
-17. Run 60-day paper qualification.
+1. Add a timestamped news/event schema, source provenance, deduplication, and revision
+   lineage.
+2. Add SEC, issuer-release, exchange-halt, and macro-calendar ingestion.
+3. Add freshness monitoring and deterministic news blackout rules.
+4. Add typed cited LLM summaries for dashboard context only.
+5. Add point-in-time candidate-event and label generation.
+6. Add dataset manifests for model features, labels, and news snapshots.
+7. Add purged nested walk-forward splitters.
+8. Add logistic-regression pipeline and calibration.
+9. Add gradient-boosted challenger.
+10. Add Brier/calibration and trade-concentration metrics.
+11. Add missed-fill, halt, news-delay, and variable-spread replay.
+12. Register the fixed 24-trial experiment budget.
+13. Run development experiments.
+14. Reject or freeze the best passing candidate.
+15. Add signed model-artifact storage.
+16. Deploy frozen candidate to hosted forward shadow.
+17. Run 20-day shadow qualification.
+18. Open the terminal holdout once if shadow passes.
+19. Promote exact evidence-bound version.
+20. Enable minimum-size autonomous paper entries.
+21. Run 60-day paper qualification.
 
 ## Stop conditions
 
@@ -346,4 +413,3 @@ Stop new research and remain in cash if:
 
 The objective is not to force a trading strategy into existence. It is to discover
 whether a defensible net edge exists and automate it only if the evidence survives.
-

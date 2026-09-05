@@ -368,6 +368,10 @@ The production trading loop does not self-modify.
 An LLM may summarize experiments, propose hypotheses, and draft reports. It cannot alter
 risk limits, sign a promotion, or submit/cancel orders.
 
+The agent also maintains point-in-time recent-news context from official and licensed
+sources. News initially controls deterministic blackouts and uncertainty thresholds; an
+LLM may produce cited operator summaries but never directional orders or risk overrides.
+
 ## Research and promotion gates
 
 ### Data gates
