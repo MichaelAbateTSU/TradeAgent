@@ -133,6 +133,28 @@ realized volatility, acceptable spread, and relative volume.
 It failed absolute, stress, benchmark, trade-count, and Deflated Sharpe gates. The
 terminal holdout remains unopened and must not be evaluated for this rejected candidate.
 
+## Full intraday candidate comparison
+
+All nine candidates were rerun on the identical sealed 8,000-frame development partition
+with the terminal 2,000 frames unopened. Values below are the base one-frame-delay
+scenario; every strategy also failed the complete stress suite.
+
+| Candidate | Positive folds | Sharpe | Benchmark wins | Est. trades | DSR | Qualified |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Opening range | 18.8% | -7.710 | 43.8% | 236 | 1.0% | No |
+| VWAP reversion | 12.5% | -8.579 | 25.0% | 215 | 0.8% | No |
+| Regime momentum | 37.5% | -3.990 | 37.5% | 95 | 4.9% | No |
+| Heikin-Ashi | 0.0% | -49.950 | 0.0% | 1,677 | 0.0% | No |
+| Bullish engulfing | 0.0% | -32.654 | 12.5% | 581 | 0.0% | No |
+| Inside-bar breakout | 0.0% | -23.272 | 37.5% | 235 | 0.4% | No |
+| Noise-area momentum | 37.5% | -2.245 | 50.0% | 109 | 4.4% | No |
+| Donchian/ATR breakout | 31.3% | -2.568 | 37.5% | 129 | 1.8% | No |
+| Volatility squeeze | 31.3% | -1.982 | 37.5% | 71 | 4.0% | No |
+
+The three newer volatility/momentum candidates lose less than the candle patterns but
+still have negative risk-adjusted and benchmark-relative returns. A low PBO estimate does
+not rescue a strategy with negative edge. None may authorize paper entries.
+
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,
