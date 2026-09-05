@@ -17,6 +17,7 @@ bounded live capital only after prolonged forward evidence.
 
 ## Phase 2: research validity
 
+- [x] Aligned five-ETF panel with provenance and missing-row accounting
 - [x] Canonical, strictly chronological CSV ingestion
 - [x] Credential-safe Alpaca historical bar downloader
 - [x] Initial SPY real-data qualification on Alpaca IEX history
@@ -52,6 +53,8 @@ bounded live capital only after prolonged forward evidence.
 
 ## Phase 4: strategy challengers
 
+- [x] Cross-sectional momentum portfolio and equal-risk benchmark
+- [x] Portfolio walk-forward cost, delay, and bootstrap qualification
 - [x] Volatility-targeted trend challenger
 - [x] Simple mean-reversion challenger
 - [ ] Purged cross-validation

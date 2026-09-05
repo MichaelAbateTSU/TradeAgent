@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tradeagent"
-version = "0.1.0"
+version = "0.2.0"
 description = "Safety-first autonomous paper-trading agent"
 readme = "README.md"
 requires-python = ">=3.12"

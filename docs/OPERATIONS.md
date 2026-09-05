@@ -98,6 +98,23 @@ reconciliation runs before the command exits. A positive observed unrealized val
 not guarantee positive realized proceeds because price can move before the market order
 fills.
 
+## Portfolio qualification
+
+```powershell
+tradeagent portfolio-evaluate `
+  --symbols SPY,QQQ,IWM,TLT,GLD `
+  --universe-directory data\universe `
+  --lookback-frames 63 `
+  --top-n 2 `
+  --gross-target 0.04 `
+  --database data\experiments.db
+```
+
+Every timestamp is marked across all assets before a decision. The candidate holds up to
+the two strongest positive-momentum assets at 2% NAV each and is compared with a 4%
+equal-weight passive portfolio. The same cost, delay, fold-stability, and bootstrap gates
+used by single-asset research apply.
+
 Endpoints:
 
 | Path | Purpose |

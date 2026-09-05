@@ -51,6 +51,10 @@ flowchart LR
 | `alpaca` | Historical market-data client fixed to Alpaca's data endpoint |
 | `alpaca_paper` | Typed brokerage client fixed to Alpaca's paper endpoint |
 | `oms` | Risk-gated idempotent submission, order journal, and reconciliation |
+| `universe` | Multi-symbol alignment, missing-row accounting, and panel provenance |
+| `portfolio` | Synchronized target execution and frame-level portfolio metrics |
+| `portfolio_strategy` | Cross-sectional momentum, passive benchmark, and delay |
+| `portfolio_research` | Portfolio walk-forward, stress, bootstrap, and promotion |
 | `cli` | Backtest, persistent paper simulation, and ledger inspection |
 
 ## Deliberate MVP boundaries

@@ -77,6 +77,24 @@ These results are more relevant than the synthetic smoke tests but remain insuff
 for market claims. IEX coverage, one instrument, daily bars, adjusted-only history, and
 the absence of an independent vendor cross-check limit the inference.
 
+## Initial real portfolio evidence
+
+The first cross-sectional run aligned 1,535 Alpaca IEX daily frames for SPY, QQQ, IWM,
+TLT, and GLD from July 27, 2020 through September 3, 2026. Panel SHA-256:
+`a5548ff8d555061acba3713126ac1a3a444a45aeac41804af8ca1ca380de18b6`.
+
+The candidate ranked 63-frame momentum, held at most the strongest two positive assets,
+and capped each at 2% NAV. Its equal-risk benchmark held all five assets at 4% total
+gross exposure.
+
+| Folds | Positive folds | Avg. Sharpe | Worst drawdown | Benchmark wins | Avg. excess | 95% excess interval | Qualified |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 20 | 65% | 0.085 | -0.772% | 40% | -0.0570% | [-0.1321%, +0.0224%] | No |
+
+The base scenario had positive return in enough folds, but higher-cost/delay scenarios
+failed and benchmark-relative evidence was negative. The OMS therefore cannot authorize
+this strategy for autonomous paper entries.
+
 ## Required next evidence
 
 1. Acquire independent, licensed, point-in-time U.S. equity bars with corporate actions,

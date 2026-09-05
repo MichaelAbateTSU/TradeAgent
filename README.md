@@ -33,6 +33,8 @@ SQLite ledger.
 - Typed Alpaca paper account, position, and order client fixed to the paper endpoint
 - Risk-gated paper OMS with idempotent recovery and fail-closed reconciliation
 - Strict typing, linting, and a high-coverage test suite
+- Aligned multi-symbol panels with dropped-row accounting and provenance hashes
+- Synchronized portfolio execution and cross-sectional momentum qualification
 
 ## Quick start
 
@@ -103,6 +105,16 @@ Run the promotion-gated research suite:
 .\.venv\Scripts\tradeagent.exe evaluate --strategy volatility-trend --csv .\data\spy.csv
 ```
 
+Download and evaluate the default diversified ETF universe:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe download-universe `
+  --symbols SPY,QQQ,IWM,TLT,GLD --start 2018-01-01 --end 2026-09-04 `
+  --output-directory .\data\universe
+.\.venv\Scripts\tradeagent.exe portfolio-evaluate `
+  --symbols SPY,QQQ,IWM,TLT,GLD --universe-directory .\data\universe
+```
+
 Start the read-only console at <http://127.0.0.1:8000>:
 
 ```powershell
@@ -129,7 +141,8 @@ the SMA, volatility-targeted trend, and z-score mean-reversion candidates failed
 the equal-risk buy-and-hold benchmark consistently across rolling out-of-sample folds.
 The same three candidates also failed on 1,536 adjusted Alpaca IEX SPY daily bars through
 September 3, 2026. This blocks promotion exactly as designed; broader point-in-time data
-and stronger strategies are required before continuous autonomous paper operation.
+and stronger strategies are required before continuous autonomous paper operation. A
+five-ETF cross-sectional momentum portfolio also failed its equal-risk benchmark gate.
 
 ## Development
 

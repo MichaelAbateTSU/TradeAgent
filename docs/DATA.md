@@ -62,3 +62,16 @@ research store. Before relying on results:
 Broker history must not become the sole research source. A later storage layer should
 retain immutable raw vendor data and materialize point-in-time feature datasets from it.
 
+## Multi-symbol universe
+
+```powershell
+tradeagent download-universe `
+  --symbols SPY,QQQ,IWM,TLT,GLD `
+  --start 2018-01-01 `
+  --end 2026-09-04 `
+  --output-directory data\universe
+```
+
+Each symbol is stored independently. `load_universe` intersects timestamps into complete
+frames, reports every dropped row by symbol, and hashes the canonical aligned panel.
+Portfolio decisions receive only frames where every requested symbol is present.
