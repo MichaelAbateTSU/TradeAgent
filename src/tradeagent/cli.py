@@ -13,6 +13,11 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from tradeagent.advanced_strategy import (
+    DonchianAtrBreakoutStrategy,
+    NoiseAreaMomentumStrategy,
+    VolatilitySqueezeBreakoutStrategy,
+)
 from tradeagent.alpaca import AlpacaDataClient, AlpacaDataSettings
 from tradeagent.alpaca_news import AlpacaNewsClient
 from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
@@ -288,6 +293,9 @@ def _parser() -> argparse.ArgumentParser:
             "heikin-ashi",
             "engulfing",
             "inside-breakout",
+            "noise-area",
+            "donchian-atr",
+            "volatility-squeeze",
         ],
         required=True,
     )
@@ -679,6 +687,9 @@ def main(argv: Sequence[str] | None = None) -> None:
             | SessionVwapMeanReversionStrategy
             | RegimeFilteredMomentumStrategy
             | CandleTrackingStrategy
+            | NoiseAreaMomentumStrategy
+            | DonchianAtrBreakoutStrategy
+            | VolatilitySqueezeBreakoutStrategy
         ):
             if args.strategy == "opening-range":
                 return OpeningRangeBreakoutStrategy(
@@ -695,8 +706,23 @@ def main(argv: Sequence[str] | None = None) -> None:
                     intraday_strategy_config,
                     intraday_config,
                 )
-            return CandleTrackingStrategy(
-                CandlePattern(args.strategy),
+            if args.strategy in {pattern.value for pattern in CandlePattern}:
+                return CandleTrackingStrategy(
+                    CandlePattern(args.strategy),
+                    intraday_config,
+                    target_weight=intraday_strategy_config.target_weight,
+                )
+            if args.strategy == "noise-area":
+                return NoiseAreaMomentumStrategy(
+                    intraday_config,
+                    target_weight=intraday_strategy_config.target_weight,
+                )
+            if args.strategy == "donchian-atr":
+                return DonchianAtrBreakoutStrategy(
+                    intraday_config,
+                    target_weight=intraday_strategy_config.target_weight,
+                )
+            return VolatilitySqueezeBreakoutStrategy(
                 intraday_config,
                 target_weight=intraday_strategy_config.target_weight,
             )
