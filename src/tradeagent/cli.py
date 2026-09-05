@@ -47,6 +47,11 @@ from tradeagent.intraday_strategy import (
 )
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
+from tradeagent.meta_label import (
+    TrendPullbackCandidateStrategy,
+    build_meta_label_events,
+    evaluate_meta_labels,
+)
 from tradeagent.monitor import monitor_take_profit
 from tradeagent.news import NewsBlackoutPolicy, NewsContextService, NewsRepository
 from tradeagent.news_worker import NewsWorker, NewsWorkerSettings
@@ -365,6 +370,15 @@ def _parser() -> argparse.ArgumentParser:
         "--holdout-manifest", type=Path, default=Path("data/intraday-holdout.json")
     )
     diagnostics.add_argument("--maximum-frames", type=int, default=10_000)
+    meta = subparsers.add_parser(
+        "meta-label-evaluate",
+        help="evaluate a calibrated filter on deterministic trend-pullback events",
+    )
+    meta.add_argument("--symbols", default="SPY,QQQ")
+    meta.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
+    meta.add_argument("--holdout-manifest", type=Path, default=Path("data/intraday-holdout.json"))
+    meta.add_argument("--maximum-frames", type=int, default=10_000)
+    meta.add_argument("--threshold", type=Decimal, default=Decimal("0.65"))
     return parser
 
 
@@ -879,6 +893,46 @@ def main(argv: Sequence[str] | None = None) -> None:
             diagnostic_strategy,
         )
         print(_json(diagnostic_report))
+        return
+
+    if args.command == "meta-label-evaluate":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        source = load_universe(args.universe_directory, symbols)
+        intraday = AppConfig().intraday.model_copy(update={"enabled": True})
+        frames = regular_session_frames(
+            source.frames,
+            NyseSessionCalendar(intraday),
+        )
+        if args.maximum_frames > 0:
+            frames = frames[-args.maximum_frames :]
+        frames = development_frames(
+            frames,
+            load_holdout_manifest(args.holdout_manifest),
+        )
+        config = AppConfig(intraday=intraday)
+        events = build_meta_label_events(
+            frames,
+            TrendPullbackCandidateStrategy(config),
+            config,
+        )
+        try:
+            meta_report = evaluate_meta_labels(
+                events,
+                threshold=args.threshold,
+            )
+            print(_json(meta_report))
+        except ValueError as error:
+            print(
+                _json(
+                    {
+                        "qualified_filter": False,
+                        "event_count": len(events),
+                        "reason": str(error),
+                    }
+                )
+            )
         return
 
     if args.command == "backtest":

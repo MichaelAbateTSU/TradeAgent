@@ -18,6 +18,7 @@ dependencies = [
   "psycopg[binary]>=3.2,<4",
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.9,<3",
+  "scikit-learn>=1.7,<2",
   "sqlalchemy>=2.0,<3",
   "uvicorn>=0.35,<1",
   "websockets>=15,<16",
@@ -57,6 +58,10 @@ packages = ["tradeagent"]
 
 [[tool.mypy.overrides]]
 module = ["exchange_calendars", "exchange_calendars.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["sklearn", "sklearn.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
