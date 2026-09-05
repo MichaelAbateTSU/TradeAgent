@@ -85,7 +85,7 @@ class NyseSessionCalendar:
             session_close - timedelta(minutes=5),
         )
 
-        if observed_at < session_open or observed_at >= session_close:
+        if observed_at < session_open or observed_at > session_close:
             phase = SessionPhase.CLOSED
             reason = "outside regular session"
         elif observed_at < entry_start:

@@ -53,6 +53,7 @@ def test_session_gate_transitions_and_early_flatten() -> None:
     assert calendar.gate(datetime(2026, 9, 4, 13, 35, tzinfo=UTC)).can_enter
     assert calendar.gate(datetime(2026, 9, 4, 19, 31, tzinfo=UTC)).phase is SessionPhase.MANAGE_ONLY
     assert calendar.gate(datetime(2026, 9, 4, 19, 51, tzinfo=UTC)).must_flatten
+    assert calendar.gate(datetime(2026, 9, 4, 20, 0, tzinfo=UTC)).must_flatten
     assert calendar.gate(datetime(2026, 9, 4, 20, 1, tzinfo=UTC)).phase is SessionPhase.CLOSED
     assert calendar.gate(datetime(2026, 9, 7, 15, 0, tzinfo=UTC)).phase is SessionPhase.CLOSED
     assert calendar.gate(datetime(2026, 11, 27, 17, 51, tzinfo=UTC)).must_flatten

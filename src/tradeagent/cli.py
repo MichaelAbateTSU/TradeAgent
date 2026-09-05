@@ -26,6 +26,7 @@ from tradeagent.broker import PaperBroker
 from tradeagent.candle_strategy import CandlePattern, CandleTrackingStrategy
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
+from tradeagent.data_quality import analyze_dataset
 from tradeagent.domain import PaperBrokerState
 from tradeagent.engine import TradingEngine
 from tradeagent.holdout import (
@@ -332,6 +333,12 @@ def _parser() -> argparse.ArgumentParser:
     )
     open_holdout.add_argument("--maximum-frames", type=int, default=10_000)
     open_holdout.add_argument("--authorization", required=True)
+    quality = subparsers.add_parser(
+        "data-quality",
+        help="report aligned bar quality and explicit vendor limitations",
+    )
+    quality.add_argument("--symbols", default="SPY,QQQ")
+    quality.add_argument("--universe-directory", type=Path, default=Path("data/intraday"))
     return parser
 
 
@@ -792,6 +799,21 @@ def main(argv: Sequence[str] | None = None) -> None:
                 }
             )
         )
+        return
+
+    if args.command == "data-quality":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        dataset = load_universe(args.universe_directory, symbols)
+        calendar = NyseSessionCalendar(AppConfig().intraday)
+        frames = regular_session_frames(dataset.frames, calendar)
+        quality_report = analyze_dataset(
+            align_universe(
+                {symbol: [frame.bar_for(symbol) for frame in frames] for symbol in symbols}
+            )
+        )
+        print(_json(quality_report))
         return
 
     if args.command == "backtest":
