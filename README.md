@@ -157,6 +157,7 @@ The design is grounded in the four research reports committed at the repository 
 See the implementation guides:
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/AUTONOMOUS_DAY_TRADING_PLAN.md`](docs/AUTONOMOUS_DAY_TRADING_PLAN.md)
 - [`docs/DATA.md`](docs/DATA.md)
 - [`docs/RESEARCH.md`](docs/RESEARCH.md)
 - [`docs/RISK.md`](docs/RISK.md)

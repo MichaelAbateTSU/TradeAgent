@@ -4,6 +4,9 @@ The roadmap follows the common sequence in the four research reports: establish 
 and deterministic infrastructure first, validate strategies second, and consider tightly
 bounded live capital only after prolonged forward evidence.
 
+The detailed always-on intraday build and deployment sequence is in
+[`AUTONOMOUS_DAY_TRADING_PLAN.md`](AUTONOMOUS_DAY_TRADING_PLAN.md).
+
 ## Phase 1: paper-trading kernel
 
 - [x] Immutable domain models and UTC market bars

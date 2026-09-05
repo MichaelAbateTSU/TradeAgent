@@ -60,10 +60,11 @@ flowchart LR
 ## Deliberate MVP boundaries
 
 - Daily OHLCV bars and market orders only
-- One long-only instrument per CLI run
+- Long-only single-asset and synchronized multi-asset research
 - SQLite for local transactional state; no distributed services
-- Deterministic SMA baseline, not an asserted source of alpha
-- No LLM, external data vendor, or brokerage credentials
+- Deterministic candidates, none asserted as a source of alpha
+- Alpaca data and paper brokerage only; no live endpoint
+- No autonomous entry scheduler or notification service
 
 The OMS checks the durable kill switch and deterministic risk policy before submission,
 looks up every client order ID before creating an order, and journals returned broker
