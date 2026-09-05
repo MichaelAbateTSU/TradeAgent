@@ -6,7 +6,13 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from tradeagent.config import AppConfig, RiskLimits, StrategyConfig, config_fingerprint
+from tradeagent.config import (
+    AppConfig,
+    IntradayConfig,
+    RiskLimits,
+    StrategyConfig,
+    config_fingerprint,
+)
 from tradeagent.domain import MarketBar
 
 
@@ -70,3 +76,31 @@ def test_configuration_fingerprint_changes_with_runtime_policy() -> None:
 
     assert len(config_fingerprint(default)) == 64
     assert config_fingerprint(default) != config_fingerprint(changed)
+
+
+def test_intraday_mandate_defaults_are_small_and_low_turnover() -> None:
+    config = IntradayConfig()
+
+    assert not config.enabled
+    assert config.primary_bar_minutes == 5
+    assert config.context_bar_minutes == 15
+    assert config.maximum_order_notional == Decimal("25")
+    assert config.maximum_round_trips_per_day == 2
+    assert config.flatten_start < config.hard_flatten_deadline
+
+
+def test_intraday_mandate_rejects_inconsistent_policy() -> None:
+    with pytest.raises(ValidationError, match="multiple"):
+        IntradayConfig(primary_bar_minutes=7, context_bar_minutes=15)
+    with pytest.raises(ValidationError, match="strictly increasing"):
+        IntradayConfig(no_new_entries_after="09:30:00")
+    with pytest.raises(ValidationError, match="minimum_order_notional"):
+        IntradayConfig(
+            minimum_order_notional=Decimal("26"),
+            maximum_order_notional=Decimal("25"),
+        )
+    with pytest.raises(ValidationError, match="hard risk limit"):
+        AppConfig(
+            intraday=IntradayConfig(maximum_gross_exposure=Decimal("0.10")),
+            risk=RiskLimits(max_gross_exposure=Decimal("0.05")),
+        )

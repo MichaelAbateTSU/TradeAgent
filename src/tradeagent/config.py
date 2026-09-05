@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import time
 from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
@@ -65,6 +66,49 @@ class StrategyConfig(BaseModel):
         return self
 
 
+class IntradayConfig(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = False
+    timezone: str = "America/New_York"
+    primary_bar_minutes: int = Field(default=5, gt=0, le=60)
+    context_bar_minutes: int = Field(default=15, gt=0, le=60)
+    entry_start: time = time(9, 35)
+    no_new_entries_after: time = time(15, 30)
+    flatten_start: time = time(15, 50)
+    hard_flatten_deadline: time = time(15, 55)
+    regular_session_close: time = time(16, 0)
+    minimum_order_notional: Decimal = Field(default=Decimal("10"), gt=0)
+    maximum_order_notional: Decimal = Field(default=Decimal("25"), gt=0)
+    maximum_position_exposure: Decimal = Field(default=Decimal("0.005"), gt=0, le=1)
+    maximum_gross_exposure: Decimal = Field(default=Decimal("0.01"), gt=0, le=1)
+    maximum_positions: int = Field(default=2, gt=0)
+    maximum_round_trips_per_day: int = Field(default=2, gt=0)
+    symbol_cooldown_minutes: int = Field(default=30, ge=0)
+    minimum_expected_edge_bps: Decimal = Field(default=Decimal("15"), gt=0)
+    quote_max_age_seconds: int = Field(default=10, gt=0)
+    bar_max_age_seconds: int = Field(default=90, gt=0)
+
+    @model_validator(mode="after")
+    def validate_intraday_policy(self) -> IntradayConfig:
+        if self.context_bar_minutes % self.primary_bar_minutes != 0:
+            raise ValueError("context_bar_minutes must be a multiple of primary_bar_minutes")
+        schedule = (
+            self.entry_start,
+            self.no_new_entries_after,
+            self.flatten_start,
+            self.hard_flatten_deadline,
+            self.regular_session_close,
+        )
+        if tuple(sorted(schedule)) != schedule or len(set(schedule)) != len(schedule):
+            raise ValueError("intraday session times must be strictly increasing")
+        if self.minimum_order_notional > self.maximum_order_notional:
+            raise ValueError("minimum_order_notional cannot exceed maximum_order_notional")
+        if self.maximum_position_exposure > self.maximum_gross_exposure:
+            raise ValueError("maximum_position_exposure cannot exceed maximum_gross_exposure")
+        return self
+
+
 class AppConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="TRADEAGENT_",
@@ -81,11 +125,18 @@ class AppConfig(BaseSettings):
     risk: RiskLimits = RiskLimits()
     broker: BrokerConfig = BrokerConfig()
     strategy: StrategyConfig = StrategyConfig()
+    intraday: IntradayConfig = IntradayConfig()
 
     @model_validator(mode="after")
     def strategy_fits_risk(self) -> AppConfig:
         if self.strategy.target_weight > self.risk.max_order_exposure:
             raise ValueError("strategy target_weight cannot exceed max_order_exposure")
+        if self.intraday.maximum_position_exposure > self.risk.max_position_exposure:
+            raise ValueError("intraday position exposure cannot exceed hard risk limit")
+        if self.intraday.maximum_gross_exposure > self.risk.max_gross_exposure:
+            raise ValueError("intraday gross exposure cannot exceed hard risk limit")
+        if self.intraday.maximum_positions > self.risk.max_positions:
+            raise ValueError("intraday maximum positions cannot exceed hard risk limit")
         return self
 
 
