@@ -228,6 +228,8 @@ def evaluate_research_suite(
         (Decimal(1), 2),
         (Decimal(2), 2),
         (Decimal(3), 2),
+        (Decimal(0), 1),
+        (Decimal("1.5"), 1),
     )
     scenarios = tuple(
         evaluate_walk_forward(

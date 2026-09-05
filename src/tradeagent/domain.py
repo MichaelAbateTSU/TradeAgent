@@ -219,7 +219,7 @@ class WalkForwardFold(FrozenModel):
 
 class WalkForwardReport(FrozenModel):
     strategy_id: str
-    cost_multiplier: Decimal = Field(ge=1)
+    cost_multiplier: Decimal = Field(ge=0)
     execution_delay_bars: int = Field(ge=0)
     folds: tuple[WalkForwardFold, ...]
     positive_fold_ratio: Decimal = Field(ge=0, le=1)
@@ -231,7 +231,7 @@ class WalkForwardReport(FrozenModel):
 
 class BenchmarkComparison(FrozenModel):
     benchmark_strategy_id: str
-    cost_multiplier: Decimal = Field(ge=1)
+    cost_multiplier: Decimal = Field(ge=0)
     execution_delay_bars: int = Field(ge=0)
     average_excess_return: Decimal
     excess_return_ci_lower: Decimal

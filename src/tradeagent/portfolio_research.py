@@ -49,7 +49,7 @@ class PortfolioWalkForwardReport(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     strategy_id: str
-    cost_multiplier: Decimal = Field(ge=1)
+    cost_multiplier: Decimal = Field(ge=0)
     execution_delay_frames: int = Field(ge=0)
     folds: tuple[PortfolioWalkForwardFold, ...]
     positive_fold_ratio: Decimal = Field(ge=0, le=1)
@@ -63,7 +63,7 @@ class PortfolioBenchmarkComparison(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     benchmark_strategy_id: str
-    cost_multiplier: Decimal = Field(ge=1)
+    cost_multiplier: Decimal = Field(ge=0)
     execution_delay_frames: int = Field(ge=0)
     average_excess_return: Decimal
     excess_return_ci_lower: Decimal
@@ -209,6 +209,8 @@ def evaluate_portfolio_suite(
         (Decimal(1), 2),
         (Decimal(2), 2),
         (Decimal(3), 2),
+        (Decimal(0), 1),
+        (Decimal("1.5"), 1),
     )
     scenarios = tuple(
         evaluate_portfolio_walk_forward(

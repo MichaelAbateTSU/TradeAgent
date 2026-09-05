@@ -110,9 +110,7 @@ def test_intraday_portfolio_caps_fractional_position_at_small_notional() -> None
             ledger,
         ).run([frame])
         submitted = [
-            event
-            for event in ledger.events(limit=20)
-            if event["event_type"] == "order_submitted"
+            event for event in ledger.events(limit=20) if event["event_type"] == "order_submitted"
         ]
 
     assert report.fills == 4

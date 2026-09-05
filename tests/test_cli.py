@@ -79,7 +79,7 @@ def test_evaluate_command_records_cost_stressed_research(tmp_path: Path, capsys:
     output = json.loads(capsys.readouterr().out)  # type: ignore[attr-defined]
 
     assert output["experiment_id"] == 1
-    assert len(output["report"]["scenarios"]) == 6
+    assert len(output["report"]["scenarios"]) == 8
     assert database.exists()
 
 

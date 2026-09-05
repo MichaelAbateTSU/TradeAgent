@@ -103,6 +103,8 @@ def test_research_suite_stresses_costs_and_records_trial(tmp_path: Path) -> None
         Decimal(1),
         Decimal(2),
         Decimal(3),
+        Decimal(0),
+        Decimal("1.5"),
     ]
     assert [scenario.execution_delay_bars for scenario in report.scenarios] == [
         1,
@@ -111,8 +113,10 @@ def test_research_suite_stresses_costs_and_records_trial(tmp_path: Path) -> None
         2,
         2,
         2,
+        1,
+        1,
     ]
-    assert len(report.benchmark_comparisons) == 6
+    assert len(report.benchmark_comparisons) == 8
     assert all(
         comparison.excess_return_ci_lower
         <= comparison.average_excess_return
