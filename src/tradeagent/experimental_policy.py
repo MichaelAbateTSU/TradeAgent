@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
@@ -12,6 +13,21 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from tradeagent.config import AppConfig
 
 ExperimentMode = Literal["shadow", "experimental-paper", "offline-replay"]
+
+
+def reject_live_environment() -> None:
+    if (
+        any(
+            os.getenv(key)
+            for key in (
+                "ALPACA_LIVE_KEY",
+                "ALPACA_LIVE_KEY_ID",
+                "ALPACA_LIVE_SECRET_KEY",
+            )
+        )
+        or os.getenv("APCA_API_BASE_URL", "").rstrip("/") == "https://api.alpaca.markets"
+    ):
+        raise ValueError("live broker configuration forbidden in event worker")
 
 
 class ExperimentalSettings(BaseSettings):
@@ -31,7 +47,10 @@ class ExperimentalSettings(BaseSettings):
     drawdown_fraction: Decimal = Field(default=Decimal("0.015"), gt=0, le=Decimal("0.015"))
     max_holding_minutes: int = Field(default=60, ge=1, le=60)
     poll_seconds: int = Field(default=30, ge=10, le=60)
+    initial_lookback_minutes: int = Field(default=60, ge=15, le=1440)
     symbols: str = "AAPL,MSFT,NVDA"
+    sec_contact_email: str | None = None
+    primary_urls: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     minimum_sessions: Literal[60] = 60
     minimum_round_trips: Literal[60] = 60
     max_inference_calls_daily: Literal[0] = 0

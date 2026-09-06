@@ -1,0 +1,41 @@
+{
+  "blockers": [
+    "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY",
+    "MACRO_CALENDAR_COMPLETENESS_NOT_VERIFIED",
+    "HALT_STATUS_NOT_INDEPENDENTLY_VERIFIED"
+  ],
+  "code_sha": "48b5b4ac83683811a5209580626c1805efe498e7",
+  "cohort_id": "v20-live-source-demonstration",
+  "config_hash": "2ce9a3fa040c436a975c4a332d266f7dec583ed36b6bc56f2edea61e45afd1f0",
+  "edge_established": false,
+  "events_received": 3,
+  "last_successful_source_at": "2026-09-06T22:14:08.482752+00:00",
+  "market_errors": [],
+  "market_phase": "closed",
+  "mode": "shadow",
+  "next_open": "2026-09-08T09:30:00-04:00",
+  "operational_certificate": null,
+  "source_capabilities": {
+    "cache_ttl_seconds": 60,
+    "historical_revision_delivery": "not_provided_no_historical_receipt_reconstruction",
+    "inference_provider": null,
+    "inference_status": "missing_deterministic_fallback",
+    "last_errors": [],
+    "max_pages": 5,
+    "news_content_requested": true,
+    "news_entitlement": "observed_available",
+    "news_rate_limit_per_second": 2,
+    "news_retention_enabled": false,
+    "point_in_time_consensus": "missing",
+    "primary_rate_limit_per_second": 2,
+    "primary_urls_configured": 0,
+    "sec_enabled": true,
+    "supported_symbols": [
+      "AAPL",
+      "MSFT",
+      "NVDA"
+    ]
+  },
+  "state": "market_closed",
+  "tick_latency_seconds": 1.477595
+}

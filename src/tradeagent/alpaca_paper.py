@@ -9,7 +9,7 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from tradeagent.domain import OrderRequest
+from tradeagent.domain import OrderRequest, OrderType
 
 
 class AlpacaPaperSettings(BaseSettings):
@@ -149,6 +149,8 @@ class AlpacaPaperClient:
     def submit_limit_order(self, order: OrderRequest, limit_price: Decimal) -> AlpacaPaperOrder:
         if not order.symbol.isalpha() or limit_price <= 0 or len(order.client_order_id) > 48:
             raise ValueError("invalid regular-session equity paper limit order")
+        if order.order_type is not OrderType.LIMIT:
+            raise ValueError("paper limit endpoint requires a limit intent")
         payload = self._request(
             "POST",
             "/v2/orders",
@@ -166,6 +168,8 @@ class AlpacaPaperClient:
         return AlpacaPaperOrder.model_validate(payload)
 
     def submit_market_order(self, order: OrderRequest) -> AlpacaPaperOrder:
+        if order.order_type is not OrderType.MARKET:
+            raise ValueError("paper market endpoint requires a market intent")
         if len(order.client_order_id) > 48:
             raise ValueError("Alpaca client_order_id cannot exceed 48 characters")
         time_in_force = "gtc" if "/" in order.symbol else "day"

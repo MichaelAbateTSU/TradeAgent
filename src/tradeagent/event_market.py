@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from statistics import median
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 from pydantic import BaseModel, ConfigDict
@@ -16,13 +16,14 @@ class EventMarketState(BaseModel):
     model_config = ConfigDict(frozen=True)
     symbol: str
     observed_at: datetime
-    feed: str
+    feed: Literal["sip", "iex"]
     bid: Decimal
     ask: Decimal
     bid_size: Decimal
     ask_size: Decimal
     quote_at: datetime
     raw_quote: dict[str, Any]
+    raw_trade: dict[str, Any] | None = None
     completed_bar: MarketBar | None
     previous_close: Decimal | None
     median_daily_dollar_volume: Decimal | None
@@ -57,7 +58,16 @@ class EventMarketClient:
         if not symbol.isalpha():
             raise ValueError("common equity symbol required")
         feed = self.settings.feed
-        quote = self.get(f"/v2/stocks/{symbol}/quotes/latest", {"feed": feed})["quote"]
+        quote = self.get(
+            "/v2/stocks/quotes/latest",
+            {
+                "symbols": symbol,
+                "feed": feed,
+            },
+        )["quotes"][symbol]
+        trade = self.get("/v2/stocks/trades/latest", {"symbols": symbol, "feed": feed})[
+            "trades"
+        ].get(symbol)
         day_key = symbol, now.date().isoformat()
         if day_key not in self.daily_cache:
             payload = self.get(
@@ -124,7 +134,7 @@ class EventMarketClient:
         )
         return EventMarketState(
             symbol=symbol,
-            observed_at=now,
+            observed_at=datetime.now(UTC),
             feed=feed,
             bid=quote["bp"],
             ask=quote["ap"],
@@ -132,6 +142,7 @@ class EventMarketClient:
             ask_size=quote["as"],
             quote_at=_timestamp(quote["t"]),
             raw_quote=quote,
+            raw_trade=trade,
             completed_bar=completed,
             previous_close=Decimal(str(daily[0]["c"])) if daily else None,
             median_daily_dollar_volume=volume,

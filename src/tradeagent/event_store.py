@@ -10,6 +10,8 @@ from sqlalchemy import JSON, Column, DateTime, ForeignKey, String, Table, insert
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError
 
+from tradeagent.config import IntradayConfig
+from tradeagent.intraday import NyseSessionCalendar
 from tradeagent.persistence import Database, events, metadata, orders
 
 event_cohorts = Table(
@@ -231,6 +233,14 @@ class EventStore:
         for decision in decisions:
             for reason in decision["payload"].get("reasons", []):
                 reasons[str(reason)] += 1
+        calendar = NyseSessionCalendar(IntradayConfig())
+        evaluated_days = {
+            _aware(row["decided_at"]).date()
+            for row in decisions
+            if row["payload"].get("action") == "eligible"
+            and calendar.gate(_aware(row["decided_at"])).can_enter
+            and row["payload"].get("mode") != "offline_replay"
+        }
         return {
             "cohort": dict(cohort) if cohort else None,
             "decisions": [dict(row) for row in decisions[:limit]],
@@ -240,4 +250,19 @@ class EventStore:
             "timeline": recent_events,
             "performance_label": "experimental; edge unproven",
             "qualified": False,
+            "usable_forward_trading_sessions": len(evaluated_days),
+            "independent_event_clusters": len(
+                {
+                    row["payload"].get("event_cluster_id")
+                    for row in decisions
+                    if row["payload"].get("event_cluster_id")
+                    and row["payload"].get("issuer_id")
+                    and row["payload"].get("hypothesis") in {"H1", "H2"}
+                }
+            ),
+            "abstention_count": sum(row["payload"].get("action") == "abstain" for row in decisions),
         }
+
+
+def _aware(value: datetime) -> datetime:
+    return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)

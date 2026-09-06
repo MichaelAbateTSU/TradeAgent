@@ -2,6 +2,7 @@
 
 from alembic import op
 
+from tradeagent.event_outcomes import event_outcomes
 from tradeagent.event_store import (
     event_cluster_claims,
     event_cohorts,
@@ -23,12 +24,14 @@ def upgrade() -> None:
         event_decisions,
         event_order_links,
         event_cluster_claims,
+        event_outcomes,
     ):
         table.create(bind=op.get_bind(), checkfirst=True)
 
 
 def downgrade() -> None:
     for table in (
+        event_outcomes,
         event_cluster_claims,
         event_order_links,
         event_decisions,

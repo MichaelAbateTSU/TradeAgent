@@ -715,6 +715,9 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("research/freezes/v0.10.0"),
     )
+    from tradeagent.event_cli import register_event_commands
+
+    register_event_commands(subparsers)
     return parser
 
 
@@ -725,6 +728,10 @@ def _parse_utc(value: str) -> datetime:
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parser().parse_args(argv)
+    from tradeagent.event_cli import handle_event_command
+
+    if handle_event_command(args):
+        return
     if args.command == "status":
         with SQLiteLedger(args.database) as ledger:
             status = {

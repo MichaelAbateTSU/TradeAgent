@@ -11,6 +11,7 @@ from tradeagent.domain import (
     Fill,
     MarketBar,
     OrderRequest,
+    OrderType,
     PaperBrokerState,
     PaperPositionState,
     Position,
@@ -104,6 +105,8 @@ class PaperBroker:
         self._high_watermark = max(self._high_watermark, equity)
 
     def submit(self, order: OrderRequest, bar: MarketBar) -> Fill:
+        if order.order_type is not OrderType.MARKET:
+            raise ValueError("bar-only broker cannot infer limit fills from OHLC touches")
         existing = self._fills.get(order.client_order_id)
         if existing is not None:
             return existing

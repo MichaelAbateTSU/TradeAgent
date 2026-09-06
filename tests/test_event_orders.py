@@ -249,3 +249,53 @@ def test_account_mismatch_pauses_and_live_host_never_called(tmp_path: Path):
         assert not broker.submissions
     finally:
         db.dispose()
+
+
+def test_later_cycle_has_its_own_holding_deadline(tmp_path: Path):
+    db, _, broker, manager, args = setup(tmp_path)
+    try:
+        manager.submit_entry(**args)
+        broker.now = NOW + timedelta(minutes=61)
+        manager.supervise(broker.now, feed_healthy=True)
+        second_time = broker.now + timedelta(minutes=1)
+        broker.now = second_time
+        args.update(
+            now=second_time,
+            quote_at=second_time,
+            eligible_at=second_time,
+            expires_at=second_time + timedelta(minutes=1),
+            cluster_key="second",
+        )
+        assert manager.submit_entry(**args)["state"] == "filled"
+        manager.supervise(second_time + timedelta(seconds=1), feed_healthy=True)
+        assert len(broker.positions()) == 1
+        assert broker.submissions == 3
+    finally:
+        db.dispose()
+
+
+def test_pause_cancels_partial_entry_before_risk_exit(tmp_path: Path):
+    db, _, broker, manager, args = setup(tmp_path)
+    try:
+        broker.partial = True
+        manager.submit_entry(**args)
+        manager.pause("loss-limit", NOW)
+        manager.supervise(NOW, feed_healthy=True)
+        assert broker.positions() == ()
+        assert not broker.open_orders()
+    finally:
+        db.dispose()
+
+
+def test_stale_lease_owner_cannot_submit(tmp_path: Path):
+    from tradeagent.event_orders import EventLeaseLostError
+
+    db, _, broker, manager, args = setup(tmp_path)
+    try:
+        manager.owner_id = "old"
+        assert manager.repo.acquire_worker_lock("tradeagent-event-worker", "new")
+        with pytest.raises(EventLeaseLostError):
+            manager.submit_entry(**args)
+        assert broker.submissions == 0
+    finally:
+        db.dispose()

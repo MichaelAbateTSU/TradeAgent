@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
 from hashlib import sha256
 from typing import Any, Protocol
-from uuid import uuid4
+from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import httpx
 from sqlalchemy import insert, select, update
@@ -18,7 +18,7 @@ from tradeagent.alpaca_paper import (
     PaperClock,
 )
 from tradeagent.config import AppConfig
-from tradeagent.domain import OrderRequest, Side
+from tradeagent.domain import OrderRequest, OrderType, Side
 from tradeagent.event_performance import allocation_ledgers
 from tradeagent.event_store import (
     EventStore,
@@ -26,13 +26,22 @@ from tradeagent.event_store import (
     event_cohorts,
     event_order_links,
 )
-from tradeagent.experimental_policy import ExperimentalSettings, OperationalCertificate
+from tradeagent.experimental_policy import (
+    ExperimentalSettings,
+    OperationalCertificate,
+    reject_live_environment,
+)
 from tradeagent.intraday import NyseSessionCalendar
+from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.order_state import lifecycle_state_from_alpaca
-from tradeagent.persistence import ProductionRepository, orders
+from tradeagent.persistence import ProductionRepository, orders, position_cycles
 
 FINAL = {"filled", "canceled", "rejected", "expired", "risk_rejected"}
 PAPER_HOST = "https://paper-api.alpaca.markets"
+
+
+class EventLeaseLostError(RuntimeError):
+    pass
 
 
 class EventBroker(Protocol):
@@ -60,11 +69,19 @@ class ExperimentalOrderManager:
         app: AppConfig,
         config_hash: str,
         code_sha: str,
+        owner_id: str | None = None,
     ):
         self.store, self.broker, self.settings = store, broker, settings
         self.app, self.config_hash, self.code_sha = app, config_hash, code_sha
         self.repo = ProductionRepository(store.database)
         self.calendar = NyseSessionCalendar(app.intraday)
+        self.owner_id = owner_id
+
+    def assert_owner(self, now: datetime) -> None:
+        if self.owner_id is not None and not self.repo.refresh_worker_lock(
+            "tradeagent-event-worker", self.owner_id, observed_at=now
+        ):
+            raise EventLeaseLostError("event worker lost lease; broker actions fenced")
 
     def reconcile(self, now: datetime) -> dict[str, Any]:
         if self.broker.broker_host != PAPER_HOST:
@@ -101,10 +118,70 @@ class ExperimentalOrderManager:
             "open_orders": len(open_orders),
             "observed_at": now.isoformat(),
         }
+        account_key = f"{self.settings.cohort_id}:broker-account"
+        recorded_account = self.repo.get_control(account_key)
+        if recorded_account is None:
+            self.repo.set_control(account_key, sha256(account.id.encode()).hexdigest())
+        elif recorded_account != result["account_digest"]:
+            mismatches.append("ACCOUNT_RESET_OR_SWITCH")
+            result["healthy"] = False
         self.store.audit("reconciliation", result, now, self.settings.cohort_id)
         if mismatches:
             self.pause("RECONCILIATION_REQUIRED", now)
+        else:
+            self._notify_completed_cycles(rows, now)
         return result
+
+    def _notify_completed_cycles(self, rows: list[dict[str, Any]], now: datetime) -> None:
+        bought = Decimal(0)
+        entry_value = Decimal(0)
+        sold = Decimal(0)
+        exit_value = Decimal(0)
+        first: dict[str, Any] | None = None
+        for row in rows:
+            quantity = Decimal(str(row["filled_quantity"]))
+            response = row["link"].get("broker")
+            if quantity <= 0 or not response or row["status"] not in FINAL:
+                continue
+            value = quantity * Decimal(str(response["filled_average_price"]))
+            if row["side"] == "buy":
+                first = first or row
+                bought += quantity
+                entry_value += value
+            else:
+                sold += quantity
+                exit_value += value
+            if first is not None and sold == bought:
+                cycle_id = uuid5(NAMESPACE_URL, "tradeagent-event:" + first["client_order_id"])
+                with self.store.database.begin() as connection:
+                    if (
+                        connection.scalar(
+                            select(position_cycles.c.cycle_id).where(
+                                position_cycles.c.cycle_id == str(cycle_id)
+                            )
+                        )
+                        is None
+                    ):
+                        connection.execute(
+                            insert(position_cycles).values(
+                                cycle_id=str(cycle_id),
+                                strategy_version="v20-experimental-edge-unproven",
+                                symbol=first["symbol"],
+                                opened_at=_utc(first["created_at"]),
+                                opening_quantity=bought,
+                                opening_vwap=entry_value / bought,
+                                fees=0,
+                                status="open",
+                            )
+                        )
+                RoundTripNotificationRepository(self.store.database).close_cycle_and_enqueue(
+                    cycle_id,
+                    closed_at=now,
+                    closing_vwap=exit_value / sold,
+                    closing_fees=Decimal(0),
+                )
+                first = None
+                bought = sold = entry_value = exit_value = Decimal(0)
 
     @staticmethod
     def inventory(rows: list[dict[str, Any]]) -> dict[str, Decimal]:
@@ -163,6 +240,7 @@ class ExperimentalOrderManager:
         certificate: OperationalCertificate,
         now: datetime,
     ) -> dict[str, Any]:
+        self.assert_owner(now)
         errors: list[str] = []
         if self.settings.mode != "experimental-paper":
             errors.append("SHADOW_NO_ORDERS")
@@ -285,6 +363,7 @@ class ExperimentalOrderManager:
                 strategy_id="v20-event",
                 symbol=symbol,
                 side=Side.BUY,
+                order_type=OrderType.LIMIT,
                 quantity=quantity,
                 submitted_at=now,
             )
@@ -344,10 +423,33 @@ class ExperimentalOrderManager:
     def _dispatch(
         self, request: OrderRequest, limit: Decimal | None, now: datetime
     ) -> dict[str, Any]:
+        reject_live_environment()
+        self.assert_owner(now)
         existing = self.broker.find_order_by_client_id(request.client_order_id)
         if existing is not None:
             self._observe(request.client_order_id, existing, now)
             return {"state": "recovered", "client_order_id": request.client_order_id}
+        if request.side is Side.BUY:
+            clock = self.broker.clock()
+            if (
+                not clock.is_open
+                or not self.calendar.gate(clock.timestamp).can_enter
+                or not timedelta(0)
+                <= clock.timestamp - request.submitted_at
+                <= timedelta(seconds=5)
+                or self.repo.get_control("kill_switch") == "active"
+                or self.repo.get_control(f"{self.settings.cohort_id}:pause")
+            ):
+                with self.store.database.begin() as connection:
+                    connection.execute(
+                        update(orders)
+                        .where(
+                            orders.c.client_order_id == request.client_order_id,
+                            orders.c.status == "approved",
+                        )
+                        .values(status="expired", updated_at=now)
+                    )
+                return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
         with self.store.database.begin() as connection:
             claimed = connection.execute(
                 update(orders)
@@ -432,13 +534,17 @@ class ExperimentalOrderManager:
 
     def supervise(self, now: datetime, *, feed_healthy: bool) -> None:
         """Always called before event ingestion, including outages and operational pauses."""
+        self.assert_owner(now)
         self.reconcile(now)
         rows = self.store.linked_orders(self.settings.cohort_id)
         gate = self.calendar.gate(now)
         for row in rows:
             if row["side"] == "buy" and row["status"] not in FINAL:
                 expiry = datetime.fromisoformat(row["link"]["expires_at"])
-                if not feed_healthy or now >= expiry or gate.must_flatten:
+                paused = self.repo.get_control(f"{self.settings.cohort_id}:pause") or (
+                    self.repo.get_control("kill_switch") == "active"
+                )
+                if not feed_healthy or now >= expiry or gate.must_flatten or paused:
                     if row["broker_order_id"]:
                         self.broker.cancel_order(row["broker_order_id"])
                         with self.store.database.begin() as connection:
@@ -464,19 +570,24 @@ class ExperimentalOrderManager:
             position.symbol: position.quantity for position in self.broker.positions()
         }
         for symbol, owned in inventory.items():
-            buys = [
-                row
-                for row in rows
-                if row["symbol"] == symbol
-                and row["side"] == "buy"
-                and Decimal(str(row["filled_quantity"])) > 0
-            ]
+            buys: list[dict[str, Any]] = []
+            running_quantity = Decimal(0)
+            for row in rows:
+                if row["symbol"] != symbol:
+                    continue
+                filled = Decimal(str(row["filled_quantity"]))
+                running_quantity += filled * (1 if row["side"] == "buy" else -1)
+                if row["side"] == "buy" and filled > 0:
+                    buys.append(row)
+                if running_quantity == 0:
+                    buys.clear()
             due = min(datetime.fromisoformat(row["link"]["exit_at"]) for row in buys)
             if not (
                 gate.must_flatten
                 or now >= due
                 or not feed_healthy
                 or self.repo.get_control(f"{self.settings.cohort_id}:pause")
+                or self.repo.get_control("kill_switch") == "active"
             ):
                 continue
             if owned <= 0 or broker_positions.get(symbol) != owned:
