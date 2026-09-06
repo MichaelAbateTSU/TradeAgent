@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from hashlib import sha256
@@ -78,85 +79,34 @@ def evaluate_frozen_squeeze_matrix(
     symbols: Sequence[str],
     *,
     generated_at: datetime,
+    workers: int = 4,
 ) -> FrozenSqueezeExternalReport:
-    results: list[SqueezeMatrixResult] = []
-    for timeframe, minutes in (("30Min", 30), ("1Hour", 60)):
-        for symbol in symbols:
-            source = source_directory / f"{symbol}.csv"
-            thirty_minute_bars = _regular_bars(tuple(read_bars(source)), minutes=30)
-            bars = thirty_minute_bars if minutes == 30 else _aggregate_hourly(thirty_minute_bars)
-            dataset = align_universe({symbol: bars})
-            intraday = IntradayConfig(
-                enabled=True,
-                primary_bar_minutes=minutes,
-                context_bar_minutes=minutes,
-            )
-            app_config = AppConfig(intraday=intraday)
-            expected_per_session = 390 // minutes
-            walk_forward = WalkForwardConfig(
-                training_bars=expected_per_session * 504,
-                testing_bars=expected_per_session * 126,
-                step_bars=expected_per_session * 126,
-                embargo_bars=expected_per_session * 21,
-                warmup_bars=expected_per_session * 20,
-            )
-            strategy_factory = _squeeze_factory(intraday)
-            validation = evaluate_portfolio_suite(
-                dataset.frames,
-                dataset.manifest,
-                app_config,
-                walk_forward,
-                FrozenSqueezeConfig(),
-                strategy_factory,
-                lambda: EqualWeightPortfolioStrategy(Decimal("0.0025")),
-                random_seed=9100,
-                minimum_closed_trades=200,
-                minimum_deflated_sharpe_probability=Decimal("0.95"),
-                maximum_backtest_overfitting_probability=Decimal("0.20"),
-                number_of_trials=len(symbols) * 2,
-                git_sha=current_git_sha(),
-            )
-            diagnostics = diagnose_strategy(
-                dataset.frames,
-                app_config,
-                strategy_factory(),
-                delay_frames=1,
-            )
-            gross_scenario = next(
-                scenario
-                for scenario in validation.scenarios
-                if scenario.cost_multiplier == 0 and scenario.execution_delay_frames == 1
-            )
-            net_scenario = validation.scenarios[0]
-            results.append(
-                SqueezeMatrixResult(
-                    symbol=symbol,
-                    timeframe=timeframe,
-                    frames=len(dataset.frames),
-                    sessions=len({frame.timestamp.date() for frame in dataset.frames}),
-                    dataset_hash=dataset.manifest.dataset_hash,
-                    gross_average_sharpe=gross_scenario.average_sharpe,
-                    net_average_sharpe=net_scenario.average_sharpe,
-                    closed_trades=validation.closed_trade_estimate,
-                    gross_pnl=diagnostics.gross_pnl,
-                    spread_cost=diagnostics.spread_cost,
-                    slippage=diagnostics.slippage_cost,
-                    fees=diagnostics.fees,
-                    flattening_cost=diagnostics.flattening_cost,
-                    net_pnl=diagnostics.net_pnl,
-                    deflated_sharpe_probability=validation.deflated_sharpe_probability,
-                    probability_backtest_overfitting=validation.probability_backtest_overfitting,
-                    qualified=validation.qualified,
-                    qualification_reasons=validation.qualification_reasons,
-                    diagnostics=diagnostics,
-                )
-            )
+    if workers < 1:
+        raise ValueError("workers must be positive")
+    git_sha = current_git_sha()
+    jobs = [
+        (
+            source_directory,
+            symbol,
+            timeframe,
+            minutes,
+            len(symbols) * 2,
+            git_sha,
+        )
+        for timeframe, minutes in (("30Min", 30), ("1Hour", 60))
+        for symbol in symbols
+    ]
+    if workers == 1:
+        results = [_evaluate_cell(*job) for job in jobs]
+    else:
+        with ProcessPoolExecutor(max_workers=min(workers, len(jobs))) as executor:
+            results = list(executor.map(_evaluate_cell_from_job, jobs))
     qualified = [result for result in results if result.qualified]
     return FrozenSqueezeExternalReport(
         generated_at=generated_at,
         frozen_specification="research/freezes/v0.8.0.json",
         frozen_git_commit="4cbee33bb1a639cb5da2fa71ff4e50a41eb63059",
-        evaluation_git_sha=current_git_sha(),
+        evaluation_git_sha=git_sha,
         selection_policy=(
             "Complete predefined instrument/timeframe matrix; no post-result selection."
         ),
@@ -167,6 +117,89 @@ def evaluate_frozen_squeeze_matrix(
         family_decision=(
             "continue-investigation" if qualified else "retire-no-robust-external-validation"
         ),
+    )
+
+
+def _evaluate_cell_from_job(
+    job: tuple[Path, str, str, int, int, str],
+) -> SqueezeMatrixResult:
+    return _evaluate_cell(*job)
+
+
+def _evaluate_cell(
+    source_directory: Path,
+    symbol: str,
+    timeframe: str,
+    minutes: int,
+    number_of_trials: int,
+    git_sha: str,
+) -> SqueezeMatrixResult:
+    source = source_directory / f"{symbol}.csv"
+    thirty_minute_bars = _regular_bars(tuple(read_bars(source)), minutes=30)
+    bars = thirty_minute_bars if minutes == 30 else _aggregate_hourly(thirty_minute_bars)
+    dataset = align_universe({symbol: bars})
+    intraday = IntradayConfig(
+        enabled=True,
+        primary_bar_minutes=minutes,
+        context_bar_minutes=minutes,
+    )
+    app_config = AppConfig(intraday=intraday)
+    expected_per_session = 390 // minutes
+    walk_forward = WalkForwardConfig(
+        training_bars=expected_per_session * 504,
+        testing_bars=expected_per_session * 126,
+        step_bars=expected_per_session * 126,
+        embargo_bars=expected_per_session * 21,
+        warmup_bars=expected_per_session * 20,
+    )
+    strategy_factory = _squeeze_factory(intraday)
+    validation = evaluate_portfolio_suite(
+        dataset.frames,
+        dataset.manifest,
+        app_config,
+        walk_forward,
+        FrozenSqueezeConfig(),
+        strategy_factory,
+        lambda: EqualWeightPortfolioStrategy(Decimal("0.0025")),
+        random_seed=9100,
+        minimum_closed_trades=200,
+        minimum_deflated_sharpe_probability=Decimal("0.95"),
+        maximum_backtest_overfitting_probability=Decimal("0.20"),
+        number_of_trials=number_of_trials,
+        git_sha=git_sha,
+    )
+    diagnostics = diagnose_strategy(
+        dataset.frames,
+        app_config,
+        strategy_factory(),
+        delay_frames=1,
+    )
+    gross_scenario = next(
+        scenario
+        for scenario in validation.scenarios
+        if scenario.cost_multiplier == 0 and scenario.execution_delay_frames == 1
+    )
+    net_scenario = validation.scenarios[0]
+    return SqueezeMatrixResult(
+        symbol=symbol,
+        timeframe=timeframe,
+        frames=len(dataset.frames),
+        sessions=len({frame.timestamp.date() for frame in dataset.frames}),
+        dataset_hash=dataset.manifest.dataset_hash,
+        gross_average_sharpe=gross_scenario.average_sharpe,
+        net_average_sharpe=net_scenario.average_sharpe,
+        closed_trades=validation.closed_trade_estimate,
+        gross_pnl=diagnostics.gross_pnl,
+        spread_cost=diagnostics.spread_cost,
+        slippage=diagnostics.slippage_cost,
+        fees=diagnostics.fees,
+        flattening_cost=diagnostics.flattening_cost,
+        net_pnl=diagnostics.net_pnl,
+        deflated_sharpe_probability=validation.deflated_sharpe_probability,
+        probability_backtest_overfitting=validation.probability_backtest_overfitting,
+        qualified=validation.qualified,
+        qualification_reasons=validation.qualification_reasons,
+        diagnostics=diagnostics,
     )
 
 

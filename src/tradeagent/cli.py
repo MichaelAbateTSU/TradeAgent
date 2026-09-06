@@ -458,6 +458,7 @@ def _parser() -> argparse.ArgumentParser:
         default=Path("data/v09/alpaca-sip-20200101-20250101/30min"),
     )
     squeeze_external.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
+    squeeze_external.add_argument("--workers", type=int, default=4)
     squeeze_external.add_argument(
         "--output",
         type=Path,
@@ -927,6 +928,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             args.source_directory,
             symbols,
             generated_at=datetime.now(UTC),
+            workers=args.workers,
         )
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(squeeze_report.model_dump_json(indent=2) + "\n", encoding="utf-8")

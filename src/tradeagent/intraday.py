@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal
 from enum import StrEnum
+from functools import lru_cache
 from itertools import pairwise
 from zoneinfo import ZoneInfo
 
@@ -13,6 +14,18 @@ from pydantic import BaseModel, ConfigDict
 from tradeagent.config import IntradayConfig
 from tradeagent.domain import MarketBar
 from tradeagent.universe import UniverseFrame
+
+_XNYS_CALENDAR = exchange_calendars.get_calendar("XNYS")
+
+
+@lru_cache(maxsize=10_000)
+def _xnys_session_bounds(session_date: date) -> tuple[datetime, datetime] | None:
+    if not _XNYS_CALENDAR.is_session(session_date.isoformat()):
+        return None
+    session = _XNYS_CALENDAR.date_to_session(session_date.isoformat())
+    session_open = _XNYS_CALENDAR.session_open(session).to_pydatetime()
+    session_close = _XNYS_CALENDAR.session_close(session).to_pydatetime()
+    return session_open.astimezone(UTC), session_close.astimezone(UTC)
 
 
 class SessionPhase(StrEnum):
@@ -48,22 +61,10 @@ class IntradayDataGapError(ValueError):
 class NyseSessionCalendar:
     def __init__(self, config: IntradayConfig) -> None:
         self._config = config
-        self._calendar = exchange_calendars.get_calendar("XNYS")
         self._timezone = ZoneInfo(config.timezone)
-        self._bounds_cache: dict[date, tuple[datetime, datetime] | None] = {}
 
     def session_bounds(self, session_date: date) -> tuple[datetime, datetime] | None:
-        if session_date in self._bounds_cache:
-            return self._bounds_cache[session_date]
-        if not self._calendar.is_session(session_date.isoformat()):
-            self._bounds_cache[session_date] = None
-            return None
-        session = self._calendar.date_to_session(session_date.isoformat())
-        session_open = self._calendar.session_open(session).to_pydatetime()
-        session_close = self._calendar.session_close(session).to_pydatetime()
-        bounds = session_open.astimezone(UTC), session_close.astimezone(UTC)
-        self._bounds_cache[session_date] = bounds
-        return bounds
+        return _xnys_session_bounds(session_date)
 
     def gate(self, observed_at: datetime) -> SessionGate:
         if observed_at.tzinfo is None or observed_at.utcoffset() is None:
