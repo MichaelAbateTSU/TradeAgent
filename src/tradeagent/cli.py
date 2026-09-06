@@ -455,7 +455,7 @@ def _parser() -> argparse.ArgumentParser:
     squeeze_external.add_argument(
         "--source-directory",
         type=Path,
-        default=Path("data/v09/alpaca-sip-20200101-20250101/30min"),
+        default=Path("data/v09/alpaca-sip-20200101-20250101"),
     )
     squeeze_external.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
     squeeze_external.add_argument("--workers", type=int, default=4)

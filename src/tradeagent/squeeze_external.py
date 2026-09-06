@@ -90,10 +90,10 @@ def evaluate_frozen_squeeze_matrix(
             symbol,
             timeframe,
             minutes,
-            len(symbols) * 2,
+            len(symbols) * 3,
             git_sha,
         )
-        for timeframe, minutes in (("30Min", 30), ("1Hour", 60))
+        for timeframe, minutes in (("5Min", 5), ("30Min", 30), ("1Hour", 60))
         for symbol in symbols
     ]
     if workers == 1:
@@ -111,8 +111,8 @@ def evaluate_frozen_squeeze_matrix(
             "Complete predefined instrument/timeframe matrix; no post-result selection."
         ),
         instruments=tuple(symbols),
-        timeframes=("30Min", "1Hour"),
-        multiple_testing_trials=len(symbols) * 2,
+        timeframes=("5Min", "30Min", "1Hour"),
+        multiple_testing_trials=len(symbols) * 3,
         results=tuple(results),
         family_decision=(
             "continue-investigation" if qualified else "retire-no-robust-external-validation"
@@ -134,9 +134,10 @@ def _evaluate_cell(
     number_of_trials: int,
     git_sha: str,
 ) -> SqueezeMatrixResult:
-    source = source_directory / f"{symbol}.csv"
-    thirty_minute_bars = _regular_bars(tuple(read_bars(source)), minutes=30)
-    bars = thirty_minute_bars if minutes == 30 else _aggregate_hourly(thirty_minute_bars)
+    source_timeframe = "5min" if minutes == 5 else "30min"
+    source = source_directory / source_timeframe / f"{symbol}.csv"
+    source_bars = _regular_bars(tuple(read_bars(source)), minutes=min(minutes, 30))
+    bars = _aggregate_hourly(source_bars) if minutes == 60 else source_bars
     dataset = align_universe({symbol: bars})
     intraday = IntradayConfig(
         enabled=True,
