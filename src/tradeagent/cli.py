@@ -64,9 +64,12 @@ from tradeagent.intraday_strategy import (
 )
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
+from tradeagent.lower_calibration import calibrate_lower_turnover_families
 from tradeagent.lower_execution_evidence import (
+    LowerExecutionEvidenceManifest,
     build_lower_evidence_anchors,
     collect_lower_execution_evidence,
+    load_lower_evidence_snapshots,
     write_lower_evidence_manifest,
 )
 from tradeagent.lower_turnover_research import (
@@ -572,6 +575,26 @@ def _parser() -> argparse.ArgumentParser:
         "--manifest",
         type=Path,
         default=Path("research/datasets/v0.10.0-lower-execution-evidence.json"),
+    )
+    lower_calibration = subparsers.add_parser(
+        "calibrate-lower-execution",
+        help="rerun all 30 configurations with observed SIP execution and stress",
+    )
+    lower_calibration.add_argument(
+        "--evidence-manifest",
+        type=Path,
+        default=Path("research/datasets/v0.10.0-lower-execution-evidence.json"),
+    )
+    lower_calibration.add_argument(
+        "--universe-directory",
+        type=Path,
+        default=Path("data/v09/alpaca-sip-20200101-20250101/1day"),
+    )
+    lower_calibration.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
+    lower_calibration.add_argument(
+        "--output",
+        type=Path,
+        default=Path("research/results/v0.10.0-lower-execution-calibration.json"),
     )
     return parser
 
@@ -1128,6 +1151,40 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "unique_timestamp_count": lower_manifest.unique_timestamp_count,
                     "quote_coverage_ratio": lower_manifest.quote_coverage_ratio,
                     "trade_coverage_ratio": lower_manifest.trade_coverage_ratio,
+                }
+            )
+        )
+        return
+
+    if args.command == "calibrate-lower-execution":
+        lower_manifest = LowerExecutionEvidenceManifest.model_validate_json(
+            args.evidence_manifest.read_text(encoding="utf-8")
+        )
+        snapshots = load_lower_evidence_snapshots(lower_manifest)
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        lower_dataset = load_universe(args.universe_directory, symbols)
+        lower_calibration_result = calibrate_lower_turnover_families(
+            lower_dataset.frames,
+            snapshots,
+            generated_at=datetime.now(UTC),
+            evidence_manifest=str(args.evidence_manifest),
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(
+            lower_calibration_result.model_dump_json(indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(
+            _json(
+                {
+                    "output": str(args.output),
+                    "raw_hypotheses": lower_calibration_result.raw_hypotheses,
+                    "effective_independent_trials": (
+                        lower_calibration_result.effective_independent_trials
+                    ),
+                    "qualified_strategy_ids": (lower_calibration_result.qualified_strategy_ids),
                 }
             )
         )

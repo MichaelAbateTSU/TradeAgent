@@ -98,8 +98,16 @@ def test_lower_anchors_deduplicate_hypotheses_and_preserve_signal_time() -> None
 
     assert len(anchors) == 2
     assert anchors[0].timestamp == first
-    assert anchors[0].anchor_types == ("entry_signal", "exit_signal")
-    assert anchors[1].anchor_types == ("entry_submission", "exit_submission")
+    assert anchors[0].anchor_types == (
+        "benchmark_or_retry_observation",
+        "entry_signal",
+        "exit_signal",
+    )
+    assert anchors[1].anchor_types == (
+        "benchmark_or_retry_observation",
+        "entry_submission",
+        "exit_submission",
+    )
 
 
 def test_lower_evidence_shards_are_covered_and_resumable(tmp_path: Path) -> None:

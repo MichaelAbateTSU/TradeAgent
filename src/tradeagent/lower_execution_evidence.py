@@ -98,6 +98,24 @@ class LowerExecutionEvidenceManifest(BaseModel):
     shards: tuple[EvidenceShardManifest, ...]
 
 
+def load_lower_evidence_snapshots(
+    manifest: LowerExecutionEvidenceManifest,
+) -> dict[tuple[str, datetime], PointInTimeSnapshot]:
+    snapshots: dict[tuple[str, datetime], PointInTimeSnapshot] = {}
+    for shard_manifest in manifest.shards:
+        path = Path(shard_manifest.path)
+        if sha256(path.read_bytes()).hexdigest() != shard_manifest.sha256:
+            raise ValueError(f"evidence shard hash mismatch: {path}")
+        shard = EvidenceShard.model_validate_json(path.read_text(encoding="utf-8"))
+        for snapshot in shard.snapshots:
+            key = (snapshot.anchor.symbol, snapshot.anchor.timestamp)
+            existing = snapshots.get(key)
+            if existing is not None and existing != snapshot:
+                raise ValueError(f"conflicting evidence snapshot: {key}")
+            snapshots[key] = snapshot
+    return snapshots
+
+
 def write_lower_evidence_manifest(
     path: Path,
     manifest: LowerExecutionEvidenceManifest,
@@ -112,6 +130,8 @@ def build_lower_evidence_anchors(
     report: LowerTurnoverResearchReport,
     frames: Sequence[UniverseFrame],
 ) -> tuple[LowerEvidenceAnchor, ...]:
+    if len(frames) < 2:
+        raise ValueError("lower execution evidence requires at least two daily frames")
     timestamps = [frame.timestamp for frame in frames]
     previous = {
         timestamp: timestamps[index - 1] for index, timestamp in enumerate(timestamps) if index > 0
@@ -137,6 +157,11 @@ def build_lower_evidence_anchors(
                     submission = metadata[(trade.symbol, submission_at)]
                     submission["types"].add(f"{role}_submission")
                     submission["hypotheses"].add(hypothesis_id)
+    for frame in frames:
+        for bar in frame.bars:
+            benchmark = metadata[(bar.symbol, frame.timestamp)]
+            benchmark["types"].add("benchmark_or_retry_observation")
+            benchmark["hypotheses"].add("equal-weight-benchmarks")
     return tuple(
         LowerEvidenceAnchor(
             symbol=symbol,
