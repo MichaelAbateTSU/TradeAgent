@@ -187,7 +187,7 @@ def build_frame_observation_anchors(
             symbol=bar.symbol,
             timestamp=frame.timestamp,
             anchor_types=("external_observation",),
-            hypothesis_ids=tuple(hypothesis_ids),
+            hypothesis_ids=tuple(sorted(hypothesis_ids)),
         )
         for frame in frames
         for bar in frame.bars
@@ -275,7 +275,8 @@ def _collect_or_load_shard(
     path = shard_directory / f"{int(timestamp.timestamp() * 1_000_000)}.json"
     if path.exists():
         shard = EvidenceShard.model_validate_json(path.read_text(encoding="utf-8"))
-        if anchors != tuple(snapshot.anchor for snapshot in shard.snapshots):
+        existing_anchors = tuple(snapshot.anchor for snapshot in shard.snapshots)
+        if _anchor_identities(anchors) != _anchor_identities(existing_anchors):
             raise ValueError(f"existing evidence shard does not match {timestamp}")
     else:
         shard = _collect_shard(
@@ -286,6 +287,20 @@ def _collect_or_load_shard(
         )
         _write_shard(path, shard)
     return _shard_manifest(path, shard)
+
+
+def _anchor_identities(
+    anchors: Sequence[LowerEvidenceAnchor],
+) -> tuple[tuple[str, datetime, tuple[str, ...], tuple[str, ...]], ...]:
+    return tuple(
+        (
+            anchor.symbol,
+            anchor.timestamp,
+            tuple(sorted(anchor.anchor_types)),
+            tuple(sorted(anchor.hypothesis_ids)),
+        )
+        for anchor in anchors
+    )
 
 
 def _collect_shard(
