@@ -11,7 +11,8 @@ tradeagent --help
 ```
 
 The v2 schema includes events, controls, orders, fills, position cycles, experiments,
-heartbeats, notification outbox, and an exactly-one-worker lock.
+heartbeats, notification outbox, an exactly-one-worker lock, and normalized bars, quotes,
+and trades with feed provenance and exchange/receipt timestamps.
 
 ## Always-on local shadow stack
 
@@ -33,10 +34,11 @@ Add email delivery after configuring the `EMAIL_*` variables:
 docker compose --profile notifications up -d notifier
 ```
 
-The shadow worker consumes Alpaca IEX bars and quotes, applies NYSE calendar and freshness
-gates, reconciles the paper broker on startup and every 60 seconds, and records
-heartbeats. It cannot place orders. Both worker and notifier have one-replica locks and
-fail closed.
+The shadow worker consumes Alpaca IEX bars, quotes, and trades, applies NYSE calendar and
+freshness gates, reconciles the paper broker on startup and every 60 seconds, and records
+heartbeats. New theoretical signals also record their expected cost/return floors and
+one-, three-, and six-frame decay. It cannot place orders. Both worker and notifier have
+one-replica locks and fail closed.
 
 For laptop-independent operation, build and deploy
 [`infra/azure/main.bicep`](../infra/azure/main.bicep) using the adjacent Azure guide.
@@ -134,6 +136,45 @@ The OMS submission method always:
 Missing or failed qualification rejects new exposure as `STRATEGY_NOT_QUALIFIED`.
 New-exposure submission remains unavailable from the CLI and autonomous engine.
 Risk-reducing exits remain eligible through the explicitly confirmed monitor below.
+
+## v0.9 research and execution evidence
+
+The v0.9 research universe and date range are fixed in code before evaluation. Rebuild the
+local, ignored market-data files and verify them against the tracked manifest:
+
+```powershell
+tradeagent build-v09-dataset
+tradeagent squeeze-external --workers 4
+tradeagent lower-turnover-research
+tradeagent economic-ml-research
+```
+
+Historical quote access is probed explicitly with `feed=sip`. A denied entitlement stops
+the historical evidence command; it never fabricates quotes or silently substitutes an
+estimated feed. Historical bars, quote/trade archives, and experiment databases remain
+local under `data\`; tracked manifests and reports contain their hashes and provenance.
+
+Reproduce the frozen v0.8 squeeze cost calibration:
+
+```powershell
+tradeagent intraday-diagnostics --strategy volatility-squeeze `
+  --output data\v09\execution-evidence\v080-squeeze-diagnostics.json
+tradeagent collect-diagnostic-evidence `
+  --diagnostics data\v09\execution-evidence\v080-squeeze-diagnostics.json `
+  --timeframe 5Min `
+  --records data\v09\execution-evidence\v080-squeeze-quotes-trades.jsonl `
+  --manifest research\datasets\v0.9.0-v080-squeeze-execution-evidence.json
+tradeagent calibrate-diagnostic-execution `
+  --diagnostics data\v09\execution-evidence\v080-squeeze-diagnostics.json `
+  --timeframe 5Min `
+  --evidence data\v09\execution-evidence\v080-squeeze-quotes-trades.jsonl `
+  --output research\results\v0.9.0-v080-squeeze-cost-calibration.json
+```
+
+The market-order simulation uses the first SIP quote at or after submission and caps
+fills at displayed opposite-side size. The marketable-limit simulation fixes its limit at
+the decision-time opposite quote and records a miss unless the order is still marketable
+and fully covered at submission. A bar touching a price never creates a fill.
 
 ## Manual paper take-profit monitor
 

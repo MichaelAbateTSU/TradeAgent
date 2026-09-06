@@ -160,9 +160,7 @@ def build_v09_bar_dataset(
                 on_file(record)
 
     liquidity_observations = {
-        symbol: _daily_liquidity(
-            output_directory / TIMEFRAME_DIRECTORIES["1Day"] / f"{symbol}.csv"
-        )
+        symbol: _daily_liquidity(output_directory / TIMEFRAME_DIRECTORIES["1Day"] / f"{symbol}.csv")
         for symbol in normalized_symbols
     }
     payload = {

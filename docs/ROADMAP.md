@@ -38,10 +38,10 @@ Corrected backtest findings and gross/net attribution are in
 - [x] Fail-closed OMS qualification enforcement
 - [x] One- and two-bar decision-delay stress tests
 - [x] Spread and bar-volume participation constraints
-- [x] Bootstrap confidence interval on benchmark excess return
+- [x] Temporal-block bootstrap confidence interval on benchmark excess return
 - [ ] Capacity estimates
 - [ ] Corporate-action and symbol-history cross-checks against a second vendor
-- [ ] Locked terminal holdout
+- [x] Two immutable locked terminal holdouts (both remain unopened)
 
 ## Phase 3: production paper operation
 
@@ -49,9 +49,9 @@ Corrected backtest findings and gross/net attribution are in
 - [x] Risk-gated Alpaca client integration behind the OMS protocol
 - [x] On-demand broker-authoritative reconciliation
 - [x] Audited manual paper take-profit monitor
-- [ ] Scheduled startup and periodic reconciliation
+- [x] Scheduled startup and periodic reconciliation
 - [x] Local paper-broker checkpoints and restart recovery
-- [ ] Partial fills, cancels, rejects, and deterministic order state machine
+- [x] Partial fills, cancels, rejects, and deterministic order state machine
 - [x] Read-only local operator API and research dashboard
 - [x] Health checks and Prometheus-style counters
 - [ ] Structured logs, NAV metrics, traces, and alerting
@@ -95,9 +95,23 @@ Corrected backtest findings and gross/net attribution are in
 - [x] Portfolio walk-forward cost, delay, and bootstrap qualification
 - [x] Volatility-targeted trend challenger
 - [x] Simple mean-reversion challenger
-- [ ] Purged cross-validation
-- [ ] Multiple-testing controls such as Deflated Sharpe Ratio and PBO
-- [ ] Classical ML challenger only after deterministic baselines pass
+- [x] Purged temporal cross-validation with embargoes
+- [x] Multiple-testing controls including Deflated Sharpe Ratio and PBO
+- [x] Cost-aware net-return ML challenger with strict eligibility and baseline comparison
+
+## Phase 6: v0.9 data and cost calibration
+
+- [x] Immutable v0.8 code, strategy, parameter, dataset, result, and ledger freeze
+- [x] Historical Alpaca SIP quote/trade entitlement detection and retrieval
+- [x] Live IEX quote, trade, and bar recorder with exchange/receipt timestamps
+- [x] Five-year 21-ETF SIP bar panel with 84 file hashes and observed liquidity checks
+- [x] Frozen squeeze validation across 21 instruments and three timeframes
+- [x] Thirty predefined lower-turnover configurations across three families
+- [x] Date clustering, temporal-block bootstrap, purging, embargoes, DSR, and PBO
+- [x] Economic ML eligibility on more than 1,000 events and 100 positive net events
+- [x] Observable market-order and conservative marketable-limit cost calibration
+- [x] Multi-frame continuous shadow signal-decay records
+- [ ] Qualified paper candidate (blocked: no strategy passed unchanged gates)
 
 ## Explicitly deferred
 

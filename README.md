@@ -50,6 +50,12 @@ SQLite ledger.
 - Regime-filtered intraday momentum with DSR/PBO and sealed-holdout gates
 - Hosted synchronized shadow decisions, hypothetical costs/P&L, and shadow NAV
 - PostgreSQL-backed runtime dashboard and immutable signed strategy promotions
+- Paginated Alpaca SIP historical quotes/trades with explicit entitlement detection
+- Append-only live quote, trade, and bar evidence with exchange and receipt timestamps
+- Versioned five-year, 21-ETF SIP panel across daily, hourly, 30-minute, and five-minute bars
+- Frozen external validation and cost attribution for market and marketable-limit execution
+- Cost-aware multi-day momentum, relative-strength, and swing mean-reversion research
+- Net-return-in-basis-points ML with temporal folds and a simple economic baseline
 
 ## Quick start
 
@@ -91,6 +97,19 @@ Download adjusted Alpaca historical data after setting `ALPACA_KEY_ID` and
   --symbol SPY --start 2020-01-01 --end 2026-01-01 `
   --timeframe 1Day --output .\data\spy.csv
 ```
+
+Build the fixed v0.9 SIP research panel and reproduce its research programs:
+
+```powershell
+.\.venv\Scripts\tradeagent.exe build-v09-dataset
+.\.venv\Scripts\tradeagent.exe squeeze-external --workers 4
+.\.venv\Scripts\tradeagent.exe lower-turnover-research
+.\.venv\Scripts\tradeagent.exe economic-ml-research
+```
+
+The panel is fixed to 21 liquid ETFs from 2020 through 2024. Its 84 files, source,
+liquidity checks, row counts, and SHA-256 hashes are recorded in
+`research/datasets/v0.9.0-alpaca-sip.json`. Neither sealed holdout is included.
 
 Verify the fake-money brokerage account without submitting an order:
 
@@ -177,15 +196,14 @@ docker compose up --build
 
 ## Qualification status
 
-**No candidate strategy is qualified.** On the deterministic synthetic validation set,
-the SMA, volatility-targeted trend, and z-score mean-reversion candidates failed to beat
-the equal-risk buy-and-hold benchmark consistently across rolling out-of-sample folds.
-The same three candidates also failed on 1,536 adjusted Alpaca IEX SPY daily bars through
-September 3, 2026. This blocks promotion exactly as designed; broader point-in-time data
-and stronger strategies are required before continuous autonomous paper operation. A
-five-ETF cross-sectional momentum portfolio also failed its equal-risk benchmark gate.
-The initial real five-minute opening-range and VWAP candidates also failed and remain
-unauthorized.
+**No candidate strategy is qualified.** The frozen squeeze failed its 63-cell external
+matrix: its original five-minute cadence did not survive additional years/instruments,
+while its session-reset 20-bar lookback generated no 30-minute or hourly trades. Thirty
+predefined lower-turnover configurations produced several positive provisional estimates,
+but none passed the unchanged benchmark, DSR, PBO, trade-count, and stress gates. Economic
+ML had enough events to train but underperformed its simple cost-aware baseline. The final
+v0.9 classification is **D: no demonstrated edge**. Autonomous entry remains disabled and
+both sealed holdouts remain unopened. See [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md).
 
 ## Development
 
