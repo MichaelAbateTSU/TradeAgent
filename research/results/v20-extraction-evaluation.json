@@ -1,0 +1,175 @@
+{
+  "alpha_evidence": false,
+  "cases": [
+    {
+      "abstention": null,
+      "contradictions": [],
+      "id": "comparable_positive_guidance",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "negative_or_conditional_qualification;conflicting_or_widened_guidance",
+      "contradictions": [
+        "negative_or_conditional_qualification",
+        "conflicting_or_widened_guidance"
+      ],
+      "id": "positive_eps_negative_revenue",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "negative_or_conditional_qualification",
+      "contradictions": [
+        "negative_or_conditional_qualification"
+      ],
+      "id": "revenue_growth_below_expectations",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "negative_or_conditional_qualification;conflicting_or_widened_guidance;mixed_accounting_basis",
+      "contradictions": [
+        "negative_or_conditional_qualification",
+        "conflicting_or_widened_guidance",
+        "mixed_accounting_basis"
+      ],
+      "id": "gaap_better_adjusted_worse",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "conflicting_or_widened_guidance",
+      "contradictions": [
+        "conflicting_or_widened_guidance"
+      ],
+      "id": "wider_range_unchanged_midpoint",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "supported_quantitative_event",
+      "contradictions": [],
+      "id": "major_contract_no_economics",
+      "missing": [
+        "supported_quantitative_event"
+      ],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "correction_requires_review;related_correction_or_retraction",
+      "contradictions": [
+        "correction_requires_review",
+        "related_correction_or_retraction"
+      ],
+      "id": "filing_amendment",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "verified_primary_issuer;supported_quantitative_event",
+      "contradictions": [],
+      "id": "syndicated_unverified_story",
+      "missing": [
+        "verified_primary_issuer",
+        "supported_quantitative_event"
+      ],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "multiple_or_wrong_issuer_mentioned",
+      "contradictions": [
+        "multiple_or_wrong_issuer_mentioned"
+      ],
+      "id": "wrong_issuer",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "recap_rumor_or_issuer_ambiguity",
+      "contradictions": [
+        "recap_rumor_or_issuer_ambiguity"
+      ],
+      "id": "subsidiary_ambiguity",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "recap_rumor_or_issuer_ambiguity",
+      "contradictions": [
+        "recap_rumor_or_issuer_ambiguity"
+      ],
+      "id": "recycled_price_recap",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "untrusted_instruction_content",
+      "contradictions": [
+        "untrusted_instruction_content"
+      ],
+      "id": "prompt_injection",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "incomparable_guidance_basis_period_or_units",
+      "contradictions": [
+        "incomparable_guidance_basis_period_or_units"
+      ],
+      "id": "unit_mismatch",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "incomparable_guidance_basis_period_or_units",
+      "contradictions": [
+        "incomparable_guidance_basis_period_or_units"
+      ],
+      "id": "eps_wrong_units",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "multiple_fiscal_periods",
+      "contradictions": [
+        "multiple_fiscal_periods"
+      ],
+      "id": "different_fiscal_periods",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "nonpositive_guidance_denominator",
+      "contradictions": [
+        "nonpositive_guidance_denominator"
+      ],
+      "id": "negative_denominator",
+      "missing": [],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "point_in_time_annual_revenue",
+      "contradictions": [],
+      "id": "valued_contract_missing_scale_reference",
+      "missing": [
+        "point_in_time_annual_revenue"
+      ],
+      "type_and_field_count_correct": true
+    },
+    {
+      "abstention": "source_not_yet_available",
+      "contradictions": [
+        "source_not_yet_available"
+      ],
+      "id": "source_arrives_later",
+      "missing": [],
+      "type_and_field_count_correct": true
+    }
+  ],
+  "cases_count": 18,
+  "numeric_basis_and_spans": "covered by field-level regression tests",
+  "production_accuracy": null,
+  "synthetic": true,
+  "type_and_field_count_accuracy": 1.0
+}
