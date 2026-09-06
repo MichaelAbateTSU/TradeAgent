@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from time import sleep
 from typing import Any, Literal
 
 import httpx
@@ -207,7 +208,7 @@ class AlpacaDataClient:
         }
         prior_tokens: set[str] = set()
         while True:
-            response = self._client.get(url, headers=headers, params=params)
+            response = self._get_with_retry(url, headers=headers, params=params)
             response.raise_for_status()
             payload = response.json()
             if not isinstance(payload, dict):
@@ -221,6 +222,24 @@ class AlpacaDataClient:
                 raise ValueError("Alpaca returned a repeated pagination token")
             prior_tokens.add(token)
             params["page_token"] = token
+
+    def _get_with_retry(
+        self,
+        url: str,
+        *,
+        headers: dict[str, str],
+        params: dict[str, str | int],
+    ) -> httpx.Response:
+        for attempt in range(7):
+            response = self._client.get(url, headers=headers, params=params)
+            if response.status_code != 429 and response.status_code < 500:
+                return response
+            if attempt == 6:
+                return response
+            retry_after = response.headers.get("Retry-After")
+            delay = float(retry_after) if retry_after else min(60.0, 2.0**attempt)
+            sleep(max(0.1, delay))
+        raise AssertionError("retry loop did not return")
 
     def close(self) -> None:
         if self._owns_client:
@@ -270,6 +289,8 @@ def _point_in_time_params(
 
 def _records(payload: dict[str, Any], key: str) -> list[dict[str, Any]]:
     records = payload.get(key)
+    if key in payload and records is None:
+        return []
     if not isinstance(records, list) or not all(isinstance(item, dict) for item in records):
         raise ValueError(f"Alpaca response is missing the {key} array")
     return records

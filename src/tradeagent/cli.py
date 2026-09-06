@@ -47,6 +47,12 @@ from tradeagent.intraday_strategy import (
 )
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
+from tradeagent.lower_turnover_research import (
+    evaluate_lower_turnover_families,
+)
+from tradeagent.lower_turnover_research import (
+    report_hash as lower_turnover_report_hash,
+)
 from tradeagent.meta_label import (
     TrendPullbackCandidateStrategy,
     build_meta_label_events,
@@ -88,6 +94,12 @@ from tradeagent.runtime import (
     run_shadow_runtime,
 )
 from tradeagent.scheduler import ReconciliationScheduler
+from tradeagent.squeeze_external import (
+    evaluate_frozen_squeeze_matrix,
+)
+from tradeagent.squeeze_external import (
+    report_hash as squeeze_report_hash,
+)
 from tradeagent.strategy import (
     ConstantWeightStrategy,
     DelayedStrategy,
@@ -401,6 +413,37 @@ def _parser() -> argparse.ArgumentParser:
     meta.add_argument("--holdout-manifest", type=Path, default=Path("data/intraday-holdout.json"))
     meta.add_argument("--maximum-frames", type=int, default=10_000)
     meta.add_argument("--threshold", type=Decimal, default=Decimal("0.65"))
+    lower_turnover = subparsers.add_parser(
+        "lower-turnover-research",
+        help="evaluate the 30 predefined v0.9 daily ETF configurations",
+    )
+    lower_turnover.add_argument(
+        "--universe-directory",
+        type=Path,
+        default=Path("data/v09/alpaca-sip-20200101-20250101/1day"),
+    )
+    lower_turnover.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
+    lower_turnover.add_argument("--database", type=Path, default=Path("data/experiments.db"))
+    lower_turnover.add_argument(
+        "--output",
+        type=Path,
+        default=Path("research/results/v0.9.0-lower-turnover.json"),
+    )
+    squeeze_external = subparsers.add_parser(
+        "squeeze-external",
+        help="run the frozen v0.8 squeeze across the predefined v0.9 matrix",
+    )
+    squeeze_external.add_argument(
+        "--source-directory",
+        type=Path,
+        default=Path("data/v09/alpaca-sip-20200101-20250101/30min"),
+    )
+    squeeze_external.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
+    squeeze_external.add_argument(
+        "--output",
+        type=Path,
+        default=Path("research/results/v0.9.0-frozen-squeeze-external.json"),
+    )
     return parser
 
 
@@ -754,6 +797,53 @@ def main(argv: Sequence[str] | None = None) -> None:
                 instance_id=instance_id,
             )
             asyncio.run(news_service.run())
+        return
+
+    if args.command == "lower-turnover-research":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        lower_report = evaluate_lower_turnover_families(
+            args.universe_directory,
+            symbols,
+            args.database,
+            generated_at=datetime.now(UTC),
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(lower_report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(
+            _json(
+                {
+                    "output": str(args.output),
+                    "sha256": lower_turnover_report_hash(lower_report),
+                    "experiment_count": lower_report.experiment_count,
+                    "qualified_strategy_ids": lower_report.qualified_strategy_ids,
+                }
+            )
+        )
+        return
+
+    if args.command == "squeeze-external":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        squeeze_report = evaluate_frozen_squeeze_matrix(
+            args.source_directory,
+            symbols,
+            generated_at=datetime.now(UTC),
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(squeeze_report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(
+            _json(
+                {
+                    "output": str(args.output),
+                    "sha256": squeeze_report_hash(squeeze_report),
+                    "matrix_size": len(squeeze_report.results),
+                    "family_decision": squeeze_report.family_decision,
+                }
+            )
+        )
         return
 
     if args.command == "intraday-evaluate":

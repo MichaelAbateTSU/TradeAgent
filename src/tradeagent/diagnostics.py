@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from tradeagent.broker import PaperBroker
 from tradeagent.config import AppConfig
 from tradeagent.domain import Fill, MarketBar, Side
+from tradeagent.intraday import NyseSessionCalendar, SessionPhase
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.portfolio import PortfolioEngine, PortfolioStrategy
 from tradeagent.portfolio_strategy import DelayedPortfolioStrategy
@@ -27,6 +28,10 @@ class TradeDiagnostic(BaseModel):
     gross_pnl: Decimal
     net_pnl: Decimal
     execution_cost: Decimal
+    spread_cost: Decimal
+    slippage_cost: Decimal
+    fees: Decimal
+    flattening_cost: Decimal
     mfe: Decimal
     mae: Decimal
     holding_frames: int
@@ -40,6 +45,10 @@ class StrategyDiagnostics(BaseModel):
     gross_pnl: Decimal
     net_pnl: Decimal
     execution_cost: Decimal
+    spread_cost: Decimal
+    slippage_cost: Decimal
+    fees: Decimal
+    flattening_cost: Decimal
     expectancy: Decimal
     median_trade: Decimal
     win_rate: Decimal
@@ -69,7 +78,7 @@ def diagnose_strategy(
             ledger,
         ).run(frames)
     bars = {(bar.symbol, frame.timestamp): bar for frame in frames for bar in frame.bars}
-    trades = _pair_fills(broker.fills, frames, bars)
+    trades = _pair_fills(broker.fills, frames, bars, config)
     net_values = [trade.net_pnl for trade in trades]
     gross_pnl = sum((trade.gross_pnl for trade in trades), Decimal(0))
     net_pnl = sum(net_values, Decimal(0))
@@ -82,6 +91,10 @@ def diagnose_strategy(
         gross_pnl=gross_pnl,
         net_pnl=net_pnl,
         execution_cost=cost,
+        spread_cost=sum((trade.spread_cost for trade in trades), Decimal(0)),
+        slippage_cost=sum((trade.slippage_cost for trade in trades), Decimal(0)),
+        fees=sum((trade.fees for trade in trades), Decimal(0)),
+        flattening_cost=sum((trade.flattening_cost for trade in trades), Decimal(0)),
         expectancy=net_pnl / len(trades) if trades else Decimal(0),
         median_trade=Decimal(str(median(net_values))) if net_values else Decimal(0),
         win_rate=Decimal(len(wins)) / len(trades) if trades else Decimal(0),
@@ -97,10 +110,12 @@ def _pair_fills(
     fills: Sequence[Fill],
     frames: Sequence[UniverseFrame],
     bars: dict[tuple[str, datetime], MarketBar],
+    config: AppConfig,
 ) -> list[TradeDiagnostic]:
     entries: dict[str, Fill] = {}
     frame_indices = {frame.timestamp: index for index, frame in enumerate(frames)}
     trades: list[TradeDiagnostic] = []
+    calendar = NyseSessionCalendar(config.intraday) if config.intraday.enabled else None
     for fill in fills:
         if fill.side is Side.BUY:
             entries[fill.symbol] = fill
@@ -118,6 +133,24 @@ def _pair_fills(
         reference_exit = exit_bar.close
         gross = (reference_exit - reference_entry) * quantity
         net = (fill.price - entry.price) * quantity - entry.commission - fill.commission
+        reference_notional = (reference_entry + reference_exit) * quantity
+        spread_cost = reference_notional * config.broker.spread_bps / Decimal(20_000)
+        slippage_cost = reference_notional * config.broker.slippage_bps / Decimal(10_000)
+        fees = entry.commission + fill.commission
+        exit_cost = (
+            reference_exit
+            * quantity
+            * (
+                config.broker.spread_bps / Decimal(20_000)
+                + config.broker.slippage_bps / Decimal(10_000)
+            )
+            + fill.commission
+        )
+        flattening_cost = (
+            exit_cost
+            if calendar is not None and calendar.gate(fill.filled_at).phase is SessionPhase.FLATTEN
+            else Decimal(0)
+        )
         trades.append(
             TradeDiagnostic(
                 symbol=fill.symbol,
@@ -127,6 +160,10 @@ def _pair_fills(
                 gross_pnl=gross,
                 net_pnl=net,
                 execution_cost=gross - net,
+                spread_cost=spread_cost,
+                slippage_cost=slippage_cost,
+                fees=fees,
+                flattening_cost=flattening_cost,
                 mfe=max(
                     ((bar.high - reference_entry) * quantity for bar in path),
                     default=Decimal(0),
