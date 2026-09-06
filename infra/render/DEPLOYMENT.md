@@ -1,5 +1,24 @@
 # Active Render deployment
 
+## v20 event workflow (September 6, 2026)
+
+The existing `tradeagent-news-worker` now runs
+`tradeagent run --mode shadow --cohort-id v20-forward-shadow-001`.
+It retains licensed-news storage/heartbeat and adds SEC discovery, immutable event
+extraction, official risk context, decisions and sampled market evidence.
+The original shadow-stream recorder and notifier are unchanged.
+
+Worker and dashboard deployment commit: `79076cdf3366949734845ae68d4a1dcfb72975e2`.
+PostgreSQL migration `0006_event_experiments` completed successfully.
+The deployed `/api/event-product` confirms mode `shadow`, cohort config hash
+`7e8c61066a29e9f66ab1ef9df3e477a986652e74af0c95a1d5d07fcc448f84dc`,
+and state `market_closed`. No experimental certificate or order was created.
+No new paid resource was added. See [v20 operations](../../docs/V20_OPERATIONS.md).
+Automatic deploys are disabled on the event worker and dashboard so later commits
+cannot silently change a frozen cohort's code identity.
+
+## Original deployment record
+
 Deployed September 4, 2026 in the `InSight AI` Render workspace.
 
 | Resource | Region | Plan | Status |

@@ -1,0 +1,138 @@
+{
+  "blockers": [
+    "frozen_policy_feed_entitlement",
+    "configured_execution_feed"
+  ],
+  "broker": {
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "account_product": "Alpaca paper API; not inferred from live-account credentials",
+    "account_suffix": "6b6e",
+    "active_execution_feed": "iex",
+    "assets": [
+      {
+        "asset_class": "us_equity",
+        "exchange": "NASDAQ",
+        "fractionable": true,
+        "id": "b0b6dd9d-8b9b-48a9-ba46-b9d54906e415",
+        "name": "Apple Inc. Common Stock",
+        "status": "active",
+        "symbol": "AAPL",
+        "tradable": true
+      },
+      {
+        "asset_class": "us_equity",
+        "exchange": "NASDAQ",
+        "fractionable": true,
+        "id": "b6d1aa75-5c9c-4353-a305-9e2caa1925ab",
+        "name": "Microsoft Corporation Common Stock",
+        "status": "active",
+        "symbol": "MSFT",
+        "tradable": true
+      },
+      {
+        "asset_class": "us_equity",
+        "exchange": "NASDAQ",
+        "fractionable": true,
+        "id": "4ce9353c-66d1-46c2-898f-fce867ab0247",
+        "name": "NVIDIA Corporation Common Stock",
+        "status": "active",
+        "symbol": "NVDA",
+        "tradable": true
+      }
+    ],
+    "broker_healthy": true,
+    "broker_open_orders": 0,
+    "broker_positions": 0,
+    "cash_positive": true,
+    "clock": {
+      "is_open": false,
+      "next_close": "2026-09-08T16:00:00-04:00",
+      "next_open": "2026-09-08T09:30:00-04:00",
+      "timestamp": "2026-09-06T18:54:59.738483-04:00"
+    },
+    "code_sha": "79076cdf3366949734845ae68d4a1dcfb72975e2",
+    "consensus": {
+      "reason": "no earnings/consensus entitlement configured",
+      "state": "unavailable"
+    },
+    "daily_loss_dollars": "50.000",
+    "drawdown_stop_dollars": "150.000",
+    "effective_entry_cap_usd": "25",
+    "fee_rounding": "conservative reserve; account-activity reconciliation required",
+    "historical_alpha_required_for_experiment": false,
+    "inference": {
+      "calls_daily_cap": 0,
+      "fallback": "deterministic evidence extractor",
+      "provider": "none configured",
+      "variable_cost_usd": "0"
+    },
+    "live_credential_environment_present": false,
+    "live_execution_available": false,
+    "market_data": {
+      "historical_sip": {
+        "checked_at": "2026-09-06T22:55:00.700081Z",
+        "feed": "sip",
+        "historical_quotes": true,
+        "reason": null
+      },
+      "iex_latest_quote": {
+        "accessible": true,
+        "nbbo": false,
+        "quote_at": "2026-09-04T20:00:00.006211747Z",
+        "real_time_freshness": "not established outside market hours"
+      },
+      "sip_latest_quote": {
+        "accessible": false,
+        "http_status": 403,
+        "reason": "entitlement_or_authentication_denied"
+      }
+    },
+    "max_entries_per_session": 2,
+    "max_positions": 1,
+    "mode": "shadow",
+    "news": {
+      "original_historical_revisions": "unknown",
+      "poll": "enabled; source worker reports actual receipt",
+      "provider": "Alpaca/Benzinga",
+      "stream": "not separately probed"
+    },
+    "observed_at": "2026-09-06T22:54:59.199559+00:00",
+    "paper_host": "https://paper-api.alpaca.markets",
+    "size_units": "raw provider quantities retained; historical schema not assumed",
+    "statistical_qualification": "not established",
+    "virtual_equity": "10000"
+  },
+  "certificate": {
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "certificate_id": "b0236260b0399be5d378189a3a4d9f9b3f9370505c0b77827bf352b80f07e76d",
+    "checks": {
+      "configured_execution_feed": false,
+      "flat_unreserved_account": true,
+      "fractional_assets": true,
+      "frozen_policy_feed_entitlement": false,
+      "halts_verified": true,
+      "no_live_credential_environment": true,
+      "official_macro_context": true,
+      "operator_confirmation": true,
+      "paper_account_verified": true,
+      "synthetic_lifecycle": true
+    },
+    "code_sha": "79076cdf3366949734845ae68d4a1dcfb72975e2",
+    "cohort_id": "v20-preflight-only",
+    "config_hash": "c36c39cc95b109182b3543f61bacafcde397ad76d72f31cf49214e8859325ab0",
+    "establishes_edge": false,
+    "expires_at": "2026-09-07T22:55:02.039386Z",
+    "issued_at": "2026-09-06T22:55:02.039386Z",
+    "limitations": [
+      "synthetic mechanics are not live exchange execution evidence",
+      "each actual order rechecks source, quote, session, exposure and loss limits",
+      "profitability unproven"
+    ],
+    "permits_paper": false
+  },
+  "confirmation_received": true,
+  "edge_established": false,
+  "mode": "shadow",
+  "operational_certificate_issued": false,
+  "synthetic_lifecycle_reconciled": true
+}

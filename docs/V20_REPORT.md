@@ -21,6 +21,8 @@ The existing holdouts and historical result files were not opened or overwritten
 | Real-source demonstration | Three actual licensed news items received; three abstentions; no orders | [Receipt status](../research/results/v20-live-source-shadow.json), [decisions](../research/results/v20-live-source-decisions.json) |
 | Primary-source follow-up | Official NVIDIA release acquired with CIK/domain verification; old or unsupported facts abstain, never credited as a fresh trade | [Primary-source status](../research/results/v20-primary-source-shadow.json) |
 | Current service | Paper-only shadow event worker and read-only dashboard; actual deployed revision and config in `/api/event-product` | [Operations](V20_OPERATIONS.md) |
+| Deployment verification | Worker and dashboard run commit `79076cd`, package `20.0.0`; production migration succeeded; no new paid services | [Deployment record](../research/results/v20-deployment.json) |
+| Real preflight | User-authorized preflight still denies paper permission: latest SIP denied and configured IEX fails the frozen feed requirement | [Preflight](../research/results/v20-paper-preflight.json) |
 
 Development demonstration artifacts explicitly retain their then-current commit identity.
 The frozen runtime cohort additionally records module hashes, so uncommitted development

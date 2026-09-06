@@ -50,6 +50,9 @@ database. Its synthetic entry, exit, email-outbox item, and P&L never enter real
 - The event worker replaces the news worker's command, retaining its licensed-news
   storage and heartbeat while adding source versions, extraction, decisions and context.
 - Apply migration `0006_event_experiments` before starting it.
+- Event worker and dashboard are pinned to the verified release with automatic deploys
+  disabled. Explicitly deploy a new code revision with a new cohort rather than allowing
+  a documentation push to invalidate a running cohort.
 - One worker lease and serialized, durable allocation reservations govern order entry.
   Lost ownership fences broker calls. A submission timeout becomes UNKNOWN: query the
   same client ID and reconcile, never blindly submit again.
