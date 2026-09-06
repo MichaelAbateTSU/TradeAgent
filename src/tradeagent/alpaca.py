@@ -5,14 +5,18 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from time import sleep
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from tradeagent.config import IntradayConfig
 from tradeagent.domain import MarketBar
+from tradeagent.intraday import NyseSessionCalendar
 
 HistoricalTimeframe = Literal["1Day", "1Hour", "30Min", "5Min", "1Min"]
+_DAILY_CALENDAR = NyseSessionCalendar(IntradayConfig())
 
 
 class AlpacaDataSettings(BaseSettings):
@@ -107,10 +111,7 @@ class AlpacaDataClient:
             for raw_bar in raw_bars:
                 yield MarketBar(
                     symbol=normalized_symbol,
-                    timestamp=(
-                        datetime.fromisoformat(str(raw_bar["t"]).replace("Z", "+00:00"))
-                        + _timeframe_duration(timeframe)
-                    ),
+                    timestamp=_bar_close_timestamp(raw_bar["t"], timeframe),
                     open=Decimal(str(raw_bar["o"])),
                     high=Decimal(str(raw_bar["h"])),
                     low=Decimal(str(raw_bar["l"])),
@@ -345,6 +346,17 @@ def _timeframe_duration(timeframe: str) -> timedelta:
         "5Min": timedelta(minutes=5),
         "1Min": timedelta(minutes=1),
     }[timeframe]
+
+
+def _bar_close_timestamp(value: object, timeframe: HistoricalTimeframe) -> datetime:
+    timestamp = _timestamp(value)
+    if timeframe != "1Day":
+        return timestamp + _timeframe_duration(timeframe)
+    session_date = timestamp.astimezone(ZoneInfo("America/New_York")).date()
+    bounds = _DAILY_CALENDAR.session_bounds(session_date)
+    if bounds is None:
+        raise ValueError(f"Alpaca daily bar is not an exchange session: {session_date}")
+    return bounds[1]
 
 
 def _validated_request(symbol: str, start: datetime, end: datetime) -> str:

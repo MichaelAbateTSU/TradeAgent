@@ -129,6 +129,16 @@ def test_intraday_bars_are_normalized_to_close_time() -> None:
     )
     assert thirty_minute_bar.timestamp == datetime(2025, 1, 2, 15, 0, tzinfo=UTC)
 
+    daily_bar = next(
+        client.bars(
+            "SPY",
+            start=datetime(2025, 1, 2, tzinfo=UTC),
+            end=datetime(2025, 1, 3, tzinfo=UTC),
+            timeframe="1Day",
+        )
+    )
+    assert daily_bar.timestamp == datetime(2025, 1, 2, 21, 0, tzinfo=UTC)
+
 
 def test_historical_quotes_and_trades_are_typed_and_paginated() -> None:
     requests: list[httpx.Request] = []
