@@ -37,6 +37,7 @@ from tradeagent.economic_ml import (
     report_hash as economic_ml_report_hash,
 )
 from tradeagent.engine import TradingEngine
+from tradeagent.execution_calibration import calibrate_squeeze_execution
 from tradeagent.execution_evidence import (
     collect_execution_evidence,
     squeeze_evidence_anchors,
@@ -491,6 +492,25 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("research/datasets/v0.9.0-squeeze-execution-evidence.json"),
     )
+    execution_calibration = subparsers.add_parser(
+        "calibrate-squeeze-execution",
+        help="compare estimated costs with SIP market and marketable-limit fills",
+    )
+    execution_calibration.add_argument(
+        "--report",
+        type=Path,
+        default=Path("research/results/v0.9.0-frozen-squeeze-external.json"),
+    )
+    execution_calibration.add_argument(
+        "--evidence",
+        type=Path,
+        default=Path("data/v09/execution-evidence/squeeze-quotes-trades.jsonl"),
+    )
+    execution_calibration.add_argument(
+        "--output",
+        type=Path,
+        default=Path("research/results/v0.9.0-execution-calibration.json"),
+    )
     return parser
 
 
@@ -939,6 +959,33 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "quote_coverage_ratio": evidence_manifest.quote_coverage_ratio,
                     "quote_records": evidence_manifest.quote_records,
                     "trade_records": evidence_manifest.trade_records,
+                }
+            )
+        )
+        return
+
+    if args.command == "calibrate-squeeze-execution":
+        squeeze_report = FrozenSqueezeExternalReport.model_validate_json(
+            args.report.read_text(encoding="utf-8")
+        )
+        calibration = calibrate_squeeze_execution(
+            squeeze_report,
+            args.evidence,
+            generated_at=datetime.now(UTC),
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(calibration.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(
+            _json(
+                {
+                    "output": str(args.output),
+                    "total_trades": calibration.total_trades,
+                    "quote_complete_trades": calibration.quote_complete_trades,
+                    "estimated_cost": calibration.estimated_cost,
+                    "observed_market_cost": calibration.observed_market_cost,
+                    "marketable_limit_missed_round_trips": (
+                        calibration.marketable_limit_missed_round_trips
+                    ),
                 }
             )
         )
