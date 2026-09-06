@@ -23,6 +23,10 @@ from tradeagent.alpaca_news import AlpacaNewsClient
 from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
 from tradeagent.alpaca_stream import AlpacaMarketStream, AlpacaStreamSettings
 from tradeagent.broker import PaperBroker
+from tradeagent.candidate_selection import (
+    freeze_two_candidates,
+    selection_protocol_hash,
+)
 from tradeagent.candle_strategy import CandlePattern, CandleTrackingStrategy
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
@@ -49,8 +53,11 @@ from tradeagent.execution_evidence import (
 )
 from tradeagent.external_dataset import (
     build_external_daily_dataset,
+    load_staggered_universe,
     write_external_manifest,
 )
+from tradeagent.external_validation import evaluate_external_era
+from tradeagent.frozen_candidate import FrozenCandidateManifest
 from tradeagent.holdout import (
     HOLDOUT_AUTHORIZATION,
     development_frames,
@@ -68,9 +75,13 @@ from tradeagent.intraday_strategy import (
 )
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
-from tradeagent.lower_calibration import calibrate_lower_turnover_families
+from tradeagent.lower_calibration import (
+    LowerCalibrationReport,
+    calibrate_lower_turnover_families,
+)
 from tradeagent.lower_execution_evidence import (
     LowerExecutionEvidenceManifest,
+    build_frame_observation_anchors,
     build_lower_evidence_anchors,
     collect_lower_execution_evidence,
     load_lower_evidence_snapshots,
@@ -110,6 +121,7 @@ from tradeagent.portfolio_strategy import (
 from tradeagent.research import (
     ExperimentRegistry,
     WalkForwardConfig,
+    current_git_sha,
     evaluate_research_suite,
 )
 from tradeagent.research_dataset import (
@@ -618,6 +630,88 @@ def _parser() -> argparse.ArgumentParser:
         "--manifest-directory",
         type=Path,
         default=Path("research/datasets"),
+    )
+    external_evidence = subparsers.add_parser(
+        "collect-v010-external-evidence",
+        help="collect SIP execution snapshots for one frozen external era",
+    )
+    external_evidence.add_argument(
+        "--era",
+        choices=["pre-2020", "2025-latest"],
+        required=True,
+    )
+    external_evidence.add_argument(
+        "--candidate-directory",
+        type=Path,
+        default=Path("research/freezes/v0.10.0"),
+    )
+    external_evidence.add_argument(
+        "--data-directory",
+        type=Path,
+        default=Path("data/v010/external"),
+    )
+    external_evidence.add_argument(
+        "--shard-directory",
+        type=Path,
+        default=Path("data/v010/external-evidence"),
+    )
+    external_evidence.add_argument(
+        "--manifest-directory",
+        type=Path,
+        default=Path("research/datasets"),
+    )
+    external_validation = subparsers.add_parser(
+        "validate-v010-external",
+        help="run both frozen candidates once on one untouched era",
+    )
+    external_validation.add_argument(
+        "--era",
+        choices=["pre-2020", "2025-latest"],
+        required=True,
+    )
+    external_validation.add_argument(
+        "--candidate-directory",
+        type=Path,
+        default=Path("research/freezes/v0.10.0"),
+    )
+    external_validation.add_argument(
+        "--data-directory",
+        type=Path,
+        default=Path("data/v010/external"),
+    )
+    external_validation.add_argument(
+        "--evidence-manifest-directory",
+        type=Path,
+        default=Path("research/datasets"),
+    )
+    external_validation.add_argument(
+        "--calibration",
+        type=Path,
+        default=Path("research/results/v0.10.0-lower-execution-calibration.json"),
+    )
+    external_validation.add_argument(
+        "--output-directory",
+        type=Path,
+        default=Path("research/results"),
+    )
+    freeze_candidates = subparsers.add_parser(
+        "freeze-v010-candidates",
+        help="freeze exactly two plateau ensembles before external data acquisition",
+    )
+    freeze_candidates.add_argument(
+        "--calibration",
+        type=Path,
+        default=Path("research/results/v0.10.0-lower-execution-calibration.json"),
+    )
+    freeze_candidates.add_argument(
+        "--development-manifest",
+        type=Path,
+        default=Path("research/datasets/v0.9.0-alpaca-sip.json"),
+    )
+    freeze_candidates.add_argument(
+        "--output-directory",
+        type=Path,
+        default=Path("research/freezes/v0.10.0"),
     )
     return parser
 
@@ -1258,6 +1352,121 @@ def main(argv: Sequence[str] | None = None) -> None:
                         }
                         for path, manifest in external_manifests
                     ]
+                }
+            )
+        )
+        return
+
+    if args.command == "freeze-v010-candidates":
+        development_manifest = json.loads(args.development_manifest.read_text(encoding="utf-8"))
+        protocol = freeze_two_candidates(
+            args.calibration,
+            args.output_directory,
+            code_commit=current_git_sha(),
+            development_dataset_hash=str(development_manifest["manifest_hash"]),
+            corrected_reruns=3,
+        )
+        print(
+            _json(
+                {
+                    "output_directory": str(args.output_directory),
+                    "protocol_hash": selection_protocol_hash(protocol),
+                    "candidate_files": protocol.candidate_files,
+                    "external_data_present_at_selection": (
+                        protocol.external_data_present_at_selection
+                    ),
+                }
+            )
+        )
+        return
+
+    if args.command == "collect-v010-external-evidence":
+        candidate_paths = sorted(args.candidate_directory.glob("*-candidate.json"))
+        candidates = tuple(
+            FrozenCandidateManifest.model_validate_json(path.read_text(encoding="utf-8"))
+            for path in candidate_paths
+        )
+        if len(candidates) != 2:
+            raise RuntimeError("exactly two frozen candidate manifests are required")
+        frames = load_staggered_universe(
+            args.data_directory / args.era,
+            V09_ETF_UNIVERSE,
+        )
+        external_anchors = build_frame_observation_anchors(
+            frames,
+            hypothesis_ids=tuple(candidate.strategy_id for candidate in candidates),
+        )
+        data_settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(data_settings) as data_client:
+            external_evidence_manifest = collect_lower_execution_evidence(
+                data_client,
+                external_anchors,
+                args.shard_directory / args.era,
+                raw_trade_count=0,
+            )
+        path = args.manifest_directory / (f"v0.10.0-{args.era}-execution-evidence.json")
+        write_lower_evidence_manifest(path, external_evidence_manifest)
+        print(
+            _json(
+                {
+                    "era": args.era,
+                    "manifest": str(path),
+                    "anchors": external_evidence_manifest.unique_anchor_count,
+                    "quote_coverage": external_evidence_manifest.quote_coverage_ratio,
+                    "trade_coverage": external_evidence_manifest.trade_coverage_ratio,
+                }
+            )
+        )
+        return
+
+    if args.command == "validate-v010-external":
+        candidate_paths = sorted(args.candidate_directory.glob("*-candidate.json"))
+        candidates = tuple(
+            FrozenCandidateManifest.model_validate_json(path.read_text(encoding="utf-8"))
+            for path in candidate_paths
+        )
+        if len(candidates) != 2:
+            raise RuntimeError("exactly two frozen candidate manifests are required")
+        evidence_path = args.evidence_manifest_directory / (
+            f"v0.10.0-{args.era}-execution-evidence.json"
+        )
+        external_evidence_loaded = LowerExecutionEvidenceManifest.model_validate_json(
+            evidence_path.read_text(encoding="utf-8")
+        )
+        snapshots = load_lower_evidence_snapshots(external_evidence_loaded)
+        frames = load_staggered_universe(
+            args.data_directory / args.era,
+            V09_ETF_UNIVERSE,
+        )
+        development_calibration = LowerCalibrationReport.model_validate_json(
+            args.calibration.read_text(encoding="utf-8")
+        )
+        external_report = evaluate_external_era(
+            frames,
+            snapshots,
+            candidates,
+            development_calibration,
+            era=args.era,
+            dataset_manifest=f"research/datasets/v0.10.0-{args.era}-daily.json",
+            evidence_manifest=str(evidence_path),
+            generated_at=datetime.now(UTC),
+        )
+        output = args.output_directory / f"v0.10.0-{args.era}-validation.json"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(external_report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(
+            _json(
+                {
+                    "era": args.era,
+                    "output": str(output),
+                    "candidates": [
+                        {
+                            "strategy_id": candidate.strategy_id,
+                            "qualified": candidate.qualified,
+                            "reasons": candidate.qualification_reasons,
+                        }
+                        for candidate in external_report.candidates
+                    ],
                 }
             )
         )

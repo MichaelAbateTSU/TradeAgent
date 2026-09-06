@@ -7,6 +7,12 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from tradeagent.lower_turnover import (
+    RelativeStrengthConfig,
+    RelativeStrengthRotationStrategy,
+    TimeSeriesMomentumConfig,
+    TimeSeriesMomentumStrategy,
+)
 from tradeagent.portfolio import PortfolioIntent, PortfolioStrategy
 from tradeagent.universe import UniverseFrame
 
@@ -90,3 +96,25 @@ def write_frozen_candidate_manifest(
     temporary = path.with_suffix(path.suffix + ".partial")
     temporary.write_text(manifest.model_dump_json(indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
+
+
+def strategy_from_manifest(
+    manifest: FrozenCandidateManifest,
+) -> TargetWeightEnsemble:
+    members: list[PortfolioStrategy] = []
+    for member in manifest.members:
+        strategy: PortfolioStrategy
+        if manifest.family == "multi-day-time-series-momentum":
+            strategy = TimeSeriesMomentumStrategy(
+                TimeSeriesMomentumConfig.model_validate(member.parameters)
+            )
+        elif manifest.family == "cross-sectional-relative-strength":
+            strategy = RelativeStrengthRotationStrategy(
+                RelativeStrengthConfig.model_validate(member.parameters)
+            )
+        else:
+            raise ValueError(f"retired or unsupported candidate family: {manifest.family}")
+        if strategy.strategy_id != member.strategy_id:
+            raise ValueError("candidate member parameters do not reproduce strategy ID")
+        members.append(strategy)
+    return TargetWeightEnsemble(manifest.strategy_id, members)

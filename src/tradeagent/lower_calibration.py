@@ -69,6 +69,7 @@ class LowerCalibrationReport(BaseModel):
     evidence_manifest: str
     raw_hypotheses: int
     effective_independent_trials: Decimal
+    trial_periodic_sharpes: tuple[Decimal, ...]
     cscv_periods: int
     cscv_subsets: int
     fee_schedule: dict[str, str]
@@ -237,6 +238,7 @@ def calibrate_lower_turnover_families(
         evidence_manifest=evidence_manifest,
         raw_hypotheses=len(preliminary),
         effective_independent_trials=effective_trials,
+        trial_periodic_sharpes=trial_sharpes,
         cscv_periods=cscv_periods,
         cscv_subsets=cscv_subsets,
         fee_schedule={
