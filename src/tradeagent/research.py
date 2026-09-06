@@ -114,6 +114,37 @@ def bootstrap_mean_confidence_interval(
     return means[lower_index], means[upper_index]
 
 
+def temporal_block_bootstrap_mean_confidence_interval(
+    values: Sequence[Decimal],
+    *,
+    samples: int,
+    confidence_level: Decimal,
+    random_seed: int,
+    block_size: int,
+) -> tuple[Decimal, Decimal]:
+    if block_size < 1 or block_size > len(values):
+        raise ValueError("block_size must be between one and the number of observations")
+    if samples < 100:
+        raise ValueError("bootstrap requires at least 100 samples")
+    if not Decimal(0) < confidence_level < Decimal(1):
+        raise ValueError("confidence_level must be between zero and one")
+    generator = random.Random(random_seed)
+    count = len(values)
+    maximum_start = count - block_size
+    means: list[Decimal] = []
+    for _ in range(samples):
+        sample: list[Decimal] = []
+        while len(sample) < count:
+            start = generator.randrange(maximum_start + 1)
+            sample.extend(values[start : start + block_size])
+        means.append(sum(sample[:count], Decimal(0)) / Decimal(count))
+    means.sort()
+    tail_probability = (Decimal(1) - confidence_level) / Decimal(2)
+    lower_index = int(tail_probability * samples)
+    upper_index = min(samples - 1, int((Decimal(1) - tail_probability) * samples))
+    return means[lower_index], means[upper_index]
+
+
 def current_git_sha() -> str:
     result = subprocess.run(
         ["git", "rev-parse", "HEAD"],

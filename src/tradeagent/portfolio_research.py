@@ -21,8 +21,8 @@ from tradeagent.portfolio import (
 from tradeagent.portfolio_strategy import DelayedPortfolioStrategy
 from tradeagent.research import (
     WalkForwardConfig,
-    bootstrap_mean_confidence_interval,
     current_git_sha,
+    temporal_block_bootstrap_mean_confidence_interval,
 )
 from tradeagent.risk import RiskEngine
 from tradeagent.statistical_validation import (
@@ -249,11 +249,12 @@ def evaluate_portfolio_suite(
         wins = sum(excess > 0 for excess in excess_returns)
         beat_ratio = Decimal(wins) / Decimal(len(excess_returns))
         average_excess = sum(excess_returns, Decimal(0)) / Decimal(len(excess_returns))
-        lower, upper = bootstrap_mean_confidence_interval(
+        lower, upper = temporal_block_bootstrap_mean_confidence_interval(
             excess_returns,
             samples=walk_forward.bootstrap_samples,
             confidence_level=walk_forward.confidence_level,
             random_seed=random_seed + scenario_index,
+            block_size=min(2, len(excess_returns)),
         )
         comparisons.append(
             PortfolioBenchmarkComparison(

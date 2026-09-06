@@ -16,6 +16,7 @@ from tradeagent.research import (
     evaluate_research_suite,
     evaluate_walk_forward,
     evaluation_config_hash,
+    temporal_block_bootstrap_mean_confidence_interval,
 )
 from tradeagent.strategy import ConstantWeightStrategy, SmaCrossoverStrategy
 
@@ -52,6 +53,16 @@ def test_bootstrap_confidence_interval_is_deterministic_and_conservative() -> No
     assert first == second
     assert first[0] > 0
     assert first[0] <= sum(values) / len(values) <= first[1]
+
+    block = temporal_block_bootstrap_mean_confidence_interval(
+        values,
+        samples=500,
+        confidence_level=Decimal("0.95"),
+        random_seed=17,
+        block_size=2,
+    )
+    assert block[0] > 0
+    assert block[0] <= sum(values) / len(values) <= block[1]
 
 
 def test_walk_forward_runs_disjoint_test_folds() -> None:
@@ -170,6 +181,14 @@ def test_research_validates_empty_data_and_invalid_benchmarks() -> None:
             samples=100,
             confidence_level=Decimal("0.95"),
             random_seed=1,
+        )
+    with pytest.raises(ValueError, match="block_size"):
+        temporal_block_bootstrap_mean_confidence_interval(
+            [Decimal(0)],
+            samples=100,
+            confidence_level=Decimal("0.95"),
+            random_seed=1,
+            block_size=2,
         )
     with pytest.raises(ValueError, match="at least 100"):
         bootstrap_mean_confidence_interval(
