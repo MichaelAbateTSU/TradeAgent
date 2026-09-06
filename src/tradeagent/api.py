@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 # ruff: noqa: E501
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -7,9 +9,12 @@ from pathlib import Path
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
+from tradeagent import __version__
 from tradeagent.broker import PaperBroker
 from tradeagent.config import BrokerConfig
 from tradeagent.domain import AccountSnapshot, PaperBrokerState
+from tradeagent.event_store import EventStore
+from tradeagent.experimental_policy import ExperimentalSettings
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.news import NewsRepository
 from tradeagent.persistence import Database, ProductionRepository
@@ -55,6 +60,15 @@ DASHBOARD = """<!doctype html>
     <table><thead><tr><th>ID</th><th>Strategy</th><th>Seed</th><th>Qualified</th><th>Git SHA</th></tr></thead>
     <tbody id="experiment-rows"></tbody></table>
   </section>
+  <section class="card">
+    <h2>Event paper experiments</h2>
+    <p id="event-state">Connecting to event worker...</p>
+    <p>Operational permission is not statistical qualification. No live broker is connected.</p>
+    <pre id="event-ledgers" style="white-space:pre-wrap"></pre>
+    <h3>Why is it not trading?</h3><pre id="event-reasons"></pre>
+    <h3>Recent evidence and decisions</h3>
+    <div id="event-decisions"></div>
+  </section>
   <script>
     function escapeHtml(value) {
       const element = document.createElement('span');
@@ -62,11 +76,12 @@ DASHBOARD = """<!doctype html>
       return element.innerHTML;
     }
     async function refresh() {
-      const [status, experiments, runtime, news] = await Promise.all([
+      const [status, experiments, runtime, news, product] = await Promise.all([
         fetch('/api/status').then(r => r.json()),
         fetch('/api/experiments?limit=10').then(r => r.json()),
         fetch('/api/runtime').then(r => r.json()),
-        fetch('/api/news?limit=20').then(r => r.json())
+        fetch('/api/news?limit=20').then(r => r.json()),
+        fetch('/api/event-product').then(r => r.json())
       ]);
       document.querySelector('#events').textContent = status.event_count;
       document.querySelector('#nav').textContent =
@@ -81,6 +96,23 @@ DASHBOARD = """<!doctype html>
       document.querySelector('#shadow-nav').textContent =
         runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
       document.querySelector('#news-count').textContent = news.items.length;
+      document.querySelector('#event-state').textContent = JSON.stringify({
+        version: product.version, mode: product.mode, state: product.state,
+        market_phase: product.market_phase, next_session: product.next_open,
+        performance: 'Experimental - edge unproven', code: product.code_sha
+      });
+      document.querySelector('#event-ledgers').textContent =
+        JSON.stringify(product.ledgers || {performance:'No measured forward outcomes'}, null, 2);
+      document.querySelector('#event-reasons').textContent =
+        JSON.stringify(product.leading_no_trade_reasons || product.blockers || {}, null, 2);
+      document.querySelector('#event-decisions').replaceChildren(...(product.decisions || []).map(row => {
+        const detail = document.createElement('details');
+        const title = document.createElement('summary');
+        title.textContent = `${row.decided_at} ${row.payload.action || row.payload.state || 'decision'} ${row.evidence_id.slice(0,12)}`;
+        const text = document.createElement('pre'); text.style.whiteSpace = 'pre-wrap';
+        text.textContent = JSON.stringify(row.payload, null, 2);
+        detail.append(title, text); return detail;
+      }));
       document.querySelector('#experiment-rows').innerHTML = experiments.items.map(item =>
         `<tr><td>${escapeHtml(item.experiment_id)}</td><td>${escapeHtml(item.strategy_id)}</td>` +
         `<td>${escapeHtml(item.random_seed)}</td><td>${item.qualified ? 'yes' : 'no'}</td>` +
@@ -112,7 +144,7 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(
         title="TradeAgent Paper Console",
-        version="0.10.0",
+        version=__version__,
         description="Read-only local observability for fake-money trading.",
     )
 
@@ -127,6 +159,41 @@ def create_app(
             "mode": "paper",
             "live_trading_available": False,
         }
+
+    @app.get("/api/event-product")
+    def event_product() -> dict[str, object]:
+        settings = ExperimentalSettings()
+        base: dict[str, object] = {
+            "version": __version__,
+            "code_sha": os.getenv("RENDER_GIT_COMMIT", "local"),
+            "mode": settings.mode,
+            "state": "not_running",
+            "qualified": False,
+            "live_execution_available": False,
+            "blockers": ["EVENT_WORKER_NOT_STARTED"],
+        }
+        if production_database_url is None:
+            return base
+        with Database(production_database_url) as database:
+            repository = ProductionRepository(database)
+            heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
+            # During rolling upgrades the old worker has no event schema yet.
+            if heartbeat is None:
+                return base
+            cohort_id = str(heartbeat[2].get("cohort_id", settings.cohort_id))
+            report = EventStore(database).report(cohort_id, limit=20)
+            latest = repository.latest_event_payload("event_performance")
+            age = (datetime.now(UTC) - heartbeat[1]).total_seconds()
+            return {
+                **base,
+                **heartbeat[2],
+                **report,
+                "ledgers": latest,
+                "heartbeat_at": heartbeat[1].isoformat(),
+                "state": heartbeat[2].get("state") if age <= 120 else "worker_stale",
+                "blockers": heartbeat[2].get("blockers", []),
+                "code_sha": heartbeat[2].get("code_sha", base["code_sha"]),
+            }
 
     @app.get("/api/status")
     def status() -> dict[str, object]:

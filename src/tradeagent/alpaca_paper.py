@@ -72,7 +72,7 @@ class AlpacaPaperPosition(BaseModel):
 
 
 class AlpacaPaperOrder(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="ignore", populate_by_name=True)
+    model_config = ConfigDict(frozen=True, extra="allow", populate_by_name=True)
 
     id: str
     client_order_id: str
@@ -84,6 +84,29 @@ class AlpacaPaperOrder(BaseModel):
     filled_average_price: Decimal | None = Field(alias="filled_avg_price")
     created_at: datetime
     updated_at: datetime | None = None
+    submitted_at: datetime | None = None
+    filled_at: datetime | None = None
+    canceled_at: datetime | None = None
+
+
+class PaperAsset(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="ignore", populate_by_name=True)
+    id: str
+    symbol: str
+    name: str
+    asset_class: str = Field(alias="class")
+    exchange: str
+    status: str
+    tradable: bool
+    fractionable: bool = False
+
+
+class PaperClock(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="ignore")
+    timestamp: datetime
+    is_open: bool
+    next_open: datetime
+    next_close: datetime
 
 
 class AlpacaPaperClient:
@@ -110,6 +133,37 @@ class AlpacaPaperClient:
         if not isinstance(payload, list):
             raise ValueError("Alpaca positions response must be an array")
         return tuple(AlpacaPaperPosition.model_validate(item) for item in payload)
+
+    @property
+    def broker_host(self) -> str:
+        return self._settings.paper_url
+
+    def clock(self) -> PaperClock:
+        return PaperClock.model_validate(self._request("GET", "/v2/clock"))
+
+    def asset(self, symbol: str) -> PaperAsset:
+        if not symbol.isalpha():
+            raise ValueError("experimental equity symbol must be alphabetic")
+        return PaperAsset.model_validate(self._request("GET", f"/v2/assets/{symbol.upper()}"))
+
+    def submit_limit_order(self, order: OrderRequest, limit_price: Decimal) -> AlpacaPaperOrder:
+        if not order.symbol.isalpha() or limit_price <= 0 or len(order.client_order_id) > 48:
+            raise ValueError("invalid regular-session equity paper limit order")
+        payload = self._request(
+            "POST",
+            "/v2/orders",
+            json={
+                "symbol": order.symbol,
+                "qty": format(order.quantity, "f"),
+                "side": order.side.value,
+                "type": "limit",
+                "time_in_force": "day",
+                "limit_price": format(limit_price, "f"),
+                "extended_hours": False,
+                "client_order_id": order.client_order_id,
+            },
+        )
+        return AlpacaPaperOrder.model_validate(payload)
 
     def submit_market_order(self, order: OrderRequest) -> AlpacaPaperOrder:
         if len(order.client_order_id) > 48:
