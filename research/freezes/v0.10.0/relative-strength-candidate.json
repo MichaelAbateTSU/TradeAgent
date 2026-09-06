@@ -1,0 +1,86 @@
+{
+  "version": "v0.10.0",
+  "family": "cross-sectional-relative-strength",
+  "strategy_id": "frozen-relative-strength-plateau-v1",
+  "frozen_at": "2026-09-06T19:31:01.409828Z",
+  "code_commit": "a079269a858a49053a0451d207247cece2e4d13e",
+  "development_dataset_hash": "eb44d81fe9798d5302c822cd318b16288c77ce93a885f9b62d6df2a8782b68f6",
+  "development_calibration_report": "research/results/v0.10.0-lower-execution-calibration.json",
+  "development_calibration_sha256": "2d4f63ade6b3c42e1c6219e68aaa561af25b22ac598bd702edc01ad957c7edd1",
+  "selection_method": "Indices 7-10 form the adjacent monthly-rebalance medium/long-horizon plateau. Equal-weight targets reduce dependence on one historical optimum.",
+  "economic_rationale": "Monthly turnover gives multi-day ETF movement more room to exceed observed spread, slippage, and regulatory costs; 126/252-day horizons capture persistent trends rather than short-lived bar patterns.",
+  "members": [
+    {
+      "configuration_index": 7,
+      "strategy_id": "relative-strength-126-0-21-5",
+      "parameters": {
+        "lookback_days": 126,
+        "skip_days": 0,
+        "rebalance_days": 21,
+        "top_n": 5,
+        "maximum_position_weight": "0.02",
+        "estimated_round_trip_cost_bps": "7",
+        "uncertainty_buffer_bps": "3"
+      }
+    },
+    {
+      "configuration_index": 8,
+      "strategy_id": "relative-strength-126-21-21-3",
+      "parameters": {
+        "lookback_days": 126,
+        "skip_days": 21,
+        "rebalance_days": 21,
+        "top_n": 3,
+        "maximum_position_weight": "0.02",
+        "estimated_round_trip_cost_bps": "7",
+        "uncertainty_buffer_bps": "3"
+      }
+    },
+    {
+      "configuration_index": 9,
+      "strategy_id": "relative-strength-252-0-21-5",
+      "parameters": {
+        "lookback_days": 252,
+        "skip_days": 0,
+        "rebalance_days": 21,
+        "top_n": 5,
+        "maximum_position_weight": "0.02",
+        "estimated_round_trip_cost_bps": "7",
+        "uncertainty_buffer_bps": "3"
+      }
+    },
+    {
+      "configuration_index": 10,
+      "strategy_id": "relative-strength-252-21-21-3",
+      "parameters": {
+        "lookback_days": 252,
+        "skip_days": 21,
+        "rebalance_days": 21,
+        "top_n": 3,
+        "maximum_position_weight": "0.02",
+        "estimated_round_trip_cost_bps": "7",
+        "uncertainty_buffer_bps": "3"
+      }
+    }
+  ],
+  "raw_hypothesis_count": 30,
+  "effective_independent_trials": "25.060525113769085",
+  "family_pbo": "0.9761904761904761904761904762",
+  "qualification_gates": {
+    "both_external_eras_net_return": "> 0",
+    "both_external_eras_benchmark_relative_return": "> 0",
+    "DSR": ">= 0.95",
+    "family_PBO": "<= 0.20",
+    "cost_stress": "positive through 3x",
+    "trade_count": ">= 200 per era",
+    "maximum_drawdown": ">= -0.15",
+    "best_year_and_instrument_dependence": "must remain positive without either",
+    "parameter_neighbor_positive_ratio": ">= 0.75"
+  },
+  "external_eras": [
+    "2016-01-01 through 2019-12-31",
+    "2025-01-01 through 2026-09-04"
+  ],
+  "external_data_acquired_before_freeze": false,
+  "existing_sealed_holdouts_used": false
+}
