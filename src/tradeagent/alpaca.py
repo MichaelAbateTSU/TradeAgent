@@ -11,6 +11,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from tradeagent.domain import MarketBar
 
+HistoricalTimeframe = Literal["1Day", "1Hour", "30Min", "5Min", "1Min"]
+
 
 class AlpacaDataSettings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -85,7 +87,7 @@ class AlpacaDataClient:
         *,
         start: datetime,
         end: datetime,
-        timeframe: Literal["1Day", "1Hour", "30Min", "5Min", "1Min"] = "1Day",
+        timeframe: HistoricalTimeframe = "1Day",
         feed: Literal["iex", "sip"] | None = None,
     ) -> Iterator[MarketBar]:
         normalized_symbol = _validated_request(symbol, start, end)

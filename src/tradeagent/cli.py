@@ -6,7 +6,7 @@ import json
 import os
 import socket
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -75,6 +75,12 @@ from tradeagent.research import (
     ExperimentRegistry,
     WalkForwardConfig,
     evaluate_research_suite,
+)
+from tradeagent.research_dataset import (
+    V09_ETF_UNIVERSE,
+    V09_TIMEFRAMES,
+    build_v09_bar_dataset,
+    write_dataset_manifest,
 )
 from tradeagent.risk import RiskEngine
 from tradeagent.runtime import (
@@ -242,6 +248,22 @@ def _parser() -> argparse.ArgumentParser:
     )
     download_universe.add_argument("--output-directory", type=Path, default=Path("data/universe"))
     download_universe.add_argument("--overwrite", action="store_true")
+    v09_dataset = subparsers.add_parser(
+        "build-v09-dataset",
+        help="download and hash the predefined v0.9 SIP ETF bar dataset",
+    )
+    v09_dataset.add_argument("--start", default="2020-01-01T00:00:00Z")
+    v09_dataset.add_argument("--end", default="2025-01-01T00:00:00Z")
+    v09_dataset.add_argument(
+        "--output-directory",
+        type=Path,
+        default=Path("data/v09/alpaca-sip-20200101-20250101"),
+    )
+    v09_dataset.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("research/datasets/v0.9.0-alpaca-sip.json"),
+    )
 
     subparsers.add_parser(
         "alpaca-paper-status",
@@ -488,6 +510,38 @@ def main(argv: Sequence[str] | None = None) -> None:
                 }
             )
         )
+        return
+
+    if args.command == "build-v09-dataset":
+        v09_settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(v09_settings) as data_client:
+            entitlement = data_client.probe_historical_sip(
+                "SPY",
+                start=_parse_utc(args.start),
+                end=min(
+                    _parse_utc(args.end),
+                    _parse_utc(args.start) + timedelta(minutes=1),
+                ),
+            )
+            if not entitlement.historical_quotes:
+                raise RuntimeError(
+                    "SIP entitlement unavailable; no historical evidence was fabricated: "
+                    f"{entitlement.reason}"
+                )
+            v09_manifest = build_v09_bar_dataset(
+                data_client,
+                args.output_directory,
+                start=_parse_utc(args.start),
+                end=_parse_utc(args.end),
+                symbols=V09_ETF_UNIVERSE,
+                timeframes=V09_TIMEFRAMES,
+                on_file=lambda record: print(
+                    _json({"downloaded": record}),
+                    flush=True,
+                ),
+            )
+        write_dataset_manifest(args.manifest, v09_manifest)
+        print(_json({"manifest": v09_manifest, "output": str(args.manifest)}))
         return
 
     if args.command == "alpaca-paper-status":
