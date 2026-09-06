@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from decimal import Decimal
 
 import httpx
 import pytest
@@ -117,6 +118,107 @@ def test_intraday_bars_are_normalized_to_close_time() -> None:
         )
     )
     assert minute_bar.timestamp == datetime(2025, 1, 2, 14, 31, tzinfo=UTC)
+
+    thirty_minute_bar = next(
+        client.bars(
+            "SPY",
+            start=datetime(2025, 1, 2, tzinfo=UTC),
+            end=datetime(2025, 1, 3, tzinfo=UTC),
+            timeframe="30Min",
+        )
+    )
+    assert thirty_minute_bar.timestamp == datetime(2025, 1, 2, 15, 0, tzinfo=UTC)
+
+
+def test_historical_quotes_and_trades_are_typed_and_paginated() -> None:
+    requests: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        resource = request.url.path.rsplit("/", 1)[-1]
+        if resource == "quotes":
+            return httpx.Response(
+                200,
+                json={
+                    "quotes": [
+                        {
+                            "t": "2025-01-02T14:30:00.123456Z",
+                            "bx": "P",
+                            "bp": 100,
+                            "bs": 10,
+                            "ax": "Q",
+                            "ap": 100.02,
+                            "as": 12,
+                            "c": ["R"],
+                            "z": "C",
+                        }
+                    ],
+                    "next_page_token": None,
+                },
+            )
+        return httpx.Response(
+            200,
+            json={
+                "trades": [
+                    {
+                        "t": "2025-01-02T14:30:00.223456Z",
+                        "x": "P",
+                        "p": 100.01,
+                        "s": 3,
+                        "i": 123,
+                        "c": ["@"],
+                        "z": "C",
+                    }
+                ],
+                "next_page_token": None,
+            },
+        )
+
+    client = AlpacaDataClient(
+        _settings(),
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    start = datetime(2025, 1, 2, 14, 30, tzinfo=UTC)
+    end = datetime(2025, 1, 2, 14, 31, tzinfo=UTC)
+
+    quote = next(client.quotes("spy", start=start, end=end, feed="sip"))
+    trade = next(client.trades("spy", start=start, end=end, feed="sip"))
+
+    assert quote.symbol == "SPY"
+    assert quote.bid_exchange == "P"
+    assert quote.ask_size == Decimal("12")
+    assert quote.feed_source == "sip"
+    assert trade.exchange == "P"
+    assert trade.trade_id == 123
+    assert trade.conditions == ("@",)
+    assert all(request.url.params["feed"] == "sip" for request in requests)
+
+
+def test_sip_entitlement_probe_reports_forbidden_without_fallback() -> None:
+    client = AlpacaDataClient(
+        _settings(),
+        client=httpx.Client(
+            transport=httpx.MockTransport(
+                lambda request: httpx.Response(
+                    403,
+                    json={"message": "subscription does not permit querying SIP data"},
+                    request=request,
+                )
+            )
+        ),
+    )
+    checked_at = datetime(2025, 1, 3, tzinfo=UTC)
+
+    result = client.probe_historical_sip(
+        "SPY",
+        start=datetime(2025, 1, 2, 14, 30, tzinfo=UTC),
+        end=datetime(2025, 1, 2, 14, 31, tzinfo=UTC),
+        checked_at=checked_at,
+    )
+
+    assert not result.historical_quotes
+    assert result.checked_at == checked_at
+    assert "subscription" in str(result.reason)
 
 
 def test_alpaca_data_client_validates_range_and_response() -> None:

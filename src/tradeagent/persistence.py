@@ -153,6 +153,7 @@ market_bars = Table(
     Column("bar_id", String(36), primary_key=True),
     Column("symbol", String(32), nullable=False),
     Column("timeframe", String(20), nullable=False),
+    Column("feed_source", String(20), nullable=False),
     Column("event_at", DateTime(timezone=True), nullable=False),
     Column("received_at", DateTime(timezone=True), nullable=False),
     Column("processed_at", DateTime(timezone=True), nullable=False),
@@ -175,11 +176,14 @@ market_quotes = Table(
     metadata,
     Column("quote_id", String(36), primary_key=True),
     Column("symbol", String(32), nullable=False),
+    Column("feed_source", String(20), nullable=False),
     Column("event_at", DateTime(timezone=True), nullable=False),
     Column("received_at", DateTime(timezone=True), nullable=False),
     Column("processed_at", DateTime(timezone=True), nullable=False),
     Column("bid_price", Numeric(28, 12), nullable=False),
+    Column("bid_exchange", String(20), nullable=False),
     Column("ask_price", Numeric(28, 12), nullable=False),
+    Column("ask_exchange", String(20), nullable=False),
     Column("bid_size", Numeric(28, 12), nullable=False),
     Column("ask_size", Numeric(28, 12), nullable=False),
     UniqueConstraint(
@@ -187,10 +191,36 @@ market_quotes = Table(
         "event_at",
         "bid_price",
         "ask_price",
+        "bid_size",
+        "ask_size",
         name="uq_market_quote_event_prices",
     ),
 )
 Index("ix_market_quotes_symbol_time", market_quotes.c.symbol, market_quotes.c.event_at)
+
+market_trades = Table(
+    "market_trades",
+    metadata,
+    Column("market_trade_id", String(36), primary_key=True),
+    Column("provider_trade_id", String(128), nullable=False),
+    Column("symbol", String(32), nullable=False),
+    Column("feed_source", String(20), nullable=False),
+    Column("exchange", String(20), nullable=False),
+    Column("event_at", DateTime(timezone=True), nullable=False),
+    Column("received_at", DateTime(timezone=True), nullable=False),
+    Column("processed_at", DateTime(timezone=True), nullable=False),
+    Column("price", Numeric(28, 12), nullable=False),
+    Column("size", Numeric(28, 12), nullable=False),
+    Column("conditions", JSON, nullable=False),
+    Column("tape", String(10), nullable=True),
+    UniqueConstraint(
+        "symbol",
+        "feed_source",
+        "provider_trade_id",
+        name="uq_market_trade_provider_id",
+    ),
+)
+Index("ix_market_trades_symbol_time", market_trades.c.symbol, market_trades.c.event_at)
 
 strategy_promotions = Table(
     "strategy_promotions",
@@ -381,6 +411,7 @@ class ProductionRepository:
         *,
         symbol: str,
         timeframe: str,
+        feed_source: str = "iex",
         event_at: datetime,
         received_at: datetime,
         open_price: Decimal,
@@ -404,6 +435,7 @@ class ProductionRepository:
                     bar_id=str(uuid4()),
                     symbol=symbol,
                     timeframe=timeframe,
+                    feed_source=feed_source,
                     event_at=event_at,
                     received_at=received_at,
                     processed_at=datetime.now(UTC),
@@ -426,6 +458,9 @@ class ProductionRepository:
         ask_price: Decimal,
         bid_size: Decimal,
         ask_size: Decimal,
+        feed_source: str = "iex",
+        bid_exchange: str = "",
+        ask_exchange: str = "",
     ) -> bool:
         with self._database.begin() as connection:
             existing = connection.scalar(
@@ -434,6 +469,8 @@ class ProductionRepository:
                     market_quotes.c.event_at == event_at,
                     market_quotes.c.bid_price == bid_price,
                     market_quotes.c.ask_price == ask_price,
+                    market_quotes.c.bid_size == bid_size,
+                    market_quotes.c.ask_size == ask_size,
                 )
             )
             if existing is not None:
@@ -442,22 +479,68 @@ class ProductionRepository:
                 insert(market_quotes).values(
                     quote_id=str(uuid4()),
                     symbol=symbol,
+                    feed_source=feed_source,
                     event_at=event_at,
                     received_at=received_at,
                     processed_at=datetime.now(UTC),
                     bid_price=bid_price,
+                    bid_exchange=bid_exchange,
                     ask_price=ask_price,
+                    ask_exchange=ask_exchange,
                     bid_size=bid_size,
                     ask_size=ask_size,
                 )
             )
         return True
 
-    def market_data_counts(self) -> tuple[int, int]:
+    def store_market_trade(
+        self,
+        *,
+        provider_trade_id: str,
+        symbol: str,
+        event_at: datetime,
+        received_at: datetime,
+        price: Decimal,
+        size: Decimal,
+        exchange: str = "",
+        conditions: tuple[str, ...] = (),
+        tape: str | None = None,
+        feed_source: str = "iex",
+    ) -> bool:
+        with self._database.begin() as connection:
+            existing = connection.scalar(
+                select(market_trades.c.market_trade_id).where(
+                    market_trades.c.symbol == symbol,
+                    market_trades.c.feed_source == feed_source,
+                    market_trades.c.provider_trade_id == provider_trade_id,
+                )
+            )
+            if existing is not None:
+                return False
+            connection.execute(
+                insert(market_trades).values(
+                    market_trade_id=str(uuid4()),
+                    provider_trade_id=provider_trade_id,
+                    symbol=symbol,
+                    feed_source=feed_source,
+                    exchange=exchange,
+                    event_at=event_at,
+                    received_at=received_at,
+                    processed_at=datetime.now(UTC),
+                    price=price,
+                    size=size,
+                    conditions=list(conditions),
+                    tape=tape,
+                )
+            )
+        return True
+
+    def market_data_counts(self) -> tuple[int, int, int]:
         with self._database.begin() as connection:
             bars_count = connection.scalar(select(func.count()).select_from(market_bars))
             quotes_count = connection.scalar(select(func.count()).select_from(market_quotes))
-        return int(bars_count or 0), int(quotes_count or 0)
+            trades_count = connection.scalar(select(func.count()).select_from(market_trades))
+        return int(bars_count or 0), int(quotes_count or 0), int(trades_count or 0)
 
     def acquire_worker_lock(
         self,

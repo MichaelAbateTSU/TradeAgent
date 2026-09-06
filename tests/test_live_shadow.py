@@ -81,7 +81,7 @@ def test_live_shadow_processor_records_decisions_and_outcomes(tmp_path: Path) ->
 
     asyncio.run(process())
 
-    assert repository.market_data_counts() == (22, 0)
+    assert repository.market_data_counts() == (22, 0, 0)
     assert repository.event_count() == 25
     database.dispose()
 

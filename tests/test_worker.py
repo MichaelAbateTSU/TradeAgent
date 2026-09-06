@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from tradeagent.alpaca_stream import MarketQuote, StreamEvent
+from tradeagent.alpaca_stream import MarketQuote, MarketTrade, StreamEvent
 from tradeagent.config import AppConfig, IntradayConfig
 from tradeagent.domain import MarketBar
 from tradeagent.persistence import Database, ProductionRepository
@@ -41,12 +41,16 @@ class FakeProcessor:
         self.repository = repository
         self.bars: list[tuple[MarketBar, bool, str | None]] = []
         self.quotes: list[tuple[MarketQuote, bool]] = []
+        self.trades: list[tuple[MarketTrade, bool]] = []
 
     async def on_bar(self, bar: MarketBar, *, can_enter: bool) -> None:
         self.bars.append((bar, can_enter, self.repository.get_control("kill_switch")))
 
     async def on_quote(self, quote: MarketQuote, *, can_enter: bool) -> None:
         self.quotes.append((quote, can_enter))
+
+    async def on_trade(self, trade: MarketTrade, *, can_enter: bool) -> None:
+        self.trades.append((trade, can_enter))
 
 
 def _bar(timestamp: datetime = NOW) -> MarketBar:
@@ -69,6 +73,17 @@ def _quote(timestamp: datetime = NOW) -> MarketQuote:
         ask_price=Decimal("100.1"),
         bid_size=Decimal("10"),
         ask_size=Decimal("10"),
+    )
+
+
+def _trade(timestamp: datetime = NOW) -> MarketTrade:
+    return MarketTrade(
+        symbol="SPY",
+        timestamp=timestamp,
+        price=Decimal("100"),
+        size=Decimal("5"),
+        exchange="V",
+        trade_id="42",
     )
 
 
@@ -113,11 +128,12 @@ def test_shadow_worker_processes_events_without_enabling_entries(
         authorized=False,
     )
 
-    result = asyncio.run(worker.run(_events([_bar(), _quote()])))
+    result = asyncio.run(worker.run(_events([_bar(), _quote(), _trade()])))
 
-    assert result.events_seen == 2
+    assert result.events_seen == 3
     assert result.bars_processed == 1
     assert result.quotes_processed == 1
+    assert result.trades_processed == 1
     assert processor.bars[0][1:] == (False, "active")
     assert repository.get_control("kill_switch") == "active"
     assert repository.acquire_worker_lock("tradeagent-paper-worker", "worker-2")

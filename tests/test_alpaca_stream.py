@@ -11,6 +11,7 @@ from tradeagent.alpaca_stream import (
     AlpacaMarketStream,
     AlpacaStreamSettings,
     MarketQuote,
+    MarketTrade,
     StreamProtocolError,
 )
 from tradeagent.domain import MarketBar
@@ -62,13 +63,26 @@ def test_stream_authenticates_subscribes_and_parses_events() -> None:
                         "ap": 100.6,
                         "bs": 20,
                         "as": 30,
+                        "bx": "P",
+                        "ax": "Q",
+                    },
+                    {
+                        "T": "t",
+                        "S": "SPY",
+                        "t": "2026-09-04T14:35:02Z",
+                        "p": 100.5,
+                        "s": 4,
+                        "x": "V",
+                        "i": 42,
+                        "c": ["@"],
+                        "z": "C",
                     },
                 ]
             ),
         ]
     )
 
-    async def collect() -> list[MarketBar | MarketQuote]:
+    async def collect() -> list[MarketBar | MarketQuote | MarketTrade]:
         return [
             event
             async for event in AlpacaMarketStream(_settings()).stream_connection(socket, ["spy"])
@@ -79,6 +93,9 @@ def test_stream_authenticates_subscribes_and_parses_events() -> None:
     assert isinstance(events[0], MarketBar)
     assert isinstance(events[1], MarketQuote)
     assert events[1].bid_price == Decimal("100.4")
+    assert events[1].bid_exchange == "P"
+    assert isinstance(events[2], MarketTrade)
+    assert events[2].price == Decimal("100.5")
     assert socket.sent[0] == {
         "action": "auth",
         "key": "stream-key",
@@ -88,6 +105,7 @@ def test_stream_authenticates_subscribes_and_parses_events() -> None:
         "action": "subscribe",
         "bars": ["SPY"],
         "quotes": ["SPY"],
+        "trades": ["SPY"],
     }
 
 

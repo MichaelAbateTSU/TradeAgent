@@ -152,7 +152,27 @@ def test_normalized_market_data_is_idempotent(tmp_path: Path) -> None:
             bid_size=Decimal("10"),
             ask_size=Decimal("20"),
         )
+        first_trade = repository.store_market_trade(
+            provider_trade_id="trade-1",
+            symbol="SPY",
+            event_at=now,
+            received_at=now,
+            price=Decimal("100.5"),
+            size=Decimal("5"),
+            exchange="V",
+            conditions=("@",),
+            tape="C",
+        )
+        duplicate_trade = repository.store_market_trade(
+            provider_trade_id="trade-1",
+            symbol="SPY",
+            event_at=now,
+            received_at=now,
+            price=Decimal("100.5"),
+            size=Decimal("5"),
+        )
 
         assert first_bar and not duplicate_bar
         assert first_quote and not duplicate_quote
-        assert repository.market_data_counts() == (1, 1)
+        assert first_trade and not duplicate_trade
+        assert repository.market_data_counts() == (1, 1, 1)

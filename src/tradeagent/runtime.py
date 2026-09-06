@@ -11,7 +11,7 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperOrder,
     AlpacaPaperPosition,
 )
-from tradeagent.alpaca_stream import AlpacaMarketStream, MarketQuote
+from tradeagent.alpaca_stream import AlpacaMarketStream, MarketQuote, MarketTrade
 from tradeagent.domain import MarketBar
 from tradeagent.persistence import ProductionRepository
 from tradeagent.scheduler import ReconciliationScheduler
@@ -110,6 +110,9 @@ class ShadowAuditProcessor:
             ask_price=quote.ask_price,
             bid_size=quote.bid_size,
             ask_size=quote.ask_size,
+            feed_source=quote.feed_source,
+            bid_exchange=quote.bid_exchange,
+            ask_exchange=quote.ask_exchange,
         )
         self._repository.append_event(
             "shadow_market_quote",
@@ -119,6 +122,30 @@ class ShadowAuditProcessor:
             },
             occurred_at=quote.timestamp,
             trace_id=f"quote:{quote.symbol}:{quote.timestamp.isoformat()}",
+        )
+
+    async def on_trade(self, trade: MarketTrade, *, can_enter: bool) -> None:
+        received_at = datetime.now(UTC)
+        self._repository.store_market_trade(
+            provider_trade_id=str(trade.trade_id),
+            symbol=trade.symbol,
+            event_at=trade.timestamp,
+            received_at=received_at,
+            price=trade.price,
+            size=trade.size,
+            exchange=trade.exchange,
+            conditions=trade.conditions,
+            tape=trade.tape,
+            feed_source=trade.feed_source,
+        )
+        self._repository.append_event(
+            "shadow_market_trade",
+            {
+                "trade": trade.model_dump(mode="json"),
+                "can_enter": can_enter,
+            },
+            occurred_at=trade.timestamp,
+            trace_id=f"trade:{trade.symbol}:{trade.trade_id}",
         )
 
 

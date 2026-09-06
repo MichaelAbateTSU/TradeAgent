@@ -170,6 +170,7 @@ def create_app(
                 "connected": False,
                 "market_bars": None,
                 "market_quotes": None,
+                "market_trades": None,
                 "shadow_nav": None,
                 "worker_heartbeat": None,
                 "notifier_heartbeat": None,
@@ -177,7 +178,7 @@ def create_app(
             }
         with Database(production_database_url) as database:
             repository = ProductionRepository(database)
-            bars, quotes = repository.market_data_counts()
+            bars, quotes, trades = repository.market_data_counts()
             outcome = repository.latest_event_payload("shadow_outcome")
             worker = repository.latest_heartbeat("tradeagent-worker")
             notifier = repository.latest_heartbeat("tradeagent-notifier")
@@ -186,6 +187,7 @@ def create_app(
                 "connected": True,
                 "market_bars": bars,
                 "market_quotes": quotes,
+                "market_trades": trades,
                 "shadow_nav": outcome.get("shadow_nav") if outcome else None,
                 "worker_heartbeat": worker[1].isoformat() if worker else None,
                 "notifier_heartbeat": notifier[1].isoformat() if notifier else None,

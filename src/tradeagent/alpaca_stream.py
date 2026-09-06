@@ -42,12 +42,29 @@ class MarketQuote(BaseModel):
     ask_price: Decimal = Field(ge=0)
     bid_size: Decimal = Field(ge=0)
     ask_size: Decimal = Field(ge=0)
+    bid_exchange: str = ""
+    ask_exchange: str = ""
+    feed_source: Literal["iex"] = "iex"
 
     @model_validator(mode="after")
     def validate_quote(self) -> MarketQuote:
         if self.bid_price > 0 and self.ask_price > 0 and self.bid_price > self.ask_price:
             raise ValueError("crossed quote is invalid")
         return self
+
+
+class MarketTrade(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    symbol: str
+    timestamp: datetime
+    price: Decimal = Field(gt=0)
+    size: Decimal = Field(gt=0)
+    exchange: str = ""
+    trade_id: int | str
+    conditions: tuple[str, ...] = ()
+    tape: str | None = None
+    feed_source: Literal["iex"] = "iex"
 
 
 class StreamProtocolError(RuntimeError):
@@ -60,7 +77,7 @@ class WebSocketConnection(Protocol):
     async def recv(self, decode: bool | None = None) -> str | bytes: ...
 
 
-StreamEvent = MarketBar | MarketQuote
+StreamEvent = MarketBar | MarketQuote | MarketTrade
 
 
 class AlpacaMarketStream:
@@ -119,6 +136,7 @@ class AlpacaMarketStream:
                     "action": "subscribe",
                     "bars": normalized,
                     "quotes": normalized,
+                    "trades": normalized,
                 }
             )
         )
@@ -138,6 +156,8 @@ class AlpacaMarketStream:
                     yield self._bar(message)
                 elif event_type == "q":
                     yield self._quote(message)
+                elif event_type == "t":
+                    yield self._trade(message)
 
     @staticmethod
     def _decode(payload: str | bytes) -> list[dict[str, object]]:
@@ -174,4 +194,22 @@ class AlpacaMarketStream:
             ask_price=Decimal(str(message["ap"])),
             bid_size=Decimal(str(message["bs"])),
             ask_size=Decimal(str(message["as"])),
+            bid_exchange=str(message.get("bx", "")),
+            ask_exchange=str(message.get("ax", "")),
+        )
+
+    @classmethod
+    def _trade(cls, message: dict[str, object]) -> MarketTrade:
+        raw_conditions = message.get("c", [])
+        if not isinstance(raw_conditions, list):
+            raise StreamProtocolError("Alpaca trade conditions must be an array")
+        return MarketTrade(
+            symbol=str(message["S"]).upper(),
+            timestamp=cls._timestamp(message["t"]),
+            price=Decimal(str(message["p"])),
+            size=Decimal(str(message["s"])),
+            exchange=str(message.get("x", "")),
+            trade_id=str(message["i"]),
+            conditions=tuple(str(value) for value in raw_conditions),
+            tape=str(message["z"]) if message.get("z") is not None else None,
         )

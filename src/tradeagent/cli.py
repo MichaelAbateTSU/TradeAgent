@@ -223,7 +223,7 @@ def _parser() -> argparse.ArgumentParser:
     download.add_argument("--end", required=True, help="ISO date or timestamp")
     download.add_argument(
         "--timeframe",
-        choices=["1Day", "1Hour", "5Min", "1Min"],
+        choices=["1Day", "1Hour", "30Min", "5Min", "1Min"],
         default="1Day",
     )
     download.add_argument("--output", type=Path, required=True)
@@ -237,7 +237,7 @@ def _parser() -> argparse.ArgumentParser:
     download_universe.add_argument("--end", required=True)
     download_universe.add_argument(
         "--timeframe",
-        choices=["1Day", "1Hour", "5Min", "1Min"],
+        choices=["1Day", "1Hour", "30Min", "5Min", "1Min"],
         default="1Day",
     )
     download_universe.add_argument("--output-directory", type=Path, default=Path("data/universe"))

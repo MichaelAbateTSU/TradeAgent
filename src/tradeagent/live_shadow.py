@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from tradeagent.alpaca_stream import MarketQuote
+from tradeagent.alpaca_stream import MarketQuote, MarketTrade
 from tradeagent.config import AppConfig
 from tradeagent.domain import MarketBar
 from tradeagent.intraday import IntradayDataGapError
@@ -136,10 +136,19 @@ class LiveShadowDecisionProcessor:
                 "news_context": news,
                 "shadow_nav": str(self._state.nav),
                 "execution_enabled": can_enter,
+                "signal_at": frame.timestamp.isoformat(),
+                "simulated_submission_at": (
+                    frame.timestamp + timedelta(minutes=self._config.intraday.primary_bar_minutes)
+                ).isoformat(),
+                "cost_model_status": "provisional",
+                "cost_model_feed": "iex-realtime-plus-estimated-slippage",
             },
             occurred_at=frame.timestamp,
             trace_id=f"shadow-decision:{frame.timestamp.isoformat()}",
         )
+
+    async def on_trade(self, trade: MarketTrade, *, can_enter: bool) -> None:
+        await self._audit.on_trade(trade, can_enter=can_enter)
 
     def _record_prior_outcome(self, frame: UniverseFrame) -> None:
         if not self._state.closes:

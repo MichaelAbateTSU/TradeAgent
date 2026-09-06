@@ -8,7 +8,7 @@ from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict
 
-from tradeagent.alpaca_stream import MarketQuote, StreamEvent
+from tradeagent.alpaca_stream import MarketQuote, MarketTrade, StreamEvent
 from tradeagent.config import AppConfig
 from tradeagent.domain import MarketBar
 from tradeagent.intraday import NyseSessionCalendar, SessionPhase
@@ -42,6 +42,8 @@ class WorkerEventProcessor(Protocol):
 
     async def on_quote(self, quote: MarketQuote, *, can_enter: bool) -> None: ...
 
+    async def on_trade(self, trade: MarketTrade, *, can_enter: bool) -> None: ...
+
 
 class WorkerRunResult(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -50,6 +52,7 @@ class WorkerRunResult(BaseModel):
     events_seen: int
     bars_processed: int
     quotes_processed: int
+    trades_processed: int
     closed_session_events: int
     stopped_at: datetime
 
@@ -95,6 +98,7 @@ class AutonomousPaperWorker:
             "events": 0,
             "bars": 0,
             "quotes": 0,
+            "trades": 0,
             "closed": 0,
         }
         try:
@@ -127,9 +131,12 @@ class AutonomousPaperWorker:
                 if isinstance(event, MarketBar):
                     await self._processor.on_bar(event, can_enter=can_enter)
                     counters["bars"] += 1
-                else:
+                elif isinstance(event, MarketQuote):
                     await self._processor.on_quote(event, can_enter=can_enter)
                     counters["quotes"] += 1
+                else:
+                    await self._processor.on_trade(event, can_enter=can_enter)
+                    counters["trades"] += 1
                 self._heartbeat("running", counters)
 
             stopped_at = self._clock()
@@ -138,6 +145,7 @@ class AutonomousPaperWorker:
                 events_seen=counters["events"],
                 bars_processed=counters["bars"],
                 quotes_processed=counters["quotes"],
+                trades_processed=counters["trades"],
                 closed_session_events=counters["closed"],
                 stopped_at=stopped_at,
             )
