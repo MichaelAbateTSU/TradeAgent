@@ -64,7 +64,13 @@ from tradeagent.intraday_strategy import (
 )
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.live_shadow import LiveShadowDecisionProcessor
+from tradeagent.lower_execution_evidence import (
+    build_lower_evidence_anchors,
+    collect_lower_execution_evidence,
+    write_lower_evidence_manifest,
+)
 from tradeagent.lower_turnover_research import (
+    LowerTurnoverResearchReport,
     evaluate_lower_turnover_families,
 )
 from tradeagent.lower_turnover_research import (
@@ -542,6 +548,31 @@ def _parser() -> argparse.ArgumentParser:
     )
     diagnostic_calibration.add_argument("--evidence", type=Path, required=True)
     diagnostic_calibration.add_argument("--output", type=Path, required=True)
+    lower_evidence = subparsers.add_parser(
+        "collect-lower-execution-evidence",
+        help="retrieve resumable SIP snapshots for all 30 lower-turnover configurations",
+    )
+    lower_evidence.add_argument(
+        "--report",
+        type=Path,
+        default=Path("research/results/v0.9.0-lower-turnover.json"),
+    )
+    lower_evidence.add_argument(
+        "--universe-directory",
+        type=Path,
+        default=Path("data/v09/alpaca-sip-20200101-20250101/1day"),
+    )
+    lower_evidence.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
+    lower_evidence.add_argument(
+        "--shard-directory",
+        type=Path,
+        default=Path("data/v010/lower-execution-evidence"),
+    )
+    lower_evidence.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("research/datasets/v0.10.0-lower-execution-evidence.json"),
+    )
     return parser
 
 
@@ -1060,6 +1091,46 @@ def main(argv: Sequence[str] | None = None) -> None:
             encoding="utf-8",
         )
         print(_json(diagnostic_calibration_result))
+        return
+
+    if args.command == "collect-lower-execution-evidence":
+        lower_report = LowerTurnoverResearchReport.model_validate_json(
+            args.report.read_text(encoding="utf-8")
+        )
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        lower_dataset = load_universe(args.universe_directory, symbols)
+        lower_anchors = build_lower_evidence_anchors(
+            lower_report,
+            lower_dataset.frames,
+        )
+        raw_trade_count = sum(
+            len(result.diagnostics.trades)
+            for family in lower_report.families
+            for result in family.results
+        )
+        evidence_settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(evidence_settings) as data_client:
+            lower_manifest = collect_lower_execution_evidence(
+                data_client,
+                lower_anchors,
+                args.shard_directory,
+                raw_trade_count=raw_trade_count,
+            )
+        write_lower_evidence_manifest(args.manifest, lower_manifest)
+        print(
+            _json(
+                {
+                    "manifest": str(args.manifest),
+                    "raw_trade_count": lower_manifest.raw_trade_count,
+                    "unique_anchor_count": lower_manifest.unique_anchor_count,
+                    "unique_timestamp_count": lower_manifest.unique_timestamp_count,
+                    "quote_coverage_ratio": lower_manifest.quote_coverage_ratio,
+                    "trade_coverage_ratio": lower_manifest.trade_coverage_ratio,
+                }
+            )
+        )
         return
 
     if args.command == "intraday-evaluate":

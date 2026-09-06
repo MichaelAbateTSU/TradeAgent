@@ -28,6 +28,18 @@ class FixedPortfolioStrategy:
         )
 
 
+class CashPortfolioStrategy:
+    strategy_id = "cash-portfolio-v1"
+
+    def on_frame(self, frame: UniverseFrame) -> PortfolioIntent:
+        return PortfolioIntent(
+            strategy_id=self.strategy_id,
+            timestamp=frame.timestamp,
+            target_weights={bar.symbol: Decimal(0) for bar in frame.bars},
+            rationale="explicit zero exposure",
+        )
+
+
 def _frames() -> tuple[UniverseFrame, ...]:
     return align_universe(
         {
@@ -85,6 +97,23 @@ def test_portfolio_engine_rejects_empty_and_changing_universe() -> None:
         )
         with pytest.raises(ValueError, match="symbols changed"):
             engine.run([frames[0], changed])
+
+
+def test_portfolio_report_preserves_daily_zero_exposure_returns() -> None:
+    config = AppConfig()
+    frames = _frames()
+    with SQLiteLedger(":memory:") as ledger:
+        report = PortfolioEngine(
+            config,
+            CashPortfolioStrategy(),
+            PaperBroker(config.broker),
+            RiskEngine(config.risk),
+            ledger,
+        ).run(frames)
+
+    assert len(report.period_returns) == len(frames)
+    assert set(report.period_returns) == {Decimal(0)}
+    assert report.average_gross_exposure == 0
 
 
 def test_portfolio_intent_validates_weights() -> None:

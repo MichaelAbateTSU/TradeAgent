@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from time import sleep
@@ -145,6 +145,36 @@ class AlpacaDataClient:
                     feed_source=selected_feed,
                 )
 
+    def quotes_many(
+        self,
+        symbols: Sequence[str],
+        *,
+        start: datetime,
+        end: datetime,
+        feed: Literal["iex", "sip"] | None = None,
+    ) -> Iterator[HistoricalQuote]:
+        normalized = _validated_symbols(symbols, start, end)
+        selected_feed = feed or self._settings.feed
+        params = _point_in_time_params(start, end, selected_feed)
+        params["symbols"] = ",".join(normalized)
+        for payload in self._multi_pages("quotes", params):
+            records = _multi_records(payload, "quotes")
+            for symbol in normalized:
+                for quote in records.get(symbol, []):
+                    yield HistoricalQuote(
+                        symbol=symbol,
+                        timestamp=_timestamp(quote["t"]),
+                        bid_exchange=str(quote.get("bx", "")),
+                        bid_price=Decimal(str(quote["bp"])),
+                        bid_size=Decimal(str(quote["bs"])),
+                        ask_exchange=str(quote.get("ax", "")),
+                        ask_price=Decimal(str(quote["ap"])),
+                        ask_size=Decimal(str(quote["as"])),
+                        conditions=_conditions(quote.get("c")),
+                        tape=str(quote["z"]) if quote.get("z") is not None else None,
+                        feed_source=selected_feed,
+                    )
+
     def trades(
         self,
         symbol: str,
@@ -169,6 +199,34 @@ class AlpacaDataClient:
                     tape=str(trade["z"]) if trade.get("z") is not None else None,
                     feed_source=selected_feed,
                 )
+
+    def trades_many(
+        self,
+        symbols: Sequence[str],
+        *,
+        start: datetime,
+        end: datetime,
+        feed: Literal["iex", "sip"] | None = None,
+    ) -> Iterator[HistoricalTrade]:
+        normalized = _validated_symbols(symbols, start, end)
+        selected_feed = feed or self._settings.feed
+        params = _point_in_time_params(start, end, selected_feed)
+        params["symbols"] = ",".join(normalized)
+        for payload in self._multi_pages("trades", params):
+            records = _multi_records(payload, "trades")
+            for symbol in normalized:
+                for trade in records.get(symbol, []):
+                    yield HistoricalTrade(
+                        symbol=symbol,
+                        timestamp=_timestamp(trade["t"]),
+                        exchange=str(trade.get("x", "")),
+                        price=Decimal(str(trade["p"])),
+                        size=Decimal(str(trade["s"])),
+                        trade_id=trade["i"],
+                        conditions=_conditions(trade.get("c")),
+                        tape=str(trade["z"]) if trade.get("z") is not None else None,
+                        feed_source=selected_feed,
+                    )
 
     def probe_historical_sip(
         self,
@@ -202,6 +260,33 @@ class AlpacaDataClient:
         params: dict[str, str | int],
     ) -> Iterator[dict[str, Any]]:
         url = f"{self._settings.data_url}/v2/stocks/{symbol}/{resource}"
+        headers = {
+            "APCA-API-KEY-ID": self._settings.key_id.get_secret_value(),
+            "APCA-API-SECRET-KEY": self._settings.secret_key.get_secret_value(),
+        }
+        prior_tokens: set[str] = set()
+        while True:
+            response = self._get_with_retry(url, headers=headers, params=params)
+            response.raise_for_status()
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise ValueError("Alpaca response must be an object")
+            yield payload
+            next_token = payload.get("next_page_token")
+            if not next_token:
+                return
+            token = str(next_token)
+            if token in prior_tokens:
+                raise ValueError("Alpaca returned a repeated pagination token")
+            prior_tokens.add(token)
+            params["page_token"] = token
+
+    def _multi_pages(
+        self,
+        resource: Literal["quotes", "trades"],
+        params: dict[str, str | int],
+    ) -> Iterator[dict[str, Any]]:
+        url = f"{self._settings.data_url}/v2/stocks/{resource}"
         headers = {
             "APCA-API-KEY-ID": self._settings.key_id.get_secret_value(),
             "APCA-API-SECRET-KEY": self._settings.secret_key.get_secret_value(),
@@ -273,6 +358,18 @@ def _validated_request(symbol: str, start: datetime, end: datetime) -> str:
     return normalized_symbol
 
 
+def _validated_symbols(
+    symbols: Sequence[str],
+    start: datetime,
+    end: datetime,
+) -> tuple[str, ...]:
+    _validated_request("VALIDATION", start, end)
+    normalized = tuple(dict.fromkeys(symbol.strip().upper() for symbol in symbols))
+    if not normalized or any(not symbol for symbol in normalized):
+        raise ValueError("at least one symbol is required")
+    return normalized
+
+
 def _point_in_time_params(
     start: datetime,
     end: datetime,
@@ -294,6 +391,24 @@ def _records(payload: dict[str, Any], key: str) -> list[dict[str, Any]]:
     if not isinstance(records, list) or not all(isinstance(item, dict) for item in records):
         raise ValueError(f"Alpaca response is missing the {key} array")
     return records
+
+
+def _multi_records(
+    payload: dict[str, Any],
+    key: str,
+) -> dict[str, list[dict[str, Any]]]:
+    records = payload.get(key)
+    if not isinstance(records, dict):
+        raise ValueError(f"Alpaca response is missing the {key} object")
+    normalized: dict[str, list[dict[str, Any]]] = {}
+    for symbol, values in records.items():
+        if values is None:
+            normalized[str(symbol).upper()] = []
+        elif isinstance(values, list) and all(isinstance(item, dict) for item in values):
+            normalized[str(symbol).upper()] = values
+        else:
+            raise ValueError(f"Alpaca {key} values must be arrays")
+    return normalized
 
 
 def _timestamp(value: object) -> datetime:

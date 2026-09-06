@@ -64,6 +64,8 @@ class PortfolioBacktestReport(BaseModel):
     calmar_ratio: Decimal | None
     max_drawdown: Decimal
     turnover: Decimal
+    average_gross_exposure: Decimal = Decimal(0)
+    period_returns: tuple[Decimal, ...] = ()
     orders: int
     fills: int
     rejected_orders: int
@@ -94,6 +96,7 @@ class PortfolioEngine:
         first_frame: UniverseFrame | None = None
         last_frame: UniverseFrame | None = None
         equities: list[Decimal] = []
+        gross_exposures: list[Decimal] = []
         starting_equity: Decimal | None = None
         starting_fill_count = self._broker.fill_count
         starting_notional = sum((fill.notional for fill in self._broker.fills), Decimal(0))
@@ -129,7 +132,11 @@ class PortfolioEngine:
                 occurred_at=frame.timestamp,
                 trace_id=self._frame_trace_id(frame),
             )
-            equities.append(self._broker.account(frame.timestamp).equity)
+            account = self._broker.account(frame.timestamp)
+            equities.append(account.equity)
+            gross_exposures.append(
+                account.gross_exposure / account.equity if account.equity > 0 else Decimal(0)
+            )
 
         if first_frame is None or last_frame is None or starting_equity is None:
             raise ValueError("at least one universe frame is required")
@@ -144,6 +151,7 @@ class PortfolioEngine:
                 ),
             )
             equities[-1] = self._broker.account(last_frame.timestamp).equity
+            gross_exposures[-1] = Decimal(0)
         final_account = self._broker.account(last_frame.timestamp)
         self._ledger.append(
             "broker_checkpoint",
@@ -179,6 +187,11 @@ class PortfolioEngine:
             calmar_ratio=metrics["calmar_ratio"],
             max_drawdown=metrics["max_drawdown"],
             turnover=metrics["turnover"],
+            average_gross_exposure=(sum(gross_exposures, Decimal(0)) / len(gross_exposures)),
+            period_returns=tuple(
+                equities[index] / equities[index - 1] - Decimal(1)
+                for index in range(1, len(equities))
+            ),
             orders=self._orders,
             fills=self._broker.fill_count - starting_fill_count,
             rejected_orders=self._rejections,

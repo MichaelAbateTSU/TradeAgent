@@ -86,6 +86,8 @@ def test_intraday_suite_enforces_minimum_trade_evidence() -> None:
     assert not report.qualified
     assert report.minimum_closed_trades == 200
     assert report.closed_trade_estimate < 200
-    assert report.deflated_sharpe_probability is not None
-    assert report.probability_backtest_overfitting is not None
+    assert report.deflated_sharpe_probability is None
+    assert "DEFLATED_SHARPE_FAILED" in report.qualification_reasons
+    assert report.probability_backtest_overfitting is None
+    assert "PBO_REQUIRES_COMPETING_CONFIGURATIONS" in report.qualification_reasons
     assert "INSUFFICIENT_CLOSED_TRADES" in report.qualification_reasons

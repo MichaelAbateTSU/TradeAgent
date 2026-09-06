@@ -17,6 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from tradeagent.research import temporal_block_bootstrap_mean_confidence_interval
 from tradeagent.statistical_validation import (
     deflated_sharpe_probability,
+    effective_number_of_independent_trials,
     probability_of_backtest_overfitting,
 )
 from tradeagent.universe import UniverseFrame
@@ -85,6 +86,7 @@ class EconomicMlReport(BaseModel):
     best_model: EconomicMlAttempt | None
     improvement_ci_lower_bps: Decimal | None
     probability_backtest_overfitting: Decimal | None
+    effective_independent_trials: Decimal | None = None
     qualified: bool
     qualification_reasons: tuple[str, ...]
 
@@ -170,8 +172,29 @@ def evaluate_economic_ml(
     if eligibility_reasons:
         return _ineligible_report(events, positives, years, eligibility_reasons)
 
-    attempts = tuple(_ridge_attempt(alpha, folds) for alpha in RIDGE_ALPHAS)
-    baseline = _baseline_attempt(folds)
+    preliminary_attempts = tuple(_ridge_attempt(alpha, folds) for alpha in RIDGE_ALPHAS)
+    preliminary_baseline = _baseline_attempt(folds)
+    preliminary = (*preliminary_attempts, preliminary_baseline)
+    return_series = [
+        tuple(value for _, value in sorted(attempt.date_clustered_returns_bps.items()))
+        for attempt in preliminary
+    ]
+    effective_trials = effective_number_of_independent_trials(return_series)
+    trial_sharpes = [_periodic_sharpe(values) for values in return_series]
+    corrected = tuple(
+        attempt.model_copy(
+            update={
+                "deflated_sharpe_probability": deflated_sharpe_probability(
+                    values,
+                    number_of_trials=effective_trials,
+                    trial_sharpes=trial_sharpes,
+                )
+            }
+        )
+        for attempt, values in zip(preliminary, return_series, strict=True)
+    )
+    attempts = corrected[:-1]
+    baseline = corrected[-1]
     best = max(attempts, key=lambda attempt: attempt.mean_net_return_bps)
     best_daily = best.date_clustered_returns_bps
     baseline_daily = baseline.date_clustered_returns_bps
@@ -191,12 +214,9 @@ def evaluate_economic_ml(
         if differences
         else None
     )
-    fold_matrix = [
-        [fold.mean_selected_net_bps for fold in attempt.folds] for attempt in (*attempts, baseline)
-    ]
     pbo = probability_of_backtest_overfitting(
-        fold_matrix,
-        subsets=min(4, len(fold_matrix[0]) // 2 * 2),
+        return_series,
+        subsets=10,
     )
     reasons: list[str] = []
     if best.mean_net_return_bps <= baseline.mean_net_return_bps:
@@ -222,6 +242,7 @@ def evaluate_economic_ml(
         best_model=best,
         improvement_ci_lower_bps=improvement_lower,
         probability_backtest_overfitting=pbo,
+        effective_independent_trials=effective_trials,
         qualified=not reasons,
         qualification_reasons=tuple(reasons),
     )
@@ -363,11 +384,7 @@ def _attempt(
             for day, values in selected_by_date.items()
         },
         date_clustered_sharpe=sharpe,
-        deflated_sharpe_probability=(
-            deflated_sharpe_probability(daily, number_of_trials=len(RIDGE_ALPHAS) + 1)
-            if len(daily) >= 3
-            else None
-        ),
+        deflated_sharpe_probability=None,
     )
 
 
@@ -390,6 +407,7 @@ def _ineligible_report(
         best_model=None,
         improvement_ci_lower_bps=None,
         probability_backtest_overfitting=None,
+        effective_independent_trials=None,
         qualified=False,
         qualification_reasons=("ML_DISABLED",),
     )
@@ -397,3 +415,9 @@ def _ineligible_report(
 
 def report_hash(report: EconomicMlReport) -> str:
     return sha256(report.model_dump_json().encode()).hexdigest()
+
+
+def _periodic_sharpe(values: Sequence[Decimal]) -> Decimal:
+    floats = [float(value) for value in values]
+    deviation = stdev(floats)
+    return Decimal(str(mean(floats) / deviation)) if deviation > 0 else Decimal(0)

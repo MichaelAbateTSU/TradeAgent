@@ -27,7 +27,6 @@ from tradeagent.research import (
 from tradeagent.risk import RiskEngine
 from tradeagent.statistical_validation import (
     deflated_sharpe_probability,
-    probability_of_backtest_overfitting,
 )
 from tradeagent.universe import UniverseFrame, UniverseManifest
 
@@ -200,7 +199,9 @@ def evaluate_portfolio_suite(
     minimum_closed_trades: int = 0,
     minimum_deflated_sharpe_probability: Decimal | None = None,
     maximum_backtest_overfitting_probability: Decimal | None = None,
-    number_of_trials: int = 2,
+    number_of_trials: int | float | Decimal = 2,
+    trial_sharpes: Sequence[Decimal] | None = None,
+    family_pbo_probability: Decimal | None = None,
     git_sha: str | None = None,
 ) -> PortfolioResearchReport:
     strategy_id = strategy_factory().strategy_id
@@ -286,8 +287,12 @@ def evaluate_portfolio_suite(
     closed_trade_estimate = sum(fold.report.fills for fold in scenarios[0].folds) // 2
     if closed_trade_estimate < minimum_closed_trades:
         reasons.append("INSUFFICIENT_CLOSED_TRADES")
-    base_candidate_returns = [fold.report.total_return for fold in scenarios[0].folds]
-    base_benchmark_returns = [fold.report.total_return for fold in benchmarks[0].folds]
+    base_candidate_returns = [
+        value for fold in scenarios[0].folds for value in fold.report.period_returns
+    ]
+    base_benchmark_returns = [
+        value for fold in benchmarks[0].folds for value in fold.report.period_returns
+    ]
     excess_returns = [
         candidate - benchmark
         for candidate, benchmark in zip(
@@ -300,26 +305,21 @@ def evaluate_portfolio_suite(
         deflated_sharpe_probability(
             excess_returns,
             number_of_trials=number_of_trials,
+            trial_sharpes=trial_sharpes,
         )
-        if len(excess_returns) >= 3
+        if len(excess_returns) >= 3 and (float(number_of_trials) == 1 or trial_sharpes is not None)
         else None
     )
-    pbo_probability = (
-        probability_of_backtest_overfitting(
-            [base_candidate_returns, base_benchmark_returns],
-            subsets=min(6, len(base_candidate_returns) // 2 * 2),
-        )
-        if len(base_candidate_returns) >= 4
-        else None
-    )
+    pbo_probability = family_pbo_probability
     if minimum_deflated_sharpe_probability is not None and (
         dsr_probability is None or dsr_probability < minimum_deflated_sharpe_probability
     ):
         reasons.append("DEFLATED_SHARPE_FAILED")
-    if maximum_backtest_overfitting_probability is not None and (
-        pbo_probability is None or pbo_probability > maximum_backtest_overfitting_probability
-    ):
-        reasons.append("BACKTEST_OVERFITTING_FAILED")
+    if maximum_backtest_overfitting_probability is not None:
+        if pbo_probability is None:
+            reasons.append("PBO_REQUIRES_COMPETING_CONFIGURATIONS")
+        elif pbo_probability > maximum_backtest_overfitting_probability:
+            reasons.append("BACKTEST_OVERFITTING_FAILED")
     return PortfolioResearchReport(
         dataset=manifest,
         config_hash=portfolio_config_hash(

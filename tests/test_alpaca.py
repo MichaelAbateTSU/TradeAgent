@@ -194,6 +194,61 @@ def test_historical_quotes_and_trades_are_typed_and_paginated() -> None:
     assert all(request.url.params["feed"] == "sip" for request in requests)
 
 
+def test_bulk_historical_quotes_and_trades_preserve_symbols() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url.params["symbols"] == "SPY,QQQ"
+        resource = request.url.path.rsplit("/", 1)[-1]
+        if resource == "quotes":
+            return httpx.Response(
+                200,
+                json={
+                    "quotes": {
+                        "SPY": [
+                            {
+                                "t": "2025-01-02T14:30:00Z",
+                                "bp": 100,
+                                "bs": 10,
+                                "ap": 100.02,
+                                "as": 12,
+                            }
+                        ],
+                        "QQQ": None,
+                    },
+                    "next_page_token": None,
+                },
+            )
+        return httpx.Response(
+            200,
+            json={
+                "trades": {
+                    "SPY": None,
+                    "QQQ": [
+                        {
+                            "t": "2025-01-02T14:30:00Z",
+                            "p": 200,
+                            "s": 5,
+                            "i": 42,
+                        }
+                    ],
+                },
+                "next_page_token": None,
+            },
+        )
+
+    client = AlpacaDataClient(
+        _settings(),
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+    )
+    start = datetime(2025, 1, 2, 14, 30, tzinfo=UTC)
+    end = datetime(2025, 1, 2, 14, 31, tzinfo=UTC)
+
+    quotes = tuple(client.quotes_many(("spy", "qqq"), start=start, end=end, feed="sip"))
+    trades = tuple(client.trades_many(("spy", "qqq"), start=start, end=end, feed="sip"))
+
+    assert [quote.symbol for quote in quotes] == ["SPY"]
+    assert [trade.symbol for trade in trades] == ["QQQ"]
+
+
 def test_sip_entitlement_probe_reports_forbidden_without_fallback() -> None:
     client = AlpacaDataClient(
         _settings(),

@@ -295,11 +295,12 @@ def evaluate_research_suite(
         wins = sum(excess > 0 for excess in excess_returns)
         beat_fold_ratio = Decimal(wins) / Decimal(len(excess_returns))
         average_excess_return = sum(excess_returns, Decimal(0)) / Decimal(len(excess_returns))
-        confidence_lower, confidence_upper = bootstrap_mean_confidence_interval(
+        confidence_lower, confidence_upper = temporal_block_bootstrap_mean_confidence_interval(
             excess_returns,
             samples=walk_forward.bootstrap_samples,
             confidence_level=walk_forward.confidence_level,
             random_seed=random_seed + scenario_index,
+            block_size=min(2, len(excess_returns)),
         )
         comparisons.append(
             BenchmarkComparison(
