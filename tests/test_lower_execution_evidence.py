@@ -5,6 +5,8 @@ from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from tradeagent.alpaca import HistoricalQuote, HistoricalTrade
 from tradeagent.diagnostics import TradeDiagnostic
 from tradeagent.domain import MarketBar
@@ -12,6 +14,8 @@ from tradeagent.lower_execution_evidence import (
     LowerEvidenceAnchor,
     build_lower_evidence_anchors,
     collect_lower_execution_evidence,
+    load_lower_evidence_snapshots,
+    write_lower_evidence_manifest,
 )
 from tradeagent.universe import UniverseFrame
 
@@ -146,3 +150,14 @@ def test_lower_evidence_shards_are_covered_and_resumable(tmp_path: Path) -> None
     assert first.quote_coverage_ratio == 1
     assert first.trade_coverage_ratio == 1
     assert first.shards == second.shards
+    loaded = load_lower_evidence_snapshots(first)
+    assert set(loaded) == {("SPY", timestamp), ("QQQ", timestamp)}
+
+    manifest_path = tmp_path / "manifest.json"
+    write_lower_evidence_manifest(manifest_path, first)
+    assert manifest_path.exists()
+
+    shard_path = Path(first.shards[0].path)
+    shard_path.write_text(shard_path.read_text() + " ", encoding="utf-8")
+    with pytest.raises(ValueError, match="hash mismatch"):
+        load_lower_evidence_snapshots(first)

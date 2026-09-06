@@ -2,7 +2,7 @@
   "version": "v0.10.0-lower-turnover-execution-evidence-1",
   "provider": "alpaca",
   "feed": "sip",
-  "created_at": "2026-09-06T19:48:02.553782Z",
+  "created_at": "2026-09-06T19:54:50.955648Z",
   "window_seconds": 2,
   "raw_trade_count": 0,
   "raw_order_count": 0,
@@ -17,6 +17,7 @@
       "timestamp": "2025-01-02T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1735851600000000.json",
       "sha256": "e082ee4ce513694d030386dfeea08e90a57171ba85b2e0f25951240eb74b5e4f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -25,6 +26,7 @@
       "timestamp": "2025-01-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1735938000000000.json",
       "sha256": "90f93c3b13f2644c60d97d269cf23440a1a817b7cea9b7c2b17c6aad7d582691",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -33,6 +35,7 @@
       "timestamp": "2025-01-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736197200000000.json",
       "sha256": "fc9f34caeafc2bace51e1e414f6988b74f6e77eb2c490ac6cde3a39836f9cc50",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -41,6 +44,7 @@
       "timestamp": "2025-01-07T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736283600000000.json",
       "sha256": "f585f2397a085aa658954e21792e67b87112502d4bb3ebb253525df800eb5468",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -49,6 +53,7 @@
       "timestamp": "2025-01-08T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736370000000000.json",
       "sha256": "2243c26a225ff79d2585ebdd6beec639bc445c21f72e30054e55a83b6d8b171b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -57,6 +62,7 @@
       "timestamp": "2025-01-10T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736542800000000.json",
       "sha256": "0af1a2d47b4eb23e24a91cdd4da340a59a4566bc8c076e5753a381a280727550",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -65,6 +71,7 @@
       "timestamp": "2025-01-13T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736802000000000.json",
       "sha256": "2ecfe32f2210e9a2cef5839b99a7343588f99f415b00c4ff7bd7c8b79782f02e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -73,6 +80,7 @@
       "timestamp": "2025-01-14T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736888400000000.json",
       "sha256": "56f705f14a028e77b1dcf89ac8e597896ebac74b8b88987909bc058eb8cc189b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -81,6 +89,7 @@
       "timestamp": "2025-01-15T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1736974800000000.json",
       "sha256": "8133afe71952fb9096e1f01847c2e608a2bcf146a2d1af3a9f4be7a6fa7f5272",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -89,6 +98,7 @@
       "timestamp": "2025-01-16T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1737061200000000.json",
       "sha256": "94f75662ff73f353c002ce843432ff59ad0ed9170eb4ad67ab7f4f88eda49f83",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -97,6 +107,7 @@
       "timestamp": "2025-01-17T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1737147600000000.json",
       "sha256": "081a79f1f35a2226159ef096399ee0e6dd5ae7df2bdc5afb889c8c48718df27e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -105,6 +116,7 @@
       "timestamp": "2025-01-21T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1737493200000000.json",
       "sha256": "9d279ce8536ba70b1472a1b7c1fe6f0af4d7446a668251221fa2b5acdaff4e23",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -113,6 +125,7 @@
       "timestamp": "2025-01-22T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1737579600000000.json",
       "sha256": "d7715d4632b7efb5522dcee74e37aed004c31f26634033d4f762c80e1899da4c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -121,6 +134,7 @@
       "timestamp": "2025-01-23T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1737666000000000.json",
       "sha256": "c8e72962c7f157c96dceb14c968879a01852cd7381194f163261d5c2f272fa9b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -129,6 +143,7 @@
       "timestamp": "2025-01-24T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1737752400000000.json",
       "sha256": "05b56ef976dcccac354f9d4a1dd0f3fbd7daadd521e0b68c5bbcf37aa8a08a09",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -137,6 +152,7 @@
       "timestamp": "2025-01-27T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738011600000000.json",
       "sha256": "bae4a442fba23017f768f5a72e15c95918d02e1ae0cc31f77f9de1603b4aa00e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -145,6 +161,7 @@
       "timestamp": "2025-01-28T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738098000000000.json",
       "sha256": "ddbd9868a717ce98c05e50a41b43c6688c2df9813e3c0bad074b43bb6ca0ac4e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -153,6 +170,7 @@
       "timestamp": "2025-01-29T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738184400000000.json",
       "sha256": "2493ae43d595ff865e64b3bf5e6b39512a72450723291b81da943498543132b1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -161,6 +179,7 @@
       "timestamp": "2025-01-30T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738270800000000.json",
       "sha256": "584e738354732a92f0f017d29524260e92f238bb579fc3a90fd684d38299c772",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -169,6 +188,7 @@
       "timestamp": "2025-01-31T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738357200000000.json",
       "sha256": "f06a529cc1bada64294cc29f7aa823d7cc9ecfca53e60275779c83568c4bd04b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -177,6 +197,7 @@
       "timestamp": "2025-02-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738616400000000.json",
       "sha256": "8164e64bf608b4bd9719128205a95f34a4e0f0a78f289ebe0bbc79f56e1edd5d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -185,6 +206,7 @@
       "timestamp": "2025-02-04T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738702800000000.json",
       "sha256": "00980b8abe7e074a72b82e8fa9436cd1ae792970a3e1b76fbeeebdf891421fe8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -193,6 +215,7 @@
       "timestamp": "2025-02-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738789200000000.json",
       "sha256": "bff52a11b763e780f1d8b5ca136d1d6d39799e80ef3f7f405786f0f4b2e56e6b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -201,6 +224,7 @@
       "timestamp": "2025-02-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738875600000000.json",
       "sha256": "c7c14ed45e7cdf5858728d3c2e72d0fa83d650458de5dfd0630ae5a597f870e8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -209,6 +233,7 @@
       "timestamp": "2025-02-07T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1738962000000000.json",
       "sha256": "8c90b84499513d673886ba77216ff973c2ee439bbfde10c694491a777db42695",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 19
@@ -217,6 +242,7 @@
       "timestamp": "2025-02-10T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739221200000000.json",
       "sha256": "08f33ae8f687ddbac65af869377fc276d685645f447c101b450af216adc42356",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -225,6 +251,7 @@
       "timestamp": "2025-02-11T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739307600000000.json",
       "sha256": "f79e9a144ea25945c018fe82cd937af90ef5a6155b6eaecea160a7635c3a74f0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -233,6 +260,7 @@
       "timestamp": "2025-02-12T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739394000000000.json",
       "sha256": "09eee35437e6fc9cbf78e4b305b23e2025f4ed542f9aa23c1b16ea4a19507b1c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -241,6 +269,7 @@
       "timestamp": "2025-02-13T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739480400000000.json",
       "sha256": "18723f308710982ee6cead4e8ee3d3a1a5f2e02b8145145f2c9d984b83c118b1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -249,6 +278,7 @@
       "timestamp": "2025-02-14T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739566800000000.json",
       "sha256": "a67849f3b0aa9dd8f9d84cb205c631f90fc7d470bd9a6fd37e6df558db391af4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -257,6 +287,7 @@
       "timestamp": "2025-02-18T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739912400000000.json",
       "sha256": "b5f94561af8bdbf1fe6bbf5e4f9457c32952857008ae591066ea97b96649e8be",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -265,6 +296,7 @@
       "timestamp": "2025-02-19T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1739998800000000.json",
       "sha256": "8b83b12d2dc7301326e89bfa59bec46d048c00a3099fa0ad3814ad94e9a3920d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -273,6 +305,7 @@
       "timestamp": "2025-02-20T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740085200000000.json",
       "sha256": "4adc5d10e2377124f2c09c2d02ef217e0e76fd25f10a9f7baee4c4d92087cfb2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -281,6 +314,7 @@
       "timestamp": "2025-02-21T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740171600000000.json",
       "sha256": "f29215255752d75a882c7b232088da7fefa7f7fffe182868730a4a62722782d7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -289,6 +323,7 @@
       "timestamp": "2025-02-24T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740430800000000.json",
       "sha256": "244948bf77ba1b80a3131ec3efce87ac3282ca6c94424942c994c04b046f7420",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -297,6 +332,7 @@
       "timestamp": "2025-02-25T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740517200000000.json",
       "sha256": "c1ee231fe41cc3ed4532218dc252b28457ed350cab2e2980bd82499daf7425be",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -305,6 +341,7 @@
       "timestamp": "2025-02-26T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740603600000000.json",
       "sha256": "a40c3b0a7f78c7e7c0ea9e98b6f4a36ac29bfd4275d1a91262430403b8a45710",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -313,6 +350,7 @@
       "timestamp": "2025-02-27T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740690000000000.json",
       "sha256": "780240d6e3eda0368f5a47db8bb19f373f4a000b5c4643572aa8fdfc86df48eb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -321,6 +359,7 @@
       "timestamp": "2025-02-28T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1740776400000000.json",
       "sha256": "a3494872f78ab08580cc7d2cdb5d91c000dcf0e05db6a48cc8bd32de69b6d0f1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -329,6 +368,7 @@
       "timestamp": "2025-03-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741035600000000.json",
       "sha256": "3dffd06ef98c08c216274259fb2d65a3dc13b2ae8eccc065372b0917b8f04a4b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -337,6 +377,7 @@
       "timestamp": "2025-03-04T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741122000000000.json",
       "sha256": "ea240389daa797146ac9c25182dc37c5633ac4de9626cc453365bf1e0e493f04",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -345,6 +386,7 @@
       "timestamp": "2025-03-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741208400000000.json",
       "sha256": "7fca6a0cd74857512c8c0f62dbece66077bcdb45928d1b963cb81b315f093901",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -353,6 +395,7 @@
       "timestamp": "2025-03-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741294800000000.json",
       "sha256": "a09693ae7b666f5fd702097924e1bbdc25b04640c0bc704c98e88c3c256251ee",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -361,6 +404,7 @@
       "timestamp": "2025-03-07T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741381200000000.json",
       "sha256": "471eab1b9255b54694b3c8297e5263e9504337ffec8678d217a1049412f27094",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -369,6 +413,7 @@
       "timestamp": "2025-03-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741636800000000.json",
       "sha256": "14db92d49ac9185971d5ab8f004bbd5d8779437a2a3b49076a0d26110f7ebf63",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -377,6 +422,7 @@
       "timestamp": "2025-03-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741723200000000.json",
       "sha256": "fda948ee1c0747fe95154cbf498f304237eeb05819ff6337cf1f01f07748a064",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -385,6 +431,7 @@
       "timestamp": "2025-03-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741809600000000.json",
       "sha256": "3b88dc59653973765ecb9f56b5428b069334c575e5e8257e451ed4c644333cb3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -393,6 +440,7 @@
       "timestamp": "2025-03-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741896000000000.json",
       "sha256": "0fb3922184dcf82545f59d11c875e2476a90ee27726a4d4276c3689feb4bde55",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -401,6 +449,7 @@
       "timestamp": "2025-03-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1741982400000000.json",
       "sha256": "82ea8adf3de66562e77f0d967a4fc8b672129a53751ec430baddf7f915203214",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -409,6 +458,7 @@
       "timestamp": "2025-03-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742241600000000.json",
       "sha256": "ba73fd641277afdd6ed4a0c23d9b15332fbb86951b961310477345e4e5f3c434",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -417,6 +467,7 @@
       "timestamp": "2025-03-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742328000000000.json",
       "sha256": "3af08279a0b5bf0cf1747e799a6ee8092a5c163f92ac72610f663bf52ac724a6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -425,6 +476,7 @@
       "timestamp": "2025-03-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742414400000000.json",
       "sha256": "d60991e76c6c17b240a08451b9d2ea8a4ddb5c40602d0c7ba32949e560afac03",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -433,6 +485,7 @@
       "timestamp": "2025-03-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742500800000000.json",
       "sha256": "001afb3293ecac14fb27b33683111d5f6fba3efc368bde9e5a8f7bfd1e3b7ba9",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -441,6 +494,7 @@
       "timestamp": "2025-03-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742587200000000.json",
       "sha256": "20e14fb45a1d270428a5334d1e231d949ea8daa8b490f1ec3fd2b7b108b6fcd5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -449,6 +503,7 @@
       "timestamp": "2025-03-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742846400000000.json",
       "sha256": "5cb1da3a433678566be6136187f2222c437db2705d18e48c815b0d19dd2ff3ac",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -457,6 +512,7 @@
       "timestamp": "2025-03-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1742932800000000.json",
       "sha256": "a2db534bfbc6f50077064f9ea4a961dbf13a43ee94f1b7a3360b4f98e779b027",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -465,6 +521,7 @@
       "timestamp": "2025-03-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743019200000000.json",
       "sha256": "159c839623e6783e4157eab058cb837214311aae5bd8c8c00d82a5e8ff1cdd4f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -473,6 +530,7 @@
       "timestamp": "2025-03-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743105600000000.json",
       "sha256": "f76fef930953fa7f3c55b1dd573c0238b34249990ffe01a96b9d6542f5836364",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -481,6 +539,7 @@
       "timestamp": "2025-03-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743192000000000.json",
       "sha256": "169af4fa4d0993ac3b58ad71f3769007333d011b095da0dcbedc48d873500491",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -489,6 +548,7 @@
       "timestamp": "2025-03-31T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743451200000000.json",
       "sha256": "9d886e3a49a2f45ab9f5ad3b538925d19c29d1bcaa8a90a11d5d91e0d24877a2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -497,6 +557,7 @@
       "timestamp": "2025-04-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743537600000000.json",
       "sha256": "01673a8860583af777be738f5a804cd1768f6b0e1ddd5722ce20c1d6cfc3634d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -505,6 +566,7 @@
       "timestamp": "2025-04-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743624000000000.json",
       "sha256": "c57b53bbdbdae063948ce769a1f67c00c79439d5aa725c1a6781226b25691b92",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -513,6 +575,7 @@
       "timestamp": "2025-04-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743710400000000.json",
       "sha256": "8087ca9e6e281d61dcc5a73634f75b4a8c0d603ce43debe225cc0c0b686f449a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -521,6 +584,7 @@
       "timestamp": "2025-04-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1743796800000000.json",
       "sha256": "45a1561c707717e0f18ef5820b1bf595bfc6bf2a61866c6f33f059f47d1e01ca",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -529,6 +593,7 @@
       "timestamp": "2025-04-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744056000000000.json",
       "sha256": "bb451239b0699cbe33123091106e6bb741f4cb87c5421ae3afebc7cdcfc6fddd",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -537,6 +602,7 @@
       "timestamp": "2025-04-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744142400000000.json",
       "sha256": "4c715a8621df53d59cb7ae1a4ce77d74cee1719543d14d636ccf7d7f12d84de2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -545,6 +611,7 @@
       "timestamp": "2025-04-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744228800000000.json",
       "sha256": "4fe05201836989f0e743e72caf911df9f25c21334207387be4531a1757d7f661",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -553,6 +620,7 @@
       "timestamp": "2025-04-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744315200000000.json",
       "sha256": "46b607a15074317f6f5edb64d726deaec73bce75a86756a8a691c00281fd0b81",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -561,6 +629,7 @@
       "timestamp": "2025-04-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744401600000000.json",
       "sha256": "b15d411438e08d535e153048af679b3a12adaa62d1279e946816e67123cf41cd",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -569,6 +638,7 @@
       "timestamp": "2025-04-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744660800000000.json",
       "sha256": "0f5640672f037d50f1202304e1ae3ce902296fb07f52ac1cf09a22b0878afb6c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -577,6 +647,7 @@
       "timestamp": "2025-04-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744747200000000.json",
       "sha256": "9c07b5e94cbdefff8901f56395741cd10495de834ac2e58606908b4ceba7d15f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -585,6 +656,7 @@
       "timestamp": "2025-04-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744833600000000.json",
       "sha256": "11ffba03f9035209d76e0e1d6f2c0a11ed7a16ca743ff929b604b0eb23ac6d7f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -593,6 +665,7 @@
       "timestamp": "2025-04-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1744920000000000.json",
       "sha256": "0c810fa33a7b2c2c3329497e1919710d73cdf44280189d7bc2dfc1a77f34a3df",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -601,6 +674,7 @@
       "timestamp": "2025-04-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745265600000000.json",
       "sha256": "24ea84749c2a69aa1e4a0eed06283dadab0fe847360be7664abd122d724ea4af",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -609,6 +683,7 @@
       "timestamp": "2025-04-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745352000000000.json",
       "sha256": "4afb5109aa922f966d4c4c7799bc7898df73c515971af07f2928aec5ae533629",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -617,6 +692,7 @@
       "timestamp": "2025-04-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745438400000000.json",
       "sha256": "b1f68b6379e61a5e28e7e851ba6fb30435e36dd5b49069762a2f69d6031655b3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -625,6 +701,7 @@
       "timestamp": "2025-04-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745524800000000.json",
       "sha256": "915e4cb9e8678ce4350712ca1f8c7e7b45334d1b84d55799d6f584fc7a483de5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -633,6 +710,7 @@
       "timestamp": "2025-04-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745611200000000.json",
       "sha256": "08a768960a8a727612de197938fb4067b8b791a333e4d2cd087f63f58a0c4f69",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -641,6 +719,7 @@
       "timestamp": "2025-04-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745870400000000.json",
       "sha256": "c2626d5078ec4ec124a1783f0796f3e40a6215768e50bae4cdd275ae3a667a0d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -649,6 +728,7 @@
       "timestamp": "2025-04-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1745956800000000.json",
       "sha256": "d418c08a24e91190e862774b3d978076729ee0e510bd25dfce399c8529a427ff",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -657,6 +737,7 @@
       "timestamp": "2025-04-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746043200000000.json",
       "sha256": "ad4cbd92d7a007b8fa8bb0003ae2f6f8d727281dbc599d2d693f1f2dbd7424a2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -665,6 +746,7 @@
       "timestamp": "2025-05-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746129600000000.json",
       "sha256": "ffccf688cc17c88882371f42ebc1bf1e8b0f1f37da80daccb5accacd9780ca16",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -673,6 +755,7 @@
       "timestamp": "2025-05-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746216000000000.json",
       "sha256": "8a1a39934110e9afc2b01d43cafd6f87108bc8837befae2a02a54ec43fbed6a2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -681,6 +764,7 @@
       "timestamp": "2025-05-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746475200000000.json",
       "sha256": "3a36312e7016e1a5b5edb7d8ed6f955a08cf2ab9fb463987d5c091ecb0719615",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -689,6 +773,7 @@
       "timestamp": "2025-05-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746561600000000.json",
       "sha256": "34f80d1f85bc2c3f4eb84cf5e7590178fb30bf05e939a88b2ff763bd956689ad",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -697,6 +782,7 @@
       "timestamp": "2025-05-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746648000000000.json",
       "sha256": "9cce05cbbd55d3281d0db68e4a88a5ad0309d27a6f3eafc145688824ac475f68",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -705,6 +791,7 @@
       "timestamp": "2025-05-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746734400000000.json",
       "sha256": "07a9d839588b20cf638c6c722d76a0cbeaa66bd5bfe129f416d806312b6d34b1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -713,6 +800,7 @@
       "timestamp": "2025-05-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1746820800000000.json",
       "sha256": "169695ed00899efd473bc3fd1aff4a4c10ab89eb09194bb1437086b0435263ae",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -721,6 +809,7 @@
       "timestamp": "2025-05-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747080000000000.json",
       "sha256": "4dc931aa2bcbefb53b78678692f63f58d51d4099ec4a39e3fe6ae2d4f645dbf1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -729,6 +818,7 @@
       "timestamp": "2025-05-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747166400000000.json",
       "sha256": "047f3077df98be70b6b21d531bccc57de46d32f703998f0af5e556e36ac84dec",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -737,6 +827,7 @@
       "timestamp": "2025-05-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747252800000000.json",
       "sha256": "6d981cbd07eac8a08660c079c367cb1df8d1deda09829825571e454b06d7194f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -745,6 +836,7 @@
       "timestamp": "2025-05-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747339200000000.json",
       "sha256": "c6fedd5c6563e4c4a1ce8074dee0981160a4a12ddf39c76066d60b5befaedfcf",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -753,6 +845,7 @@
       "timestamp": "2025-05-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747425600000000.json",
       "sha256": "7d257fd0facfea3e3f133294f471361ca656fa8387c36bac3dff1a5acdf1b4b3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -761,6 +854,7 @@
       "timestamp": "2025-05-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747684800000000.json",
       "sha256": "10c0dc94a1ca6a05de581c328814902d00709a3d5e1424241f335e307263780a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -769,6 +863,7 @@
       "timestamp": "2025-05-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747771200000000.json",
       "sha256": "d218316b2d8f7b44d3fcd119e568757353984a51224aaaa4eb7ae6445befd921",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -777,6 +872,7 @@
       "timestamp": "2025-05-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747857600000000.json",
       "sha256": "22aebf597706ed562908680714edb67fb33bf72dbb0f1202f61f2f4c9e3bb835",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -785,6 +881,7 @@
       "timestamp": "2025-05-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1747944000000000.json",
       "sha256": "741f70c58077c8773324b1897e264d1f4da95859dfe7e26635025742c60ecde5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -793,6 +890,7 @@
       "timestamp": "2025-05-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748030400000000.json",
       "sha256": "c16d4349c5a21ae2d05bbd0f05e98d8748bd05488b477a37953bdf151a3a32aa",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -801,6 +899,7 @@
       "timestamp": "2025-05-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748376000000000.json",
       "sha256": "6f947dc25a6ad8fb95b5dbfabaeb4294813559896e513344b4f45cd4312b47de",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -809,6 +908,7 @@
       "timestamp": "2025-05-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748462400000000.json",
       "sha256": "324f4bda94b67b772f86ea96ca2e67663d1a02cc5be7b18c1a3097a615966b40",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -817,6 +917,7 @@
       "timestamp": "2025-05-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748548800000000.json",
       "sha256": "2062c8ef1482306a01fbbca595c552e70e4da78368aaefdac92b691a0503f256",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -825,6 +926,7 @@
       "timestamp": "2025-05-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748635200000000.json",
       "sha256": "36ff8ea373ada6ae8c712b688784e09d902434da975cb102398c3d2d3472d471",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -833,6 +935,7 @@
       "timestamp": "2025-06-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748894400000000.json",
       "sha256": "c4ecd4b92e9ffa8c504845c98cffdf146a8602ac6f200f5f53c8e8c6d8ef0108",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -841,6 +944,7 @@
       "timestamp": "2025-06-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1748980800000000.json",
       "sha256": "817098dc76c38ee1dcb7ff7a6e8a0536ea062e19d9d5c81ca86ac6b757254a29",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -849,6 +953,7 @@
       "timestamp": "2025-06-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749067200000000.json",
       "sha256": "d0e83436293edf6ceaf2a353c8a6b7b70a583ed11c2bcee946b3386b25918f08",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -857,6 +962,7 @@
       "timestamp": "2025-06-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749153600000000.json",
       "sha256": "ca23775e14347e1c3ccd0c8df5a1708e8dbfb8834c58f455e1338893ba2ffbe4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -865,6 +971,7 @@
       "timestamp": "2025-06-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749240000000000.json",
       "sha256": "9cc2855af1363f283210b8c79c51fa918ebb5a5e4357f4eac2f551ba5ae2e950",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -873,6 +980,7 @@
       "timestamp": "2025-06-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749499200000000.json",
       "sha256": "8228a5d730be726fb8fc84734e04383be2c35f849b589f9d4d4ef29e9e54ea30",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -881,6 +989,7 @@
       "timestamp": "2025-06-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749585600000000.json",
       "sha256": "886640023d80c75edf56d8ea0bd6edcb4f51361f0b0e6962753a0e192dfcf9ec",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -889,6 +998,7 @@
       "timestamp": "2025-06-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749672000000000.json",
       "sha256": "1a34ea12ef05ac6de670bade8b8d2cb4ed550397677b126fb49fd18009d384af",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -897,6 +1007,7 @@
       "timestamp": "2025-06-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749758400000000.json",
       "sha256": "892b4cdd6bc6fdc32a297ffabc88d2b493da1ada8711eafc999b169b91ace19a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -905,6 +1016,7 @@
       "timestamp": "2025-06-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1749844800000000.json",
       "sha256": "0d362f10ca481efd16657f49ddc81f9a6f7402308b23986ac754df76d66745ec",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -913,6 +1025,7 @@
       "timestamp": "2025-06-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750104000000000.json",
       "sha256": "9bf691373831ae688ef22395e2533ecd25544c23451e0b23b23cdbf3e9bc49d3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -921,6 +1034,7 @@
       "timestamp": "2025-06-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750190400000000.json",
       "sha256": "7ee140fc1cf812fca64ed9869332c16da7ff159982b5388a9562799352e01472",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -929,6 +1043,7 @@
       "timestamp": "2025-06-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750276800000000.json",
       "sha256": "9bdda5d3f6b273cbca72bfaf279611507a017a2cc75e6372ce45115aa6c46195",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -937,6 +1052,7 @@
       "timestamp": "2025-06-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750449600000000.json",
       "sha256": "e16b94538b8ed1f3eed258654ec5bd795a2970667e68e93c4340aaa7710fa0f2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -945,6 +1061,7 @@
       "timestamp": "2025-06-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750708800000000.json",
       "sha256": "a36897cedc42d7f6d0d4a51082689826d2bc81e68880f9f422a94299005ac990",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -953,6 +1070,7 @@
       "timestamp": "2025-06-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750795200000000.json",
       "sha256": "2cf331d6ba871dafbbd16125b75cb08300519629e04bd87a0fde65e8cea9aada",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -961,6 +1079,7 @@
       "timestamp": "2025-06-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750881600000000.json",
       "sha256": "f2a7449341ce3b3c5abb0d4d191fea2b7f76934e7bcc5e6ff2d7af7698e22148",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -969,6 +1088,7 @@
       "timestamp": "2025-06-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1750968000000000.json",
       "sha256": "489242dced01987bccf7b8e855ed00535af77faa2ddf5ddde3b0c5bebec264d2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -977,6 +1097,7 @@
       "timestamp": "2025-06-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1751054400000000.json",
       "sha256": "896789f6f94e13bef69444c9075c55651ca88f907ecef3f4c1080937a31ec5d0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -985,6 +1106,7 @@
       "timestamp": "2025-06-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1751313600000000.json",
       "sha256": "366fc0b969f7ef222103c8ca1467d327bad6c80a5d39d7ea2feca66ff4571773",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -993,6 +1115,7 @@
       "timestamp": "2025-07-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1751400000000000.json",
       "sha256": "4f188b817e696748bc24dfd52d7dd86d032614f25ee613194f3fc838dc01be16",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1001,6 +1124,7 @@
       "timestamp": "2025-07-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1751486400000000.json",
       "sha256": "8c8c16f9c618beb2665305f3a5d46b9e6c9f52cdff316a9c346a1b457a920cc9",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1009,6 +1133,7 @@
       "timestamp": "2025-07-03T17:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1751562000000000.json",
       "sha256": "28232215eba2e6cfc23ca6e4f9b1d05a49bab349451e0f765ce5933ea82ebccc",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1017,6 +1142,7 @@
       "timestamp": "2025-07-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1751918400000000.json",
       "sha256": "8a1af872c9677e5d708ff640007974828ca166ea1dd0ebf182d154984f76bce1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1025,6 +1151,7 @@
       "timestamp": "2025-07-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752004800000000.json",
       "sha256": "156bca527cd7a490b175e80869023ef319fec21bb813060ea6ad5b9814490d21",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1033,6 +1160,7 @@
       "timestamp": "2025-07-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752091200000000.json",
       "sha256": "2a519d71d94e7f2b47ec51862da598ac50ee522c303ab15fbde68dc2b46e2fd6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1041,6 +1169,7 @@
       "timestamp": "2025-07-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752177600000000.json",
       "sha256": "5cd02f46beeb53efc8f61ef9d2dc0f6908135ec26f4163623042ff710727b5a0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1049,6 +1178,7 @@
       "timestamp": "2025-07-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752264000000000.json",
       "sha256": "ddd59e38ada79f2cae0d6ccd23c43dfdb2d748c9f470628e33376f7ca7c5bfcb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1057,6 +1187,7 @@
       "timestamp": "2025-07-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752523200000000.json",
       "sha256": "0c99d3b3a7484eceed969b51f584a81e19cdc80c46d25982e10f1ba301ae8a74",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1065,6 +1196,7 @@
       "timestamp": "2025-07-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752609600000000.json",
       "sha256": "6fa895d5952113cf642bc4f19ba8d261cfbc04053a8b14af36f32e4e8af2cd2a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1073,6 +1205,7 @@
       "timestamp": "2025-07-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752696000000000.json",
       "sha256": "294cc94574b0e31ad5b4c75f943410476a410a4056c92d0f9fed10d0ae490fea",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1081,6 +1214,7 @@
       "timestamp": "2025-07-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752782400000000.json",
       "sha256": "7648b8ecc523753ae1432cac12cd34c8f7c4eb37c4cf70049521d3d5848d15b5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1089,6 +1223,7 @@
       "timestamp": "2025-07-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1752868800000000.json",
       "sha256": "be0f01fa690df7ff5a6e9199b23497a2edf42c09697ceab2d9920df040c5c688",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1097,6 +1232,7 @@
       "timestamp": "2025-07-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753128000000000.json",
       "sha256": "78ada4c0514c2d9e7e09b15be3c5cd2c5c50c91fb9b7fe735abf4c6d6a61614f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1105,6 +1241,7 @@
       "timestamp": "2025-07-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753214400000000.json",
       "sha256": "aadc5d93789751783f1d118831daa605ca9702644c9e0d52f0c48ee8614336c0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1113,6 +1250,7 @@
       "timestamp": "2025-07-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753300800000000.json",
       "sha256": "7167728aa5c1dae48e3e6935d8427c8076b66dea925f09a80a5d10c503769d90",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1121,6 +1259,7 @@
       "timestamp": "2025-07-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753387200000000.json",
       "sha256": "6fdd8097ae90e80580f0b99704035c6587189d9ba120afad984cefbe233603dd",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1129,6 +1268,7 @@
       "timestamp": "2025-07-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753473600000000.json",
       "sha256": "e5bf90b4c77ae28366e57fecf7ad4d3dbaa0b68893239466f4abdd72aa2e8dc8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1137,6 +1277,7 @@
       "timestamp": "2025-07-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753732800000000.json",
       "sha256": "8820ab86b2e66e5631e919a0cd6167de6d97e53181c8f7c63475ebe8555ae777",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1145,6 +1286,7 @@
       "timestamp": "2025-07-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753819200000000.json",
       "sha256": "e7166a1ec4439d5977d9c4e3c8c9fffb270bdee2cae42dbb451833abdfae8b9d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1153,6 +1295,7 @@
       "timestamp": "2025-07-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753905600000000.json",
       "sha256": "43da5f5f0d93beb8d033896b4bba3ac64725131ee2e2144671267769f4f5bb5c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1161,6 +1304,7 @@
       "timestamp": "2025-07-31T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1753992000000000.json",
       "sha256": "ee2e938fa552613ac23b04738a2e40229f7d2bd4de5fc767df33ace1989d44a8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1169,6 +1313,7 @@
       "timestamp": "2025-08-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754078400000000.json",
       "sha256": "f3798cc3d0a1e7865e4a6a5966b720d18663a377e44e429ed9235f8a4949fd18",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1177,6 +1322,7 @@
       "timestamp": "2025-08-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754337600000000.json",
       "sha256": "d5d03d1e0c860621a4c51c078c9126412919a279ccc5dded3105bf3056cf2ffd",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1185,6 +1331,7 @@
       "timestamp": "2025-08-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754424000000000.json",
       "sha256": "fbfad7050ee2a4c744e45ede314235f98a5870771fe8e7c4f62554975aab4972",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1193,6 +1340,7 @@
       "timestamp": "2025-08-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754510400000000.json",
       "sha256": "dbcb7f486191b3547e8653617237ac4cdb72dcc97235ed95daa4aa9181996f65",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1201,6 +1349,7 @@
       "timestamp": "2025-08-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754596800000000.json",
       "sha256": "a60aa70137ddd57750709d53e4380e04db94030ee89547b1439c85ae83c77744",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1209,6 +1358,7 @@
       "timestamp": "2025-08-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754683200000000.json",
       "sha256": "565f6622961b428c43d9dfa4053b6cc5d22f10e8f9529203374bfe89bd8a79eb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1217,6 +1367,7 @@
       "timestamp": "2025-08-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1754942400000000.json",
       "sha256": "8e4c2b7c75d28bf34555f14bae2c7d6f3f70e0043ce67af2895f4ce47027c746",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1225,6 +1376,7 @@
       "timestamp": "2025-08-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755028800000000.json",
       "sha256": "602c637526665321a4663ee44d2864faa67fa675492b903491fa75d7fdcf7523",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1233,6 +1385,7 @@
       "timestamp": "2025-08-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755115200000000.json",
       "sha256": "d7165a1d9079572f3b905e474b5fc62f8cb7232aa40804a80913d57597707b4b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1241,6 +1394,7 @@
       "timestamp": "2025-08-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755201600000000.json",
       "sha256": "13c4171372293740409b4ac8d5c51945205092f0a1d42f0caafa2d31aec2f83a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1249,6 +1403,7 @@
       "timestamp": "2025-08-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755288000000000.json",
       "sha256": "b4ff33eef4d50c6bcb9d4f9be154a95839cd0a953c1ff67ce2f7babfd442c77b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1257,6 +1412,7 @@
       "timestamp": "2025-08-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755547200000000.json",
       "sha256": "5f6bb5766d506aba4dc705499ab75e7c79f989e89268b4d7602c82dcc1860885",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1265,6 +1421,7 @@
       "timestamp": "2025-08-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755633600000000.json",
       "sha256": "024f888be68a7f42c0f4b648eb96f449ea6614d2ba858b44e7a52b33da56e10d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1273,6 +1430,7 @@
       "timestamp": "2025-08-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755720000000000.json",
       "sha256": "07c7b751ad3c552199d68d181f78788db88050a4a1e69250b2d53f3552a100a7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1281,6 +1439,7 @@
       "timestamp": "2025-08-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755806400000000.json",
       "sha256": "403ed1f2ed4de3e7780fbd4e61ae88b5222d97eb1016a8008a4024fd4d56acb3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1289,6 +1448,7 @@
       "timestamp": "2025-08-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1755892800000000.json",
       "sha256": "2a701655382f8e46ec128c1ea3183c1ff8af800fe591eb2584e20771d79c357b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1297,6 +1457,7 @@
       "timestamp": "2025-08-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756152000000000.json",
       "sha256": "f21ea74de6519c36eafacf6ff9eae6557d5d0276dca9cd69bd3720854817e343",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1305,6 +1466,7 @@
       "timestamp": "2025-08-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756238400000000.json",
       "sha256": "1f4ce277f1b53d8389b0c6886e7e139f473fe80be98d7d9cd436e33fbc5fdb33",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1313,6 +1475,7 @@
       "timestamp": "2025-08-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756324800000000.json",
       "sha256": "97230fb6e3b6cb93950947a33e82bc93cbf9f6c163ba79b7c061c7e40bd8a727",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1321,6 +1484,7 @@
       "timestamp": "2025-08-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756411200000000.json",
       "sha256": "72a2bf52e08ba15fecaf8513d33b15cb50551d843e352d85c4c68d0fb054fdc0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1329,6 +1493,7 @@
       "timestamp": "2025-08-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756497600000000.json",
       "sha256": "14ece37b8a2db5ce092de41c978f0e9e639aefdcda958442d62c25ff34d6272d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1337,6 +1502,7 @@
       "timestamp": "2025-09-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756843200000000.json",
       "sha256": "f166a50d599e693ed194b89561eb8db00a8f87b1e5dfdd67951598a96e1f6afe",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1345,6 +1511,7 @@
       "timestamp": "2025-09-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1756929600000000.json",
       "sha256": "030df1590690e4e2622447bb7a5bd3824a0ebd6c0649d0e5f96b70dd960de3ac",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1353,6 +1520,7 @@
       "timestamp": "2025-09-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757016000000000.json",
       "sha256": "0c91bc0bda113f112a92e294c7af838d583a7e0a871a6439fb0e6a28f488ba69",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1361,6 +1529,7 @@
       "timestamp": "2025-09-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757102400000000.json",
       "sha256": "9584ba457511b17b3deb254638676483d75c353ba44fab5c0cc101f07cfd1fa2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1369,6 +1538,7 @@
       "timestamp": "2025-09-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757361600000000.json",
       "sha256": "41a23c65144b5498b9ff447d90622d997577e6f2b1f33c442062527c43006a2e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1377,6 +1547,7 @@
       "timestamp": "2025-09-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757448000000000.json",
       "sha256": "5f2c5f642325036f038f6d14df1d79c0e0a4151d19cfb8b8dc1e60b20eb94458",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1385,6 +1556,7 @@
       "timestamp": "2025-09-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757534400000000.json",
       "sha256": "9f2aa796ff6588ab1fdcce2679fed30262031ef4cb2dc7cd8fb0b0897056ba8d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1393,6 +1565,7 @@
       "timestamp": "2025-09-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757620800000000.json",
       "sha256": "07b535f9869b566fefb99261717ccf4e0e757fe4aa05fe55c81605efb751b0a6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1401,6 +1574,7 @@
       "timestamp": "2025-09-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757707200000000.json",
       "sha256": "e4ab93959f9cb556e05db65bcb8c130583da8fe90c695c1122964b58977af0f5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1409,6 +1583,7 @@
       "timestamp": "2025-09-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1757966400000000.json",
       "sha256": "ab348c5d8adc85bb538af7fe1026c8c3ebfa85724c24655f94c3a911992de220",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1417,6 +1592,7 @@
       "timestamp": "2025-09-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758052800000000.json",
       "sha256": "e03144ae36c1dc17869383d427e6d13431713ac4847a4e7e4c883872b6c9350b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1425,6 +1601,7 @@
       "timestamp": "2025-09-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758139200000000.json",
       "sha256": "02a6946ac7a3b9b69e24ccdfca98484129e31a820e11f0e20a0cce4e823c58f3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1433,6 +1610,7 @@
       "timestamp": "2025-09-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758225600000000.json",
       "sha256": "eb869d6b304cc373ec90f19988023bcdbff6c597e0fd3d1b1396d91d44b11910",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1441,6 +1619,7 @@
       "timestamp": "2025-09-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758312000000000.json",
       "sha256": "26646ad0975fe9b91bdead5645ec714a11a4786b385f5d701759d5860a5238cb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1449,6 +1628,7 @@
       "timestamp": "2025-09-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758571200000000.json",
       "sha256": "1a45b49f988db28e23df9e82fb97f2571d6d8a6448cd3fabe7e617e73e19c309",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1457,6 +1637,7 @@
       "timestamp": "2025-09-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758657600000000.json",
       "sha256": "931fe1cd9aa5279069bfdd9dd40115ce495d5d4c63cff47b1f89f7dbc1f6518c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1465,6 +1646,7 @@
       "timestamp": "2025-09-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758744000000000.json",
       "sha256": "7e355ddcfec32ef2af84a0009acf6a64347efe9ef484fa9f272ed149267fab0b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1473,6 +1655,7 @@
       "timestamp": "2025-09-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758830400000000.json",
       "sha256": "99099e2cdd906272cceca7d79635f81e43312a925e50993ba07966f0b6d3d9bc",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1481,6 +1664,7 @@
       "timestamp": "2025-09-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1758916800000000.json",
       "sha256": "cb35579e35f05e5a09e8d8ca8fbc2e0c2b7acb19db8c4bc968a6197e4268fc50",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1489,6 +1673,7 @@
       "timestamp": "2025-09-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759176000000000.json",
       "sha256": "24d6f695990cb9018cba27cea0c38936fdfae2b906437e3379bffaa67d0f3f65",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1497,6 +1682,7 @@
       "timestamp": "2025-09-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759262400000000.json",
       "sha256": "9697a857d5d70ecc3b50b0bd8af1d5eac0478599657e27b380d88f2f339ff226",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1505,6 +1691,7 @@
       "timestamp": "2025-10-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759348800000000.json",
       "sha256": "f0f6f874d3eb5de0b5e117219547014f1f3ce44215d9d5764470ef78426f3e70",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1513,6 +1700,7 @@
       "timestamp": "2025-10-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759435200000000.json",
       "sha256": "7c7f593d66447e90cd7a3e0a394eaa1c0f696678f97feff299cb078211d23247",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1521,6 +1709,7 @@
       "timestamp": "2025-10-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759521600000000.json",
       "sha256": "6453148f84bf0adba6d12b621128b7dff6b6ca946b28d9928ead577f6df298f3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1529,6 +1718,7 @@
       "timestamp": "2025-10-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759780800000000.json",
       "sha256": "2b4ac7ef0849e2b75ba4a643c5762623a4c7e201c70a8ffc657c55410351fd8a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1537,6 +1727,7 @@
       "timestamp": "2025-10-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759867200000000.json",
       "sha256": "850a6b719c3ca38bf3faf9168abb7b416da1f6419a2989d01bff21cfa1f972b7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1545,6 +1736,7 @@
       "timestamp": "2025-10-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1759953600000000.json",
       "sha256": "eecaa1cac1c34b92e1a723cfd1f305f9813946220a63e92d662619c30abdb5e6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1553,6 +1745,7 @@
       "timestamp": "2025-10-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760040000000000.json",
       "sha256": "d08a00360e2e2d9235fb24289cb9e1ddeb79114bc73dec0fd65f51b3b3afd2db",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1561,6 +1754,7 @@
       "timestamp": "2025-10-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760126400000000.json",
       "sha256": "7b7ee42b2cbe5faa8f9c2fee544f85809424fc801e7359b29cf833f11c64b275",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1569,6 +1763,7 @@
       "timestamp": "2025-10-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760385600000000.json",
       "sha256": "caadaffaf5f55985fa937b198156158da00e1dc8b9621942cfb16b61f6901ec2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1577,6 +1772,7 @@
       "timestamp": "2025-10-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760472000000000.json",
       "sha256": "cbe57ae09f65a0fd75a50c5d7343597843babc29d033ebe4d0a22daf1c120b7c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1585,6 +1781,7 @@
       "timestamp": "2025-10-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760558400000000.json",
       "sha256": "0099eaea84d2eed0ac511a098f0ac37b2f894c1810d7821ffb190a3148821b97",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1593,6 +1790,7 @@
       "timestamp": "2025-10-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760644800000000.json",
       "sha256": "11203c8e61813b929d36e18542c99714b4be0cd8b68b0821affffa710c4c4d65",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1601,6 +1799,7 @@
       "timestamp": "2025-10-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760731200000000.json",
       "sha256": "f1ec80db70bf436b7a6fd79d46bcf0800c9583b36e63218702831e9a7480af88",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1609,6 +1808,7 @@
       "timestamp": "2025-10-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1760990400000000.json",
       "sha256": "bdf89143794453a0283a92c9118fe39ace8b2dc49ffc2cc69120e6e1fd5d7705",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1617,6 +1817,7 @@
       "timestamp": "2025-10-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761076800000000.json",
       "sha256": "dcd81e0d745c4cd10a65a125be4a9e1d1339579170840389111455da0caa065d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1625,6 +1826,7 @@
       "timestamp": "2025-10-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761163200000000.json",
       "sha256": "39414be8ce3d3eedcd8e720f356d7a7e1ecf8df88a1cae875707abcc3fc81265",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1633,6 +1835,7 @@
       "timestamp": "2025-10-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761249600000000.json",
       "sha256": "2cc2cb810c888daee5a30dd1ee884b512754d264544a3c26380c65cde0a376eb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1641,6 +1844,7 @@
       "timestamp": "2025-10-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761336000000000.json",
       "sha256": "11f87185f316fac9609d75feb1d14741ae1d68f09b6578689b0dcd36538fd7ce",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1649,6 +1853,7 @@
       "timestamp": "2025-10-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761595200000000.json",
       "sha256": "6a876230904bbf8f96acb42c9845d496ad7471ed370d454a4d2059eaf6b0df7e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1657,6 +1862,7 @@
       "timestamp": "2025-10-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761681600000000.json",
       "sha256": "c08d7230101e92625a1004124d2d88d6ef24409d378617ece8ffd70511d606cf",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1665,6 +1871,7 @@
       "timestamp": "2025-10-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761768000000000.json",
       "sha256": "380da59ebe39b767d31d06def2530580743dc444b202d9540d9572d82253c071",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1673,6 +1880,7 @@
       "timestamp": "2025-10-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761854400000000.json",
       "sha256": "53cf6498f5d0fb22d1bb1e3a95c8cc6c34572639c655d31f70213dfdc89424c4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1681,6 +1889,7 @@
       "timestamp": "2025-10-31T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1761940800000000.json",
       "sha256": "cc5384a7567957508b30ce033686e64da1a3ca7a171543e7936e06d827ca00f8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1689,6 +1898,7 @@
       "timestamp": "2025-11-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762203600000000.json",
       "sha256": "2085cc83afc41be6fcd94766634aa5bc20dd5ac12471fde5144871a1fa7d42d1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1697,6 +1907,7 @@
       "timestamp": "2025-11-04T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762290000000000.json",
       "sha256": "ccd9477a957804870cffed1eef44a46ce1069e33c75082f7e7413ba661a3fe5d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1705,6 +1916,7 @@
       "timestamp": "2025-11-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762376400000000.json",
       "sha256": "f6d79b38432741091cb0463af90d4637d598270b9cc8355eaf778b5b017d8084",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1713,6 +1925,7 @@
       "timestamp": "2025-11-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762462800000000.json",
       "sha256": "237c75724a16324d1e5eb4aa80b9e88dbf2d226732e7bcfd3e2badf622aa5c30",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1721,6 +1934,7 @@
       "timestamp": "2025-11-07T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762549200000000.json",
       "sha256": "5c10c1d05d3dea12c9fedd0b812c6a084b799af93b5f2e2ffdbb171e8fe076be",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1729,6 +1943,7 @@
       "timestamp": "2025-11-10T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762808400000000.json",
       "sha256": "520473933bfc84110170b93356b5530b4b1202275c624685fddcb3dcb8d9f7de",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1737,6 +1952,7 @@
       "timestamp": "2025-11-11T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762894800000000.json",
       "sha256": "9a2dd17bef1a0aa92347b708d94bd3d72213264c8440bb8a8fe294053f4aacc7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1745,6 +1961,7 @@
       "timestamp": "2025-11-12T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1762981200000000.json",
       "sha256": "37eeafbb172bd49cd5a8c5243ec5465825d00e959feab846ad5eeb83bde0ed10",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1753,6 +1970,7 @@
       "timestamp": "2025-11-13T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763067600000000.json",
       "sha256": "5ceea3660342e492ed14681dc25f4cee06532af6f37a1b42a0c1dd1a3b5fed8c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1761,6 +1979,7 @@
       "timestamp": "2025-11-14T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763154000000000.json",
       "sha256": "151898034906181fbad6a31f5e24dac785713f28abe34744c8bc697a71ff5b91",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1769,6 +1988,7 @@
       "timestamp": "2025-11-17T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763413200000000.json",
       "sha256": "711779e3291a7686ff4e00e744cc69cde5755059b185e19b5471dbea0fc88c42",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1777,6 +1997,7 @@
       "timestamp": "2025-11-18T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763499600000000.json",
       "sha256": "1219530066939b966dea123d9511d720951dc5d1bc2cff8e8be0addc9a07cb9d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1785,6 +2006,7 @@
       "timestamp": "2025-11-19T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763586000000000.json",
       "sha256": "053bb93867cb82ddbfe926c881825578848908411dfaf9c75ef897d0138b1454",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1793,6 +2015,7 @@
       "timestamp": "2025-11-20T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763672400000000.json",
       "sha256": "8dddefc5fc77e104bcfd2c0212cd6f299a24072696785c5b0b99b5dff41ee8e4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1801,6 +2024,7 @@
       "timestamp": "2025-11-21T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1763758800000000.json",
       "sha256": "2397c4e91e8639d3437a61234f01779a525dca514ac49e554f3ecd447fdfb25b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1809,6 +2033,7 @@
       "timestamp": "2025-11-24T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764018000000000.json",
       "sha256": "8ad4eee98ad8a7ee77cca806729bcbfcb9a1e9c48d4775c05dbe4185fd79f053",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1817,6 +2042,7 @@
       "timestamp": "2025-11-25T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764104400000000.json",
       "sha256": "07deaf19f3a4dfeeacf3d03d4f9f3981b44c16cc84b6667c8f4c06bff113a621",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1825,6 +2051,7 @@
       "timestamp": "2025-11-26T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764190800000000.json",
       "sha256": "f71c37d6308a9fc05ea4b6cde934699ae96bbb2bb820e8bad1cbbe757aad9577",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1833,6 +2060,7 @@
       "timestamp": "2025-11-28T18:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764352800000000.json",
       "sha256": "e0a5b0463cfd3e2853d0354840a881858a3f021518e9b86341bf08edb2f57025",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1841,6 +2069,7 @@
       "timestamp": "2025-12-01T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764622800000000.json",
       "sha256": "f6bc71cbe85bd9108541efdae8d7cffd8b7a55f2b00a6d2dc42d85d8f5781dae",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1849,6 +2078,7 @@
       "timestamp": "2025-12-02T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764709200000000.json",
       "sha256": "7d4bfefc888398db67b9ce625903823b473d637b9032f756c0ee203df8419fe9",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1857,6 +2087,7 @@
       "timestamp": "2025-12-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764795600000000.json",
       "sha256": "6d9ab806f1d926da974bdd69de3adf319a8cf58b591d5575cc04e2eb9c6e0d92",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1865,6 +2096,7 @@
       "timestamp": "2025-12-04T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764882000000000.json",
       "sha256": "dd0dd2d5c6f4d7fe4724e813e547b63a0b4e8f4b0d6e21f6a4749f6e9ce307d3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1873,6 +2105,7 @@
       "timestamp": "2025-12-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1764968400000000.json",
       "sha256": "ad93e79455fe8993291e6f673fd44e640c590c41954999adaf079b5f62cfa9a9",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1881,6 +2114,7 @@
       "timestamp": "2025-12-08T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765227600000000.json",
       "sha256": "e4f536ead1f8b8c06cb3bb718a36fe66651856ca1f7176a27fa07d997a481132",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1889,6 +2123,7 @@
       "timestamp": "2025-12-09T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765314000000000.json",
       "sha256": "9d5697415eba711894717000d0b1872a7fbd8976b0c45e989d722174390abdd8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1897,6 +2132,7 @@
       "timestamp": "2025-12-10T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765400400000000.json",
       "sha256": "a58d46a4776c3054c5267f2ac1f3c8a2e1ed13bbbd633e1b6b23f39f0ff00693",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1905,6 +2141,7 @@
       "timestamp": "2025-12-11T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765486800000000.json",
       "sha256": "32eb434211e8c02e53f50780ee49481a4a5ec612d8451b09b9d0c6e97d49992c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1913,6 +2150,7 @@
       "timestamp": "2025-12-12T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765573200000000.json",
       "sha256": "c676aeb9ea36eeca0ae5ff09ddb3b6c81375500a0c3c3b454135df3a29442e1e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1921,6 +2159,7 @@
       "timestamp": "2025-12-15T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765832400000000.json",
       "sha256": "99494f022793fe8ebe714ec53ef7f7af6f117aff40674e35debd75591dab44a3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1929,6 +2168,7 @@
       "timestamp": "2025-12-16T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1765918800000000.json",
       "sha256": "28b9f3b37f829d8691180dcdb899613a1f6cb1f6dbdbd6d3ff805c326ba5a201",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1937,6 +2177,7 @@
       "timestamp": "2025-12-17T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766005200000000.json",
       "sha256": "75be52c9832f165c591fd1326f34bfd41fcfffc134a822fa1354a0bb1f6db784",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1945,6 +2186,7 @@
       "timestamp": "2025-12-18T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766091600000000.json",
       "sha256": "8f0bb044f3d7337d64863b6a5161901bb36713c4bf456c76069b1ae9a6fcf58c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1953,6 +2195,7 @@
       "timestamp": "2025-12-19T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766178000000000.json",
       "sha256": "f68ce52e33115693c8c4c6b859fac287161512adf506836aaa3cf38b7b576c3c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1961,6 +2204,7 @@
       "timestamp": "2025-12-22T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766437200000000.json",
       "sha256": "f0c343a0b6df4e016509d5bf597c7b4bb0e452c2ff0ba5b1c878d46ac04c84ff",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1969,6 +2213,7 @@
       "timestamp": "2025-12-23T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766523600000000.json",
       "sha256": "e8739ecbc09726c53c21ed7ba369d26fe79bf0a2d6f2c2ab189e955f6ec8ec4e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1977,6 +2222,7 @@
       "timestamp": "2025-12-24T18:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766599200000000.json",
       "sha256": "84a44d08f03683eddde7ece3e4b8aef064d532de10e1a6564ea4a0599795046f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -1985,6 +2231,7 @@
       "timestamp": "2025-12-26T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1766782800000000.json",
       "sha256": "c607a710699c61c8dd48b0a0eaaeb0ac87d0057d8d85d2c3023f131cb2e70151",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -1993,6 +2240,7 @@
       "timestamp": "2025-12-29T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767042000000000.json",
       "sha256": "877e5c57c072d4a7e25ace99f3053796dde912df297b882eb895d8f217df6056",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2001,6 +2249,7 @@
       "timestamp": "2025-12-30T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767128400000000.json",
       "sha256": "3db3c45c5d73a9bd5c2efb41b9aafc36ef8598ae5f28c291ed35657dbf571015",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2009,6 +2258,7 @@
       "timestamp": "2025-12-31T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767214800000000.json",
       "sha256": "d5d91ec7346bf3809a181dc10a591b6084dee89d1a168368208c1c73ec1d5f21",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2017,6 +2267,7 @@
       "timestamp": "2026-01-02T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767387600000000.json",
       "sha256": "20186a41e427cafc57379cdea080ab96c0c54978e1b26865b5370554c876ae96",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2025,6 +2276,7 @@
       "timestamp": "2026-01-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767646800000000.json",
       "sha256": "b874b1db5df043e144b17afb80ce99265498c2f27a243561f7e60a5d83009b57",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2033,6 +2285,7 @@
       "timestamp": "2026-01-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767733200000000.json",
       "sha256": "c08efc0359aae129c689e1bc5c11f7884c83bfe33e3245856b6e0049dea379d1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2041,6 +2294,7 @@
       "timestamp": "2026-01-07T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767819600000000.json",
       "sha256": "3a4e05bcf055e156d81536ffae0f910d5c422cf5ceb76f08fd6bb45f4ee06282",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2049,6 +2303,7 @@
       "timestamp": "2026-01-08T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767906000000000.json",
       "sha256": "56c40364362fb0a2e79fca7e80513063b121233be615ae5a8d462f02d66c6483",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2057,6 +2312,7 @@
       "timestamp": "2026-01-09T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1767992400000000.json",
       "sha256": "e046175c264a926828ba7a787f5102bf453e79f964d6a787b3097f64cc389dd7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2065,6 +2321,7 @@
       "timestamp": "2026-01-12T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1768251600000000.json",
       "sha256": "20b8ee506020f14226adcb3de8c41fb0da757598c15fbcf8a067eec0acca4bf0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2073,6 +2330,7 @@
       "timestamp": "2026-01-13T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1768338000000000.json",
       "sha256": "c4b8218264e3369d8945d9e71570c8f8a4f9baa2ed667f29939327a55bc94a79",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2081,6 +2339,7 @@
       "timestamp": "2026-01-14T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1768424400000000.json",
       "sha256": "7f28199e3ef4bcc76c6841fcf84258990efc01adde6b38faf77468df2104b9e4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2089,6 +2348,7 @@
       "timestamp": "2026-01-15T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1768510800000000.json",
       "sha256": "fef2659b6a9d2c8a8004bb7df24269f5c6f2dcf2d5a8f1ee7a6b22e32f95f76d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2097,6 +2357,7 @@
       "timestamp": "2026-01-16T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1768597200000000.json",
       "sha256": "7035067b85e38fcc8b55c30011adcdf2a66a61e9ff2bc4f30a76e18ef83231d3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2105,6 +2366,7 @@
       "timestamp": "2026-01-20T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1768942800000000.json",
       "sha256": "c3010f2c48e709012608bbf8744562d241f8179e3ec98b8be0c8d0b9dc6d208d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2113,6 +2375,7 @@
       "timestamp": "2026-01-21T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769029200000000.json",
       "sha256": "0ee9fa84d8fbf9cda93effe77fc56d5c1314ee40ff9d3c54412fce07bc346dc5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2121,6 +2384,7 @@
       "timestamp": "2026-01-22T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769115600000000.json",
       "sha256": "3e7aa99b730413ec397841701f44c91d3786d8df0ac5542a577cd4716b809931",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2129,6 +2393,7 @@
       "timestamp": "2026-01-23T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769202000000000.json",
       "sha256": "bd4fea92c4164f95160e3d69544f7dcddcc1d1ec9760c03287601544401a0a62",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2137,6 +2402,7 @@
       "timestamp": "2026-01-26T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769461200000000.json",
       "sha256": "c785a07434e305d0911b4efcc9433f503462866dc7f4489d2e6cc7d49d6071e1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2145,6 +2411,7 @@
       "timestamp": "2026-01-27T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769547600000000.json",
       "sha256": "10ce1bca6b5bcd1697c66d2a829def3ccff8fb7ea9ba5df71941ad2e97457ffe",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2153,6 +2420,7 @@
       "timestamp": "2026-01-28T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769634000000000.json",
       "sha256": "d540dbcd4477cfa46089581a0db1ebb1e9bb53d1a1dac3e79ed05ac971beea0c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2161,6 +2429,7 @@
       "timestamp": "2026-01-29T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769720400000000.json",
       "sha256": "7f45d9ae1b0fd31a87ce77cc8273e524c03aaca56a960a987a1c464377c237a4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2169,6 +2438,7 @@
       "timestamp": "2026-01-30T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1769806800000000.json",
       "sha256": "e2b0f8698df089e2263577c5a532dc8b20f45ac69670c7b41153e17ee173736c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2177,6 +2447,7 @@
       "timestamp": "2026-02-02T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770066000000000.json",
       "sha256": "9643f03fe02ab7a73b75559c824be5ff666d34b9d8bec4d9d21dad62d28baadf",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2185,6 +2456,7 @@
       "timestamp": "2026-02-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770152400000000.json",
       "sha256": "7b6915f4725631da7b3d7dcf926c789329b07cd99328f117ce1418e334c16839",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2193,6 +2465,7 @@
       "timestamp": "2026-02-04T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770238800000000.json",
       "sha256": "49e6a9411c69db68669e9b6d4fa149d43461ac4d03458a6221774be41e35383f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2201,6 +2474,7 @@
       "timestamp": "2026-02-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770325200000000.json",
       "sha256": "88aab9d62d99345e29a96feca87e974b1b63e3e7c0253c8ec794d2f070ccda3b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2209,6 +2483,7 @@
       "timestamp": "2026-02-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770411600000000.json",
       "sha256": "19662e33e1faf8b54cb7b4182207baea5626bb6328542a1b0fa679a88990aae0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2217,6 +2492,7 @@
       "timestamp": "2026-02-09T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770670800000000.json",
       "sha256": "cda03e67fe8ecdfbcb431bafa1d7766cd89630d91e2ccca5a338d35e214d60a0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2225,6 +2501,7 @@
       "timestamp": "2026-02-10T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770757200000000.json",
       "sha256": "f2e575c55178e573c16c4ef41607a915befe38dd4cc557a545e7d10bb55f727e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2233,6 +2510,7 @@
       "timestamp": "2026-02-11T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770843600000000.json",
       "sha256": "4a2917a20e5d5ac257b29f21afd35e19965857c22e791f601425a253cbc81654",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2241,6 +2519,7 @@
       "timestamp": "2026-02-12T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1770930000000000.json",
       "sha256": "62553be76693df62ec9b6218f3004921835057905108ea382f0d967b3b541990",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2249,6 +2528,7 @@
       "timestamp": "2026-02-13T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771016400000000.json",
       "sha256": "d88e9cd7b218fc5341f1e464bfad734f09da7f6a3054fce0684b162f84c327ca",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2257,6 +2537,7 @@
       "timestamp": "2026-02-17T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771362000000000.json",
       "sha256": "14a2f8e8c209a4de3074bca2589265f8dfbbbdb1480e4a72d2ac916ab18ac780",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2265,6 +2546,7 @@
       "timestamp": "2026-02-18T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771448400000000.json",
       "sha256": "8bfaf794dd14c9cb9be7646fa82290a3017e89edf5d6f5e0b4127d55627461b4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2273,6 +2555,7 @@
       "timestamp": "2026-02-19T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771534800000000.json",
       "sha256": "c18efbcfb102ea8f6333d25114d175e6d7e03130ebbbd231fa2a4e4b947c93ec",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2281,6 +2564,7 @@
       "timestamp": "2026-02-20T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771621200000000.json",
       "sha256": "cb60b9b431fef751a97b0c315aed06c6ab49703db1ea4b08367e5f37841d1042",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2289,6 +2573,7 @@
       "timestamp": "2026-02-23T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771880400000000.json",
       "sha256": "14e6e744a992924faee6ce995c6c5b5dc2eb8bbfb88801982eb8fb7ac98d0e0f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2297,6 +2582,7 @@
       "timestamp": "2026-02-24T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1771966800000000.json",
       "sha256": "cc093cb96c57cb256e93cbb18db2fb9d38b3a7a7b4a211b9bb10f21bc6be6419",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2305,6 +2591,7 @@
       "timestamp": "2026-02-25T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772053200000000.json",
       "sha256": "2303817b15b74d01bad0d41382cb157b8d57da8522110521006146d6cf73deba",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2313,6 +2600,7 @@
       "timestamp": "2026-02-26T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772139600000000.json",
       "sha256": "ee4251c7bf0e5244fd97feb052191a80c25e0c3af3e49a9fc2da467688d123ca",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2321,6 +2609,7 @@
       "timestamp": "2026-02-27T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772226000000000.json",
       "sha256": "6370450f097a93ddce66769ec65c7c863014f5bf5371bf6d3ed773be46bdd083",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2329,6 +2618,7 @@
       "timestamp": "2026-03-02T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772485200000000.json",
       "sha256": "fbfb6c6236b9515cff2b0403214669c0b50ec956c6e6054234d5fd841c701fa0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2337,6 +2627,7 @@
       "timestamp": "2026-03-03T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772571600000000.json",
       "sha256": "0b0ce1ec27a81a7ae6ef0be951b0db2746ef02fd955cd2eb28ed575444d7a46f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2345,6 +2636,7 @@
       "timestamp": "2026-03-04T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772658000000000.json",
       "sha256": "63eeb3b1d37bf5157a570c933e521aca981d668e803091582a606c321cda7219",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2353,6 +2645,7 @@
       "timestamp": "2026-03-05T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772744400000000.json",
       "sha256": "b6ec54d4304f590f2115f8d3cb9773dd7260ba59843c9948fc062d0197d2c604",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2361,6 +2654,7 @@
       "timestamp": "2026-03-06T21:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1772830800000000.json",
       "sha256": "44e57012731a87cc394d44261e88398b5633e72a74f1f63b9f4adc131d245094",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2369,6 +2663,7 @@
       "timestamp": "2026-03-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773086400000000.json",
       "sha256": "6d147f7d5ede5a8fc85b8e5f3551010070c1dbd76d7d2418dfcc14b603d71e18",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2377,6 +2672,7 @@
       "timestamp": "2026-03-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773172800000000.json",
       "sha256": "c15ede2d0fe7d82bd3eb73524690303e9f72038d69691e0072cc0067caba2db7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2385,6 +2681,7 @@
       "timestamp": "2026-03-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773259200000000.json",
       "sha256": "1ecceac444e5094bc512fc9fb470bde816cd84b36f408d20667375e773599800",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2393,6 +2690,7 @@
       "timestamp": "2026-03-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773345600000000.json",
       "sha256": "8b25673efac2728a4d4ea639a00ab1ba8e08e6d353e83082ac75e8931fa1e816",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2401,6 +2699,7 @@
       "timestamp": "2026-03-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773432000000000.json",
       "sha256": "862d2a52c79e335f4e103ae7ffa384625130d8cf903e8693aec61d927f9184b6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2409,6 +2708,7 @@
       "timestamp": "2026-03-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773691200000000.json",
       "sha256": "10a1b0f50284dafe0d8b241a2fd481bd410b11963aa053628bda469f40372b17",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2417,6 +2717,7 @@
       "timestamp": "2026-03-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773777600000000.json",
       "sha256": "3fa26a0c8e65c615063bce8dd4a4037566479de985d00a297c2ceddb30ec3ecb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2425,6 +2726,7 @@
       "timestamp": "2026-03-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773864000000000.json",
       "sha256": "02d7fd0072d1f4cdcdba840c55725e64df8d2bb509871cc27815d88bd6bda0ca",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2433,6 +2735,7 @@
       "timestamp": "2026-03-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1773950400000000.json",
       "sha256": "4356bfaf2d118bf1b54e101a600bab3ff19b30da15425bee4b73a20a4a3e142b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2441,6 +2744,7 @@
       "timestamp": "2026-03-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774036800000000.json",
       "sha256": "4b5a76ab8e59f23fea913a652dc691ef5797f7083401d84bfd9bc7c43e852174",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2449,6 +2753,7 @@
       "timestamp": "2026-03-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774296000000000.json",
       "sha256": "49611776d32e9730af5ffd48fd35b8a71c2ea4e81d4a03d5b141215c42b12381",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2457,6 +2762,7 @@
       "timestamp": "2026-03-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774382400000000.json",
       "sha256": "b0471499d3d6e0fd5a224d6f79562d86ac8cb9d45ca8398a818a4d07cc4d89b6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2465,6 +2771,7 @@
       "timestamp": "2026-03-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774468800000000.json",
       "sha256": "f3dfb03f60ac3c9bee24aa58039c90a34552c8c1421577b1c2c6f50d89e4aded",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2473,6 +2780,7 @@
       "timestamp": "2026-03-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774555200000000.json",
       "sha256": "1c84a2f74744a6bf64c8f61d39e8b8b400a6c3ac97c3e5f3ee1aab91f36ef3fd",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2481,6 +2789,7 @@
       "timestamp": "2026-03-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774641600000000.json",
       "sha256": "ecf05cf91ca1ab9b469a38a657df9c5bd5c3d8a07520c534092bcbd1b2ff5dd6",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2489,6 +2798,7 @@
       "timestamp": "2026-03-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774900800000000.json",
       "sha256": "3f0aeb0de36714c2bd4f1d5e4dcbc4edbc9fd89f633547881eff9e98cffb0315",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2497,6 +2807,7 @@
       "timestamp": "2026-03-31T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1774987200000000.json",
       "sha256": "7ee4c8b23165b3049d1631a8073dff269e9d62193b0dd01f5269d2d70e2236cb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2505,6 +2816,7 @@
       "timestamp": "2026-04-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775073600000000.json",
       "sha256": "3b382f0e76f7b6cb594186f3246a0caa2de1ae06822d70840b95cd46196ee4b8",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2513,6 +2825,7 @@
       "timestamp": "2026-04-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775160000000000.json",
       "sha256": "ce97d95501cf4c8b7acdda54dcd3341b05de574ea952caa4090ec1ea9bff9764",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2521,6 +2834,7 @@
       "timestamp": "2026-04-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775505600000000.json",
       "sha256": "2b05ba90b219bacbec06e9eff4eda1a7f952a71cc513bd7c85a601225c152407",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2529,6 +2843,7 @@
       "timestamp": "2026-04-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775592000000000.json",
       "sha256": "97e0d358184bffca5c4209a0e7c44d31d608bceb1fb73706a08bc6523a2e1261",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2537,6 +2852,7 @@
       "timestamp": "2026-04-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775678400000000.json",
       "sha256": "46388ed7c6af30db93ee29a11bec2afb7149f453139ac4579e8687005c3d5a00",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2545,6 +2861,7 @@
       "timestamp": "2026-04-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775764800000000.json",
       "sha256": "c60cda14e2001ef13a81b7ce38192557a1ec8b732ba30944919ac375a7d42f7d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2553,6 +2870,7 @@
       "timestamp": "2026-04-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1775851200000000.json",
       "sha256": "52b8126c1ede1cd23b7e3a60b8e723172b10b490b349f3b3f4a31e2c6b189832",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2561,6 +2879,7 @@
       "timestamp": "2026-04-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776110400000000.json",
       "sha256": "cebd080d7716e19121d4c8289f8a8a48886e4e3734655340cb182375a4ccd2dc",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2569,6 +2888,7 @@
       "timestamp": "2026-04-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776196800000000.json",
       "sha256": "daec8603f761f778225f205c63f7c7055bf4763c25d0a890b746176e8434c66f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2577,6 +2897,7 @@
       "timestamp": "2026-04-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776283200000000.json",
       "sha256": "1863be077e57198acf1e2c81506765675d8e817d175b776e31582cf5f7c13675",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2585,6 +2906,7 @@
       "timestamp": "2026-04-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776369600000000.json",
       "sha256": "b83265857c995abd44c1461e294c0e459758dafc20d507fa4b90a2ae25613869",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2593,6 +2915,7 @@
       "timestamp": "2026-04-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776456000000000.json",
       "sha256": "aa27aeab004e0a0b1c7dfb7935e9b00dd0c0de12057394c667fd2895afc6147e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2601,6 +2924,7 @@
       "timestamp": "2026-04-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776715200000000.json",
       "sha256": "384447c4d76ad3ce1039decabdf39944f9e20b9e1e0e866c64f2be09b90969bb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2609,6 +2933,7 @@
       "timestamp": "2026-04-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776801600000000.json",
       "sha256": "582de4c5c19aaf319ae812030d5e73e65d810e4681301521b6eef08c95be4182",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2617,6 +2942,7 @@
       "timestamp": "2026-04-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776888000000000.json",
       "sha256": "dd8c990998a97c931854524315aa452d796b7490999dea6f8f0d64d0ddbeb9fa",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2625,6 +2951,7 @@
       "timestamp": "2026-04-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1776974400000000.json",
       "sha256": "1ea1f8e2b6635ef16a9d2b5a623bd0020882ee00a928431135c8db147c45bdd3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2633,6 +2960,7 @@
       "timestamp": "2026-04-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777060800000000.json",
       "sha256": "5c30d77f38bb373761ffdcc089af56938b54cd830a978d1f078ef4b93eb3d134",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2641,6 +2969,7 @@
       "timestamp": "2026-04-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777320000000000.json",
       "sha256": "84188c07d9ca853247c3efd9fdd9937aaf1f24031b7d52d25651a56caecf066b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2649,6 +2978,7 @@
       "timestamp": "2026-04-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777406400000000.json",
       "sha256": "5d12fec055690b3c0236195b7243e641b77d94218e36764688e1cf557bd46676",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2657,6 +2987,7 @@
       "timestamp": "2026-04-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777492800000000.json",
       "sha256": "9770f74c1dbfd9d7d5cada497102a919f4d8338146112a3d9e83ee2ef8fef75d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2665,6 +2996,7 @@
       "timestamp": "2026-04-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777579200000000.json",
       "sha256": "76b5e8f08660258c0a8d7cd393c073d69089a2445dfaf7f50a90ff0b03aceda1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2673,6 +3005,7 @@
       "timestamp": "2026-05-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777665600000000.json",
       "sha256": "65ac0f8196abb52b2bd02469db16c0fd6b57e1dd9f34199eaf541a73804b2403",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2681,6 +3014,7 @@
       "timestamp": "2026-05-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1777924800000000.json",
       "sha256": "fdc41e393f333d4dd9d61a8f2cb315111f8cb42ea433a2a66f9b4329f72d68dc",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2689,6 +3023,7 @@
       "timestamp": "2026-05-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778011200000000.json",
       "sha256": "ab38fcde26287978e13233a5c178c6ceac611981e4bcdadd1b856247cb9bbca4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2697,6 +3032,7 @@
       "timestamp": "2026-05-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778097600000000.json",
       "sha256": "37d7d812ab3d184f5fd5a513475acfe2d2b08e801cd4cb77c6eb70942f302208",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2705,6 +3041,7 @@
       "timestamp": "2026-05-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778184000000000.json",
       "sha256": "9fe833c8eb03d2bd2aed8325eef27aa38620ab710f156417c2d178437de6d9a5",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2713,6 +3050,7 @@
       "timestamp": "2026-05-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778270400000000.json",
       "sha256": "50cd763f6eb81d42e5ae140a289df28ce4400730eeecd0d4b6203e5fcfc893c4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2721,6 +3059,7 @@
       "timestamp": "2026-05-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778529600000000.json",
       "sha256": "39d9e8fc03a5d8ba72adf23a8337d13833c28a3e9e25dd8028ec031e39b0ed52",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2729,6 +3068,7 @@
       "timestamp": "2026-05-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778616000000000.json",
       "sha256": "c9108f27ef5e2bc63eedc3aa99579229380252b314023c65c24d5a4fe14dd452",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2737,6 +3077,7 @@
       "timestamp": "2026-05-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778702400000000.json",
       "sha256": "16b6de745aed700e3c7b28f251c9f2454a661dadb0f1c6d028e519873a228bb7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2745,6 +3086,7 @@
       "timestamp": "2026-05-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778788800000000.json",
       "sha256": "e6b4020bc2221eca652f029331e15c8a1ce076504f939ec2e60aeea1a1c17d0f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2753,6 +3095,7 @@
       "timestamp": "2026-05-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1778875200000000.json",
       "sha256": "8ab6ac312389244fc56aa14b38db589c16a7a9654550c65a8fb4942476c14fcf",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2761,6 +3104,7 @@
       "timestamp": "2026-05-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779134400000000.json",
       "sha256": "288c21e3425c23356d05164325f83ae8fb0e4d407b240c47c954aa2365789137",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2769,6 +3113,7 @@
       "timestamp": "2026-05-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779220800000000.json",
       "sha256": "d08a9af7e74f9df6c67d503dc6ddd2e6377be808114bfa86a053cd6efd95d2c4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2777,6 +3122,7 @@
       "timestamp": "2026-05-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779307200000000.json",
       "sha256": "8b596af801764e7c7ad7ade40b47d8ea130245a727e5407bb10a48ccd7a3fe83",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2785,6 +3131,7 @@
       "timestamp": "2026-05-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779393600000000.json",
       "sha256": "aa0dd61d03abf83dc01973b85721a8334277ad689fa69f0b7f00e19451d5ca61",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2793,6 +3140,7 @@
       "timestamp": "2026-05-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779480000000000.json",
       "sha256": "4223964022156ba42c5ac199301e3da090a7e71052e28267e8e4b829a5da87cb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 19
@@ -2801,6 +3149,7 @@
       "timestamp": "2026-05-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779825600000000.json",
       "sha256": "cb6979a46ed50fc33e567dd7b7f347948d3d9967c04d6054758072d7c1a72df1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2809,6 +3158,7 @@
       "timestamp": "2026-05-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779912000000000.json",
       "sha256": "048b390c88249e84da24ae990616b36a073a8bc42818b0bc047ecd23b108ff12",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2817,6 +3167,7 @@
       "timestamp": "2026-05-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1779998400000000.json",
       "sha256": "75a9cf24b2532cb7eb64b2b367c1511c3b1cb80eeab9f408b58a4a2c01475b5a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2825,6 +3176,7 @@
       "timestamp": "2026-05-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780084800000000.json",
       "sha256": "76d5037f9d139f46d48e2b32a95106f3c963fe9e341057e0736a3679aa2a4719",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2833,6 +3185,7 @@
       "timestamp": "2026-06-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780344000000000.json",
       "sha256": "650787c9d8f34e46a422160391f4b9a2b149437dc4ec8c1d94d32b51fcd9605d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2841,6 +3194,7 @@
       "timestamp": "2026-06-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780430400000000.json",
       "sha256": "4653b7258a9c86f8d2d2f3a68e9fd5ea41d053e4f54039a4c1cd76e0ce4ab0ea",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2849,6 +3203,7 @@
       "timestamp": "2026-06-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780516800000000.json",
       "sha256": "478883bb35ac64c69a6e843f60d5f24d18ab0fa7e03773df4b3690f639235272",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2857,6 +3212,7 @@
       "timestamp": "2026-06-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780603200000000.json",
       "sha256": "0f882718439330804d32685f480a0e3dd8e46dee621614afc90ef4f44b21d61b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2865,6 +3221,7 @@
       "timestamp": "2026-06-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780689600000000.json",
       "sha256": "c3d81b57de181b0b554ce605be900523663dd716050a4fb6a968edc661b0dae7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2873,6 +3230,7 @@
       "timestamp": "2026-06-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1780948800000000.json",
       "sha256": "9f3d5a55db45cb1568219fcf64220a075c1f68909607b76317848e585c210278",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2881,6 +3239,7 @@
       "timestamp": "2026-06-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781035200000000.json",
       "sha256": "ccdabf3ed8f5d88f27410d92fefcd6025a847307ff9dbf25379a4a6dc3683c65",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2889,6 +3248,7 @@
       "timestamp": "2026-06-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781121600000000.json",
       "sha256": "5b691750b6030c6110303b0584526b347559d56fffc8b3fe0077008ee57ecfa7",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -2897,6 +3257,7 @@
       "timestamp": "2026-06-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781208000000000.json",
       "sha256": "9111fe36fc700fc81216f39b5bdc505287ac8d4f5612b2dda386e4186b2d581f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2905,6 +3266,7 @@
       "timestamp": "2026-06-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781294400000000.json",
       "sha256": "b53d3a8cc7191072917fe14a91f045626e8fc970a975d8da5c2aefbf3d826946",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2913,6 +3275,7 @@
       "timestamp": "2026-06-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781553600000000.json",
       "sha256": "2e874c58773c7dc52bed3d03bdb22a2babca73e01789485a35e146acd240ffcf",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2921,6 +3284,7 @@
       "timestamp": "2026-06-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781640000000000.json",
       "sha256": "f358d1593728983abfce9aa65e300d4576cd1c89e55587cbec1ad19109ed03fa",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2929,6 +3293,7 @@
       "timestamp": "2026-06-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781726400000000.json",
       "sha256": "461e5f3814830cbe41c605ad42870f9b18a8916a46fa817e547d95a067433cfe",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2937,6 +3302,7 @@
       "timestamp": "2026-06-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1781812800000000.json",
       "sha256": "5cd19250044870443b5042c40584132de9a2215a917533ce3b30ca1d3c609e2d",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2945,6 +3311,7 @@
       "timestamp": "2026-06-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782158400000000.json",
       "sha256": "43276f167f1e2871a38a3240c6b7863b5c9a62c289569233235b3724c777685a",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2953,6 +3320,7 @@
       "timestamp": "2026-06-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782244800000000.json",
       "sha256": "10d3df009392651620a8f5a4e589882e28f97163da07bc098f32b5772ea0320c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2961,6 +3329,7 @@
       "timestamp": "2026-06-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782331200000000.json",
       "sha256": "96c1c74f1eabc204ca5ebf657f0c9f628a732cf6804cefe2b84107fe22f814d1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2969,6 +3338,7 @@
       "timestamp": "2026-06-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782417600000000.json",
       "sha256": "68eec773929f645ab629961ca79a8685e98324f4999fba322bd84f1960168d69",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2977,6 +3347,7 @@
       "timestamp": "2026-06-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782504000000000.json",
       "sha256": "db601a1ac3d2ad691d7540122e1138ebc72564250100586c66063759297dc6d1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2985,6 +3356,7 @@
       "timestamp": "2026-06-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782763200000000.json",
       "sha256": "a2b710579151b53bf57e95378c093ca400d4cd4d6f50da2734f6423235228b7e",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -2993,6 +3365,7 @@
       "timestamp": "2026-06-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782849600000000.json",
       "sha256": "01f0ee9f86bd272fc40da5b669f54c9cf72e78d12aca556b6d1845284bcee4c0",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3001,6 +3374,7 @@
       "timestamp": "2026-07-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1782936000000000.json",
       "sha256": "5b684db1497c486ab15fbec5de7cd19b312695c935a39f45e329785140b81fd4",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 19
@@ -3009,6 +3383,7 @@
       "timestamp": "2026-07-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783022400000000.json",
       "sha256": "ef9798de08e39d4dbbf34ff51b2eeeb4e6cdd224b956bf5bd9f7f8909fdde114",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3017,6 +3392,7 @@
       "timestamp": "2026-07-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783368000000000.json",
       "sha256": "9e4446668bf092f0d7c60950e3c77f645ee938c0a2c03343cc104a929d127f81",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3025,6 +3401,7 @@
       "timestamp": "2026-07-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783454400000000.json",
       "sha256": "f3c0b94bdf8a00a938464e9f3741282c81053eb904abc468de88e55dafcede5b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3033,6 +3410,7 @@
       "timestamp": "2026-07-08T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783540800000000.json",
       "sha256": "bb00d68764e7c335c8b0775255f8a3671ece7c6270fdf592357fb0fc86e1dbb1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3041,6 +3419,7 @@
       "timestamp": "2026-07-09T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783627200000000.json",
       "sha256": "058c81dea3c925105ecbe195b7e7841119c01c3372a93a40c936c78799683462",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3049,6 +3428,7 @@
       "timestamp": "2026-07-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783713600000000.json",
       "sha256": "70bf7d8e213171e92c73ef20b38ee9cdb2609d62745771ef1eb11496797730e3",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3057,6 +3437,7 @@
       "timestamp": "2026-07-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1783972800000000.json",
       "sha256": "714d5152dff13211fc50eb63afb9b41418d041762bc6808355ee58b576a20b45",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3065,6 +3446,7 @@
       "timestamp": "2026-07-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784059200000000.json",
       "sha256": "0c95fd918c3d9d3a79bec37f9e799e6d3b188a22bae2a3effb344e42c738e663",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3073,6 +3455,7 @@
       "timestamp": "2026-07-15T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784145600000000.json",
       "sha256": "f346e184672a74b4dc25c4e8f57667008cbfaab5bd31ccf941164561e7f226ab",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3081,6 +3464,7 @@
       "timestamp": "2026-07-16T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784232000000000.json",
       "sha256": "320b638e44da5fafa093d1f52571e4eea2960285df1a7ee457f708d4fe2bd67f",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3089,6 +3473,7 @@
       "timestamp": "2026-07-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784318400000000.json",
       "sha256": "71cf6215ee6d172156c4021af354bf3af9331d58cac9a93695d8e5c1b2c5f182",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3097,6 +3482,7 @@
       "timestamp": "2026-07-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784577600000000.json",
       "sha256": "3aecc5d3890d7e26aafaf6cb60aa9e8ac4959be1bcca0950fdf15928a6651086",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3105,6 +3491,7 @@
       "timestamp": "2026-07-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784664000000000.json",
       "sha256": "a6fe69b47df28287f61ebebc4f93939f976fb1229dc8a83a80c1a37468d62b93",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3113,6 +3500,7 @@
       "timestamp": "2026-07-22T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784750400000000.json",
       "sha256": "84a4bee89c198a23cd689c82cb10897a84f99d0107156bf4f442139cf5b99fb2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3121,6 +3509,7 @@
       "timestamp": "2026-07-23T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784836800000000.json",
       "sha256": "0de36bef0364665aedb88cdaf834dfcb55e70797ef9ca47ada040af23b6f760c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3129,6 +3518,7 @@
       "timestamp": "2026-07-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1784923200000000.json",
       "sha256": "e54d2788ed94fedcc540eedae562e1fc20d80de866e46657f3ea146ebc750a30",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3137,6 +3527,7 @@
       "timestamp": "2026-07-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785182400000000.json",
       "sha256": "07c81496af8dfae8dbca99fc78100aa1ae390deccb87fb1aebbbafe4a27a93ab",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3145,6 +3536,7 @@
       "timestamp": "2026-07-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785268800000000.json",
       "sha256": "6e3e2102564771fed855065fad17788630ea55ad6cab233acccfe1ee4de77c66",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3153,6 +3545,7 @@
       "timestamp": "2026-07-29T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785355200000000.json",
       "sha256": "5b52fbaa0264152aff96bd74a2368fff56528db47dd59bc6195c539aa4d295bc",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3161,6 +3554,7 @@
       "timestamp": "2026-07-30T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785441600000000.json",
       "sha256": "5d03e243067f15d2191ea7b17b9061db7f515258da5f591c6f6fae02de662d32",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3169,6 +3563,7 @@
       "timestamp": "2026-07-31T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785528000000000.json",
       "sha256": "d449509ffebb2a03146051950623bd9351899938741f422f613ffd5a2c9b3614",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3177,6 +3572,7 @@
       "timestamp": "2026-08-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785787200000000.json",
       "sha256": "960d2a9b0672c265d605d09c6f7de9e50d06c695b68f37b266531d9bb6302275",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3185,6 +3581,7 @@
       "timestamp": "2026-08-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785873600000000.json",
       "sha256": "b7e1c5bf20e1c3579a5023fca42f22c504dee3f79734af926526085ebdaa6668",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3193,6 +3590,7 @@
       "timestamp": "2026-08-05T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1785960000000000.json",
       "sha256": "86d50e4831b3798242d7982fb9699ecbfd65919419be57d9b64fdb8e5c9dfc14",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3201,6 +3599,7 @@
       "timestamp": "2026-08-06T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786046400000000.json",
       "sha256": "90269e8974b02df43be51d432954d997981c422d56a8987204d3b17057bd07f2",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3209,6 +3608,7 @@
       "timestamp": "2026-08-07T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786132800000000.json",
       "sha256": "9cc5f107c2d2b1d3d5b95adafe2f4b3ae15e3595e579804a4ca6ff6d587f2ba1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3217,6 +3617,7 @@
       "timestamp": "2026-08-10T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786392000000000.json",
       "sha256": "b670d7b218c63498c259e4f3a87d27243ebfdbb582ac062bf5c509f10997e56c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3225,6 +3626,7 @@
       "timestamp": "2026-08-11T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786478400000000.json",
       "sha256": "701d552296b12a3834f760db1b9bc7f3b64cd312dd5dad59c46b217e5b5a4b95",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3233,6 +3635,7 @@
       "timestamp": "2026-08-12T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786564800000000.json",
       "sha256": "5de011723afbb6c445b99d3e4fc016bb67fcb5b3e25e70ec0f2dbf4f33fc02f1",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3241,6 +3644,7 @@
       "timestamp": "2026-08-13T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786651200000000.json",
       "sha256": "663e4538129efaf6b496cf5f493493dcc04a0ac7d4e2f45634407f992ff7f0cf",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3249,6 +3653,7 @@
       "timestamp": "2026-08-14T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786737600000000.json",
       "sha256": "68f8eafeee1f599f274ce28e317270f3ebe4da3491d1bdcef4714842affb9944",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 19
@@ -3257,6 +3662,7 @@
       "timestamp": "2026-08-17T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1786996800000000.json",
       "sha256": "c68c701961f7088c7ba92fb09698fccb5a5216670245e864801227a62d040afb",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3265,6 +3671,7 @@
       "timestamp": "2026-08-18T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787083200000000.json",
       "sha256": "badab5a47eac4eb220d775b167f02239d0739d1d880e61e32a5b713c2564d69b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3273,6 +3680,7 @@
       "timestamp": "2026-08-19T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787169600000000.json",
       "sha256": "eb9243365dbef5ffd787c5208621725e33e195bd0f8b1793d8d001c0965d6cef",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3281,6 +3689,7 @@
       "timestamp": "2026-08-20T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787256000000000.json",
       "sha256": "e6e8806ac20089f03d6ba81583d6520cb24b25201a256be4f81045e76b427493",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3289,6 +3698,7 @@
       "timestamp": "2026-08-21T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787342400000000.json",
       "sha256": "03de2d6e38c98a645bea6ddf057c43639fd5702877d87e1f96cc0b60dcdf9771",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3297,6 +3707,7 @@
       "timestamp": "2026-08-24T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787601600000000.json",
       "sha256": "7280c338d958bb4d059934d56877cd28aebc794c4c0c9443ae421b0409fcde53",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3305,6 +3716,7 @@
       "timestamp": "2026-08-25T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787688000000000.json",
       "sha256": "ba773ec463496dbb035e072dafc172e5adb2a212d4d14ad0b0b2b29938868052",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3313,6 +3725,7 @@
       "timestamp": "2026-08-26T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787774400000000.json",
       "sha256": "6548ef172f32d09f07c52acf1824e4cc14ed67c56721f968700b9378258e8705",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3321,6 +3734,7 @@
       "timestamp": "2026-08-27T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787860800000000.json",
       "sha256": "535746a7566b9151ad291887dacf7d52fd70b1c20f863a3b8bac7a0cbb9d04ee",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3329,6 +3743,7 @@
       "timestamp": "2026-08-28T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1787947200000000.json",
       "sha256": "daf9b99c7980793769c8c138ece9cf877416563f292d65f991d9f152aa2daa74",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 20
@@ -3337,6 +3752,7 @@
       "timestamp": "2026-08-31T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1788206400000000.json",
       "sha256": "be33ce5a8a3ca012791d55371b9ae7b753c23360d0f208b86d9fa5cd37d94523",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3345,6 +3761,7 @@
       "timestamp": "2026-09-01T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1788292800000000.json",
       "sha256": "e731eaac33c38420fcc4295b4b4501f4de292e307bebac2c4d06853c363e3578",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3353,6 +3770,7 @@
       "timestamp": "2026-09-02T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1788379200000000.json",
       "sha256": "5b618aca0a0ee936cf53e93f36e068572535d5b6446f7a9b00a074423a4d9034",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3361,6 +3779,7 @@
       "timestamp": "2026-09-03T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1788465600000000.json",
       "sha256": "1d2f0bbe6a8c1fd769fb017ab05713f8e8180ab7108d70ff9dcc40e3cc69b27b",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21
@@ -3369,6 +3788,7 @@
       "timestamp": "2026-09-04T20:00:00Z",
       "path": "data/v010/external-evidence/2025-latest/1788552000000000.json",
       "sha256": "fd37ec29e20ee7f25d7154a5a4378275aff97344a99e71381a16175a54f3d60c",
+      "window_seconds": 2,
       "anchors": 21,
       "quote_complete": 21,
       "trade_complete": 21

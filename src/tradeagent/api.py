@@ -112,7 +112,7 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(
         title="TradeAgent Paper Console",
-        version="0.9.0",
+        version="0.10.0",
         description="Read-only local observability for fake-money trading.",
     )
 

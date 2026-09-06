@@ -113,6 +113,22 @@ Corrected backtest findings and gross/net attribution are in
 - [x] Multi-frame continuous shadow signal-decay records
 - [ ] Qualified paper candidate (blocked: no strategy passed unchanged gates)
 
+## Phase 7: v0.10 independent validation
+
+- [x] Audit candidate-vs-benchmark PBO defect and unequal CSCV blocks
+- [x] Feed aligned daily portfolio/benchmark returns, including cash days, to DSR/PBO
+- [x] Add cross-trial Sharpe dispersion and correlation-adjusted effective trials
+- [x] Add deterministic PBO 0/0.5/1, logit, rank, duplicate, and correlation tests
+- [x] Correct Alpaca daily bars from midnight labels to actual session closes
+- [x] Calibrate all 30 configurations from 26,418 SIP execution anchors
+- [x] Model regulatory fees, partial/missed fills, limits, and 1.5x/2x/3x costs
+- [x] Retire regime-conditioned swing mean reversion
+- [x] Freeze exactly two monthly plateau ensembles before external data
+- [x] Preserve ETF inception dates without backfill
+- [x] Run each frozen candidate once in 2016–2019 and 2025–2026
+- [x] Final decision: Fail; paper-validation clock remains stopped
+- [x] End further strategy discovery in this project
+
 ## Explicitly deferred
 
 Reinforcement learning, unrestricted LLM execution, market making, crypto, colocation,

@@ -56,6 +56,10 @@ SQLite ledger.
 - Frozen external validation and cost attribution for market and marketable-limit execution
 - Cost-aware multi-day momentum, relative-strength, and swing mean-reversion research
 - Net-return-in-basis-points ML with temporal folds and a simple economic baseline
+- Correct CSCV/PBO over synchronous daily configuration panels with retained OOS logits
+- DSR with cross-trial Sharpe dispersion and correlation-adjusted independent trials
+- Resumable bulk SIP execution snapshots with SEC, FINRA TAF, and CAT fee calibration
+- Frozen plateau ensembles and genuinely untouched 2016–2019 and 2025–2026 validation
 
 ## Quick start
 
@@ -196,14 +200,13 @@ docker compose up --build
 
 ## Qualification status
 
-**No candidate strategy is qualified.** The frozen squeeze failed its 63-cell external
-matrix: its original five-minute cadence did not survive additional years/instruments,
-while its session-reset 20-bar lookback generated no 30-minute or hourly trades. Thirty
-predefined lower-turnover configurations produced several positive provisional estimates,
-but none passed the unchanged benchmark, DSR, PBO, trade-count, and stress gates. Economic
-ML had enough events to train but underperformed its simple cost-aware baseline. The final
-v0.9 classification is **D: no demonstrated edge**. Autonomous entry remains disabled and
-both sealed holdouts remain unopened. See [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md).
+**No candidate strategy is qualified, and strategy discovery has ended.** v0.10 corrected
+PBO/DSR and daily timestamps, calibrated all 30 lower-turnover configurations from SIP,
+froze two stable-plateau ensembles before acquiring external data, and tested each once in
+2016–2019 and 2025–2026. Both failed benchmark-relative, DSR, PBO, confidence, and
+best-year-dependence gates. The final decision is **Fail**. The 60-day paper clock may not
+begin; autonomous entry remains disabled and both sealed holdouts remain unopened. See
+[`docs/V0_10_REPORT.md`](docs/V0_10_REPORT.md).
 
 ## Development
 
@@ -221,6 +224,8 @@ See the implementation guides:
 - [`docs/AUTONOMOUS_DAY_TRADING_PLAN.md`](docs/AUTONOMOUS_DAY_TRADING_PLAN.md)
 - [`docs/PROFITABILITY_STRATEGY_PLAN.md`](docs/PROFITABILITY_STRATEGY_PLAN.md)
 - [`docs/AUDIT_REPORT.md`](docs/AUDIT_REPORT.md)
+- [`docs/V0_9_REPORT.md`](docs/V0_9_REPORT.md)
+- [`docs/V0_10_REPORT.md`](docs/V0_10_REPORT.md)
 - [`docs/DATA.md`](docs/DATA.md)
 - [`docs/RESEARCH.md`](docs/RESEARCH.md)
 - [`docs/RISK.md`](docs/RISK.md)

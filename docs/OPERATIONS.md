@@ -176,6 +176,16 @@ fills at displayed opposite-side size. The marketable-limit simulation fixes its
 the decision-time opposite quote and records a miss unless the order is still marketable
 and fully covered at submission. A bar touching a price never creates a fill.
 
+## v0.10 final operating posture
+
+The independent-validation decision is **Fail**. Do not add strategy families, open the
+sealed holdouts, create a candidate paper allocation, or start the 60-day clock. TradeAgent
+continues only as a shadow recorder, research archive, execution-cost monitor, and
+paper-order safety platform.
+
+The full audit and external results are in
+[`V0_10_REPORT.md`](V0_10_REPORT.md).
+
 ## Manual paper take-profit monitor
 
 An explicitly confirmed operator command can monitor an existing paper position and

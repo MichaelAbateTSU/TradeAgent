@@ -75,6 +75,7 @@ class EvidenceShardManifest(BaseModel):
     timestamp: datetime
     path: str
     sha256: str = Field(min_length=64, max_length=64)
+    window_seconds: int = Field(ge=1)
     anchors: int
     quote_complete: int
     trade_complete: int
@@ -252,7 +253,7 @@ def collect_lower_execution_evidence(
         provider="alpaca",
         feed="sip",
         created_at=datetime.now(UTC),
-        window_seconds=window_seconds,
+        window_seconds=max(shard.window_seconds for shard in manifests),
         raw_trade_count=raw_trade_count,
         raw_order_count=raw_trade_count * 2,
         unique_anchor_count=count,
@@ -363,6 +364,7 @@ def _shard_manifest(path: Path, shard: EvidenceShard) -> EvidenceShardManifest:
         timestamp=shard.timestamp,
         path=path.as_posix(),
         sha256=sha256(path.read_bytes()).hexdigest(),
+        window_seconds=shard.window_seconds,
         anchors=len(shard.snapshots),
         quote_complete=sum(
             snapshot.quote_before is not None and snapshot.quote_after is not None

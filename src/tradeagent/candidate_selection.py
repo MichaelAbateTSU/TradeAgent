@@ -48,8 +48,8 @@ def freeze_two_candidates(
     development_dataset_hash: str,
     corrected_reruns: int,
     frozen_at: datetime | None = None,
+    external_directory: Path = Path("data/v010/external"),
 ) -> CandidateSelectionProtocol:
-    external_directory = Path("data/v010/external")
     if external_directory.exists() and any(external_directory.rglob("*.csv")):
         raise RuntimeError("external data already exists; candidate freeze must happen first")
     calibration_bytes = calibration_path.read_bytes()
