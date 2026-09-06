@@ -82,6 +82,7 @@ class PortfolioResearchReport(BaseModel):
     random_seed: int
     scenarios: tuple[PortfolioWalkForwardReport, ...]
     benchmark_comparisons: tuple[PortfolioBenchmarkComparison, ...]
+    benchmark_period_returns: tuple[Decimal, ...] = ()
     closed_trade_estimate: int = Field(ge=0)
     minimum_closed_trades: int = Field(ge=0)
     deflated_sharpe_probability: Decimal | None = None
@@ -332,6 +333,7 @@ def evaluate_portfolio_suite(
         random_seed=random_seed,
         scenarios=scenarios,
         benchmark_comparisons=tuple(comparisons),
+        benchmark_period_returns=tuple(base_benchmark_returns),
         closed_trade_estimate=closed_trade_estimate,
         minimum_closed_trades=minimum_closed_trades,
         deflated_sharpe_probability=dsr_probability,

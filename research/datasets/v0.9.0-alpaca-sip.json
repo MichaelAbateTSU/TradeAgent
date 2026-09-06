@@ -5,7 +5,7 @@
   "adjusted": true,
   "requested_start": "2020-01-01T00:00:00Z",
   "requested_end": "2025-01-01T00:00:00Z",
-  "created_at": "2026-09-06T16:38:05.980992Z",
+  "created_at": "2026-09-06T18:43:03.671842Z",
   "symbols": [
     "SPY",
     "QQQ",
@@ -156,189 +156,189 @@
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/SPY.csv",
       "rows": 1258,
-      "sha256": "bd048d2f43ad8c3e571ab7d322483dbe9136bdb13b52753d92e39f447b72ea51",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "d357d455bfaa378acf24bc96b8c903030ecb459923e311f0459dbf0df9f487ab",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "QQQ",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/QQQ.csv",
       "rows": 1258,
-      "sha256": "7ae085c59a16e6c3c58a0cdc762593239efb73b1144010703834d8d0102b15c7",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "24b6cb3ce169c70eef33ff93dde4b0f0d3c1cfc10f079efdc65a14c149ebc209",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "IWM",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/IWM.csv",
       "rows": 1258,
-      "sha256": "09f7d9a7f37fa39523546aa3befc8d8161de2c67fb1cfa716e641a1482b20703",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "c8d14345680cf8040af1881c0e9f3d2309c932231f5e9c5292e032a16494ff39",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "DIA",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/DIA.csv",
       "rows": 1258,
-      "sha256": "923db32e71cac36f2b20ac395ad9bad18c2bbe7a064b5600a0e190088b668886",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "60fd72b9116b1c61746c50250257597f0ce17cd7e45f8facb0ee865e19a81a74",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLB",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLB.csv",
       "rows": 1258,
-      "sha256": "41abbee39540b5e655c45ca4767dbfd15f7528590490a16967185136a79ef112",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "707e4db05c18978061c80476ff32d25bfd5bc750e9fbbac5154b94bd5b871977",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLC",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLC.csv",
       "rows": 1258,
-      "sha256": "ede7cb07f84c351a763053de7ea89ffee269f69c991ecf7b3da1c175c1197973",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "37243115db98561730d9857a346dd4298f26ea310c63ab40c0e05e4d4469e6ab",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLE",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLE.csv",
       "rows": 1258,
-      "sha256": "bd94fbff3424606a632617a4c6b6e994df10375ef9cc0e188bbc356a41a71be3",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "fd49813839fb1997b514576a4bc97c6a70261ac9c50c505742822c4a71613d6f",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLF",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLF.csv",
       "rows": 1258,
-      "sha256": "b76596ed26ae0002db0e3a5ac305a47c264f1431affbf193882f4c538545a4f6",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "ff641f6b799f6f3fa05d439997ab94b7e0d0e98a21dd78b7e02af17dad4ef71f",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLI",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLI.csv",
       "rows": 1258,
-      "sha256": "4927afef78c49fd66137d246a8be6404ddc279da137ab29ae8e9d12559d1c1aa",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "43b9edbb79ba61ddd450902de7a96092e66187846298c9eef85f3e1b96726a64",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLK",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLK.csv",
       "rows": 1258,
-      "sha256": "5cfaeee5cdd327c2474b281fc18d7b21757cfaf27be2ca7a280245af8bcc2bfe",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "844d8b7d44fcd51f3f0f94704cc5728833529b10e750ffd16682851b883acb79",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLP",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLP.csv",
       "rows": 1258,
-      "sha256": "57e55a5a5f7d91eded614b50b2df881eb2d6819efa02289ee054f8c509910eaf",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "7d775bdceac31477092d0a9b184b3c0233c31bc0c8875ec43da09e53e8dcc8ff",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLRE",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLRE.csv",
       "rows": 1258,
-      "sha256": "566a1bf13dfba3c234d685c1c296deeef0048219410f6363ca9ef56416a88646",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "7f0addaaddc632023671bec85a6b1d3591c39a444ad4f1f79f4b8140e05199c7",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLU",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLU.csv",
       "rows": 1258,
-      "sha256": "ae5b9e31c22cdcf39fbb1e3647a6af347f087060a77361fe7892c56c6b3aa927",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "f9893a3e8bb0f7b44311e4d568313890fe6fe40645f652b06e8ff5e4857c223e",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLV",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLV.csv",
       "rows": 1258,
-      "sha256": "df5768f8b17865a2a09a9a29344a88f9edbcb2bee1cba1a2f73cd6d8fd1918aa",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "c57af7dabf70c8db9caaa1df568cf387b752ee5e6caea05c27a8e11d85b86563",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "XLY",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/XLY.csv",
       "rows": 1258,
-      "sha256": "92eb8d0eea99821a8f411fc5900e321a59a896615d1a8396f1db8d2e8b41eb6c",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "e0a4a57fe58ec16d5f1882af90a851ee734295deb2467c1d94036869c9247ed7",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "SHY",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/SHY.csv",
       "rows": 1258,
-      "sha256": "e7982638ed16effdad504250eeb362a5c2d7d39a26476bdfef46b3386d5aa94c",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "64d2af4b485ef67f7c846370fa31ae3bbc5b8ce9b3936e0f75f84fc33d50dff5",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "IEF",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/IEF.csv",
       "rows": 1258,
-      "sha256": "5e48870202416c9cf016f140318ccbba9acf625e264c54811aea8cdd43aa0bc2",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "bc48b7139f47d6c0cbd8a74eb6ae83dffa2799cdd84d21340603c2ad8a5c9518",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "TLT",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/TLT.csv",
       "rows": 1258,
-      "sha256": "893c07c42959d04d5eded75c505d9dba9ccbdc726c4881548e1b2921966602f4",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "700c618b76bbbfda4582e6d80e18fc96ffedf798839c97074f3d45fbbab807a7",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "GLD",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/GLD.csv",
       "rows": 1258,
-      "sha256": "66739ca95aeeb9f3d4d56a6dc72e035402d345cc58d75d428db621c433f9a14f",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "f4783a3f45d1490592f9830bf7356c73af80169a43d0da771bd0bd09e31ab415",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "EFA",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/EFA.csv",
       "rows": 1258,
-      "sha256": "d05fa6d0902b6cf72c864bfc4fe3c35c2e3deccd8efd0711d818bfb02972ebe6",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "8fe2e8139f46a33fbb10e62fdf20822a14fc70e833d963883281967dea9afa98",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "EEM",
       "timeframe": "1Day",
       "path": "data/v09/alpaca-sip-20200101-20250101/1day/EEM.csv",
       "rows": 1258,
-      "sha256": "313de5e9c214dc187dbaa649b9cc7d05f46cb50e80f256507a36185fed390ba1",
-      "started_at": "2020-01-02T05:00:00Z",
-      "ended_at": "2024-12-31T05:00:00Z"
+      "sha256": "d257a3df427ee9a999e4c8ec6bec55c0c81f92358ff5bf1d4d2bfe9b2ba880d7",
+      "started_at": "2020-01-02T21:00:00Z",
+      "ended_at": "2024-12-31T21:00:00Z"
     },
     {
       "symbol": "SPY",
@@ -908,5 +908,5 @@
       "ended_at": "2024-12-31T22:00:00Z"
     }
   ],
-  "manifest_hash": "415c11cea239745e7fe34f98ee99534fd5751cf518b425aff5085b25e15cb004"
+  "manifest_hash": "eb44d81fe9798d5302c822cd318b16288c77ce93a885f9b62d6df2a8782b68f6"
 }

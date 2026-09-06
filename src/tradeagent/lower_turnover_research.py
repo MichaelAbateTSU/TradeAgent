@@ -6,6 +6,7 @@ from decimal import Decimal
 from hashlib import sha256
 from itertools import pairwise
 from pathlib import Path
+from statistics import mean, stdev
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -26,7 +27,11 @@ from tradeagent.portfolio import PortfolioStrategy
 from tradeagent.portfolio_research import PortfolioResearchReport, evaluate_portfolio_suite
 from tradeagent.portfolio_strategy import EqualWeightPortfolioStrategy
 from tradeagent.research import ExperimentRegistry, WalkForwardConfig, current_git_sha
-from tradeagent.statistical_validation import probability_of_backtest_overfitting
+from tradeagent.statistical_validation import (
+    combinatorially_symmetric_cross_validation,
+    deflated_sharpe_probability,
+    effective_number_of_independent_trials,
+)
 from tradeagent.universe import UniverseFrame, UniverseManifest, load_universe
 
 StrategyFactory = Callable[[], PortfolioStrategy]
@@ -82,6 +87,7 @@ class LowerTurnoverFamilyReport(BaseModel):
     configurations_tested: int
     adjacent_sign_stability: Decimal
     family_pbo: Decimal | None
+    pbo_logits: tuple[Decimal, ...] = ()
     results: tuple[LowerTurnoverResult, ...]
 
 
@@ -94,6 +100,9 @@ class LowerTurnoverResearchReport(BaseModel):
     experiment_count: int
     families: tuple[LowerTurnoverFamilyReport, ...]
     qualified_strategy_ids: tuple[str, ...]
+    raw_hypothesis_count: int = 30
+    effective_independent_trials: Decimal | None = None
+    deterministic_reruns_counted_as_hypotheses: bool = False
 
 
 def evaluate_lower_turnover_families(
@@ -131,7 +140,7 @@ def evaluate_lower_turnover_families(
         ),
     )
     git_sha = current_git_sha()
-    families: list[LowerTurnoverFamilyReport] = []
+    preliminary_families: list[LowerTurnoverFamilyReport] = []
     with ExperimentRegistry(experiment_database) as registry:
         for family, configurations, benchmark_gross in family_specs:
             results: list[LowerTurnoverResult] = []
@@ -147,9 +156,9 @@ def evaluate_lower_turnover_families(
                     _equal_weight_factory(benchmark_gross),
                     random_seed=7000 + index,
                     minimum_closed_trades=200,
-                    minimum_deflated_sharpe_probability=Decimal("0.95"),
-                    maximum_backtest_overfitting_probability=Decimal("0.20"),
-                    number_of_trials=30,
+                    minimum_deflated_sharpe_probability=None,
+                    maximum_backtest_overfitting_probability=None,
+                    number_of_trials=1,
                     git_sha=git_sha,
                 )
                 diagnostics = diagnose_strategy(
@@ -171,22 +180,13 @@ def evaluate_lower_turnover_families(
                     delay_frames=5,
                 )
                 config_hash = validation.config_hash
-                experiment_id = registry.record_model(
-                    validation,
-                    dataset_hash=dataset.manifest.dataset_hash,
-                    config_hash_value=config_hash,
-                    git_sha=git_sha,
-                    random_seed=7000 + index,
-                    strategy_id=validation.scenarios[0].strategy_id,
-                    qualified=validation.qualified,
-                )
                 total_cost = diagnostics.execution_cost
                 result = LowerTurnoverResult(
                     family=family,
                     configuration_index=index,
                     strategy_id=validation.scenarios[0].strategy_id,
                     config_hash=config_hash,
-                    experiment_id=experiment_id,
+                    experiment_id=0,
                     diagnostics=diagnostics,
                     attribution=EconomicAttribution(
                         gross_edge=diagnostics.gross_pnl,
@@ -219,10 +219,76 @@ def evaluate_lower_turnover_families(
                     validation=validation,
                 )
                 results.append(result)
-            families.append(_family_report(family, results))
+            preliminary_families.append(_family_report(family, results))
+
+        trial_returns = [
+            _active_return_series(result)
+            for family_report in preliminary_families
+            for result in family_report.results
+        ]
+        effective_trials = effective_number_of_independent_trials(trial_returns)
+        trial_sharpes = tuple(_periodic_sharpe(values) for values in trial_returns)
+        families: list[LowerTurnoverFamilyReport] = []
+        for family_report in preliminary_families:
+            family_returns = [_active_return_series(result) for result in family_report.results]
+            pbo = combinatorially_symmetric_cross_validation(
+                family_returns,
+                subsets=_cscv_subsets(len(family_returns[0])),
+            )
+            corrected_results: list[LowerTurnoverResult] = []
+            for result in family_report.results:
+                active_returns = _active_return_series(result)
+                dsr = deflated_sharpe_probability(
+                    active_returns,
+                    number_of_trials=effective_trials,
+                    trial_sharpes=trial_sharpes,
+                )
+                reasons = list(result.validation.qualification_reasons)
+                if dsr < Decimal("0.95"):
+                    reasons.append("DEFLATED_SHARPE_FAILED")
+                if pbo.probability > Decimal("0.20"):
+                    reasons.append("BACKTEST_OVERFITTING_FAILED")
+                validation = result.validation.model_copy(
+                    update={
+                        "deflated_sharpe_probability": dsr,
+                        "probability_backtest_overfitting": pbo.probability,
+                        "qualified": not reasons,
+                        "qualification_reasons": tuple(reasons),
+                    }
+                )
+                experiment_id = registry.record_model(
+                    validation,
+                    dataset_hash=dataset.manifest.dataset_hash,
+                    config_hash_value=result.config_hash,
+                    git_sha=git_sha,
+                    random_seed=7000 + result.configuration_index,
+                    strategy_id=result.strategy_id,
+                    qualified=validation.qualified,
+                )
+                corrected_results.append(
+                    result.model_copy(
+                        update={
+                            "experiment_id": experiment_id,
+                            "qualified": validation.qualified,
+                            "qualification_reasons": validation.qualification_reasons,
+                            "validation": validation,
+                        }
+                    )
+                )
+            families.append(
+                _family_report(
+                    family_report.family,
+                    corrected_results,
+                    family_pbo=pbo.probability,
+                    pbo_logits=pbo.logits,
+                )
+            )
 
     qualified = tuple(
-        result.strategy_id for family in families for result in family.results if result.qualified
+        result.strategy_id
+        for family_report in families
+        for result in family_report.results
+        if result.qualified
     )
     return LowerTurnoverResearchReport(
         generated_at=generated_at,
@@ -231,35 +297,30 @@ def evaluate_lower_turnover_families(
         experiment_count=sum(len(family.results) for family in families),
         families=tuple(families),
         qualified_strategy_ids=qualified,
+        raw_hypothesis_count=len(trial_returns),
+        effective_independent_trials=effective_trials,
+        deterministic_reruns_counted_as_hypotheses=False,
     )
 
 
 def _family_report(
     family: str,
     results: Sequence[LowerTurnoverResult],
+    *,
+    family_pbo: Decimal | None = None,
+    pbo_logits: tuple[Decimal, ...] = (),
 ) -> LowerTurnoverFamilyReport:
     signs = [result.diagnostics.net_pnl > 0 for result in results]
     adjacent_matches = sum(left == right for left, right in pairwise(signs))
     stability = (
         Decimal(adjacent_matches) / Decimal(len(signs) - 1) if len(signs) > 1 else Decimal(0)
     )
-    fold_matrix = [
-        [fold.report.total_return for fold in result.validation.scenarios[0].folds]
-        for result in results
-    ]
-    family_pbo = (
-        probability_of_backtest_overfitting(
-            fold_matrix,
-            subsets=min(4, len(fold_matrix[0]) // 2 * 2),
-        )
-        if fold_matrix and len(fold_matrix[0]) >= 4
-        else None
-    )
     return LowerTurnoverFamilyReport(
         family=family,
         configurations_tested=len(results),
         adjacent_sign_stability=stability,
         family_pbo=family_pbo,
+        pbo_logits=pbo_logits,
         results=tuple(results),
     )
 
@@ -328,3 +389,38 @@ def _strategy_factory(config: LowerTurnoverConfig) -> StrategyFactory:
 
 def _equal_weight_factory(gross_target: Decimal) -> StrategyFactory:
     return lambda: EqualWeightPortfolioStrategy(gross_target)
+
+
+def _active_return_series(result: LowerTurnoverResult) -> tuple[Decimal, ...]:
+    candidate = [
+        value
+        for fold in result.validation.scenarios[0].folds
+        for value in fold.report.period_returns
+    ]
+    if not candidate:
+        raise ValueError("lower-turnover validation is missing daily returns")
+    # The benchmark daily streams are attached by evaluate_portfolio_suite.
+    benchmark_values = result.validation.benchmark_period_returns
+    if len(candidate) != len(benchmark_values):
+        raise ValueError("candidate and benchmark daily returns are not aligned")
+    return tuple(
+        candidate_value - benchmark_value
+        for candidate_value, benchmark_value in zip(
+            candidate,
+            benchmark_values,
+            strict=True,
+        )
+    )
+
+
+def _periodic_sharpe(values: Sequence[Decimal]) -> Decimal:
+    floats = [float(value) for value in values]
+    deviation = stdev(floats)
+    return Decimal(str(mean(floats) / deviation)) if deviation > 0 else Decimal(0)
+
+
+def _cscv_subsets(periods: int) -> int:
+    for subsets in (10, 8, 6, 4):
+        if periods >= subsets and periods % subsets == 0:
+            return subsets
+    raise ValueError("daily return history cannot form equal CSCV blocks")
