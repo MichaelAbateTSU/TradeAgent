@@ -50,14 +50,20 @@ class NyseSessionCalendar:
         self._config = config
         self._calendar = exchange_calendars.get_calendar("XNYS")
         self._timezone = ZoneInfo(config.timezone)
+        self._bounds_cache: dict[date, tuple[datetime, datetime] | None] = {}
 
     def session_bounds(self, session_date: date) -> tuple[datetime, datetime] | None:
+        if session_date in self._bounds_cache:
+            return self._bounds_cache[session_date]
         if not self._calendar.is_session(session_date.isoformat()):
+            self._bounds_cache[session_date] = None
             return None
         session = self._calendar.date_to_session(session_date.isoformat())
         session_open = self._calendar.session_open(session).to_pydatetime()
         session_close = self._calendar.session_close(session).to_pydatetime()
-        return session_open.astimezone(UTC), session_close.astimezone(UTC)
+        bounds = session_open.astimezone(UTC), session_close.astimezone(UTC)
+        self._bounds_cache[session_date] = bounds
+        return bounds
 
     def gate(self, observed_at: datetime) -> SessionGate:
         if observed_at.tzinfo is None or observed_at.utcoffset() is None:

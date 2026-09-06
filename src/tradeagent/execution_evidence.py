@@ -10,6 +10,7 @@ from typing import Literal, Protocol, TextIO
 from pydantic import BaseModel, ConfigDict, Field
 
 from tradeagent.alpaca import HistoricalQuote, HistoricalTrade
+from tradeagent.diagnostics import StrategyDiagnostics
 from tradeagent.squeeze_external import FrozenSqueezeExternalReport
 
 
@@ -76,24 +77,9 @@ def squeeze_evidence_anchors(
 ) -> tuple[EvidenceAnchor, ...]:
     anchors: dict[tuple[str, str, str, datetime], EvidenceAnchor] = {}
     for result in report.results:
-        interval = timedelta(minutes=30 if result.timeframe == "30Min" else 60)
-        for trade in result.diagnostics.trades:
-            for event_type, timestamp in (
-                ("entry_signal", trade.entry_at - interval),
-                ("entry_submission", trade.entry_at),
-                ("exit_signal", trade.exit_at - interval),
-                ("exit_submission", trade.exit_at),
-            ):
-                anchor = EvidenceAnchor(
-                    symbol=trade.symbol,
-                    timeframe=result.timeframe,
-                    strategy_id=result.diagnostics.strategy_id,
-                    anchor_type=event_type,
-                    timestamp=timestamp,
-                )
-                anchors[(anchor.symbol, anchor.timeframe, anchor.anchor_type, anchor.timestamp)] = (
-                    anchor
-                )
+        for anchor in diagnostic_evidence_anchors(result.diagnostics, result.timeframe):
+            key = (anchor.symbol, anchor.timeframe, anchor.anchor_type, anchor.timestamp)
+            anchors[key] = anchor
     return tuple(
         sorted(
             anchors.values(),
@@ -103,6 +89,35 @@ def squeeze_evidence_anchors(
                 item.timestamp,
                 item.anchor_type,
             ),
+        )
+    )
+
+
+def diagnostic_evidence_anchors(
+    diagnostics: StrategyDiagnostics,
+    timeframe: str,
+) -> tuple[EvidenceAnchor, ...]:
+    interval = timedelta(minutes=_timeframe_minutes(timeframe))
+    anchors: dict[tuple[str, str, datetime], EvidenceAnchor] = {}
+    for trade in diagnostics.trades:
+        for event_type, timestamp in (
+            ("entry_signal", trade.entry_at - interval),
+            ("entry_submission", trade.entry_at),
+            ("exit_signal", trade.exit_at - interval),
+            ("exit_submission", trade.exit_at),
+        ):
+            anchor = EvidenceAnchor(
+                symbol=trade.symbol,
+                timeframe=timeframe,
+                strategy_id=diagnostics.strategy_id,
+                anchor_type=event_type,
+                timestamp=timestamp,
+            )
+            anchors[(anchor.symbol, anchor.anchor_type, anchor.timestamp)] = anchor
+    return tuple(
+        sorted(
+            anchors.values(),
+            key=lambda item: (item.symbol, item.timestamp, item.anchor_type),
         )
     )
 
@@ -209,3 +224,10 @@ def _file_hash(path: Path) -> str:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _timeframe_minutes(timeframe: str) -> int:
+    try:
+        return {"5Min": 5, "30Min": 30, "1Hour": 60}[timeframe]
+    except KeyError as error:
+        raise ValueError(f"unsupported evidence timeframe {timeframe}") from error

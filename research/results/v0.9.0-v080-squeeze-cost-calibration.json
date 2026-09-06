@@ -1,0 +1,722 @@
+{
+  "symbol": "MULTI",
+  "timeframe": "5Min",
+  "trades": 15,
+  "quote_complete_trades": 15,
+  "market_filled_round_trips": 15,
+  "marketable_limit_filled_round_trips": 5,
+  "marketable_limit_missed_round_trips": 10,
+  "estimated_cost": "0.262531232224",
+  "observed_market_cost": "0.009768215",
+  "observed_gross_edge": "0.139045505",
+  "observed_market_net_edge": "0.12927729",
+  "observed_marketable_limit_net_edge": "0.03640500",
+  "observed_market_date_clustered_sharpe": "4.6313349216527335",
+  "trade_details": [
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-03-10T17:35:00Z",
+      "exit_at": "2026-03-10T17:45:00Z",
+      "quantity": "0.040948",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-03-10T17:35:00Z",
+        "fill_price": "611.96",
+        "filled_quantity": "0.040948",
+        "status": "filled",
+        "displayed_size": "600"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-03-10T17:45:00Z",
+        "fill_price": "611.28",
+        "filled_quantity": "0.040948",
+        "status": "filled",
+        "displayed_size": "360"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-03-10T17:35:00Z",
+        "fill_price": "611.96",
+        "filled_quantity": "0.040948",
+        "status": "filled",
+        "displayed_size": "600"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-03-10T17:45:00Z",
+        "fill_price": "611.28",
+        "filled_quantity": "0.040948",
+        "status": "filled",
+        "displayed_size": "360"
+      },
+      "gross_edge": "-0.026616200",
+      "spread_cost": "0.001228440",
+      "delay_cost": "-0.050775520",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "-0.02784464",
+      "marketable_limit_net_edge": "-0.02784464"
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-13T16:40:00Z",
+      "exit_at": "2026-04-13T17:35:00Z",
+      "quantity": "0.040789",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-13T16:40:00Z",
+        "fill_price": "613.54",
+        "filled_quantity": "0.040789",
+        "status": "filled",
+        "displayed_size": "320"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-13T17:35:00Z",
+        "fill_price": "614.45",
+        "filled_quantity": "0.040789",
+        "status": "filled",
+        "displayed_size": "1080"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-13T16:40:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "320"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-13T17:35:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "1080"
+      },
+      "gross_edge": "0.038341660",
+      "spread_cost": "0.001223670",
+      "delay_cost": "0.009993305",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "0.03711799",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-13T18:55:00Z",
+      "exit_at": "2026-04-13T19:50:00Z",
+      "quantity": "0.040690",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-13T18:55:00Z",
+        "fill_price": "615.09",
+        "filled_quantity": "0.040690",
+        "status": "filled",
+        "displayed_size": "320"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-13T19:50:00Z",
+        "fill_price": "615.66",
+        "filled_quantity": "0.040690",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-13T18:55:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "320"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-13T19:50:00Z",
+        "fill_price": "615.66",
+        "filled_quantity": "0.040690",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "gross_edge": "0.02360020",
+      "spread_cost": "0.00040690",
+      "delay_cost": "0.007120750",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0E-8",
+      "market_net_edge": "0.02319330",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-17T16:45:00Z",
+      "exit_at": "2026-04-17T17:15:00Z",
+      "quantity": "0.035193",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-17T16:45:00Z",
+        "fill_price": "712.18",
+        "filled_quantity": "0.035193",
+        "status": "filled",
+        "displayed_size": "320"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-17T17:15:00Z",
+        "fill_price": "711.24",
+        "filled_quantity": "0.035193",
+        "status": "filled",
+        "displayed_size": "280"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-17T16:45:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "320"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-17T17:15:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "280"
+      },
+      "gross_edge": "-0.032553525",
+      "spread_cost": "0.000527895",
+      "delay_cost": "0.010733865",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "-0.03308142",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-20T17:30:00Z",
+      "exit_at": "2026-04-20T18:25:00Z",
+      "quantity": "0.038765",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-20T17:30:00Z",
+        "fill_price": "645.62",
+        "filled_quantity": "0.038765",
+        "status": "filled",
+        "displayed_size": "280"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-20T18:25:00Z",
+        "fill_price": "646.64",
+        "filled_quantity": "0.038765",
+        "status": "filled",
+        "displayed_size": "40"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-20T17:30:00Z",
+        "fill_price": "645.62",
+        "filled_quantity": "0.038765",
+        "status": "filled",
+        "displayed_size": "280"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-20T18:25:00Z",
+        "fill_price": "646.64",
+        "filled_quantity": "0.038765",
+        "status": "filled",
+        "displayed_size": "40"
+      },
+      "gross_edge": "0.040121775",
+      "spread_cost": "0.000581475",
+      "delay_cost": "-0.021126925",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "0.03954030",
+      "marketable_limit_net_edge": "0.03954030"
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-22T17:35:00Z",
+      "exit_at": "2026-04-22T18:30:00Z",
+      "quantity": "0.038273",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-22T17:35:00Z",
+        "fill_price": "653.86",
+        "filled_quantity": "0.038273",
+        "status": "filled",
+        "displayed_size": "280"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-22T18:30:00Z",
+        "fill_price": "653.05",
+        "filled_quantity": "0.038273",
+        "status": "filled",
+        "displayed_size": "40"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-22T17:35:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "280"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-22T18:30:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "40"
+      },
+      "gross_edge": "-0.030427035",
+      "spread_cost": "0.000574095",
+      "delay_cost": "0.012630090",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "-0.03100113",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-24T19:25:00Z",
+      "exit_at": "2026-04-24T19:50:00Z",
+      "quantity": "0.035113",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-24T19:25:00Z",
+        "fill_price": "713.82",
+        "filled_quantity": "0.035113",
+        "status": "filled",
+        "displayed_size": "2040"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-24T19:50:00Z",
+        "fill_price": "713.84",
+        "filled_quantity": "0.035113",
+        "status": "filled",
+        "displayed_size": "1320"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-24T19:25:00Z",
+        "fill_price": "713.82",
+        "filled_quantity": "0.035113",
+        "status": "filled",
+        "displayed_size": "2040"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-24T19:50:00Z",
+        "fill_price": "713.84",
+        "filled_quantity": "0.035113",
+        "status": "filled",
+        "displayed_size": "1320"
+      },
+      "gross_edge": "0.001404520",
+      "spread_cost": "0.000702260",
+      "delay_cost": "-0.016503110",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0.000526695",
+      "market_net_edge": "0.00070226",
+      "marketable_limit_net_edge": "0.00070226"
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-27T16:40:00Z",
+      "exit_at": "2026-04-27T17:35:00Z",
+      "quantity": "0.037744",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-27T16:40:00Z",
+        "fill_price": "663.15",
+        "filled_quantity": "0.037744",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-27T17:35:00Z",
+        "fill_price": "664.06",
+        "filled_quantity": "0.037744",
+        "status": "filled",
+        "displayed_size": "920"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-27T16:40:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "80"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-27T17:35:00Z",
+        "fill_price": "664.06",
+        "filled_quantity": "0.037744",
+        "status": "filled",
+        "displayed_size": "920"
+      },
+      "gross_edge": "0.034724480",
+      "spread_cost": "0.000377440",
+      "delay_cost": "-0.017173520",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "0.03434704",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-04-29T19:10:00Z",
+      "exit_at": "2026-04-29T19:50:00Z",
+      "quantity": "0.037900",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-29T19:10:00Z",
+        "fill_price": "660.37",
+        "filled_quantity": "0.037900",
+        "status": "filled",
+        "displayed_size": "400"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-29T19:50:00Z",
+        "fill_price": "660.33",
+        "filled_quantity": "0.037900",
+        "status": "filled",
+        "displayed_size": "360"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-04-29T19:10:00Z",
+        "fill_price": "660.37",
+        "filled_quantity": "0.037900",
+        "status": "filled",
+        "displayed_size": "400"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-04-29T19:50:00Z",
+        "fill_price": "660.33",
+        "filled_quantity": "0.037900",
+        "status": "filled",
+        "displayed_size": "360"
+      },
+      "gross_edge": "-0.00075800",
+      "spread_cost": "0.00075800",
+      "delay_cost": "-0.006253500",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0.00037900",
+      "market_net_edge": "-0.00151600",
+      "marketable_limit_net_edge": "-0.00151600"
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-05-05T18:00:00Z",
+      "exit_at": "2026-05-05T18:55:00Z",
+      "quantity": "0.034617",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-05-05T18:00:00Z",
+        "fill_price": "724.03",
+        "filled_quantity": "0.034617",
+        "status": "filled",
+        "displayed_size": "240"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-05-05T18:55:00Z",
+        "fill_price": "724.26",
+        "filled_quantity": "0.034617",
+        "status": "filled",
+        "displayed_size": "1200"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-05-05T18:00:00Z",
+        "fill_price": "724.03",
+        "filled_quantity": "0.034617",
+        "status": "filled",
+        "displayed_size": "240"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-05-05T18:55:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "1200"
+      },
+      "gross_edge": "0.00865425",
+      "spread_cost": "0.00069234",
+      "delay_cost": "0.00173085",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "0.00796191",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-05-19T16:45:00Z",
+      "exit_at": "2026-05-19T17:40:00Z",
+      "quantity": "0.034082",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-05-19T16:45:00Z",
+        "fill_price": "735.44",
+        "filled_quantity": "0.034082",
+        "status": "filled",
+        "displayed_size": "680"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-05-19T17:40:00Z",
+        "fill_price": "737.2",
+        "filled_quantity": "0.034082",
+        "status": "filled",
+        "displayed_size": "200"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-05-19T16:45:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "680"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-05-19T17:40:00Z",
+        "fill_price": "737.2",
+        "filled_quantity": "0.034082",
+        "status": "filled",
+        "displayed_size": "200"
+      },
+      "gross_edge": "0.06100678",
+      "spread_cost": "0.00102246",
+      "delay_cost": "-0.00238574",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "0.05998432",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-06-01T15:50:00Z",
+      "exit_at": "2026-06-01T16:45:00Z",
+      "quantity": "0.033114",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-06-01T15:50:00Z",
+        "fill_price": "756.91",
+        "filled_quantity": "0.033114",
+        "status": "filled",
+        "displayed_size": "240"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-06-01T16:45:00Z",
+        "fill_price": "757.05",
+        "filled_quantity": "0.033114",
+        "status": "filled",
+        "displayed_size": "320"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-06-01T15:50:00Z",
+        "fill_price": "756.91",
+        "filled_quantity": "0.033114",
+        "status": "filled",
+        "displayed_size": "240"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-06-01T16:45:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "320"
+      },
+      "gross_edge": "0.005132670",
+      "spread_cost": "0.000496710",
+      "delay_cost": "-0.009603060",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "0.00463596",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "QQQ",
+      "timeframe": "5Min",
+      "entry_at": "2026-06-02T19:20:00Z",
+      "exit_at": "2026-06-02T19:50:00Z",
+      "quantity": "0.033583",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-06-02T19:20:00Z",
+        "fill_price": "745.23",
+        "filled_quantity": "0.033583",
+        "status": "filled",
+        "displayed_size": "200"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-06-02T19:50:00Z",
+        "fill_price": "745.99",
+        "filled_quantity": "0.033583",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-06-02T19:20:00Z",
+        "fill_price": "745.23",
+        "filled_quantity": "0.033583",
+        "status": "filled",
+        "displayed_size": "200"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-06-02T19:50:00Z",
+        "fill_price": "745.99",
+        "filled_quantity": "0.033583",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "gross_edge": "0.025858910",
+      "spread_cost": "0.000335830",
+      "delay_cost": "-0.018806480",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0.000167915",
+      "market_net_edge": "0.02552308",
+      "marketable_limit_net_edge": "0.02552308"
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-07-20T16:15:00Z",
+      "exit_at": "2026-07-20T16:50:00Z",
+      "quantity": "0.033478",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-07-20T16:15:00Z",
+        "fill_price": "746.81",
+        "filled_quantity": "0.033478",
+        "status": "filled",
+        "displayed_size": "40"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-07-20T16:50:00Z",
+        "fill_price": "746.13",
+        "filled_quantity": "0.033478",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-07-20T16:15:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "40"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-07-20T16:50:00Z",
+        "fill_price": "746.13",
+        "filled_quantity": "0.033478",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "gross_edge": "-0.022430260",
+      "spread_cost": "0.000334780",
+      "delay_cost": "-0.023267210",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0",
+      "market_net_edge": "-0.02276504",
+      "marketable_limit_net_edge": null
+    },
+    {
+      "symbol": "SPY",
+      "timeframe": "5Min",
+      "entry_at": "2026-07-30T19:05:00Z",
+      "exit_at": "2026-07-30T19:50:00Z",
+      "quantity": "0.033728",
+      "market_entry": {
+        "side": "buy",
+        "submitted_at": "2026-07-30T19:05:00Z",
+        "fill_price": "741.23",
+        "filled_quantity": "0.033728",
+        "status": "filled",
+        "displayed_size": "80"
+      },
+      "market_exit": {
+        "side": "sell",
+        "submitted_at": "2026-07-30T19:50:00Z",
+        "fill_price": "741.6",
+        "filled_quantity": "0.033728",
+        "status": "filled",
+        "displayed_size": "160"
+      },
+      "marketable_limit_entry": {
+        "side": "buy",
+        "submitted_at": "2026-07-30T19:05:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "80"
+      },
+      "marketable_limit_exit": {
+        "side": "sell",
+        "submitted_at": "2026-07-30T19:50:00Z",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "status": "missed",
+        "displayed_size": "160"
+      },
+      "gross_edge": "0.012985280",
+      "spread_cost": "0.000505920",
+      "delay_cost": "0.022091840",
+      "slippage": "0",
+      "fees": "0",
+      "flattening_cost": "0.00033728",
+      "market_net_edge": "0.01247936",
+      "marketable_limit_net_edge": null
+    }
+  ]
+}

@@ -27,7 +27,7 @@ from tradeagent.candle_strategy import CandlePattern, CandleTrackingStrategy
 from tradeagent.config import AppConfig, BrokerConfig, StrategyConfig, config_fingerprint
 from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.data_quality import analyze_dataset
-from tradeagent.diagnostics import diagnose_strategy
+from tradeagent.diagnostics import StrategyDiagnostics, diagnose_strategy
 from tradeagent.domain import PaperBrokerState
 from tradeagent.economic_ml import (
     build_economic_events,
@@ -37,9 +37,13 @@ from tradeagent.economic_ml import (
     report_hash as economic_ml_report_hash,
 )
 from tradeagent.engine import TradingEngine
-from tradeagent.execution_calibration import calibrate_squeeze_execution
+from tradeagent.execution_calibration import (
+    calibrate_squeeze_execution,
+    calibrate_strategy_execution,
+)
 from tradeagent.execution_evidence import (
     collect_execution_evidence,
+    diagnostic_evidence_anchors,
     squeeze_evidence_anchors,
     write_evidence_manifest,
 )
@@ -418,6 +422,7 @@ def _parser() -> argparse.ArgumentParser:
         "--holdout-manifest", type=Path, default=Path("data/intraday-holdout.json")
     )
     diagnostics.add_argument("--maximum-frames", type=int, default=10_000)
+    diagnostics.add_argument("--output", type=Path)
     meta = subparsers.add_parser(
         "meta-label-evaluate",
         help="evaluate a calibrated filter on deterministic trend-pullback events",
@@ -511,6 +516,30 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("research/results/v0.9.0-execution-calibration.json"),
     )
+    diagnostic_evidence = subparsers.add_parser(
+        "collect-diagnostic-evidence",
+        help="archive SIP evidence around one saved strategy diagnostic",
+    )
+    diagnostic_evidence.add_argument("--diagnostics", type=Path, required=True)
+    diagnostic_evidence.add_argument(
+        "--timeframe",
+        choices=["5Min", "30Min", "1Hour"],
+        required=True,
+    )
+    diagnostic_evidence.add_argument("--records", type=Path, required=True)
+    diagnostic_evidence.add_argument("--manifest", type=Path, required=True)
+    diagnostic_calibration = subparsers.add_parser(
+        "calibrate-diagnostic-execution",
+        help="calibrate one strategy diagnostic against its SIP evidence",
+    )
+    diagnostic_calibration.add_argument("--diagnostics", type=Path, required=True)
+    diagnostic_calibration.add_argument(
+        "--timeframe",
+        choices=["5Min", "30Min", "1Hour"],
+        required=True,
+    )
+    diagnostic_calibration.add_argument("--evidence", type=Path, required=True)
+    diagnostic_calibration.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -991,6 +1020,39 @@ def main(argv: Sequence[str] | None = None) -> None:
         )
         return
 
+    if args.command == "collect-diagnostic-evidence":
+        diagnostic_report = StrategyDiagnostics.model_validate_json(
+            args.diagnostics.read_text(encoding="utf-8")
+        )
+        anchors = diagnostic_evidence_anchors(diagnostic_report, args.timeframe)
+        evidence_settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(evidence_settings) as data_client:
+            evidence_manifest = collect_execution_evidence(
+                data_client,
+                anchors,
+                args.records,
+            )
+        write_evidence_manifest(args.manifest, evidence_manifest)
+        print(_json(evidence_manifest))
+        return
+
+    if args.command == "calibrate-diagnostic-execution":
+        diagnostic_report = StrategyDiagnostics.model_validate_json(
+            args.diagnostics.read_text(encoding="utf-8")
+        )
+        diagnostic_calibration_result = calibrate_strategy_execution(
+            diagnostic_report,
+            args.timeframe,
+            args.evidence,
+        )
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(
+            diagnostic_calibration_result.model_dump_json(indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(_json(diagnostic_calibration_result))
+        return
+
     if args.command == "intraday-evaluate":
         symbols = tuple(
             symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
@@ -1181,6 +1243,12 @@ def main(argv: Sequence[str] | None = None) -> None:
             AppConfig(intraday=intraday),
             diagnostic_strategy,
         )
+        if args.output is not None:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(
+                diagnostic_report.model_dump_json(indent=2) + "\n",
+                encoding="utf-8",
+            )
         print(_json(diagnostic_report))
         return
 

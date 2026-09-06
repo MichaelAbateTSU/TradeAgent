@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel, ConfigDict
 
 from tradeagent.alpaca import HistoricalQuote
-from tradeagent.diagnostics import TradeDiagnostic
+from tradeagent.diagnostics import StrategyDiagnostics, TradeDiagnostic
 from tradeagent.domain import Side
 from tradeagent.execution_evidence import EvidenceAnchor
 from tradeagent.squeeze_external import FrozenSqueezeExternalReport
@@ -95,53 +95,12 @@ def calibrate_squeeze_execution(
     quotes = _load_quotes(evidence_path)
     cells: list[ObservedCellCalibration] = []
     for result in report.results:
-        details = tuple(
-            _calibrate_trade(
-                trade,
+        cells.append(
+            _calibrate_diagnostics(
+                result.diagnostics,
                 result.timeframe,
                 quotes,
-            )
-            for trade in result.diagnostics.trades
-        )
-        observed_gross = sum(
-            (trade.gross_edge or Decimal(0) for trade in details),
-            Decimal(0),
-        )
-        market_net = sum(
-            (trade.market_net_edge or Decimal(0) for trade in details),
-            Decimal(0),
-        )
-        limit_net = sum(
-            (trade.marketable_limit_net_edge or Decimal(0) for trade in details),
-            Decimal(0),
-        )
-        complete = [
-            trade
-            for trade in details
-            if trade.gross_edge is not None and trade.market_net_edge is not None
-        ]
-        cells.append(
-            ObservedCellCalibration(
                 symbol=result.symbol,
-                timeframe=result.timeframe,
-                trades=len(details),
-                quote_complete_trades=len(complete),
-                market_filled_round_trips=sum(
-                    trade.market_net_edge is not None for trade in details
-                ),
-                marketable_limit_filled_round_trips=sum(
-                    trade.marketable_limit_net_edge is not None for trade in details
-                ),
-                marketable_limit_missed_round_trips=sum(
-                    trade.marketable_limit_net_edge is None for trade in details
-                ),
-                estimated_cost=result.diagnostics.execution_cost,
-                observed_market_cost=observed_gross - market_net,
-                observed_gross_edge=observed_gross,
-                observed_market_net_edge=market_net,
-                observed_marketable_limit_net_edge=limit_net,
-                observed_market_date_clustered_sharpe=_date_clustered_sharpe(complete),
-                trade_details=details,
             )
         )
     return ExecutionCalibrationReport(
@@ -169,12 +128,81 @@ def calibrate_squeeze_execution(
     )
 
 
+def calibrate_strategy_execution(
+    diagnostics: StrategyDiagnostics,
+    timeframe: str,
+    evidence_path: Path,
+) -> ObservedCellCalibration:
+    symbols = {trade.symbol for trade in diagnostics.trades}
+    symbol = next(iter(symbols)) if len(symbols) == 1 else "MULTI"
+    return _calibrate_diagnostics(
+        diagnostics,
+        timeframe,
+        _load_quotes(evidence_path),
+        symbol=symbol,
+    )
+
+
+def _calibrate_diagnostics(
+    diagnostics: StrategyDiagnostics,
+    timeframe: str,
+    quotes: dict[tuple[str, str, str, datetime], tuple[HistoricalQuote, ...]],
+    *,
+    symbol: str,
+) -> ObservedCellCalibration:
+    details = tuple(
+        _calibrate_trade(
+            trade,
+            timeframe,
+            quotes,
+        )
+        for trade in diagnostics.trades
+    )
+    observed_gross = sum(
+        (trade.gross_edge or Decimal(0) for trade in details),
+        Decimal(0),
+    )
+    market_net = sum(
+        (trade.market_net_edge or Decimal(0) for trade in details),
+        Decimal(0),
+    )
+    limit_net = sum(
+        (trade.marketable_limit_net_edge or Decimal(0) for trade in details),
+        Decimal(0),
+    )
+    complete = [
+        trade
+        for trade in details
+        if trade.gross_edge is not None and trade.market_net_edge is not None
+    ]
+    return ObservedCellCalibration(
+        symbol=symbol,
+        timeframe=timeframe,
+        trades=len(details),
+        quote_complete_trades=len(complete),
+        market_filled_round_trips=sum(trade.market_net_edge is not None for trade in details),
+        marketable_limit_filled_round_trips=sum(
+            trade.marketable_limit_net_edge is not None for trade in details
+        ),
+        marketable_limit_missed_round_trips=sum(
+            trade.marketable_limit_net_edge is None for trade in details
+        ),
+        estimated_cost=diagnostics.execution_cost,
+        observed_market_cost=observed_gross - market_net,
+        observed_gross_edge=observed_gross,
+        observed_market_net_edge=market_net,
+        observed_marketable_limit_net_edge=limit_net,
+        observed_market_date_clustered_sharpe=_date_clustered_sharpe(complete),
+        trade_details=details,
+    )
+
+
 def _calibrate_trade(
     trade: TradeDiagnostic,
     timeframe: str,
     quotes: dict[tuple[str, str, str, datetime], tuple[HistoricalQuote, ...]],
 ) -> ObservedTradeCalibration:
-    interval_minutes = 30 if timeframe == "30Min" else 60
+    interval_minutes = {"5Min": 5, "30Min": 30, "1Hour": 60}[timeframe]
     entry_signal_at = trade.entry_at - timedelta(minutes=interval_minutes)
     exit_signal_at = trade.exit_at - timedelta(minutes=interval_minutes)
     entry_signal_quote = _decision_quote(
@@ -233,7 +261,7 @@ def _calibrate_trade(
         exit_signal_mid = _mid(exit_signal_quote)
         entry_submission_mid = _mid(entry_submission_quote)
         exit_submission_mid = _mid(exit_submission_quote)
-        gross_edge = (exit_signal_mid - entry_signal_mid) * trade.quantity
+        gross_edge = (exit_submission_mid - entry_submission_mid) * trade.quantity
         spread_cost = (
             entry_submission_quote.ask_price
             - entry_submission_mid
