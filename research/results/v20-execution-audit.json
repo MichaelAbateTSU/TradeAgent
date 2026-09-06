@@ -1,0 +1,1438 @@
+{
+  "artifacts": [
+    {
+      "bytes": 14474,
+      "path": "docs\\V0_10_REPORT.md",
+      "sha256": "e13ce7eae9958ced035caf317700783f67a0c50c94ee4dc90682dbfbdae29f00",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 410641,
+      "path": "research\\datasets\\v0.10.0-lower-execution-evidence.json",
+      "sha256": "45644ae23dc2ea7b57b09798460f19af5d442a23fb6e3accfb1713bfa329fcfd",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 6599,
+      "path": "research\\datasets\\v0.10.0-pre-2020-daily.json",
+      "sha256": "b2c4b3f8ac9db924625446ececfa162ad9b04d86f6062cb5a4a4f9d334fc1b79",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 6645,
+      "path": "research\\datasets\\v0.10.0-2025-latest-daily.json",
+      "sha256": "6a2c2ec43cdd06003a7b2ae5279ff54608751795f76c5e1d78611cb908640ef6",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 330581,
+      "path": "research\\datasets\\v0.10.0-pre-2020-execution-evidence.json",
+      "sha256": "1dce080839fc4f39bf4481bd220bd374a5bb103698a1164762f4ac2eb8e005e8",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 139500,
+      "path": "research\\datasets\\v0.10.0-2025-latest-execution-evidence.json",
+      "sha256": "11cf979056586ae7cde37761a1beaddb3bd81f059a9853f05d192c3c36ac060c",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 18471362,
+      "path": "research\\results\\v0.10.0-lower-corrected-provisional.json",
+      "sha256": "e6b0762158d1630c6ccc7b9705affc962acf9634aaa99345d3f0f41e0721b385",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 27170353,
+      "path": "research\\results\\v0.10.0-lower-execution-calibration.json",
+      "sha256": "2d4f63ade6b3c42e1c6219e68aaa561af25b22ac598bd702edc01ad957c7edd1",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 1344108,
+      "path": "research\\results\\v0.10.0-pre-2020-validation.json",
+      "sha256": "b7cd8ea69acdd5eabdf3bf281d31b902b1f202d9314f231ad3bdbeac194175e4",
+      "status": "preserved_read_only"
+    },
+    {
+      "bytes": 562214,
+      "path": "research\\results\\v0.10.0-2025-latest-validation.json",
+      "sha256": "e3813bfa7d43a5ffeac9e68846cfbbce81e5434848ad0bbd87d07bd873a17e09",
+      "status": "preserved_read_only"
+    }
+  ],
+  "baseline_commit": "2a1db33e7cf4f596e8fce9aac47c4e1e8c854630",
+  "cases": [
+    {
+      "case_id": "daily_completed_close_next_eligible_session",
+      "discrepancy": {
+        "legacy": "filled 0.25 at 101 after close; required next eligible quote"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "eligible_at": "2026-09-08T13:30:00+00:00",
+        "fill_notional": "25.25",
+        "fill_quantity": "0.25"
+      },
+      "inputs": {
+        "bar_interval_end": "2026-09-04T20:00:00+00:00",
+        "bar_interval_start": "2026-09-04T13:30:00+00:00",
+        "feature_available_at": "2026-09-04T20:00:00+00:00",
+        "order": {
+          "account_id": "synthetic-A",
+          "arrival_at": "2026-09-04T20:00:01Z",
+          "decision_at": "2026-09-04T20:00:00Z",
+          "fractionable": true,
+          "limit_price": null,
+          "maximum_wait_seconds": 60,
+          "order_id": "synthetic-order",
+          "quantity": "0.25",
+          "side": "buy",
+          "symbol": "SYNTH"
+        },
+        "quotes": [
+          {
+            "ask": "101",
+            "ask_size": "1",
+            "bid": "99",
+            "bid_size": "1",
+            "event_at": "2026-09-04T19:59:59Z",
+            "event_id": "synthetic-prior",
+            "evidence_kind": "synthetic",
+            "price_basis": "raw",
+            "provider_at": "2026-09-04T19:59:59Z",
+            "received_at": "2026-09-04T19:59:59Z",
+            "round_lot_size": null,
+            "size_provenance": "synthetic shares fixture",
+            "size_units": "shares",
+            "source": "synthetic_gold_cases",
+            "symbol": "SYNTH"
+          },
+          {
+            "ask": "101",
+            "ask_size": "1",
+            "bid": "99",
+            "bid_size": "1",
+            "event_at": "2026-09-04T20:00:01Z",
+            "event_id": "synthetic-after-close",
+            "evidence_kind": "synthetic",
+            "price_basis": "raw",
+            "provider_at": "2026-09-04T20:00:01Z",
+            "received_at": "2026-09-04T20:00:01Z",
+            "round_lot_size": null,
+            "size_provenance": "synthetic shares fixture",
+            "size_units": "shares",
+            "source": "synthetic_gold_cases",
+            "symbol": "SYNTH"
+          },
+          {
+            "ask": "101",
+            "ask_size": "1",
+            "bid": "99",
+            "bid_size": "1",
+            "event_at": "2026-09-08T13:30:00Z",
+            "event_id": "synthetic-next-open",
+            "evidence_kind": "synthetic",
+            "price_basis": "raw",
+            "provider_at": "2026-09-08T13:30:00Z",
+            "received_at": "2026-09-08T13:30:00Z",
+            "round_lot_size": null,
+            "size_provenance": "synthetic shares fixture",
+            "size_units": "shares",
+            "source": "synthetic_gold_cases",
+            "symbol": "SYNTH"
+          }
+        ]
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "eligible_at": "2026-09-08T13:30:00+00:00",
+        "fill_notional": "25.25",
+        "fill_quantity": "0.25"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "regular_order_after_close",
+      "discrepancy": {
+        "legacy": "filled 0.25 at 101 after close; required next eligible quote"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "eligible_at": "2026-09-08T13:30:00+00:00",
+        "fill_notional": "25.25",
+        "fill_quantity": "0.25"
+      },
+      "inputs": {
+        "bar_interval_end": "2026-09-04T20:00:00+00:00",
+        "bar_interval_start": "2026-09-04T13:30:00+00:00",
+        "feature_available_at": "2026-09-04T20:00:00+00:00",
+        "order": {
+          "account_id": "synthetic-A",
+          "arrival_at": "2026-09-04T20:00:01Z",
+          "decision_at": "2026-09-04T20:00:00Z",
+          "fractionable": true,
+          "limit_price": null,
+          "maximum_wait_seconds": 60,
+          "order_id": "synthetic-order",
+          "quantity": "0.25",
+          "side": "buy",
+          "symbol": "SYNTH"
+        },
+        "quotes": [
+          {
+            "ask": "101",
+            "ask_size": "1",
+            "bid": "99",
+            "bid_size": "1",
+            "event_at": "2026-09-04T20:00:01Z",
+            "event_id": "synthetic-after-close",
+            "evidence_kind": "synthetic",
+            "price_basis": "raw",
+            "provider_at": "2026-09-04T20:00:01Z",
+            "received_at": "2026-09-04T20:00:01Z",
+            "round_lot_size": null,
+            "size_provenance": "synthetic shares fixture",
+            "size_units": "shares",
+            "source": "synthetic_gold_cases",
+            "symbol": "SYNTH"
+          },
+          {
+            "ask": "101",
+            "ask_size": "1",
+            "bid": "99",
+            "bid_size": "1",
+            "event_at": "2026-09-08T13:30:00Z",
+            "event_id": "synthetic-next-open",
+            "evidence_kind": "synthetic",
+            "price_basis": "raw",
+            "provider_at": "2026-09-08T13:30:00Z",
+            "received_at": "2026-09-08T13:30:00Z",
+            "round_lot_size": null,
+            "size_provenance": "synthetic shares fixture",
+            "size_units": "shares",
+            "source": "synthetic_gold_cases",
+            "symbol": "SYNTH"
+          }
+        ]
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "eligible_at": "2026-09-08T13:30:00+00:00",
+        "fill_notional": "25.25",
+        "fill_quantity": "0.25"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "arrival_cannot_backfill_and_decision_cannot_look_ahead",
+      "discrepancy": {
+        "legacy_no_future_decision": false,
+        "legacy_no_prior_fill": false
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "no_future_decision": true,
+        "no_prior_fill": true
+      },
+      "inputs": {
+        "arrival": "2026-09-04T19:00:00+00:00",
+        "future_quote": {
+          "ask_exchange": "Q",
+          "ask_price": "101",
+          "ask_size": "1",
+          "bid_exchange": "P",
+          "bid_price": "99",
+          "bid_size": "1",
+          "conditions": [],
+          "feed_source": "sip",
+          "symbol": "SYNTH",
+          "tape": null,
+          "timestamp": "2026-09-04T19:00:01Z"
+        },
+        "prior_quote": {
+          "ask_exchange": "Q",
+          "ask_price": "101",
+          "ask_size": "1",
+          "bid_exchange": "P",
+          "bid_price": "99",
+          "bid_size": "1",
+          "conditions": [],
+          "feed_source": "sip",
+          "symbol": "SYNTH",
+          "tape": null,
+          "timestamp": "2026-09-04T18:59:59Z"
+        }
+      },
+      "production": {
+        "no_future_decision": true,
+        "no_prior_fill": true
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "no_future_decision": true,
+        "no_prior_fill": true
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "production_after_close_rejected",
+      "discrepancy": {
+        "legacy_notional": "25.25",
+        "legacy_quantity": "0.25"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "quantity": "0"
+      },
+      "inputs": {
+        "submitted_at": "2026-09-04T20:00:01+00:00"
+      },
+      "production": {
+        "displayed_size": "0",
+        "fill_price": null,
+        "filled_quantity": "0",
+        "side": "buy",
+        "status": "missing_or_ineligible_quote",
+        "submitted_at": "2026-09-04T20:00:01Z"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "quantity": "0"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "fractional_quantity",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "cash": "74.99",
+        "equity": "99.99"
+      },
+      "inputs": {
+        "fee": "0.01",
+        "quantity": "0.25",
+        "raw_price": "100"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "cash": "74.99",
+        "equity": "99.99"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "fee_charge_date_2026-04-03",
+      "discrepancy": {
+        "legacy_overcharge": "0.02060"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "raw_sec": "0"
+      },
+      "inputs": {
+        "charge_date": "2026-04-03",
+        "signal_date": "2026-04-02",
+        "sold_notional": "1000"
+      },
+      "production": {
+        "current": "unavailable",
+        "legacy_undated_raw_sec": "0.02060"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "raw_sec": "0"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "fee_charge_date_2026-04-04",
+      "discrepancy": {
+        "legacy_overcharge": "0"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "raw_sec": "0.02060000"
+      },
+      "inputs": {
+        "charge_date": "2026-04-04",
+        "signal_date": "2026-04-02",
+        "sold_notional": "1000"
+      },
+      "production": {
+        "current": "unavailable",
+        "legacy_undated_raw_sec": "0.02060"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "raw_sec": "0.02060000"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "unknown_historical_fee",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "amount": null,
+        "status": "unavailable"
+      },
+      "inputs": {
+        "date": "2016-01-04",
+        "fee_type": "cat"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "amount": null,
+        "status": "unavailable"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "quote_size_schema_transition",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "shares": "1",
+        "unknown": null,
+        "verified_100_share_lot": "100"
+      },
+      "inputs": {
+        "historical_endpoint_normalization": "unknown",
+        "payload_size": "1",
+        "source": "https://docs.alpaca.markets/us/v1.1/changelog/marketdata-bid-and-ask-size-display-change",
+        "transition": "2025-11-03"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "shares": "1",
+        "unknown": null,
+        "verified_100_share_lot": "100"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "split_dividend_receivable_then_payment",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "cash_after_exit_before_payment": "998.00",
+        "cash_after_payment": "1000.00",
+        "cash_on_ex": "800",
+        "ex_equity": "1000.00",
+        "quantity_after_split": "4"
+      },
+      "inputs": {
+        "buy": "2 @ 100",
+        "cash_dividend_per_post_split_share": "0.50",
+        "ex_raw_mark": "49.50",
+        "split_ratio": "2",
+        "start_cash": "1000",
+        "synthetic_ex_date": "2026-09-09",
+        "synthetic_pay_date": "2026-09-10",
+        "synthetic_split_date": "2026-09-08"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "cash_after_exit_before_payment": "998.00",
+        "cash_after_payment": "1000.00",
+        "cash_on_ex": "800",
+        "ex_equity": "1000.00",
+        "quantity_after_split": "4"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "raw_adjusted_basis",
+      "discrepancy": {
+        "correct_raw_equity": "1000",
+        "legacy_mixed_equity": "900"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "mixed_basis_rejected": true
+      },
+      "inputs": {
+        "adjusted_mark": "50",
+        "raw_purchase": "2 * 100"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "mixed_basis_rejected": true
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "missing_quote",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "quantity": "0",
+        "status": "unavailable"
+      },
+      "inputs": {
+        "order": {
+          "account_id": "synthetic-A",
+          "arrival_at": "2026-09-04T20:00:01Z",
+          "decision_at": "2026-09-04T20:00:00Z",
+          "fractionable": true,
+          "limit_price": null,
+          "maximum_wait_seconds": 60,
+          "order_id": "synthetic-order",
+          "quantity": "0.25",
+          "side": "buy",
+          "symbol": "SYNTH"
+        }
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "quantity": "0",
+        "status": "unavailable"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "stale_quote",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "quantity": "0",
+        "status": "unavailable"
+      },
+      "inputs": {
+        "order": {
+          "account_id": "synthetic-A",
+          "arrival_at": "2026-09-04T20:00:01Z",
+          "decision_at": "2026-09-04T20:00:00Z",
+          "fractionable": true,
+          "limit_price": null,
+          "maximum_wait_seconds": 60,
+          "order_id": "synthetic-order",
+          "quantity": "0.25",
+          "side": "buy",
+          "symbol": "SYNTH"
+        }
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "quantity": "0",
+        "status": "unavailable"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "partial_then_cancel",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "quantity": "1",
+        "remaining": "2"
+      },
+      "inputs": {
+        "cancel_at": "2026-09-08T13:30:01+00:00",
+        "displayed_first": "1",
+        "displayed_later": "2",
+        "requested": "3"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "quantity": "1",
+        "remaining": "2"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "partial_then_later_fill",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "quantity": "3",
+        "remaining": "0"
+      },
+      "inputs": {
+        "cancel_at": null,
+        "displayed_first": "1",
+        "displayed_later": "2",
+        "requested": "3"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "quantity": "3",
+        "remaining": "0"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "ambiguous_submit_recovery",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "additional_submissions": 0,
+        "state": "reconciled"
+      },
+      "inputs": {
+        "broker_lookup_matches": [
+          "synthetic-id"
+        ],
+        "persisted_client_order_id": "synthetic-id",
+        "production_test_references": [
+          "tests\\test_order_state.py::test_reconciliation_recovers_lost_acknowledgement",
+          "tests\\test_alpaca_paper.py::test_paper_client_submits_idempotent_market_order_and_tracks_state"
+        ]
+      },
+      "production": {
+        "live_broker_response": null,
+        "status": "reference_demonstration_only"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "additional_submissions": 0,
+        "state": "reconciled"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "simultaneous_benchmark_adjustment_strategy_exit",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "benchmark": "1",
+        "benchmark_cash": "100",
+        "benchmark_equity": "200",
+        "same_account_reuse": "0",
+        "strategy": "1",
+        "strategy_cash": "99",
+        "strategy_equity": "99"
+      },
+      "inputs": {
+        "benchmark_account": "synthetic-benchmark",
+        "strategy_account": "synthetic-A"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "benchmark": "1",
+        "benchmark_cash": "100",
+        "benchmark_equity": "200",
+        "same_account_reuse": "0",
+        "strategy": "1",
+        "strategy_cash": "99",
+        "strategy_equity": "99"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "spread_latency_bridge",
+      "discrepancy": {
+        "legacy_extra_adverse_slippage_per_share": "1.00"
+      },
+      "evidence_kind": "synthetic",
+      "expected": {
+        "entry_delay": "0.25",
+        "entry_spread": "0.0050",
+        "pre_fee_roundtrip": "0.2400"
+      },
+      "inputs": {
+        "arrival_ask": "101.02",
+        "arrival_mid": "101",
+        "decision_mid": "100",
+        "distinct_residual_slippage": "0",
+        "exit_bid": "101.98",
+        "exit_mid": "102",
+        "quantity": "0.25"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "entry_delay": "0.25",
+        "entry_spread": "0.0050",
+        "pre_fee_roundtrip": "0.2400"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "favorable_latency_not_suppressed",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "signed_delay_cost": "-0.25"
+      },
+      "inputs": {
+        "arrival_mid": "99",
+        "decision_mid": "100",
+        "quantity": "0.25"
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "signed_delay_cost": "-0.25"
+      },
+      "status": "reference_pass"
+    },
+    {
+      "case_id": "fee_granularity_account_and_rounding_scope",
+      "discrepancy": {},
+      "evidence_kind": "synthetic",
+      "expected": {
+        "account_A_account_day": "0.01",
+        "account_A_rule_day": "0.02",
+        "independent_account_B": "0.01",
+        "one_cent_bps_on_10": "10.000",
+        "one_cent_bps_on_25": "4.0000"
+      },
+      "inputs": {
+        "billing_scope": "unresolved; alternatives are sensitivity examples only",
+        "charges": [
+          [
+            "synthetic-A",
+            "sec",
+            "0.001"
+          ],
+          [
+            "synthetic-A",
+            "taf",
+            "0.001"
+          ],
+          [
+            "synthetic-B",
+            "sec",
+            "0.001"
+          ]
+        ]
+      },
+      "production": {
+        "reason": "legacy_ledger_blocked",
+        "status": "unavailable"
+      },
+      "provenance": "Synthetic inputs retained inline; legacy observations reproduced at baseline_commit; not a captured market-provider or broker response.",
+      "raw_provider_response": null,
+      "reference": {
+        "account_A_account_day": "0.01",
+        "account_A_rule_day": "0.02",
+        "independent_account_B": "0.01",
+        "one_cent_bps_on_10": "10.000",
+        "one_cent_bps_on_25": "4.0000"
+      },
+      "status": "reference_pass"
+    }
+  ],
+  "fee_rules": [
+    {
+      "account_product": "covered_us_equity_regulatory_obligation",
+      "asset_class": "us_equity",
+      "cap_per_trade": null,
+      "date_semantics": "charge_date; FINRA OTC charge date is trade date, not signal/settlement",
+      "effective_end": "2026-04-03",
+      "effective_start": "2026-02-27",
+      "fee_type": "sec",
+      "rate": "0",
+      "rate_basis": "sale_notional",
+      "rounding_scope": "account_pass_through_unresolved",
+      "side": "sell",
+      "source": "https://www.finra.org/rules-guidance/notices/information-notice-20260317"
+    },
+    {
+      "account_product": "covered_us_equity_regulatory_obligation",
+      "asset_class": "us_equity",
+      "cap_per_trade": null,
+      "date_semantics": "charge_date; FINRA OTC charge date is trade date, not signal/settlement",
+      "effective_end": "2026-09-06",
+      "effective_start": "2026-04-04",
+      "fee_type": "sec",
+      "rate": "0.00002060",
+      "rate_basis": "sale_notional",
+      "rounding_scope": "account_pass_through_unresolved",
+      "side": "sell",
+      "source": "https://www.finra.org/rules-guidance/notices/information-notice-20260317"
+    },
+    {
+      "account_product": "covered_us_equity_regulatory_obligation",
+      "asset_class": "us_equity",
+      "cap_per_trade": "8.30",
+      "date_semantics": "trade_date",
+      "effective_end": "2025-12-31",
+      "effective_start": "2024-01-01",
+      "fee_type": "taf",
+      "rate": "0.000166",
+      "rate_basis": "shares",
+      "rounding_scope": "account_pass_through_unresolved",
+      "side": "sell",
+      "source": "https://www.finra.org/rules-guidance/rule-filings/sr-finra-2024-019/fee-adjustment-schedule"
+    },
+    {
+      "account_product": "covered_us_equity_regulatory_obligation",
+      "asset_class": "us_equity",
+      "cap_per_trade": "9.79",
+      "date_semantics": "trade_date",
+      "effective_end": "2026-09-06",
+      "effective_start": "2026-01-01",
+      "fee_type": "taf",
+      "rate": "0.000195",
+      "rate_basis": "shares",
+      "rounding_scope": "account_pass_through_unresolved",
+      "side": "sell",
+      "source": "https://www.finra.org/rules-guidance/rule-filings/sr-finra-2024-019/fee-adjustment-schedule"
+    }
+  ],
+  "findings": [
+    {
+      "case": "arrival_cannot_backfill_and_decision_cannot_look_ahead",
+      "id": "EXEC-001",
+      "reason": "Pre-arrival fills and future decision quotes reproduced at baseline.",
+      "resolution": "No fallback; stale/missing observations unavailable.",
+      "status": "confirmed_defect"
+    },
+    {
+      "case": "production_after_close_rejected",
+      "id": "EXEC-002",
+      "reason": "0.25 shares filled after regular close in baseline synthetic case.",
+      "resolution": "Rejects close/after-close; reference schedules next session.",
+      "status": "confirmed_defect"
+    },
+    {
+      "case": "fee_charge_date_2026-04-03",
+      "id": "EXEC-003",
+      "reason": "$1000 covered sale charged raw SEC .0206 instead of zero at boundary.",
+      "resolution": "Legacy simulator blocked; dated statutory reference supplied.",
+      "status": "confirmed_defect"
+    },
+    {
+      "case": "spread_latency_bridge",
+      "id": "EXEC-004",
+      "reason": "Arrival quote movement added again as slippage.",
+      "resolution": "Distinct 0.5bps hypothetical residual only; not observed impact.",
+      "status": "confirmed_defect"
+    },
+    {
+      "case": "raw_adjusted_basis",
+      "id": "EXEC-005",
+      "reason": "Adjusted bars mixed with raw quotes and share quantities.",
+      "resolution": "Legacy portfolio simulation blocked; raw reference ledger provided.",
+      "status": "basis_reconstruction_unavailable"
+    },
+    {
+      "case": "quote_size_schema_transition",
+      "id": "EXEC-006",
+      "reason": "Normalization, CAT periods, product and rounding not established.",
+      "resolution": "No blanket size conversion or assumed historical fee schedule.",
+      "status": "size_and_billing_provenance_unavailable"
+    }
+  ],
+  "generated_at": "2026-09-06T22:13:29.631064Z",
+  "historical_reruns": 0,
+  "historical_results_valid": false,
+  "limitations": [
+    "Synthetic gold cases check arithmetic, not actual trades, fills, or alpha.",
+    "Account product, historical CAT pass-through periods and billing rounding unresolved.",
+    "SEC rules outside verified intervals unavailable, not assumed zero; current costs are a separately labeled counterfactual, not observed historical fees.",
+    "Raw HTTP responses/receipt timestamps were not retained in the inspected shards; normalized observations are preserved with hashes, never relabeled raw.",
+    "Daily all-adjusted bars lack causal corporate-action reconstruction; legacy simulator is unavailable rather than returning a misleading zero-P&L validation.",
+    "7,229 aggregates alternative simulations, not independent orders in one account; requested order sizes cannot be recovered from aggregate counters alone.",
+    "Two protected holdouts remain unopened. Known 2016-2026 data is not fresh evidence.",
+    "No corrected frozen historical run was performed; existing failures are not reversed, statistical qualification is not established and no returns were optimized.",
+    "Recovery demonstration is synthetic; production lifecycle tests are separate and no broker response is fabricated."
+  ],
+  "production_legacy_simulator_available": false,
+  "real_data_boundary": {
+    "bounded_normalized_samples": [
+      {
+        "artifact": {
+          "bytes": 37119,
+          "path": "data\\v010\\lower-execution-evidence\\1577998800000000.json",
+          "sha256": "05ae616a9446b9e2de9dee3ce652aa278f9c53423d957c3627a25853551b0154",
+          "status": "preserved_read_only"
+        },
+        "evidence_kind": "persisted_normalized_observation_not_raw_http",
+        "manifest": "research\\datasets\\v0.10.0-lower-execution-evidence.json",
+        "missing": [
+          "raw_http_response",
+          "local_receipt_time",
+          "provider_time",
+          "endpoint_schema_version",
+          "historical_size_normalization"
+        ],
+        "request_parameters_preserved": {
+          "requested_symbols": [
+            "DIA",
+            "EEM",
+            "EFA",
+            "GLD",
+            "IEF",
+            "IWM",
+            "QQQ",
+            "SHY",
+            "SPY",
+            "TLT",
+            "XLB",
+            "XLC",
+            "XLE",
+            "XLF",
+            "XLI",
+            "XLK",
+            "XLP",
+            "XLRE",
+            "XLU",
+            "XLV",
+            "XLY"
+          ],
+          "timestamp": "2020-01-02T21:00:00Z",
+          "window_seconds": 2
+        },
+        "snapshot": {
+          "anchor": {
+            "anchor_types": [
+              "benchmark_or_retry_observation"
+            ],
+            "hypothesis_ids": [
+              "equal-weight-benchmarks"
+            ],
+            "symbol": "DIA",
+            "timestamp": "2020-01-02T21:00:00Z"
+          },
+          "quote_after": {
+            "ask_exchange": "Z",
+            "ask_price": "288.63",
+            "ask_size": "2",
+            "bid_exchange": "P",
+            "bid_price": "288.62",
+            "bid_size": "73",
+            "conditions": [
+              "?"
+            ],
+            "feed_source": "sip",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2020-01-02T21:00:00.000843Z"
+          },
+          "quote_before": {
+            "ask_exchange": "Z",
+            "ask_price": "288.63",
+            "ask_size": "2",
+            "bid_exchange": "P",
+            "bid_price": "288.62",
+            "bid_size": "57",
+            "conditions": [
+              "?"
+            ],
+            "feed_source": "sip",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2020-01-02T20:59:59.997869Z"
+          },
+          "trade_after": {
+            "conditions": [
+              " "
+            ],
+            "exchange": "P",
+            "feed_source": "sip",
+            "price": "288.63",
+            "size": "100",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2020-01-02T21:00:00.001103Z",
+            "trade_id": 52983560160074
+          },
+          "trade_before": {
+            "conditions": [
+              " ",
+              "F"
+            ],
+            "exchange": "K",
+            "feed_source": "sip",
+            "price": "288.62",
+            "size": "100",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2020-01-02T20:59:59.989434Z",
+            "trade_id": 52983525629777
+          }
+        }
+      },
+      {
+        "artifact": {
+          "bytes": 35286,
+          "path": "data\\v010\\external-evidence\\pre-2020\\1451941200000000.json",
+          "sha256": "f29415de9bccaab02d4fd47994f61bac0f55270fef5b1eb911d1ecfb249e24ed",
+          "status": "preserved_read_only"
+        },
+        "evidence_kind": "persisted_normalized_observation_not_raw_http",
+        "manifest": "research\\datasets\\v0.10.0-pre-2020-execution-evidence.json",
+        "missing": [
+          "raw_http_response",
+          "local_receipt_time",
+          "provider_time",
+          "endpoint_schema_version",
+          "historical_size_normalization"
+        ],
+        "request_parameters_preserved": {
+          "requested_symbols": [
+            "DIA",
+            "EEM",
+            "EFA",
+            "GLD",
+            "IEF",
+            "IWM",
+            "QQQ",
+            "SHY",
+            "SPY",
+            "TLT",
+            "XLB",
+            "XLE",
+            "XLF",
+            "XLI",
+            "XLK",
+            "XLP",
+            "XLRE",
+            "XLU",
+            "XLV",
+            "XLY"
+          ],
+          "timestamp": "2016-01-04T21:00:00Z",
+          "window_seconds": 60
+        },
+        "snapshot": {
+          "anchor": {
+            "anchor_types": [
+              "external_observation"
+            ],
+            "hypothesis_ids": [
+              "frozen-time-series-momentum-plateau-v1",
+              "frozen-relative-strength-plateau-v1"
+            ],
+            "symbol": "DIA",
+            "timestamp": "2016-01-04T21:00:00Z"
+          },
+          "quote_after": {
+            "ask_exchange": "T",
+            "ask_price": "171.3",
+            "ask_size": "5",
+            "bid_exchange": "P",
+            "bid_price": "171.27",
+            "bid_size": "109",
+            "conditions": [
+              "?"
+            ],
+            "feed_source": "sip",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2016-01-04T21:00:00Z"
+          },
+          "quote_before": {
+            "ask_exchange": "T",
+            "ask_price": "171.3",
+            "ask_size": "5",
+            "bid_exchange": "P",
+            "bid_price": "171.27",
+            "bid_size": "109",
+            "conditions": [
+              "?"
+            ],
+            "feed_source": "sip",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2016-01-04T21:00:00Z"
+          },
+          "trade_after": {
+            "conditions": [
+              " ",
+              "6"
+            ],
+            "exchange": "P",
+            "feed_source": "sip",
+            "price": "171.27",
+            "size": "329918",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2016-01-04T21:00:00.069000Z",
+            "trade_id": 67999
+          },
+          "trade_before": {
+            "conditions": [
+              " "
+            ],
+            "exchange": "K",
+            "feed_source": "sip",
+            "price": "171.29",
+            "size": "100",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2016-01-04T20:59:59.999000Z",
+            "trade_id": 67998
+          }
+        }
+      },
+      {
+        "artifact": {
+          "bytes": 37930,
+          "path": "data\\v010\\external-evidence\\2025-latest\\1735851600000000.json",
+          "sha256": "e082ee4ce513694d030386dfeea08e90a57171ba85b2e0f25951240eb74b5e4f",
+          "status": "preserved_read_only"
+        },
+        "evidence_kind": "persisted_normalized_observation_not_raw_http",
+        "manifest": "research\\datasets\\v0.10.0-2025-latest-execution-evidence.json",
+        "missing": [
+          "raw_http_response",
+          "local_receipt_time",
+          "provider_time",
+          "endpoint_schema_version",
+          "historical_size_normalization"
+        ],
+        "request_parameters_preserved": {
+          "requested_symbols": [
+            "DIA",
+            "EEM",
+            "EFA",
+            "GLD",
+            "IEF",
+            "IWM",
+            "QQQ",
+            "SHY",
+            "SPY",
+            "TLT",
+            "XLB",
+            "XLC",
+            "XLE",
+            "XLF",
+            "XLI",
+            "XLK",
+            "XLP",
+            "XLRE",
+            "XLU",
+            "XLV",
+            "XLY"
+          ],
+          "timestamp": "2025-01-02T21:00:00Z",
+          "window_seconds": 2
+        },
+        "snapshot": {
+          "anchor": {
+            "anchor_types": [
+              "external_observation"
+            ],
+            "hypothesis_ids": [
+              "frozen-relative-strength-plateau-v1",
+              "frozen-time-series-momentum-plateau-v1"
+            ],
+            "symbol": "DIA",
+            "timestamp": "2025-01-02T21:00:00Z"
+          },
+          "quote_after": {
+            "ask_exchange": "U",
+            "ask_price": "423.84",
+            "ask_size": "3",
+            "bid_exchange": "P",
+            "bid_price": "423.83",
+            "bid_size": "48",
+            "conditions": [
+              "R"
+            ],
+            "feed_source": "sip",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2025-01-02T21:00:00.000502Z"
+          },
+          "quote_before": {
+            "ask_exchange": "H",
+            "ask_price": "423.84",
+            "ask_size": "3",
+            "bid_exchange": "P",
+            "bid_price": "423.83",
+            "bid_size": "48",
+            "conditions": [
+              "R"
+            ],
+            "feed_source": "sip",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2025-01-02T20:59:59.999950Z"
+          },
+          "trade_after": {
+            "conditions": [
+              " ",
+              "6"
+            ],
+            "exchange": "P",
+            "feed_source": "sip",
+            "price": "423.8",
+            "size": "45731",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2025-01-02T21:00:00.086932Z",
+            "trade_id": 52983561077040
+          },
+          "trade_before": {
+            "conditions": [
+              " ",
+              "F"
+            ],
+            "exchange": "J",
+            "feed_source": "sip",
+            "price": "423.83",
+            "size": "300",
+            "symbol": "DIA",
+            "tape": "B",
+            "timestamp": "2025-01-02T20:59:59.991689Z",
+            "trade_id": 52983525110893
+          }
+        }
+      }
+    ],
+    "corrected_frozen_rerun": "blocked pending raw basis, session, unit and fee provenance",
+    "deployed_commit_verification": "not queried by this read-only local audit",
+    "historical_bar_basis": {
+      "corporate_action_reconstruction": "unavailable",
+      "data_manifest_declared_basis": "not retained",
+      "raw_quote_execution_basis": "unadjusted SIP prices",
+      "request_parameter_at_baseline_commit": {
+        "adjustment": "all"
+      },
+      "source": "src\\tradeagent\\alpaca.py::AlpacaDataClient.bars"
+    },
+    "immutable_raw_provider_responses_available": false,
+    "manifest_metadata": {
+      "research\\datasets\\v0.10.0-2025-latest-daily.json": {
+        "created_at": "2026-09-06T19:31:27.942728Z",
+        "development_era_used": false,
+        "era": "2025-latest",
+        "feed": "sip",
+        "inception_policy": "symbol enters only on its first observed session; no backfill",
+        "manifest_hash": "dd1c2e88124f9ab3225521e7093b6e5552997fce2e200e2d23891a35867fa3c8",
+        "provider": "alpaca",
+        "requested_end": "2026-09-05T00:00:00Z",
+        "requested_start": "2025-01-01T00:00:00Z",
+        "sealed_holdouts_used": false,
+        "universe_policy": "fixed 21-ETF v0.9 universe; no result-based inclusion",
+        "version": "v0.10.0-external-daily-1"
+      },
+      "research\\datasets\\v0.10.0-2025-latest-execution-evidence.json": {
+        "created_at": "2026-09-06T19:54:50.955648Z",
+        "feed": "sip",
+        "provider": "alpaca",
+        "quote_complete_anchors": 8820,
+        "quote_coverage_ratio": "1",
+        "raw_order_count": 0,
+        "raw_trade_count": 0,
+        "trade_complete_anchors": 8760,
+        "trade_coverage_ratio": "0.9931972789115646258503401361",
+        "unique_anchor_count": 8820,
+        "unique_timestamp_count": 420,
+        "version": "v0.10.0-lower-turnover-execution-evidence-1",
+        "window_seconds": 2
+      },
+      "research\\datasets\\v0.10.0-lower-execution-evidence.json": {
+        "created_at": "2026-09-06T19:54:40.619286Z",
+        "feed": "sip",
+        "provider": "alpaca",
+        "quote_complete_anchors": 26417,
+        "quote_coverage_ratio": "0.9999621470209705503823150882",
+        "raw_order_count": 21256,
+        "raw_trade_count": 10628,
+        "trade_complete_anchors": 26304,
+        "trade_coverage_ratio": "0.9956847603906427435839200545",
+        "unique_anchor_count": 26418,
+        "unique_timestamp_count": 1258,
+        "version": "v0.10.0-lower-turnover-execution-evidence-1",
+        "window_seconds": 60
+      },
+      "research\\datasets\\v0.10.0-pre-2020-daily.json": {
+        "created_at": "2026-09-06T19:31:26.607854Z",
+        "development_era_used": false,
+        "era": "pre-2020",
+        "feed": "sip",
+        "inception_policy": "symbol enters only on its first observed session; no backfill",
+        "manifest_hash": "e5697bd4463db9cb502986ff6786b557b623f59edfc93945e8229d83cac79f5e",
+        "provider": "alpaca",
+        "requested_end": "2020-01-01T00:00:00Z",
+        "requested_start": "2016-01-01T00:00:00Z",
+        "sealed_holdouts_used": false,
+        "universe_policy": "fixed 21-ETF v0.9 universe; no result-based inclusion",
+        "version": "v0.10.0-external-daily-1"
+      },
+      "research\\datasets\\v0.10.0-pre-2020-execution-evidence.json": {
+        "created_at": "2026-09-06T19:54:46.281225Z",
+        "feed": "sip",
+        "provider": "alpaca",
+        "quote_complete_anchors": 20486,
+        "quote_coverage_ratio": "0.9989759594284878334227337007",
+        "raw_order_count": 0,
+        "raw_trade_count": 0,
+        "trade_complete_anchors": 20103,
+        "trade_coverage_ratio": "0.9802994099575754620373530989",
+        "unique_anchor_count": 20507,
+        "unique_timestamp_count": 1006,
+        "version": "v0.10.0-lower-turnover-execution-evidence-1",
+        "window_seconds": 60
+      }
+    },
+    "partial_fill_count": {
+      "configurations": 30,
+      "count": 7229,
+      "definition": "0 < simulated fill quantity < requested difference; one count per order",
+      "fee_schedule_recorded": {
+        "CAT": "$0.000003 per share bought or sold",
+        "FINRA_TAF": "$0.000195 per share sold, max $9.79 per trade",
+        "SEC_SECTION_31": "$20.60 per $1,000,000 sold",
+        "rounding": "each fee type rounded up to $0.01 at end of day"
+      },
+      "no_historical_rerun": true,
+      "not_broker_fills": true,
+      "not_one_account": true,
+      "requested_quantity_reconstruction": "unavailable in aggregate execution report",
+      "sizing_rule": "floor(pretrade equity * target weight / current adjusted close)"
+    },
+    "source_code_boundaries": [
+      {
+        "bytes": 16638,
+        "path": "src\\tradeagent\\alpaca.py",
+        "sha256": "5e7813ff140e9c1080430b32f3a0fcb61d4cd1547078203b46cf1ef8662648bd",
+        "status": "preserved_read_only"
+      },
+      {
+        "bytes": 14233,
+        "path": "src\\tradeagent\\observed_execution.py",
+        "sha256": "ed315364bc3b952f22016580f60caf3c898122a438c4f33c626c3f4756d7efbe",
+        "status": "preserved_read_only"
+      },
+      {
+        "bytes": 17429,
+        "path": "src\\tradeagent\\execution_calibration.py",
+        "sha256": "dc71be2d24e3f1df664517d5b23b1a15e16e300002af6011b6f74f79708eec0f",
+        "status": "preserved_read_only"
+      },
+      {
+        "bytes": 50971,
+        "path": "src\\tradeagent\\execution_reference.py",
+        "sha256": "46fad1ee33b301a4c626efb2a75b5eae764f25d7c261bd9736ca0d5a3c46d323",
+        "status": "preserved_read_only"
+      }
+    ],
+    "supersession_action": "append audit; preserve old artifacts; no corrected run yet"
+  },
+  "schema_version": "v20-execution-accounting-audit-1",
+  "sources": [
+    {
+      "finding": "CTA/UTP shares from 2025-11-03; historical normalization unknown",
+      "url": "https://docs.alpaca.markets/us/v1.1/changelog/marketdata-bid-and-ask-size-display-change",
+      "verified_on": "2026-09-06"
+    },
+    {
+      "corroborated_by": "https://www.finra.org/rules-guidance/notices/information-notice-20260317",
+      "fetch_status": "HTTP_403",
+      "url": "https://www.sec.gov/rules-regulations/fee-rate-advisories/2026-2",
+      "verified_on": "2026-09-06"
+    },
+    {
+      "finding": "0 through April 3; $20.60/million April 4; OTC charge = trade date",
+      "url": "https://www.finra.org/rules-guidance/notices/information-notice-20260317",
+      "verified_on": "2026-09-06"
+    },
+    {
+      "finding": "2024/25: .000166 cap 8.30; 2026: .000195 cap 9.79",
+      "url": "https://www.finra.org/rules-guidance/rule-filings/sr-finra-2024-019/fee-adjustment-schedule",
+      "verified_on": "2026-09-06"
+    },
+    {
+      "finding": "SEC rounded up; TAF per-trade rounded/capped; CAT pass-through",
+      "url": "https://alpaca.markets/support/regulatory-fees"
+    },
+    {
+      "finding": "EOD per-account total rounding; scope conflicts unresolved",
+      "url": "https://docs.alpaca.markets/us/docs/regulatory-fees"
+    },
+    {
+      "finding": "raw/split/dividend/all explicitly distinct price/volume bases",
+      "url": "https://docs.alpaca.markets/us/reference/stockbars"
+    },
+    {
+      "finding": "asset eligibility required; qty/notional exclusive; nine decimals; extended-hours wording internally inconsistent; use frozen regular-session policy",
+      "url": "https://docs.alpaca.markets/us/docs/fractional-trading"
+    },
+    {
+      "finding": "paper omits fees/dividends/impact/latency/queue; no NBBO size cap",
+      "url": "https://docs.alpaca.markets/us/docs/paper-trading"
+    }
+  ],
+  "status": "passed_bounded_checks_historical_validation_unavailable",
+  "superseded_reasons": [
+    "v0.10 close-anchored regular-session fills use quotes at/after the session close; a completed close decision cannot execute at that close or an unsupported after-hours quote.",
+    "Missing arrival quotes fall back to pre-arrival observations, which are valuation marks, not causal executable fills.",
+    "Adjusted historical bar marks/quantities are combined with raw SIP execution prices without a raw share/corporate-action ledger.",
+    "One SEC/TAF/CAT schedule and unverified fee-type/day rounding are applied over all years, without effective charge dates or account-specific billing provenance.",
+    "Historical SIP size normalization is undocumented; treating payload sizes as shares does not establish displayed capacity, especially before 2025-11-03.",
+    "Adverse pre-arrival-to-arrival quote movement is already in the arrival price and is charged again as slippage; liquidity is not depleted across same-account orders."
+  ],
+  "untouched_holdouts_opened": false
+}

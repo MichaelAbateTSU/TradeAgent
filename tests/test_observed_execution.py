@@ -3,13 +3,20 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
+import pytest
+
 from tradeagent.alpaca import HistoricalQuote, HistoricalTrade
 from tradeagent.domain import MarketBar
 from tradeagent.lower_execution_evidence import (
     LowerEvidenceAnchor,
     PointInTimeSnapshot,
 )
-from tradeagent.observed_execution import simulate_observed_execution
+from tradeagent.observed_execution import (
+    DEFAULT_FEE_SCHEDULE,
+    ExecutionEvidenceUnavailableError,
+    _fill,
+    simulate_observed_execution,
+)
 from tradeagent.portfolio import PortfolioIntent
 from tradeagent.universe import UniverseFrame
 
@@ -91,7 +98,7 @@ def _snapshot(frame: UniverseFrame, bid: str, ask: str) -> PointInTimeSnapshot:
     )
 
 
-def test_observed_market_execution_includes_spread_slippage_fees_and_cash_days() -> None:
+def test_legacy_observed_execution_is_unavailable_without_accounting_provenance() -> None:
     frames = (_frame(0, "100"), _frame(1, "101"), _frame(2, "102"))
     snapshots = {
         ("SPY", frame.timestamp): _snapshot(
@@ -102,20 +109,10 @@ def test_observed_market_execution_includes_spread_slippage_fees_and_cash_days()
         for frame in frames
     }
 
-    report = simulate_observed_execution(
-        frames,
-        OneDayStrategy(),
-        snapshots,
-        execution_style="market",
-    )
-
-    assert len(report.period_returns) == len(frames)
-    assert report.full_fills == 2
-    assert report.missed_fills == 0
-    assert report.spread_cost > 0
-    assert report.slippage_cost > 0
-    assert report.regulatory_fees > 0
-    assert report.open_positions == {}
+    strategy = OneDayStrategy()
+    with pytest.raises(ExecutionEvidenceUnavailableError, match="raw price/share basis"):
+        simulate_observed_execution(frames, strategy, snapshots, execution_style="market")
+    assert strategy.frames == 0
 
 
 def test_decision_price_marketable_limit_records_missed_fill() -> None:
@@ -126,13 +123,67 @@ def test_decision_price_marketable_limit_records_missed_fill() -> None:
         ("SPY", frames[2].timestamp): _snapshot(frames[2], "101.99", "102.01"),
     }
 
-    report = simulate_observed_execution(
-        frames,
-        OneDayStrategy(),
-        snapshots,
-        execution_style="decision_marketable_limit",
-    )
+    with pytest.raises(ExecutionEvidenceUnavailableError, match="effective-dated"):
+        simulate_observed_execution(
+            frames,
+            OneDayStrategy(),
+            snapshots,
+            execution_style="decision_marketable_limit",
+        )
 
-    assert report.missed_fills == 1
-    assert report.full_fills == 0
-    assert report.total_return == 0
+
+@pytest.mark.parametrize("missing_after", [False, True])
+def test_synthetic_close_snapshot_is_not_an_executable_arrival(missing_after: bool) -> None:
+    frame = _frame(0, "100")
+    snapshot = _snapshot(frame, "99", "101")
+    if missing_after:
+        snapshot = snapshot.model_copy(update={"quote_after": None})
+    result = _fill(
+        "SPY",
+        frame.timestamp,
+        frame.timestamp,
+        Decimal("0.25"),
+        buy=True,
+        snapshots={("SPY", frame.timestamp): snapshot},
+        execution_style="market",
+        cost_multiplier=Decimal(1),
+        fee_schedule=DEFAULT_FEE_SCHEDULE,
+        quote_size_units="shares",
+    )
+    assert result.quantity == 0
+    assert result.status == "unavailable"
+
+
+def test_synthetic_arrival_move_is_not_charged_again_as_slippage() -> None:
+    frame = _frame(0, "100").model_copy(
+        update={
+            "timestamp": datetime(2024, 1, 2, 15, tzinfo=UTC),
+        }
+    )
+    snapshot = _snapshot(frame, "99", "101")
+    assert snapshot.quote_after is not None
+    snapshot = snapshot.model_copy(
+        update={
+            "quote_after": snapshot.quote_after.model_copy(
+                update={
+                    "bid_price": Decimal("100"),
+                    "ask_price": Decimal("102"),
+                }
+            ),
+        }
+    )
+    result = _fill(
+        "SPY",
+        frame.timestamp,
+        frame.timestamp,
+        Decimal("0.25"),
+        buy=True,
+        snapshots={("SPY", frame.timestamp): snapshot},
+        execution_style="market",
+        cost_multiplier=Decimal(1),
+        fee_schedule=DEFAULT_FEE_SCHEDULE,
+        quote_size_units="shares",
+    )
+    assert result.price == Decimal("102.00505")
+    assert result.delay_cost == Decimal("0.25")
+    assert result.slippage_cost == Decimal("0.0012625")

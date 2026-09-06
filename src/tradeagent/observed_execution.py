@@ -8,6 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from tradeagent.execution_calibration import _regular_session_quote
 from tradeagent.lower_execution_evidence import PointInTimeSnapshot
 from tradeagent.metrics import performance_metrics
 from tradeagent.portfolio import PortfolioIntent, PortfolioStrategy
@@ -23,9 +24,23 @@ class RegulatoryFeeSchedule(BaseModel):
     finra_taf_per_share_sold: Decimal = Decimal("0.000195")
     finra_taf_maximum_per_trade: Decimal = Decimal("9.79")
     cat_per_share: Decimal = Decimal("0.000003")
+    evidence_status: str = "unverified_current_cost_counterfactual_not_historical_charges"
 
 
 DEFAULT_FEE_SCHEDULE = RegulatoryFeeSchedule()
+
+
+class ExecutionEvidenceUnavailableError(ValueError):
+    """A legacy result must not masquerade as validated economic accounting."""
+
+
+def _require_execution_provenance() -> None:
+    raise ExecutionEvidenceUnavailableError(
+        "observed_execution_unavailable: legacy daily frames/snapshots do not establish raw "
+        "price/share basis, causal first eligible arrival, historical quote-size normalization, "
+        "corporate-action ledger, or effective-dated account/charge-date fee rules. "
+        "Preserve v0.10 artifacts as superseded for these reasons; do not rerun or qualify them."
+    )
 
 
 class ObservedExecutionReport(BaseModel):
@@ -75,6 +90,7 @@ def simulate_observed_execution(
         raise ValueError("observed execution requires daily frames")
     if cost_multiplier < 1:
         raise ValueError("cost multiplier cannot be below one")
+    _require_execution_provenance()
     cash = starting_equity
     positions: defaultdict[str, Decimal] = defaultdict(Decimal)
     prior_closes: dict[str, Decimal] = {}
@@ -262,6 +278,7 @@ class _Fill(BaseModel):
     delay_cost: Decimal
     slippage_cost: Decimal
     raw_fees: dict[str, Decimal]
+    status: str = "hypothetical_current_cost_counterfactual"
 
 
 def _fill(
@@ -275,14 +292,23 @@ def _fill(
     execution_style: ExecutionStyle,
     cost_multiplier: Decimal,
     fee_schedule: RegulatoryFeeSchedule,
+    quote_size_units: Literal["shares", "unknown"] = "unknown",
 ) -> _Fill:
+    if quantity <= 0 or cost_multiplier < 1:
+        raise ValueError("positive quantity and cost multiplier at least one required")
     submission = snapshots.get((symbol, submitted_at))
     signal = snapshots.get((symbol, signal_at))
     if (
         submission is None
         or submission.quote_before is None
+        or submission.quote_after is None
         or signal is None
         or signal.quote_before is None
+        or quote_size_units != "shares"
+        or submitted_at < signal_at
+        or not _regular_session_quote(submitted_at, submission.quote_after)
+        or signal.quote_before.timestamp > signal_at
+        or (signal_at - signal.quote_before.timestamp).total_seconds() > 60
     ):
         return _Fill(
             quantity=Decimal(0),
@@ -291,21 +317,17 @@ def _fill(
             delay_cost=Decimal(0),
             slippage_cost=Decimal(0),
             raw_fees={},
+            status="unavailable",
         )
-    before = submission.quote_before
-    after = submission.quote_after or submission.quote_before
+    after = submission.quote_after
     signal_quote = signal.quote_before
     mid = (after.bid_price + after.ask_price) / Decimal(2)
     signal_mid = (signal_quote.bid_price + signal_quote.ask_price) / Decimal(2)
     opposite = after.ask_price if buy else after.bid_price
     displayed = after.ask_size if buy else after.bid_size
     crossing = opposite - mid if buy else mid - opposite
-    micro_adverse = (
-        max(Decimal(0), after.ask_price - before.ask_price)
-        if buy
-        else max(Decimal(0), before.bid_price - after.bid_price)
-    )
-    slippage = max(mid * Decimal("0.00005"), micro_adverse)
+    # Arrival already includes the quote movement; only a distinct residual is stressed.
+    slippage = mid * Decimal("0.00005")
     stressed_crossing = crossing * cost_multiplier
     stressed_slippage = slippage * cost_multiplier
     price = (

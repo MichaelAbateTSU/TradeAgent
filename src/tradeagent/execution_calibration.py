@@ -7,6 +7,7 @@ from decimal import Decimal
 from math import sqrt
 from pathlib import Path
 from statistics import mean, stdev
+from typing import Literal
 from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict
@@ -15,6 +16,7 @@ from tradeagent.alpaca import HistoricalQuote
 from tradeagent.diagnostics import StrategyDiagnostics, TradeDiagnostic
 from tradeagent.domain import Side
 from tradeagent.execution_evidence import EvidenceAnchor
+from tradeagent.intraday import _xnys_session_bounds
 from tradeagent.squeeze_external import FrozenSqueezeExternalReport
 
 
@@ -68,6 +70,12 @@ class ObservedCellCalibration(BaseModel):
     observed_marketable_limit_net_edge: Decimal
     observed_market_date_clustered_sharpe: Decimal | None
     trade_details: tuple[ObservedTradeCalibration, ...]
+    economic_result_available: bool = False
+    limitations: tuple[str, ...] = (
+        "Quote-only hypothetical arithmetic excludes regulatory fees, impact and queue effects.",
+        "Historical quote-size units and normalization lack endpoint-specific provenance.",
+        "An unavailable fill is not a zero-return economic result.",
+    )
 
 
 class ExecutionCalibrationReport(BaseModel):
@@ -107,8 +115,8 @@ def calibrate_squeeze_execution(
         generated_at=generated_at,
         evidence_feed="alpaca-sip",
         cost_model_status=(
-            "observed top-of-book for covered trades; "
-            "depth beyond displayed size remains provisional"
+            "economic validation unavailable: historical quote-size normalization and effective "
+            "account fee rules unverified; quote-only hypothetical values are not net economic P&L"
         ),
         market_order_assumption=(
             "Fill at first SIP quote at/after submission, capped by displayed opposite-side size."
@@ -201,6 +209,8 @@ def _calibrate_trade(
     trade: TradeDiagnostic,
     timeframe: str,
     quotes: dict[tuple[str, str, str, datetime], tuple[HistoricalQuote, ...]],
+    *,
+    quote_size_units: Literal["shares", "unknown"] = "unknown",
 ) -> ObservedTradeCalibration:
     interval_minutes = {"5Min": 5, "30Min": 30, "1Hour": 60}[timeframe]
     entry_signal_at = trade.entry_at - timedelta(minutes=interval_minutes)
@@ -226,12 +236,14 @@ def _calibrate_trade(
         trade.quantity,
         trade.entry_at,
         entry_submission_quote,
+        quote_size_units=quote_size_units,
     )
     market_exit = _market_execution(
         Side.SELL,
         trade.quantity,
         trade.exit_at,
         exit_submission_quote,
+        quote_size_units=quote_size_units,
     )
     limit_entry = _marketable_limit_execution(
         Side.BUY,
@@ -239,6 +251,7 @@ def _calibrate_trade(
         trade.entry_at,
         entry_signal_quote,
         entry_submission_quote,
+        quote_size_units=quote_size_units,
     )
     limit_exit = _marketable_limit_execution(
         Side.SELL,
@@ -246,6 +259,7 @@ def _calibrate_trade(
         trade.exit_at,
         exit_signal_quote,
         exit_submission_quote,
+        quote_size_units=quote_size_units,
     )
     gross_edge: Decimal | None = None
     spread_cost: Decimal | None = None
@@ -304,14 +318,24 @@ def _market_execution(
     quantity: Decimal,
     submitted_at: datetime,
     quote: HistoricalQuote | None,
+    *,
+    quote_size_units: Literal["shares", "unknown"] = "unknown",
 ) -> SimulatedExecution:
-    if quote is None:
+    if quantity <= 0:
+        raise ValueError("positive requested quantity required")
+    if (
+        quote is None
+        or not _regular_session_quote(submitted_at, quote)
+        or quote_size_units != "shares"
+    ):
         return SimulatedExecution(
             side=side,
             submitted_at=submitted_at,
             fill_price=None,
             filled_quantity=Decimal(0),
-            status="missing_quote",
+            status="missing_or_ineligible_quote"
+            if quote is None or not _regular_session_quote(submitted_at, quote)
+            else "unknown_quote_size_units",
             displayed_size=Decimal(0),
         )
     price = quote.ask_price if side is Side.BUY else quote.bid_price
@@ -333,14 +357,24 @@ def _marketable_limit_execution(
     submitted_at: datetime,
     decision_quote: HistoricalQuote | None,
     submission_quote: HistoricalQuote | None,
+    *,
+    quote_size_units: Literal["shares", "unknown"] = "unknown",
 ) -> SimulatedExecution:
-    if decision_quote is None or submission_quote is None:
+    if quantity <= 0:
+        raise ValueError("positive requested quantity required")
+    if (
+        decision_quote is None
+        or submission_quote is None
+        or not _regular_session_quote(submitted_at, submission_quote)
+        or decision_quote.timestamp > submitted_at
+        or quote_size_units != "shares"
+    ):
         return SimulatedExecution(
             side=side,
             submitted_at=submitted_at,
             fill_price=None,
             filled_quantity=Decimal(0),
-            status="missing_quote",
+            status="unavailable_quote_or_size_provenance",
             displayed_size=Decimal(0),
         )
     limit = decision_quote.ask_price if side is Side.BUY else decision_quote.bid_price
@@ -402,17 +436,34 @@ def _decision_quote(
     quotes: tuple[HistoricalQuote, ...],
     timestamp: datetime,
 ) -> HistoricalQuote | None:
-    before = [quote for quote in quotes if quote.timestamp <= timestamp]
-    return before[-1] if before else (quotes[0] if quotes else None)
+    before = [
+        quote
+        for quote in quotes
+        if timedelta(0) <= timestamp - quote.timestamp <= timedelta(seconds=60)
+    ]
+    return max(before, key=lambda quote: quote.timestamp) if before else None
 
 
 def _submission_quote(
     quotes: tuple[HistoricalQuote, ...],
     timestamp: datetime,
 ) -> HistoricalQuote | None:
-    return next(
-        (quote for quote in quotes if quote.timestamp >= timestamp),
-        quotes[-1] if quotes else None,
+    after = [quote for quote in quotes if _regular_session_quote(timestamp, quote)]
+    return min(after, key=lambda quote: quote.timestamp) if after else None
+
+
+def _regular_session_quote(submitted_at: datetime, quote: HistoricalQuote) -> bool:
+    if submitted_at.tzinfo is None or quote.timestamp.tzinfo is None:
+        return False
+    if not timedelta(0) <= quote.timestamp - submitted_at <= timedelta(seconds=60):
+        return False
+    bounds = _xnys_session_bounds(submitted_at.astimezone(ZoneInfo("America/New_York")).date())
+    return (
+        bounds is not None
+        and bounds[0] <= submitted_at <= quote.timestamp < bounds[1]
+        and 0 < quote.bid_price <= quote.ask_price
+        and quote.bid_size >= 0
+        and quote.ask_size >= 0
     )
 
 

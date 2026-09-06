@@ -14,11 +14,12 @@ from tradeagent.candidate_selection import (
 from tradeagent.domain import MarketBar
 from tradeagent.external_validation import evaluate_external_era
 from tradeagent.frozen_candidate import FrozenCandidateManifest
-from tradeagent.lower_calibration import calibrate_lower_turnover_families
+from tradeagent.lower_calibration import LowerCalibrationReport, calibrate_lower_turnover_families
 from tradeagent.lower_execution_evidence import (
     LowerEvidenceAnchor,
     PointInTimeSnapshot,
 )
+from tradeagent.observed_execution import ExecutionEvidenceUnavailableError
 from tradeagent.universe import UniverseFrame
 
 
@@ -100,11 +101,18 @@ def test_calibration_freeze_and_external_validation_are_reproducible(
 ) -> None:
     frames = _panel()
     snapshots = _snapshots(frames)
-    calibration = calibrate_lower_turnover_families(
-        frames,
-        snapshots,
-        generated_at=datetime(2026, 9, 6, tzinfo=UTC),
-        evidence_manifest="test-evidence.json",
+    with pytest.raises(ExecutionEvidenceUnavailableError, match="raw"):
+        calibrate_lower_turnover_families(
+            frames,
+            snapshots,
+            generated_at=datetime(2026, 9, 6, tzinfo=UTC),
+            evidence_manifest="test-evidence.json",
+        )
+    # Archived results remain readable; missing provenance must not permit recomputation.
+    calibration = LowerCalibrationReport.model_validate_json(
+        Path("research/results/v0.10.0-lower-execution-calibration.json").read_text(
+            encoding="utf-8"
+        )
     )
     calibration_path = tmp_path / "calibration.json"
     calibration_path.write_text(calibration.model_dump_json(), encoding="utf-8")
@@ -121,23 +129,22 @@ def test_calibration_freeze_and_external_validation_are_reproducible(
         FrozenCandidateManifest.model_validate_json(Path(path).read_text(encoding="utf-8"))
         for path in protocol.candidate_files
     )
-    report = evaluate_external_era(
-        frames,
-        snapshots,
-        candidates,
-        calibration,
-        era="synthetic",
-        dataset_manifest="synthetic-data.json",
-        evidence_manifest="synthetic-evidence.json",
-        generated_at=datetime(2026, 9, 6, tzinfo=UTC),
-    )
+    with pytest.raises(ExecutionEvidenceUnavailableError):
+        evaluate_external_era(
+            frames,
+            snapshots,
+            candidates,
+            calibration,
+            era="synthetic",
+            dataset_manifest="synthetic-data.json",
+            evidence_manifest="synthetic-evidence.json",
+            generated_at=datetime(2026, 9, 6, tzinfo=UTC),
+        )
 
     assert calibration.raw_hypotheses == 30
     assert len(calibration.families) == 3
     assert len(candidates) == 2
     assert not protocol.external_data_present_at_selection
-    assert len(report.candidates) == 2
-    assert all(not candidate.qualified for candidate in report.candidates)
     assert len(selection_protocol_hash(protocol)) == 64
 
     external_directory = tmp_path / "already-seen"
