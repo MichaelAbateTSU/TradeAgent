@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Protocol
 
@@ -12,7 +13,9 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperPosition,
 )
 from tradeagent.alpaca_stream import AlpacaMarketStream, MarketQuote, MarketTrade
+from tradeagent.config import IntradayConfig
 from tradeagent.domain import MarketBar
+from tradeagent.intraday import NyseSessionCalendar, SessionPhase
 from tradeagent.persistence import ProductionRepository
 from tradeagent.scheduler import ReconciliationScheduler
 from tradeagent.worker import AutonomousPaperWorker
@@ -149,14 +152,71 @@ class ShadowAuditProcessor:
         )
 
 
+class MarketFeedStatusMonitor:
+    def __init__(
+        self,
+        repository: ProductionRepository,
+        intraday: IntradayConfig,
+        *,
+        instance_id: str,
+        clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+    ) -> None:
+        self._repository = repository
+        self._calendar = NyseSessionCalendar(intraday)
+        self._maximum_age_seconds = intraday.heartbeat_max_age_seconds
+        self._instance_id = instance_id
+        self._clock = clock
+
+    def check(self) -> str:
+        now = self._clock()
+        phase = self._calendar.gate(now).phase
+        worker = self._repository.latest_heartbeat("tradeagent-worker")
+        last_event_at = worker[1] if worker is not None else None
+        age_seconds = (now - last_event_at).total_seconds() if last_event_at is not None else None
+        market_open = phase is not SessionPhase.CLOSED
+        stale = market_open and (age_seconds is None or age_seconds > self._maximum_age_seconds)
+        state = "stale" if stale else "healthy" if market_open else "market_closed"
+        if stale:
+            self._repository.set_control("kill_switch", "active")
+        self._repository.heartbeat(
+            "tradeagent-market-feed",
+            self._instance_id,
+            {
+                "state": state,
+                "session_phase": phase.value,
+                "last_market_event_at": (
+                    last_event_at.isoformat() if last_event_at is not None else None
+                ),
+                "event_age_seconds": age_seconds,
+                "stale_after_seconds": self._maximum_age_seconds,
+            },
+            observed_at=now,
+        )
+        return state
+
+    async def run(self, stop_event: asyncio.Event) -> None:
+        while not stop_event.is_set():
+            self.check()
+            try:
+                await asyncio.wait_for(
+                    stop_event.wait(),
+                    timeout=self._maximum_age_seconds,
+                )
+            except TimeoutError:
+                continue
+
+
 async def run_shadow_runtime(
     stream: AlpacaMarketStream,
     worker: AutonomousPaperWorker,
     scheduler: ReconciliationScheduler,
     *,
     symbols: tuple[str, ...],
+    feed_monitor: MarketFeedStatusMonitor | None = None,
 ) -> None:
     stop_event = asyncio.Event()
     async with asyncio.TaskGroup() as tasks:
         tasks.create_task(worker.run(stream.events(symbols), stop_event=stop_event))
         tasks.create_task(scheduler.run(stop_event))
+        if feed_monitor is not None:
+            tasks.create_task(feed_monitor.run(stop_event))

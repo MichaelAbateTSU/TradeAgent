@@ -112,7 +112,7 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(
         title="TradeAgent Paper Console",
-        version="0.8.0",
+        version="0.9.0",
         description="Read-only local observability for fake-money trading.",
     )
 
@@ -173,6 +173,7 @@ def create_app(
                 "market_trades": None,
                 "shadow_nav": None,
                 "worker_heartbeat": None,
+                "market_feed_status": None,
                 "notifier_heartbeat": None,
                 "news_heartbeat": None,
             }
@@ -183,6 +184,7 @@ def create_app(
             worker = repository.latest_heartbeat("tradeagent-worker")
             notifier = repository.latest_heartbeat("tradeagent-notifier")
             news = repository.latest_heartbeat("tradeagent-news-worker")
+            market_feed = repository.latest_heartbeat("tradeagent-market-feed")
             return {
                 "connected": True,
                 "market_bars": bars,
@@ -190,6 +192,7 @@ def create_app(
                 "market_trades": trades,
                 "shadow_nav": outcome.get("shadow_nav") if outcome else None,
                 "worker_heartbeat": worker[1].isoformat() if worker else None,
+                "market_feed_status": market_feed[2] if market_feed else None,
                 "notifier_heartbeat": notifier[1].isoformat() if notifier else None,
                 "news_heartbeat": news[1].isoformat() if news else None,
             }

@@ -107,6 +107,7 @@ from tradeagent.research_dataset import (
 )
 from tradeagent.risk import RiskEngine
 from tradeagent.runtime import (
+    MarketFeedStatusMonitor,
     ProductionPaperReconciler,
     run_shadow_runtime,
 )
@@ -865,12 +866,18 @@ def main(argv: Sequence[str] | None = None) -> None:
                 interval_seconds=config.intraday.reconciliation_interval_seconds,
                 instance_id=f"{args.instance_id or socket.gethostname()}-reconciler",
             )
+            feed_monitor = MarketFeedStatusMonitor(
+                repository,
+                config.intraday,
+                instance_id=f"{args.instance_id or socket.gethostname()}-market-feed",
+            )
             asyncio.run(
                 run_shadow_runtime(
                     AlpacaMarketStream(stream_settings),
                     worker,
                     scheduler,
                     symbols=symbols,
+                    feed_monitor=feed_monitor,
                 )
             )
         return

@@ -11,9 +11,14 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperPosition,
 )
 from tradeagent.alpaca_stream import MarketQuote
+from tradeagent.config import IntradayConfig
 from tradeagent.data import synthetic_bars
 from tradeagent.persistence import Database, ProductionRepository
-from tradeagent.runtime import ProductionPaperReconciler, ShadowAuditProcessor
+from tradeagent.runtime import (
+    MarketFeedStatusMonitor,
+    ProductionPaperReconciler,
+    ShadowAuditProcessor,
+)
 
 
 class FakePaperClient:
@@ -63,3 +68,31 @@ def test_production_reconciler_and_shadow_audit(tmp_path: Path) -> None:
     assert status.open_order_count == 0
     assert repository.event_count() == 3
     database.dispose()
+
+
+def test_market_feed_monitor_marks_open_session_stale_and_closed_session_safe(
+    tmp_path: Path,
+) -> None:
+    database = Database(f"sqlite:///{tmp_path / 'feed-monitor.db'}")
+    database.initialize()
+    repository = ProductionRepository(database)
+    now = datetime(2026, 9, 4, 15, tzinfo=UTC)
+    monitor = MarketFeedStatusMonitor(
+        repository,
+        IntradayConfig(),
+        instance_id="feed-1",
+        clock=lambda: now,
+    )
+
+    assert monitor.check() == "stale"
+    assert repository.get_control("kill_switch") == "active"
+    repository.heartbeat("tradeagent-worker", "worker-1", {}, observed_at=now)
+    assert monitor.check() == "healthy"
+
+    closed = MarketFeedStatusMonitor(
+        repository,
+        IntradayConfig(),
+        instance_id="feed-1",
+        clock=lambda: datetime(2026, 9, 6, 15, tzinfo=UTC),
+    )
+    assert closed.check() == "market_closed"
