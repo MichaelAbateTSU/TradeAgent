@@ -1,0 +1,65 @@
+{
+  "blockers": [
+    "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY",
+    "IEX_SHADOW_ONLY_FROZEN_POLICY"
+  ],
+  "code_sha": "15470de960135ac2ecb2e81cf683349e932a784f",
+  "cohort_id": "v20-primary-source-demonstration",
+  "config_hash": "98318aa8e0dd8f7e63712664132ca89204a66683c4763ee64da3388ece90153c",
+  "edge_established": false,
+  "events_received": 4,
+  "last_successful_source_at": "2026-09-06T22:33:19.839946+00:00",
+  "market_errors": [],
+  "market_phase": "closed",
+  "mode": "shadow",
+  "next_open": "2026-09-08T09:30:00-04:00",
+  "official_context": {
+    "availability_status_is_as_of_last_poll": true,
+    "calendar_cache_seconds": 3600,
+    "halt_available": true,
+    "halt_cache_seconds": 60,
+    "halt_max_age_seconds": 90,
+    "iex_is_nbbo": false,
+    "last_errors": [],
+    "macro_available": true,
+    "macro_precision": "FOMC_date_only_whole_day_windows_BLS_explicit_times",
+    "macro_scope": "published_FOMC_meeting_days_and_all_scheduled_BLS_releases",
+    "observed_at": "2026-09-06T22:33:18.249987+00:00",
+    "official_urls": [
+      "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "https://www.bls.gov/schedule/news_release/bls.ics",
+      "https://www.nasdaqtrader.com/rss.aspx?feed=tradehalts"
+    ],
+    "paper_execution_authorized": false,
+    "quote_size_documentation": [
+      "https://docs.alpaca.markets/us/reference/stocklatestquotes-1",
+      "https://docs.alpaca.markets/us/v1.1/changelog/marketdata-bid-and-ask-size-display-change"
+    ],
+    "quote_size_rest_contract": "shares_on_current_latest_REST_sip_and_iex",
+    "unscheduled_macro_coverage": "not_available"
+  },
+  "operational_certificate": null,
+  "source_capabilities": {
+    "cache_ttl_seconds": 60,
+    "historical_revision_delivery": "not_provided_no_historical_receipt_reconstruction",
+    "inference_provider": null,
+    "inference_status": "missing_deterministic_fallback",
+    "last_errors": [],
+    "max_pages": 5,
+    "news_content_requested": true,
+    "news_entitlement": "observed_available",
+    "news_rate_limit_per_second": 2,
+    "news_retention_enabled": false,
+    "point_in_time_consensus": "missing",
+    "primary_rate_limit_per_second": 2,
+    "primary_urls_configured": 1,
+    "sec_enabled": true,
+    "supported_symbols": [
+      "AAPL",
+      "MSFT",
+      "NVDA"
+    ]
+  },
+  "state": "market_closed",
+  "tick_latency_seconds": 2.501022
+}

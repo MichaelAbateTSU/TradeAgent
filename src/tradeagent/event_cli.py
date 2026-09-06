@@ -149,6 +149,7 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                 "frozen_policy_feed_entitlement": diagnostics["market_data"]["sip_latest_quote"][
                     "accessible"
                 ],
+                "configured_execution_feed": diagnostics["active_execution_feed"] == "sip",
                 "official_macro_context": not context.blocking_reasons(now=now),
                 "halts_verified": all(
                     context.halted_for(s, now=now) is False for s in settings.symbols.split(",")

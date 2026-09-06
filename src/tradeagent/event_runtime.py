@@ -159,7 +159,7 @@ class EventRuntime:
             ),
             "account_reconciled": reconciliation["healthy"],
             "cohort_frozen": True,
-            "source_connected": self.last_source_success is not None,
+            "source_connected": self._sources_fresh(now),
             "frozen_policy_market_feed": bool(self.market_states)
             and all(
                 state.feed == "sip" or DEFAULT_EVENT_POLICY.allow_iex_experimental_paper
@@ -198,10 +198,7 @@ class EventRuntime:
         # Risk/position supervision is independent of all ingestion and extraction failures.
         self.oms.supervise(
             tick_at,
-            feed_healthy=(
-                self.last_source_success is not None
-                and tick_at - self.last_source_success <= timedelta(seconds=120)
-            ),
+            feed_healthy=self._sources_fresh(tick_at),
         )
         self.context = self.context_client.poll(symbols=self.settings.symbols.split(","))
         self.store.audit(
@@ -327,6 +324,7 @@ class EventRuntime:
                 tick_at,
                 self.settings.cohort_id,
             )
+            self.oms.supervise(datetime.now(UTC), feed_healthy=False)
         pending = self.store.pending_evidence(self.settings.cohort_id)
         for row in pending:
             event = SourceEvent.model_validate(row["payload"])
@@ -521,7 +519,7 @@ class EventRuntime:
                 else None,
                 pre_event_available_at=pre.observed_at if pre else None,
                 halted=self.context.halted_for(mapping.symbol, now=now) if self.context else None,
-                feed_healthy=self.last_source_success is not None,
+                feed_healthy=self._sources_fresh(now),
                 macro_calendar_available_at=self.context.macro_calendar_available_at
                 if self.context
                 else None,
@@ -547,11 +545,22 @@ class EventRuntime:
             ask=market.ask,
             quote_at=market.quote_at,
             median_dollar_volume=market.median_daily_dollar_volume or Decimal(0),
-            source_valid=event.is_primary_source and event.availability_basis == "observed_receipt",
+            source_valid=(
+                event.is_primary_source
+                and event.availability_basis == "observed_receipt"
+                and self._sources_fresh(now)
+            ),
             certificate=self.cert,
             now=now,
         )
         self.store.audit("submission_result", result, now, self.settings.cohort_id)
+
+    def _sources_fresh(self, now: datetime) -> bool:
+        return (
+            self.last_source_success is not None
+            and timedelta(0) <= now - self.last_source_success <= timedelta(seconds=120)
+            and not self.source.last_errors
+        )
 
 
 async def run_event_service(

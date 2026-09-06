@@ -247,11 +247,13 @@ def test_experiment_freeze_idempotent_report_unqualified_and_changed_code_reject
         event_cli.handle_event_command(arguments("experiment-freeze", "--cohort-id", COHORT))
 
 
-def test_denied_latest_sip_cannot_issue_certificate_or_clear_kill_switch(
+@pytest.mark.parametrize("sip_allowed", [False, True])
+def test_feed_entitlement_controls_certificate_not_statistical_profit_claims(
     memory_database: Database,
     replay: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    sip_allowed: bool,
 ) -> None:
     repository = ProductionRepository(memory_database)
     repository.set_control("kill_switch", "active")
@@ -260,8 +262,9 @@ def test_denied_latest_sip_cannot_issue_certificate_or_clear_kill_switch(
         "live_credential_environment_present": False,
         "broker_positions": 0,
         "broker_open_orders": 0,
+        "active_execution_feed": "sip",
         "market_data": {
-            "sip_latest_quote": {"accessible": False, "http_status": 403},
+            "sip_latest_quote": {"accessible": sip_allowed},
             "historical_sip": {"accessible": True},
             "iex_latest_quote": {"accessible": True},
         },
@@ -279,22 +282,24 @@ def test_denied_latest_sip_cannot_issue_certificate_or_clear_kill_switch(
     result = invoke(
         capsys, "paper-preflight", "--cohort-id", COHORT, "--confirm-experimental-paper"
     )
-    assert result["operational_certificate_issued"] is False
-    assert result["mode"] == "shadow"
-    assert result["blockers"] == ["frozen_policy_feed_entitlement"]
+    assert result["operational_certificate_issued"] is sip_allowed
+    assert result["mode"] == ("experimental-paper" if sip_allowed else "shadow")
+    assert result["blockers"] == ([] if sip_allowed else ["frozen_policy_feed_entitlement"])
     assert result["certificate"]["establishes_edge"] is False
-    assert repository.get_control("kill_switch") == "active"
-    assert repository.get_control(f"{COHORT}:certificate") is None
-    assert repository.get_control("v20:mechanics_attestation") is None
+    assert repository.get_control("kill_switch") == ("inactive" if sip_allowed else "active")
+    assert (repository.get_control(f"{COHORT}:certificate") is not None) is sip_allowed
+    assert (repository.get_control("v20:mechanics_attestation") is not None) is sip_allowed
     assert broker.orders == {}
     assert EventStore(memory_database).report(COHORT)["cohort"] is not None
 
 
+@pytest.mark.parametrize("source_fails", ["none", "once", "continuous"])
 def test_run_shadow_once_runs_real_service_persists_abstention_and_releases_lease(
     memory_database: Database,
     replay: dict[str, Any],
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    source_fails: str,
 ) -> None:
     unverified = SourceEvent.model_validate(
         {
@@ -311,6 +316,8 @@ def test_run_shadow_once_runs_real_service_persists_abstention_and_releases_leas
         }
     )
     source_poll = Mock(return_value=(unverified,))
+    if source_fails != "none":
+        source_poll.side_effect = httpx.ReadTimeout("synthetic source timeout")
     source = SimpleNamespace(
         poll=source_poll,
         last_errors=(),
@@ -325,6 +332,31 @@ def test_run_shadow_once_runs_real_service_persists_abstention_and_releases_leas
     monkeypatch.setattr(event_runtime, "AlpacaPaperClient", lambda _: nullcontext(broker))
     monkeypatch.setattr(event_runtime, "EventMarketClient", lambda _: market)
     monkeypatch.setattr(event_runtime, "OfficialContextClient", lambda: context)
+    if source_fails != "none":
+        if source_fails == "continuous":
+            import asyncio
+
+            async def stop_after_one_cycle(_: float) -> None:
+                raise asyncio.CancelledError
+
+            monkeypatch.setattr(event_runtime.asyncio, "sleep", stop_after_one_cycle)
+            with pytest.raises(asyncio.CancelledError):
+                invoke(capsys, "run", "--mode", "shadow", "--cohort-id", COHORT)
+            heartbeat = ProductionRepository(memory_database).latest_heartbeat(
+                "tradeagent-event-worker"
+            )
+            assert heartbeat is not None and heartbeat[2]["state"] == "paused"
+        else:
+            with pytest.raises(httpx.ReadTimeout):
+                invoke(capsys, "run", "--mode", "shadow", "--once", "--cohort-id", COHORT)
+        assert ProductionRepository(memory_database).get_control(f"{COHORT}:pause")
+        assert broker.orders == {}
+        market.close.assert_called_once()
+        context.close.assert_called_once()
+        assert ProductionRepository(memory_database).acquire_worker_lock(
+            "tradeagent-event-worker", "replacement"
+        )
+        return
     result = invoke(capsys, "run", "--mode", "shadow", "--once", "--cohort-id", COHORT)
     assert result["mode"] == "shadow"
     assert result["events_received"] == 1

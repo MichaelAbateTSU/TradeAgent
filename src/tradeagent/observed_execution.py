@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from collections.abc import Sequence
 from datetime import date, datetime
-from decimal import ROUND_CEILING, ROUND_DOWN, Decimal
-from typing import Literal
+from decimal import ROUND_CEILING, Decimal
+from typing import Literal, NoReturn
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from tradeagent.execution_calibration import _regular_session_quote
 from tradeagent.lower_execution_evidence import PointInTimeSnapshot
-from tradeagent.metrics import performance_metrics
-from tradeagent.portfolio import PortfolioIntent, PortfolioStrategy
+from tradeagent.portfolio import PortfolioStrategy
 from tradeagent.universe import UniverseFrame
 
 ExecutionStyle = Literal["market", "decision_marketable_limit"]
@@ -34,7 +32,7 @@ class ExecutionEvidenceUnavailableError(ValueError):
     """A legacy result must not masquerade as validated economic accounting."""
 
 
-def _require_execution_provenance() -> None:
+def _require_execution_provenance() -> NoReturn:
     raise ExecutionEvidenceUnavailableError(
         "observed_execution_unavailable: legacy daily frames/snapshots do not establish raw "
         "price/share basis, causal first eligible arrival, historical quote-size normalization, "
@@ -91,182 +89,6 @@ def simulate_observed_execution(
     if cost_multiplier < 1:
         raise ValueError("cost multiplier cannot be below one")
     _require_execution_provenance()
-    cash = starting_equity
-    positions: defaultdict[str, Decimal] = defaultdict(Decimal)
-    prior_closes: dict[str, Decimal] = {}
-    equities = [starting_equity]
-    exposures: list[Decimal] = []
-    dates: list[date] = []
-    pending: PortfolioIntent | None = None
-    orders = full_fills = partial_fills = missed_fills = 0
-    traded_notional = Decimal(0)
-    spread_cost = delay_cost = slippage_cost = fees = flattening_cost = Decimal(0)
-    pnl_by_symbol: defaultdict[str, Decimal] = defaultdict(Decimal)
-
-    for frame in frames:
-        closes = {bar.symbol: bar.close for bar in frame.bars}
-        for symbol, quantity in positions.items():
-            if symbol in prior_closes:
-                pnl_by_symbol[symbol] += quantity * (closes[symbol] - prior_closes[symbol])
-        pretrade_equity = cash + sum(
-            (quantity * closes[symbol] for symbol, quantity in positions.items()),
-            Decimal(0),
-        )
-        daily_fees: defaultdict[str, Decimal] = defaultdict(Decimal)
-        if pending is not None:
-            for symbol in sorted(closes):
-                target_weight = pending.target_weights.get(symbol, Decimal(0))
-                target_quantity = (
-                    pretrade_equity * target_weight / closes[symbol]
-                ).to_integral_value(rounding=ROUND_DOWN)
-                difference = target_quantity - positions[symbol]
-                if difference == 0:
-                    continue
-                orders += 1
-                fill = _fill(
-                    symbol,
-                    frame.timestamp,
-                    pending.timestamp,
-                    abs(difference),
-                    buy=difference > 0,
-                    snapshots=snapshots,
-                    execution_style=execution_style,
-                    cost_multiplier=cost_multiplier,
-                    fee_schedule=fee_schedule,
-                )
-                spread_cost += fill.spread_cost
-                delay_cost += fill.delay_cost
-                slippage_cost += fill.slippage_cost
-                for fee_name, value in fill.raw_fees.items():
-                    daily_fees[fee_name] += value
-                if fill.quantity == abs(difference):
-                    full_fills += 1
-                elif fill.quantity > 0:
-                    partial_fills += 1
-                else:
-                    missed_fills += 1
-                signed_quantity = fill.quantity if difference > 0 else -fill.quantity
-                positions[symbol] += signed_quantity
-                notional = fill.quantity * fill.price
-                traded_notional += notional
-                cash += -notional if difference > 0 else notional
-                execution_cost = fill.spread_cost + fill.slippage_cost
-                pnl_by_symbol[symbol] -= execution_cost
-        charged_fees = sum(
-            (_round_up_cent(value) for value in daily_fees.values() if value > 0),
-            Decimal(0),
-        )
-        fees += charged_fees
-        cash -= charged_fees
-        if charged_fees:
-            pnl_by_symbol["REGULATORY_FEES"] -= charged_fees
-        equity = cash + sum(
-            (quantity * closes[symbol] for symbol, quantity in positions.items()),
-            Decimal(0),
-        )
-        equities.append(equity)
-        exposures.append(
-            sum(
-                (abs(quantity * closes[symbol]) for symbol, quantity in positions.items()),
-                Decimal(0),
-            )
-            / equity
-            if equity > 0
-            else Decimal(0)
-        )
-        dates.append(frame.timestamp.date())
-        pending = strategy.on_frame(frame)
-        prior_closes = closes
-
-    last = frames[-1]
-    final_fees: defaultdict[str, Decimal] = defaultdict(Decimal)
-    for symbol, quantity in tuple(positions.items()):
-        if quantity <= 0:
-            continue
-        orders += 1
-        fill = _fill(
-            symbol,
-            last.timestamp,
-            last.timestamp,
-            quantity,
-            buy=False,
-            snapshots=snapshots,
-            execution_style="market",
-            cost_multiplier=cost_multiplier,
-            fee_schedule=fee_schedule,
-        )
-        if fill.quantity == quantity:
-            full_fills += 1
-        elif fill.quantity > 0:
-            partial_fills += 1
-        else:
-            missed_fills += 1
-        proceeds = fill.quantity * fill.price
-        cash += proceeds
-        positions[symbol] -= fill.quantity
-        traded_notional += proceeds
-        spread_cost += fill.spread_cost
-        delay_cost += fill.delay_cost
-        slippage_cost += fill.slippage_cost
-        flattening_cost += fill.spread_cost + fill.slippage_cost
-        for fee_name, value in fill.raw_fees.items():
-            final_fees[fee_name] += value
-    final_fee_charge = sum(
-        (_round_up_cent(value) for value in final_fees.values() if value > 0),
-        Decimal(0),
-    )
-    fees += final_fee_charge
-    flattening_cost += final_fee_charge
-    cash -= final_fee_charge
-    final_equity = cash + sum(
-        (quantity * last.bar_for(symbol).close for symbol, quantity in positions.items()),
-        Decimal(0),
-    )
-    equities[-1] = final_equity
-    exposures[-1] = (
-        sum(
-            (abs(quantity * last.bar_for(symbol).close) for symbol, quantity in positions.items()),
-            Decimal(0),
-        )
-        / final_equity
-        if final_equity > 0
-        else Decimal(0)
-    )
-    metrics = performance_metrics(equities, traded_notional, periods_per_year=252)
-    return ObservedExecutionReport(
-        strategy_id=strategy.strategy_id,
-        execution_style=execution_style,
-        cost_multiplier=cost_multiplier,
-        started_at=frames[0].timestamp,
-        ended_at=frames[-1].timestamp,
-        starting_equity=starting_equity,
-        ending_equity=final_equity,
-        total_return=metrics["total_return"],
-        annualized_return=metrics["annualized_return"],
-        annualized_volatility=metrics["annualized_volatility"],
-        sharpe_ratio=metrics["sharpe_ratio"],
-        sortino_ratio=metrics["sortino_ratio"],
-        max_drawdown=metrics["max_drawdown"],
-        turnover=metrics["turnover"],
-        average_gross_exposure=sum(exposures, Decimal(0)) / len(exposures),
-        period_dates=tuple(dates),
-        period_returns=tuple(
-            equities[index] / equities[index - 1] - Decimal(1) for index in range(1, len(equities))
-        ),
-        orders=orders,
-        full_fills=full_fills,
-        partial_fills=partial_fills,
-        missed_fills=missed_fills,
-        spread_cost=spread_cost,
-        delay_cost=delay_cost,
-        slippage_cost=slippage_cost,
-        regulatory_fees=fees,
-        flattening_cost=flattening_cost,
-        open_positions={
-            symbol: quantity for symbol, quantity in positions.items() if quantity != 0
-        },
-        pnl_by_symbol=dict(pnl_by_symbol),
-    )
 
 
 class _Fill(BaseModel):

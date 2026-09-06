@@ -5,6 +5,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import ClassVar
 
+import pytest
+
+from tradeagent.domain import MarketBar
 from tradeagent.event_context import OfficialContextSnapshot
 from tradeagent.event_market import EventMarketState
 from tradeagent.event_replay import ReplayBroker, replay_event_pipeline
@@ -48,6 +51,9 @@ class Source:
 
 
 class Market:
+    def __init__(self, with_records=False):
+        self.with_records = with_records
+
     def state(self, symbol, now):
         return EventMarketState(
             symbol=symbol,
@@ -59,8 +65,20 @@ class Market:
             ask_size=Decimal(100),
             quote_at=now,
             raw_quote={},
-            raw_trade=None,
-            completed_bar=None,
+            raw_trade={"t": now.isoformat(), "p": "100", "s": "20", "i": "fixture-trade", "x": "V"}
+            if self.with_records
+            else None,
+            completed_bar=MarketBar(
+                symbol=symbol,
+                timestamp=now,
+                open=Decimal(100),
+                high=Decimal(100),
+                low=Decimal(100),
+                close=Decimal(100),
+                volume=Decimal(1000000),
+            )
+            if self.with_records
+            else None,
             previous_close=Decimal(100),
             median_daily_dollar_volume=Decimal("100000000"),
             pre_event_volatility_bps=Decimal(100),
@@ -74,8 +92,9 @@ class Context:
         return OfficialContextSnapshot(observed_at=NOW, evidence=(), halts=())
 
 
+@pytest.mark.parametrize("with_records", [False, True])
 def test_real_worker_flow_records_explicit_abstention_once_and_reconciles(
-    tmp_path: Path, monkeypatch
+    tmp_path: Path, monkeypatch, with_records
 ):
     monkeypatch.setattr("tradeagent.event_runtime.datetime", Clock)
     with Database(f"sqlite:///{tmp_path / 'event-runtime.db'}") as database:
@@ -86,7 +105,13 @@ def test_real_worker_flow_records_explicit_abstention_once_and_reconciles(
         repository.acquire_worker_lock("tradeagent-event-worker", "fixture", observed_at=NOW)
         broker = ReplayBroker(NOW)
         runtime = EventRuntime(
-            store, settings, Source(), Market(), broker, instance_id="fixture", code_sha="fixture"
+            store,
+            settings,
+            Source(),
+            Market(with_records),
+            broker,
+            instance_id="fixture",
+            code_sha="fixture",
         )
         runtime.context_client.close()
         runtime.context_client = Context()
@@ -102,6 +127,7 @@ def test_real_worker_flow_records_explicit_abstention_once_and_reconciles(
         cert = runtime.operational_preflight(NOW)
         assert not cert.permits_paper
         assert not cert.establishes_edge
+        assert repository.market_data_counts() == ((1, 1, 1) if with_records else (0, 1, 0))
 
 
 def test_replay_is_separate_from_live_orders_and_alpha():
@@ -112,3 +138,32 @@ def test_replay_is_separate_from_live_orders_and_alpha():
     assert report["reconciled"]
     assert len(report["synthetic_orders"]) == 2
     assert report["excluded_from_strategy_performance"]
+
+
+def test_numeric_extraction_failure_is_durable_dead_letter_not_silent_drop(
+    tmp_path: Path, monkeypatch
+):
+    monkeypatch.setattr("tradeagent.event_runtime.datetime", Clock)
+    with Database(f"sqlite:///{tmp_path / 'dead-letter.db'}") as database:
+        database.initialize()
+        settings = ExperimentalSettings(mode="shadow", symbols="AAPL", cohort_id="dead-letter")
+        store = EventStore(database)
+        repository = ProductionRepository(database)
+        repository.acquire_worker_lock("tradeagent-event-worker", "fixture", observed_at=NOW)
+        broker = ReplayBroker(NOW)
+        runtime = EventRuntime(
+            store, settings, Source(), Market(), broker, instance_id="fixture", code_sha="fixture"
+        )
+        runtime.context_client.close()
+        runtime.context_client = Context()
+
+        def malformed_numeric(*args, **kwargs):
+            raise ArithmeticError("synthetic invalid numeric scale")
+
+        monkeypatch.setattr(runtime, "_extraction", malformed_numeric)
+        runtime.tick(NOW)
+        runtime.tick(NOW)
+        report = store.report(settings.cohort_id)
+        assert report["decision_count"] == 1
+        assert report["leading_no_trade_reasons"] == {"EXTRACTION_DEAD_LETTER": 1}
+        assert not broker.orders

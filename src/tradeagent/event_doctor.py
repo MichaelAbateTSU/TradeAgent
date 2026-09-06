@@ -81,6 +81,7 @@ def source_capabilities() -> dict[str, Any]:
         "broker_open_orders": len(pending),
         "clock": clock.model_dump(mode="json"),
         "market_data": capabilities,
+        "active_execution_feed": data.feed,
         "assets": [asset.model_dump(mode="json") for asset in assets],
         "news": {
             "provider": "Alpaca/Benzinga",

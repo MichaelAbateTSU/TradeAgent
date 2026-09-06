@@ -13,6 +13,11 @@ SQLite ledger.
 
 ## Current capabilities
 
+- v20 event-driven shadow collection with immutable receipt-time evidence and visible abstentions
+- Bounded H1 guidance, H2 valued-contract, and R1 official macro/news risk rules
+- Separate operational certificates and statistical qualification; no live-money mode
+- Fractional paper limit intents, persistent duplicate prevention, timeout recovery and risk exits
+- Independent execution/accounting reference checks and clearly labeled synthetic replay
 - Paper-only configuration; `mode` rejects values other than `paper`
 - UTC-aware OHLCV validation and deterministic synthetic market data
 - Long-only SMA crossover baseline producing target weights, not raw orders
@@ -200,13 +205,25 @@ docker compose up --build
 
 ## Qualification status
 
-**No candidate strategy is qualified, and strategy discovery has ended.** v0.10 corrected
-PBO/DSR and daily timestamps, calibrated all 30 lower-turnover configurations from SIP,
-froze two stable-plateau ensembles before acquiring external data, and tested each once in
-2016–2019 and 2025–2026. Both failed benchmark-relative, DSR, PBO, confidence, and
-best-year-dependence gates. The final decision is **Fail**. The 60-day paper clock may not
-begin; autonomous entry remains disabled and both sealed holdouts remain unopened. See
-[`docs/V0_10_REPORT.md`](docs/V0_10_REPORT.md).
+**No strategy edge is established.** The explicit v20 assignment replaces the v0.10
+stop-search policy with a bounded news/event program; it does not qualify any old strategy.
+The new worker is in **shadow mode**, with experimental brokerage authorization still
+blocked by the frozen protocol's feed/preflight requirements. Latest SIP access is denied;
+available IEX is not NBBO. Both sealed holdouts remain unopened.
+
+The independent reference audit also identifies execution-provenance defects in the
+archived v0.9/v0.10 economic results. Those artifacts are preserved, not repaired into
+profitable results. See the [v20 evidence index](docs/V20_REPORT.md) and
+[operations guide](docs/V20_OPERATIONS.md).
+
+```powershell
+tradeagent doctor
+tradeagent audit-execution
+tradeagent evaluate-extraction
+tradeagent event-replay
+tradeagent run --mode shadow --cohort-id v20-forward-shadow-001
+tradeagent experiment-report --cohort-id v20-forward-shadow-001
+```
 
 ## Development
 
