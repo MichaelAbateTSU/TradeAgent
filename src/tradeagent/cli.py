@@ -47,6 +47,10 @@ from tradeagent.execution_evidence import (
     squeeze_evidence_anchors,
     write_evidence_manifest,
 )
+from tradeagent.external_dataset import (
+    build_external_daily_dataset,
+    write_external_manifest,
+)
 from tradeagent.holdout import (
     HOLDOUT_AUTHORIZATION,
     development_frames,
@@ -595,6 +599,25 @@ def _parser() -> argparse.ArgumentParser:
         "--output",
         type=Path,
         default=Path("research/results/v0.10.0-lower-execution-calibration.json"),
+    )
+    external_data = subparsers.add_parser(
+        "build-v010-external-data",
+        help="download both frozen-candidate external eras after manifest freeze",
+    )
+    external_data.add_argument(
+        "--candidate-directory",
+        type=Path,
+        default=Path("research/freezes/v0.10.0"),
+    )
+    external_data.add_argument(
+        "--output-directory",
+        type=Path,
+        default=Path("data/v010/external"),
+    )
+    external_data.add_argument(
+        "--manifest-directory",
+        type=Path,
+        default=Path("research/datasets"),
     )
     return parser
 
@@ -1185,6 +1208,56 @@ def main(argv: Sequence[str] | None = None) -> None:
                         lower_calibration_result.effective_independent_trials
                     ),
                     "qualified_strategy_ids": (lower_calibration_result.qualified_strategy_ids),
+                }
+            )
+        )
+        return
+
+    if args.command == "build-v010-external-data":
+        candidate_manifests = sorted(args.candidate_directory.glob("*-candidate.json"))
+        if len(candidate_manifests) != 2:
+            raise RuntimeError(
+                "external data acquisition requires exactly two committed candidate manifests"
+            )
+        data_settings = AlpacaDataSettings.model_validate({})
+        era_specs = (
+            (
+                "pre-2020",
+                _parse_utc("2016-01-01T00:00:00Z"),
+                _parse_utc("2020-01-01T00:00:00Z"),
+            ),
+            (
+                "2025-latest",
+                _parse_utc("2025-01-01T00:00:00Z"),
+                _parse_utc("2026-09-05T00:00:00Z"),
+            ),
+        )
+        external_manifests = []
+        with AlpacaDataClient(data_settings) as data_client:
+            for era, start, end in era_specs:
+                external_manifest = build_external_daily_dataset(
+                    data_client,
+                    args.output_directory / era,
+                    era=era,
+                    start=start,
+                    end=end,
+                    symbols=V09_ETF_UNIVERSE,
+                )
+                path = args.manifest_directory / f"v0.10.0-{era}-daily.json"
+                write_external_manifest(path, external_manifest)
+                external_manifests.append((path, external_manifest))
+        print(
+            _json(
+                {
+                    "eras": [
+                        {
+                            "era": manifest.era,
+                            "manifest": str(path),
+                            "manifest_hash": manifest.manifest_hash,
+                            "files": len(manifest.files),
+                        }
+                        for path, manifest in external_manifests
+                    ]
                 }
             )
         )

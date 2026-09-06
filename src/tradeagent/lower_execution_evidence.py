@@ -176,6 +176,23 @@ def build_lower_evidence_anchors(
     )
 
 
+def build_frame_observation_anchors(
+    frames: Sequence[UniverseFrame],
+    *,
+    hypothesis_ids: Sequence[str],
+) -> tuple[LowerEvidenceAnchor, ...]:
+    return tuple(
+        LowerEvidenceAnchor(
+            symbol=bar.symbol,
+            timestamp=frame.timestamp,
+            anchor_types=("external_observation",),
+            hypothesis_ids=tuple(hypothesis_ids),
+        )
+        for frame in frames
+        for bar in frame.bars
+    )
+
+
 def collect_lower_execution_evidence(
     source: BulkEvidenceSource,
     anchors: Sequence[LowerEvidenceAnchor],
