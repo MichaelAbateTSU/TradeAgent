@@ -37,6 +37,11 @@ from tradeagent.economic_ml import (
     report_hash as economic_ml_report_hash,
 )
 from tradeagent.engine import TradingEngine
+from tradeagent.execution_evidence import (
+    collect_execution_evidence,
+    squeeze_evidence_anchors,
+    write_evidence_manifest,
+)
 from tradeagent.holdout import (
     HOLDOUT_AUTHORIZATION,
     development_frames,
@@ -102,6 +107,7 @@ from tradeagent.runtime import (
 )
 from tradeagent.scheduler import ReconciliationScheduler
 from tradeagent.squeeze_external import (
+    FrozenSqueezeExternalReport,
     evaluate_frozen_squeeze_matrix,
 )
 from tradeagent.squeeze_external import (
@@ -465,6 +471,25 @@ def _parser() -> argparse.ArgumentParser:
         "--output",
         type=Path,
         default=Path("research/results/v0.9.0-economic-ml.json"),
+    )
+    execution_evidence = subparsers.add_parser(
+        "collect-squeeze-evidence",
+        help="archive SIP quotes and trades around every frozen squeeze signal and fill",
+    )
+    execution_evidence.add_argument(
+        "--report",
+        type=Path,
+        default=Path("research/results/v0.9.0-frozen-squeeze-external.json"),
+    )
+    execution_evidence.add_argument(
+        "--records",
+        type=Path,
+        default=Path("data/v09/execution-evidence/squeeze-quotes-trades.jsonl"),
+    )
+    execution_evidence.add_argument(
+        "--manifest",
+        type=Path,
+        default=Path("research/datasets/v0.9.0-squeeze-execution-evidence.json"),
     )
     return parser
 
@@ -887,6 +912,33 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "eligible": economic_report.eligible,
                     "qualified": economic_report.qualified,
                     "qualification_reasons": economic_report.qualification_reasons,
+                }
+            )
+        )
+        return
+
+    if args.command == "collect-squeeze-evidence":
+        squeeze_report = FrozenSqueezeExternalReport.model_validate_json(
+            args.report.read_text(encoding="utf-8")
+        )
+        anchors = squeeze_evidence_anchors(squeeze_report)
+        evidence_settings = AlpacaDataSettings.model_validate({})
+        with AlpacaDataClient(evidence_settings) as data_client:
+            evidence_manifest = collect_execution_evidence(
+                data_client,
+                anchors,
+                args.records,
+            )
+        write_evidence_manifest(args.manifest, evidence_manifest)
+        print(
+            _json(
+                {
+                    "manifest": str(args.manifest),
+                    "records": str(args.records),
+                    "anchor_count": evidence_manifest.anchor_count,
+                    "quote_coverage_ratio": evidence_manifest.quote_coverage_ratio,
+                    "quote_records": evidence_manifest.quote_records,
+                    "trade_records": evidence_manifest.trade_records,
                 }
             )
         )
