@@ -4,8 +4,10 @@ import csv
 import json
 from collections.abc import Callable, Iterator, Sequence
 from datetime import UTC, datetime
+from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
+from statistics import median
 from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -71,6 +73,7 @@ class ResearchDatasetManifest(BaseModel):
     symbols: tuple[str, ...]
     timeframes: tuple[str, ...]
     liquidity_requirements: dict[str, str]
+    liquidity_observations: dict[str, dict[str, str | bool]]
     sealed_holdouts_used: bool
     files: tuple[ResearchDataFile, ...]
     manifest_hash: str
@@ -156,6 +159,12 @@ def build_v09_bar_dataset(
             if on_file is not None:
                 on_file(record)
 
+    liquidity_observations = {
+        symbol: _daily_liquidity(
+            output_directory / TIMEFRAME_DIRECTORIES["1Day"] / f"{symbol}.csv"
+        )
+        for symbol in normalized_symbols
+    }
     payload = {
         "version": "v0.9.0-bars-1",
         "provider": "alpaca",
@@ -172,6 +181,7 @@ def build_v09_bar_dataset(
             "maximum_decision_time_spread": "20 bps",
             "membership_policy": "predefined before download; no individual stocks",
         },
+        "liquidity_observations": liquidity_observations,
         "sealed_holdouts_used": False,
         "files": [record.model_dump(mode="json") for record in files],
     }
@@ -195,6 +205,7 @@ def build_v09_bar_dataset(
             "maximum_decision_time_spread": "20 bps",
             "membership_policy": "predefined before download; no individual stocks",
         },
+        liquidity_observations=liquidity_observations,
         sealed_holdouts_used=False,
         files=tuple(files),
         manifest_hash=manifest_hash,
@@ -232,3 +243,22 @@ def _file_hash(path: Path) -> str:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _daily_liquidity(path: Path) -> dict[str, str | bool]:
+    dollar_volumes: list[Decimal] = []
+    closes: list[Decimal] = []
+    with path.open(encoding="utf-8", newline="") as source:
+        for row in csv.DictReader(source):
+            close = Decimal(row["close"])
+            closes.append(close)
+            dollar_volumes.append(close * Decimal(row["volume"]))
+    if not closes:
+        raise ValueError(f"{path} contains no daily bars")
+    median_dollar_volume = Decimal(str(median(dollar_volumes)))
+    minimum_close = min(closes)
+    return {
+        "median_daily_dollar_volume": str(median_dollar_volume),
+        "minimum_close": str(minimum_close),
+        "passes": median_dollar_volume >= Decimal("50000000") and minimum_close >= Decimal("5"),
+    }
