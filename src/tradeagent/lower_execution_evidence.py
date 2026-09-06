@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Callable, Iterator, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
@@ -200,6 +201,7 @@ def collect_lower_execution_evidence(
     *,
     raw_trade_count: int,
     window_seconds: int = 2,
+    workers: int = 1,
     on_shard: Callable[[EvidenceShardManifest], None] | None = None,
 ) -> LowerExecutionEvidenceManifest:
     if not anchors:
@@ -208,23 +210,38 @@ def collect_lower_execution_evidence(
     by_timestamp: defaultdict[datetime, list[LowerEvidenceAnchor]] = defaultdict(list)
     for anchor in anchors:
         by_timestamp[anchor.timestamp].append(anchor)
-    manifests: list[EvidenceShardManifest] = []
-    for timestamp, timestamp_anchors in sorted(by_timestamp.items()):
-        path = shard_directory / f"{int(timestamp.timestamp() * 1_000_000)}.json"
-        if path.exists():
-            shard = EvidenceShard.model_validate_json(path.read_text(encoding="utf-8"))
-            if tuple(timestamp_anchors) != tuple(snapshot.anchor for snapshot in shard.snapshots):
-                raise ValueError(f"existing evidence shard does not match {timestamp}")
-        else:
-            shard = _collect_shard(
+    if workers < 1:
+        raise ValueError("evidence workers must be positive")
+    jobs = [
+        (timestamp, tuple(timestamp_anchors))
+        for timestamp, timestamp_anchors in sorted(by_timestamp.items())
+    ]
+    if workers == 1:
+        manifests = [
+            _collect_or_load_shard(
                 source,
+                shard_directory,
                 timestamp,
                 timestamp_anchors,
-                window_seconds=window_seconds,
+                window_seconds,
             )
-            _write_shard(path, shard)
-        manifest = _shard_manifest(path, shard)
-        manifests.append(manifest)
+            for timestamp, timestamp_anchors in jobs
+        ]
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            manifests = list(
+                executor.map(
+                    lambda job: _collect_or_load_shard(
+                        source,
+                        shard_directory,
+                        job[0],
+                        job[1],
+                        window_seconds,
+                    ),
+                    jobs,
+                )
+            )
+    for manifest in manifests:
         if on_shard is not None:
             on_shard(manifest)
     quote_complete = sum(shard.quote_complete for shard in manifests)
@@ -246,6 +263,29 @@ def collect_lower_execution_evidence(
         trade_coverage_ratio=Decimal(trade_complete) / Decimal(count),
         shards=tuple(manifests),
     )
+
+
+def _collect_or_load_shard(
+    source: BulkEvidenceSource,
+    shard_directory: Path,
+    timestamp: datetime,
+    anchors: tuple[LowerEvidenceAnchor, ...],
+    window_seconds: int,
+) -> EvidenceShardManifest:
+    path = shard_directory / f"{int(timestamp.timestamp() * 1_000_000)}.json"
+    if path.exists():
+        shard = EvidenceShard.model_validate_json(path.read_text(encoding="utf-8"))
+        if anchors != tuple(snapshot.anchor for snapshot in shard.snapshots):
+            raise ValueError(f"existing evidence shard does not match {timestamp}")
+    else:
+        shard = _collect_shard(
+            source,
+            timestamp,
+            anchors,
+            window_seconds=window_seconds,
+        )
+        _write_shard(path, shard)
+    return _shard_manifest(path, shard)
 
 
 def _collect_shard(

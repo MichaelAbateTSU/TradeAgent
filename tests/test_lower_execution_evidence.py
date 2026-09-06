@@ -133,6 +133,7 @@ def test_lower_evidence_shards_are_covered_and_resumable(tmp_path: Path) -> None
         anchors,
         tmp_path / "shards",
         raw_trade_count=2,
+        workers=2,
     )
     second = collect_lower_execution_evidence(
         source,

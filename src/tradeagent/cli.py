@@ -592,6 +592,7 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("research/datasets/v0.10.0-lower-execution-evidence.json"),
     )
+    lower_evidence.add_argument("--workers", type=int, default=4)
     lower_calibration = subparsers.add_parser(
         "calibrate-lower-execution",
         help="rerun all 30 configurations with observed SIP execution and stress",
@@ -660,6 +661,7 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("research/datasets"),
     )
+    external_evidence.add_argument("--workers", type=int, default=4)
     external_validation = subparsers.add_parser(
         "validate-v010-external",
         help="run both frozen candidates once on one untouched era",
@@ -1257,6 +1259,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                 lower_anchors,
                 args.shard_directory,
                 raw_trade_count=raw_trade_count,
+                workers=args.workers,
             )
         write_lower_evidence_manifest(args.manifest, lower_manifest)
         print(
@@ -1403,6 +1406,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                 external_anchors,
                 args.shard_directory / args.era,
                 raw_trade_count=0,
+                workers=args.workers,
             )
         path = args.manifest_directory / (f"v0.10.0-{args.era}-execution-evidence.json")
         write_lower_evidence_manifest(path, external_evidence_manifest)
