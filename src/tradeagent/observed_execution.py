@@ -281,7 +281,6 @@ def _fill(
     if (
         submission is None
         or submission.quote_before is None
-        or submission.quote_after is None
         or signal is None
         or signal.quote_before is None
     ):
@@ -294,7 +293,7 @@ def _fill(
             raw_fees={},
         )
     before = submission.quote_before
-    after = submission.quote_after
+    after = submission.quote_after or submission.quote_before
     signal_quote = signal.quote_before
     mid = (after.bid_price + after.ask_price) / Decimal(2)
     signal_mid = (signal_quote.bid_price + signal_quote.ask_price) / Decimal(2)
