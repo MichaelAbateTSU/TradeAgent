@@ -29,6 +29,13 @@ from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.data_quality import analyze_dataset
 from tradeagent.diagnostics import diagnose_strategy
 from tradeagent.domain import PaperBrokerState
+from tradeagent.economic_ml import (
+    build_economic_events,
+    evaluate_economic_ml,
+)
+from tradeagent.economic_ml import (
+    report_hash as economic_ml_report_hash,
+)
 from tradeagent.engine import TradingEngine
 from tradeagent.holdout import (
     HOLDOUT_AUTHORIZATION,
@@ -444,6 +451,21 @@ def _parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("research/results/v0.9.0-frozen-squeeze-external.json"),
     )
+    economic_ml = subparsers.add_parser(
+        "economic-ml-research",
+        help="evaluate net-return regression after event eligibility checks",
+    )
+    economic_ml.add_argument(
+        "--universe-directory",
+        type=Path,
+        default=Path("data/v09/alpaca-sip-20200101-20250101/1day"),
+    )
+    economic_ml.add_argument("--symbols", default=",".join(V09_ETF_UNIVERSE))
+    economic_ml.add_argument(
+        "--output",
+        type=Path,
+        default=Path("research/results/v0.9.0-economic-ml.json"),
+    )
     return parser
 
 
@@ -841,6 +863,30 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "sha256": squeeze_report_hash(squeeze_report),
                     "matrix_size": len(squeeze_report.results),
                     "family_decision": squeeze_report.family_decision,
+                }
+            )
+        )
+        return
+
+    if args.command == "economic-ml-research":
+        symbols = tuple(
+            symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
+        )
+        ml_dataset = load_universe(args.universe_directory, symbols)
+        economic_events = build_economic_events(ml_dataset.frames)
+        economic_report = evaluate_economic_ml(economic_events)
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(economic_report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(
+            _json(
+                {
+                    "output": str(args.output),
+                    "sha256": economic_ml_report_hash(economic_report),
+                    "total_candidate_events": economic_report.total_candidate_events,
+                    "positive_net_edge_events": economic_report.positive_net_edge_events,
+                    "eligible": economic_report.eligible,
+                    "qualified": economic_report.qualified,
+                    "qualification_reasons": economic_report.qualification_reasons,
                 }
             )
         )
