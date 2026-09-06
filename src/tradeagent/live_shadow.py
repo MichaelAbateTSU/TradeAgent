@@ -76,6 +76,14 @@ class _ShadowState:
     pending_turnover: Decimal = Decimal(0)
 
 
+@dataclass
+class _ShadowSignal:
+    symbol: str
+    signal_at: datetime
+    reference_price: Decimal
+    elapsed_frames: int = 0
+
+
 class LiveShadowDecisionProcessor:
     def __init__(
         self,
@@ -92,6 +100,7 @@ class LiveShadowDecisionProcessor:
         self._audit = ShadowAuditProcessor(repository)
         self._builder = SynchronizedFiveMinuteBuilder(symbols)
         self._news_context = news_context
+        self._signals: list[_ShadowSignal] = []
         self._state = _ShadowState(
             nav=config.broker.starting_cash,
             closes={},
@@ -107,9 +116,11 @@ class LiveShadowDecisionProcessor:
         frame = self._builder.add(bar)
         if frame is None:
             return
+        self._record_signal_decay(frame)
         self._record_prior_outcome(frame)
         intent = self._strategy.on_frame(frame)
         next_targets = dict(intent.target_weights)
+        prior_targets = dict(self._state.targets)
         news = {}
         if self._news_context is not None:
             for symbol, target in tuple(next_targets.items()):
@@ -127,6 +138,23 @@ class LiveShadowDecisionProcessor:
         self._state.pending_turnover = turnover
         self._state.targets = next_targets
         self._state.closes = {bar.symbol: bar.close for bar in frame.bars}
+        for bar in frame.bars:
+            if (
+                next_targets.get(bar.symbol, Decimal(0)) > 0
+                and prior_targets.get(bar.symbol, Decimal(0)) == 0
+            ):
+                self._signals.append(
+                    _ShadowSignal(
+                        symbol=bar.symbol,
+                        signal_at=frame.timestamp,
+                        reference_price=bar.close,
+                    )
+                )
+        expected_round_trip_cost_bps = Decimal(2) * (
+            self._config.broker.slippage_bps
+            + self._config.broker.spread_bps / Decimal(2)
+            + self._config.broker.commission_bps
+        )
         self._repository.append_event(
             "shadow_decision",
             {
@@ -142,6 +170,8 @@ class LiveShadowDecisionProcessor:
                 ).isoformat(),
                 "cost_model_status": "provisional",
                 "cost_model_feed": "iex-realtime-plus-estimated-slippage",
+                "expected_round_trip_cost_bps": str(expected_round_trip_cost_bps),
+                "expected_return_floor_bps": str(self._config.intraday.minimum_expected_edge_bps),
             },
             occurred_at=frame.timestamp,
             trace_id=f"shadow-decision:{frame.timestamp.isoformat()}",
@@ -149,6 +179,33 @@ class LiveShadowDecisionProcessor:
 
     async def on_trade(self, trade: MarketTrade, *, can_enter: bool) -> None:
         await self._audit.on_trade(trade, can_enter=can_enter)
+
+    def _record_signal_decay(self, frame: UniverseFrame) -> None:
+        remaining: list[_ShadowSignal] = []
+        for signal in self._signals:
+            signal.elapsed_frames += 1
+            if signal.elapsed_frames in {1, 3, 6}:
+                current = frame.bar_for(signal.symbol).close
+                self._repository.append_event(
+                    "shadow_signal_decay",
+                    {
+                        "symbol": signal.symbol,
+                        "signal_at": signal.signal_at.isoformat(),
+                        "observed_at": frame.timestamp.isoformat(),
+                        "horizon_frames": signal.elapsed_frames,
+                        "gross_return_bps": str(
+                            (current / signal.reference_price - 1) * Decimal(10_000)
+                        ),
+                    },
+                    occurred_at=frame.timestamp,
+                    trace_id=(
+                        f"shadow-decay:{signal.symbol}:{signal.signal_at.isoformat()}:"
+                        f"{signal.elapsed_frames}"
+                    ),
+                )
+            if signal.elapsed_frames < 6:
+                remaining.append(signal)
+        self._signals = remaining
 
     def _record_prior_outcome(self, frame: UniverseFrame) -> None:
         if not self._state.closes:
