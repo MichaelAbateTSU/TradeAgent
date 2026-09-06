@@ -1,0 +1,88 @@
+{
+  "freeze_version": "v0.8.0",
+  "frozen_git_commit": "4cbee33bb1a639cb5da2fa71ff4e50a41eb63059",
+  "frozen_at": "2026-09-06T16:01:19Z",
+  "status": "immutable",
+  "prohibited_actions": [
+    "Retune these strategy configurations on the frozen development periods",
+    "Open either sealed terminal holdout for these rejected configurations",
+    "Select instruments or timeframes after inspecting frozen results",
+    "Delete or overwrite failed experiments"
+  ],
+  "strategies": [
+    "sma-crossover-v1",
+    "volatility-target-trend-v1",
+    "zscore-mean-reversion-v1",
+    "cross-sectional-momentum-v1",
+    "opening-range-breakout-v1",
+    "session-vwap-mean-reversion-v1",
+    "regime-filtered-intraday-momentum-v1",
+    "candle-heikin-ashi-v1",
+    "candle-engulfing-v1",
+    "candle-inside-breakout-v1",
+    "noise-area-momentum-v1",
+    "donchian-atr-breakout-v1",
+    "volatility-squeeze-breakout-v1",
+    "trend-pullback-candidates-v1"
+  ],
+  "parameters": {
+    "paper_mode": true,
+    "long_only": true,
+    "intraday_target_weight": "0.0025",
+    "minimum_order_notional": "10",
+    "maximum_order_notional": "25",
+    "maximum_round_trips_per_day": 2,
+    "entry_start": "09:35:00 America/New_York",
+    "no_new_entries_after": "15:30:00 America/New_York",
+    "flatten_start": "15:50:00 America/New_York",
+    "slippage_bps": "2",
+    "spread_bps": "1",
+    "commission_bps": "1",
+    "cost_multipliers": ["0", "1", "1.5", "2", "3"],
+    "execution_delays": [1, 2],
+    "minimum_closed_trades": 200,
+    "minimum_dsr_probability": "0.95",
+    "maximum_pbo_probability": "0.20",
+    "multiple_testing_trials": 24,
+    "opening_range_minutes": 30,
+    "vwap_entry_z": "-1.5",
+    "vwap_exit_z": "-0.25",
+    "momentum_15m": "0.0005",
+    "momentum_30m": "0.001",
+    "momentum_60m": "0.002",
+    "maximum_spread_bps": "10",
+    "maximum_realized_volatility": "0.40"
+  },
+  "datasets": {
+    "five_minute_spy_qqq": {
+      "dataset_hash": "5e2a5fd52ce9e550927992317afafc33b5245da053e420060d177de89b0bd44e",
+      "development_hash": "cc18971c88c171376aac5f5c99e4d9054501f7fa40640c7afcacbe3eb936c2fd",
+      "holdout_hash": "2193b2efc9b6e772b86e7d81a155d1ec5228ab9980e1ab546e290279979ef03e",
+      "manifest_file_sha256": "1d0ab69f5ff21ba57f292802c89c819459dfee8cbf831fc72df55c28fe8882f9",
+      "development_frames": 8000,
+      "holdout_frames": 2000,
+      "holdout_opened": false
+    },
+    "one_minute_spy": {
+      "dataset_hash": "0c33c86dbb001ef02c15a0ee4becde399d98f051f1b09cc178d3b8c5b187fa5b",
+      "development_hash": "9333ed25b197107defe42bf4b787fe3e422b53db8f82e8212136d009a4d7f8d4",
+      "holdout_hash": "f072dd9a6062c6b36bb00f355bf559a0442535d81954fc5a702c62ddea77b863",
+      "manifest_file_sha256": "bad71d82604333493185c9084c40d2e52514aafe44704fed6ff6e20dc6b410b0",
+      "development_frames": 40000,
+      "holdout_frames": 10000,
+      "holdout_opened": false
+    }
+  },
+  "experiment_ledger": {
+    "path": "data/experiments.db",
+    "sha256": "9d13195fef09660e44f9bc60ba76f6f212efaa1f0371d76c149b4c0e47f9919b",
+    "record_count": 6,
+    "note": "Local artifact is ignored by Git; this hash freezes its exact v0.8.0 state."
+  },
+  "results": {
+    "authoritative_report": "docs/AUDIT_REPORT.md",
+    "historical_report": "docs/RESEARCH.md",
+    "qualification": "no qualified strategy",
+    "autonomous_orders_enabled": false
+  }
+}
