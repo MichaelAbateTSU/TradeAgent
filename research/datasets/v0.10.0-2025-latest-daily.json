@@ -1,0 +1,184 @@
+{
+  "version": "v0.10.0-external-daily-1",
+  "era": "2025-latest",
+  "provider": "alpaca",
+  "feed": "sip",
+  "requested_start": "2025-01-01T00:00:00Z",
+  "requested_end": "2026-09-05T00:00:00Z",
+  "created_at": "2026-09-06T19:31:27.942728Z",
+  "universe_policy": "fixed 21-ETF v0.9 universe; no result-based inclusion",
+  "inception_policy": "symbol enters only on its first observed session; no backfill",
+  "development_era_used": false,
+  "sealed_holdouts_used": false,
+  "files": [
+    {
+      "symbol": "SPY",
+      "path": "data/v010/external/2025-latest/SPY.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "9753b0fa62ac48a41d3e022d48b2a0da7ffde79af8320f4490c5df6cd6c83f76"
+    },
+    {
+      "symbol": "QQQ",
+      "path": "data/v010/external/2025-latest/QQQ.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "af5d3d76c8562340f1e5516dba2f9d715ded26c3da5a9301b5f9b482b640b559"
+    },
+    {
+      "symbol": "IWM",
+      "path": "data/v010/external/2025-latest/IWM.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "8d5fb61a0a18a56e398c65ffed2fe23310f101d147424cbd62e1bc3cfb1a7ffa"
+    },
+    {
+      "symbol": "DIA",
+      "path": "data/v010/external/2025-latest/DIA.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "85e2400bb3b4d56876976b5b727f47c4f0235a8639c6006aa15611c07ee35753"
+    },
+    {
+      "symbol": "XLB",
+      "path": "data/v010/external/2025-latest/XLB.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "39eccf6d85f08152496e0d0b97628cd77b73a84e7654d604525026199d644cde"
+    },
+    {
+      "symbol": "XLC",
+      "path": "data/v010/external/2025-latest/XLC.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "f8e6fcf9c66fa976e670d043d2df58946138613c8c1c32e42488b2d7b19da748"
+    },
+    {
+      "symbol": "XLE",
+      "path": "data/v010/external/2025-latest/XLE.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "6aacc19d52b59d9e91283bf93af9c63c06dd801f1a579f53262e8052fbffc187"
+    },
+    {
+      "symbol": "XLF",
+      "path": "data/v010/external/2025-latest/XLF.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "7c0e7db49be5f9fab9e9773e599acaf815cd4d6dc7194858bbdd38aacbcb9a6e"
+    },
+    {
+      "symbol": "XLI",
+      "path": "data/v010/external/2025-latest/XLI.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "70d5d890bf1818a4f515b6e6ed2ef4fe0bcf6d96239917c98d4ba7e90f558e6a"
+    },
+    {
+      "symbol": "XLK",
+      "path": "data/v010/external/2025-latest/XLK.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "d378d9fa3e1252d959ce2635da00b1f09c3e6ce48e61cef1b979b7bec14c8f6b"
+    },
+    {
+      "symbol": "XLP",
+      "path": "data/v010/external/2025-latest/XLP.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "c7e1d4672da93c72bff8d6f99e0c42be71ac474628580feaeae4e8de9eeb326f"
+    },
+    {
+      "symbol": "XLRE",
+      "path": "data/v010/external/2025-latest/XLRE.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "56f76016a4ea8734cc78fe794400df352c399caa2619e848d00a5d0aab8f5d6c"
+    },
+    {
+      "symbol": "XLU",
+      "path": "data/v010/external/2025-latest/XLU.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "e236fc8cf7c539f30b929c2611ed7857700f756c112ca37ea7fe02a175063909"
+    },
+    {
+      "symbol": "XLV",
+      "path": "data/v010/external/2025-latest/XLV.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "d55399b95dd1c1ed32e646b123a451181f082da6c4fe450ef2849e3553625477"
+    },
+    {
+      "symbol": "XLY",
+      "path": "data/v010/external/2025-latest/XLY.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "6705ee623a7f1c954cc2b3ba0e7975e27d8648836936ff82709a5bd23099bdd6"
+    },
+    {
+      "symbol": "SHY",
+      "path": "data/v010/external/2025-latest/SHY.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "da434e5bb9bd2bb88088061acf3a36fe50a2b95ea17774d5d2fd55b03b4e0913"
+    },
+    {
+      "symbol": "IEF",
+      "path": "data/v010/external/2025-latest/IEF.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "9e95c29042b9c693eba62decc0691b30b19b586d85db6e36d621f003a0eef79b"
+    },
+    {
+      "symbol": "TLT",
+      "path": "data/v010/external/2025-latest/TLT.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "0acc0805c6e03902451a7f03b58664ecb3ca2526cf1f59ec1af63b0d48779993"
+    },
+    {
+      "symbol": "GLD",
+      "path": "data/v010/external/2025-latest/GLD.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "7cdd669ca0b58efea428118e16c5379d9faae5ca39ca6a3b26e0d53743018901"
+    },
+    {
+      "symbol": "EFA",
+      "path": "data/v010/external/2025-latest/EFA.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "5f25e428b2c3ff064848d964b6b16d7eb62c26e3db62ef387c5e3df2a668f292"
+    },
+    {
+      "symbol": "EEM",
+      "path": "data/v010/external/2025-latest/EEM.csv",
+      "rows": 420,
+      "started_at": "2025-01-02T21:00:00Z",
+      "ended_at": "2026-09-04T20:00:00Z",
+      "sha256": "68b086d8aa5b04a3f65bf2ff3ed77feb09182970103d63baa11769eda06eb925"
+    }
+  ],
+  "manifest_hash": "dd1c2e88124f9ab3225521e7093b6e5552997fce2e200e2d23891a35867fa3c8"
+}

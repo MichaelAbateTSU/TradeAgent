@@ -1,0 +1,184 @@
+{
+  "version": "v0.10.0-external-daily-1",
+  "era": "pre-2020",
+  "provider": "alpaca",
+  "feed": "sip",
+  "requested_start": "2016-01-01T00:00:00Z",
+  "requested_end": "2020-01-01T00:00:00Z",
+  "created_at": "2026-09-06T19:31:26.607854Z",
+  "universe_policy": "fixed 21-ETF v0.9 universe; no result-based inclusion",
+  "inception_policy": "symbol enters only on its first observed session; no backfill",
+  "development_era_used": false,
+  "sealed_holdouts_used": false,
+  "files": [
+    {
+      "symbol": "SPY",
+      "path": "data/v010/external/pre-2020/SPY.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "a5b7eb81a6fe209f9ec5ae300b5bbe6f880c62d8a3ab1ebc7fc8a0718c9204ad"
+    },
+    {
+      "symbol": "QQQ",
+      "path": "data/v010/external/pre-2020/QQQ.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "293916396600ec3df055c73de96a35b92df6e58958f36f2ca29a6d8a8a75bfae"
+    },
+    {
+      "symbol": "IWM",
+      "path": "data/v010/external/pre-2020/IWM.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "fbe9a690df39550d99ab6fcc425ed46d8f9fb6a4db8e61bcd2e827288e0770f1"
+    },
+    {
+      "symbol": "DIA",
+      "path": "data/v010/external/pre-2020/DIA.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "aa2a3f00df6b9b1cbfbca2d2c81dcf3a14f362c74cc4deabd12934b6421cc968"
+    },
+    {
+      "symbol": "XLB",
+      "path": "data/v010/external/pre-2020/XLB.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "ad9cfd55f78d68348993cbdc2d7f1d30fca064fdd83e064abbda2bac5733bd77"
+    },
+    {
+      "symbol": "XLC",
+      "path": "data/v010/external/pre-2020/XLC.csv",
+      "rows": 387,
+      "started_at": "2018-06-19T20:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "ae231678aa881048d159ca8a3606e40c8da6af37b35c13d3e247b51e9d744cdd"
+    },
+    {
+      "symbol": "XLE",
+      "path": "data/v010/external/pre-2020/XLE.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "7d0266aac6582c08acaece1ae894ae9a8cb0011ea6cfc6f156f22b7808543b34"
+    },
+    {
+      "symbol": "XLF",
+      "path": "data/v010/external/pre-2020/XLF.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "2d7e99af7273c7ad63246653cf730df3f8830472a3619c87240fcd07fad679c7"
+    },
+    {
+      "symbol": "XLI",
+      "path": "data/v010/external/pre-2020/XLI.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "4286254e5c8c5438e9362410138c28ee2a7c81fe78d34b1ca5df7cf2623f9294"
+    },
+    {
+      "symbol": "XLK",
+      "path": "data/v010/external/pre-2020/XLK.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "65b56321d7450589aa71128ebd11346ea140adfd5881825ed540cb201dcdf4e8"
+    },
+    {
+      "symbol": "XLP",
+      "path": "data/v010/external/pre-2020/XLP.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "e28487bad137a0ca169f44218e16317c1ba72b9cf23678705a0ed5a8da052188"
+    },
+    {
+      "symbol": "XLRE",
+      "path": "data/v010/external/pre-2020/XLRE.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "15cbe19a6e60afe15b9314edcd4e79f502e9af32cbc55b34e03ac18e4c41973b"
+    },
+    {
+      "symbol": "XLU",
+      "path": "data/v010/external/pre-2020/XLU.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "b588f0ded783434e09f0bb2e9629e81fcef5c3dcd16b6d24ffb5875b01f3d7c1"
+    },
+    {
+      "symbol": "XLV",
+      "path": "data/v010/external/pre-2020/XLV.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "3c5c62aab87fab759973e2c4b9d4c2e47c7f3c8a6c24eab3ff108aee56c03518"
+    },
+    {
+      "symbol": "XLY",
+      "path": "data/v010/external/pre-2020/XLY.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "2355a75c494c3ece623c7624f2945fecf14a7ac15327e4403a6afc9e4f93b828"
+    },
+    {
+      "symbol": "SHY",
+      "path": "data/v010/external/pre-2020/SHY.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "be40141834c69372c149d8d83d12653bfb5f0180d732911832fdc491b3658077"
+    },
+    {
+      "symbol": "IEF",
+      "path": "data/v010/external/pre-2020/IEF.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "b6b487441a202d766244979cbf1988bc66ec58ef1a8c4fd99b40da4c86394cef"
+    },
+    {
+      "symbol": "TLT",
+      "path": "data/v010/external/pre-2020/TLT.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "9604c8fb7185653d973a3609781d6a25879acc72fd4a39043b3248f4504aead3"
+    },
+    {
+      "symbol": "GLD",
+      "path": "data/v010/external/pre-2020/GLD.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "0d2b7626c31b64f2e00aec7c3ad7180bc58db1740a5852e46bb42e605105f204"
+    },
+    {
+      "symbol": "EFA",
+      "path": "data/v010/external/pre-2020/EFA.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "25c9960d5cd5625bfe2e9160249170db37ad8932560c9b71e6058af48d3b37a0"
+    },
+    {
+      "symbol": "EEM",
+      "path": "data/v010/external/pre-2020/EEM.csv",
+      "rows": 1006,
+      "started_at": "2016-01-04T21:00:00Z",
+      "ended_at": "2019-12-31T21:00:00Z",
+      "sha256": "0ad5a3ff40f0645ce6bd9e49cdae7fa765aa59d6c9a7c91da2180863e051a2df"
+    }
+  ],
+  "manifest_hash": "e5697bd4463db9cb502986ff6786b557b623f59edfc93945e8229d83cac79f5e"
+}
