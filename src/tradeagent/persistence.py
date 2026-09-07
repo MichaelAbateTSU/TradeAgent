@@ -127,7 +127,7 @@ notification_outbox = Table(
     "notification_outbox",
     metadata,
     Column("notification_id", String(36), primary_key=True),
-    Column("cycle_id", String(36), ForeignKey("position_cycles.cycle_id"), nullable=False),
+    Column("cycle_id", String(36), ForeignKey("position_cycles.cycle_id"), nullable=True),
     Column("notification_type", String(50), nullable=False),
     Column("payload", JSON, nullable=False),
     Column("status", String(20), nullable=False),
@@ -135,6 +135,7 @@ notification_outbox = Table(
     Column("provider_message_id", String(200), nullable=True),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("sent_at", DateTime(timezone=True), nullable=True),
+    Column("claimed_at", DateTime(timezone=True), nullable=True),
     UniqueConstraint("cycle_id", "notification_type", name="uq_cycle_notification"),
 )
 Index("ix_notification_outbox_status", notification_outbox.c.status)

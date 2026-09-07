@@ -92,6 +92,25 @@ Missing, stale or malformed context abstains.
 
 ## Operator view and clocks
 
+The existing Render notifier sends one **daily agent-status email at 18:00
+America/New_York**, including weekends and holidays, to the already configured
+`EMAIL_RECIPIENT`. It reports actual worker/cohort status, today's decisions,
+last-recorded broker/economic allocation P&L, blockers, and deterministic next steps.
+Stale data and unknown costs stay explicitly labelled; email never grants order permission.
+
+Schedule controls are `EMAIL_DAILY_ENABLED` (default `true`), `EMAIL_DAILY_TIMEZONE`
+(default `America/New_York`), `EMAIL_DAILY_HOUR` (default `18`), and
+`EMAIL_DAILY_MINUTE` (default `0`). A late worker start sends that local day's update
+once, not a backlog for previous days. The scheduler runs inside `tradeagent notifier`,
+not on the laptop and not as a new service.
+
+Migration `0007_daily_status_email` allows non-trade messages in the existing outbox.
+Daily messages have a deterministic date/timezone identity and no fictional position
+cycle. Interrupted sends can retry with the same provider idempotency key; old
+ambiguous claims become `needs_review` rather than risking a blind duplicate outside
+the provider window. Round-trip trade emails continue unchanged. Downgrading this
+migration requires explicitly archiving non-trade outbox history first.
+
 The dashboard's Event paper experiments section and `/api/event-product` show:
 mode, code/config identity, worker state, next session, separate allocation ledgers,
 source errors, leading abstention reasons, and evidence/decision detail.

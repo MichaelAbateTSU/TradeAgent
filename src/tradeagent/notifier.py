@@ -17,6 +17,10 @@ class OutboxDispatcher(Protocol):
     def dispatch_one(self) -> bool: ...
 
 
+class DueNotificationScheduler(Protocol):
+    def enqueue_due(self, *, observed_at: datetime) -> bool: ...
+
+
 class NotifierService:
     def __init__(
         self,
@@ -27,6 +31,7 @@ class NotifierService:
         poll_seconds: float = 5,
         maximum_backoff_seconds: float = 60,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+        daily_scheduler: DueNotificationScheduler | None = None,
     ) -> None:
         if poll_seconds <= 0 or maximum_backoff_seconds <= 0:
             raise ValueError("notifier timing values must be positive")
@@ -36,11 +41,12 @@ class NotifierService:
         self._poll_seconds = poll_seconds
         self._maximum_backoff_seconds = maximum_backoff_seconds
         self._clock = clock
+        self._daily_scheduler = daily_scheduler
 
     def run_once(self) -> bool:
         self._acquire_lock()
         try:
-            dispatched = self._dispatcher.dispatch_one()
+            dispatched = self._dispatch_one()
             self._heartbeat("running", dispatched=dispatched)
             return dispatched
         finally:
@@ -54,7 +60,7 @@ class NotifierService:
             self._heartbeat("starting", dispatched=False)
             while not stop.is_set():
                 try:
-                    dispatched = await asyncio.to_thread(self._dispatcher.dispatch_one)
+                    dispatched = await asyncio.to_thread(self._dispatch_one)
                 except EmailDeliveryError:
                     self._heartbeat("provider_error", dispatched=False)
                     await self._wait(stop, backoff)
@@ -71,6 +77,12 @@ class NotifierService:
     def _acquire_lock(self) -> None:
         if not self._repository.acquire_worker_lock("tradeagent-notifier", self._instance_id):
             raise NotifierAlreadyRunningError("another notifier owns the delivery lock")
+
+    def _dispatch_one(self) -> bool:
+        self._heartbeat("running", dispatched=False)
+        if self._daily_scheduler is not None:
+            self._daily_scheduler.enqueue_due(observed_at=self._clock())
+        return self._dispatcher.dispatch_one()
 
     async def _wait(self, stop_event: asyncio.Event, seconds: float) -> None:
         try:

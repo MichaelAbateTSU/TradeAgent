@@ -973,6 +973,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     if args.command == "notifier":
+        import logging
+
+        from tradeagent.daily_status import DailyStatusScheduler, DailyStatusSettings
+
+        logging.basicConfig(level=logging.INFO)
         config = AppConfig()
         email_settings = EmailSettings.model_validate({})
         with (
@@ -987,6 +992,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                     args.instance_id or os.getenv("RENDER_INSTANCE_ID") or socket.gethostname()
                 ),
                 poll_seconds=args.poll_seconds,
+                daily_scheduler=DailyStatusScheduler(database, DailyStatusSettings()),
             )
             if args.once:
                 dispatched = service.run_once()

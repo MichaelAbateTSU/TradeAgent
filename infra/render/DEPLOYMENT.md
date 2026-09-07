@@ -17,6 +17,11 @@ No new paid resource was added. See [v20 operations](../../docs/V20_OPERATIONS.m
 Automatic deploys are disabled on the event worker and dashboard so later commits
 cannot silently change a frozen cohort's code identity.
 
+The existing `tradeagent-notifier` also schedules daily status/next-step emails at
+18:00 Eastern every calendar day using the existing Resend sender and recipient.
+Its pre-deploy command applies `0007_daily_status_email`. This change does not
+redeploy or alter the frozen trading/event cohort.
+
 ## Original deployment record
 
 Deployed September 4, 2026 in the `InSight AI` Render workspace.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+import logging
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any, Literal, Protocol, cast
@@ -9,7 +10,8 @@ from uuid import UUID, uuid4
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy import insert, select, update
+from sqlalchemy import and_, insert, or_, select, update
+from sqlalchemy.exc import IntegrityError
 
 from tradeagent.persistence import Database, notification_outbox, position_cycles
 
@@ -25,6 +27,7 @@ class NotificationStatus(StrEnum):
     SENDING = "sending"
     SENT = "sent"
     FAILED = "failed"
+    NEEDS_REVIEW = "needs_review"
 
 
 class RoundTripEmail(BaseModel):
@@ -50,7 +53,7 @@ class OutboxMessage(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     notification_id: UUID
-    cycle_id: UUID
+    cycle_id: UUID | None
     notification_type: str
     payload: dict[str, Any]
     status: NotificationStatus
@@ -62,7 +65,9 @@ class EmailProvider(Protocol):
 
 
 class EmailDeliveryError(RuntimeError):
-    pass
+    def __init__(self, message: str, *, outcome_unknown: bool = False):
+        super().__init__(message)
+        self.outcome_unknown = outcome_unknown
 
 
 class EmailSettings(BaseSettings):
@@ -108,12 +113,27 @@ class ResendEmailProvider:
                 },
             )
             response.raise_for_status()
-        except httpx.HTTPError as error:
-            raise EmailDeliveryError("email provider request failed") from error
-        payload = response.json()
-        message_id = payload.get("id")
+        except httpx.TransportError as error:
+            raise EmailDeliveryError(
+                "email provider outcome unknown", outcome_unknown=True
+            ) from error
+        except httpx.HTTPStatusError as error:
+            raise EmailDeliveryError(
+                "email provider request failed",
+                outcome_unknown=error.response.status_code >= 500,
+            ) from error
+        try:
+            payload = response.json()
+        except ValueError as error:
+            raise EmailDeliveryError(
+                "email provider returned invalid JSON", outcome_unknown=True
+            ) from error
+        message_id = payload.get("id") if isinstance(payload, dict) else None
         if not message_id:
-            raise EmailDeliveryError("email provider response did not contain an id")
+            raise EmailDeliveryError(
+                "email provider response did not contain an id",
+                outcome_unknown=True,
+            )
         return str(message_id)
 
     def close(self) -> None:
@@ -242,17 +262,84 @@ class RoundTripNotificationRepository:
             )
         return notification_id
 
-    def claim_next(self) -> OutboxMessage | None:
+    def enqueue_status(
+        self, notification_id: UUID, payload: dict[str, Any], *, created_at: datetime
+    ) -> bool:
+        try:
+            with self._database.begin() as connection:
+                connection.execute(
+                    insert(notification_outbox).values(
+                        notification_id=str(notification_id),
+                        cycle_id=None,
+                        notification_type="daily_agent_status",
+                        payload=payload,
+                        status=NotificationStatus.PENDING.value,
+                        attempts=0,
+                        created_at=created_at,
+                    )
+                )
+            return True
+        except IntegrityError:
+            with self._database.begin() as connection:
+                existing = connection.scalar(
+                    select(notification_outbox.c.notification_id).where(
+                        notification_outbox.c.notification_id == str(notification_id)
+                    )
+                )
+            if existing is None:
+                raise
+            return False
+
+    def contains(self, notification_id: UUID) -> bool:
         with self._database.begin() as connection:
+            return (
+                connection.scalar(
+                    select(notification_outbox.c.notification_id).where(
+                        notification_outbox.c.notification_id == str(notification_id)
+                    )
+                )
+                is not None
+            )
+
+    def claim_next(self, *, observed_at: datetime | None = None) -> OutboxMessage | None:
+        now = observed_at or datetime.now(UTC)
+        stale_claim = now - timedelta(minutes=2)
+        # Resend's idempotency window is finite. Do not blindly retry an ambiguous old send.
+        safe_retry_start = now - timedelta(hours=23)
+        with self._database.begin() as connection:
+            review_required = connection.execute(
+                update(notification_outbox)
+                .where(
+                    notification_outbox.c.status == NotificationStatus.SENDING.value,
+                    or_(
+                        notification_outbox.c.claimed_at.is_(None),
+                        notification_outbox.c.claimed_at < safe_retry_start,
+                        notification_outbox.c.created_at < safe_retry_start,
+                    ),
+                )
+                .values(status=NotificationStatus.NEEDS_REVIEW.value)
+            )
+            if review_required.rowcount:
+                logging.getLogger(__name__).warning(
+                    "%s interrupted email(s) require delivery review; automatic resend suppressed",
+                    review_required.rowcount,
+                )
             row = (
                 connection.execute(
                     select(notification_outbox)
                     .where(
-                        notification_outbox.c.status.in_(
-                            [
-                                NotificationStatus.PENDING.value,
-                                NotificationStatus.FAILED.value,
-                            ]
+                        or_(
+                            notification_outbox.c.status.in_(
+                                [
+                                    NotificationStatus.PENDING.value,
+                                    NotificationStatus.FAILED.value,
+                                ]
+                            ),
+                            and_(
+                                notification_outbox.c.status == NotificationStatus.SENDING.value,
+                                notification_outbox.c.claimed_at <= stale_claim,
+                                notification_outbox.c.created_at >= safe_retry_start,
+                            ),
                         )
                     )
                     .order_by(notification_outbox.c.created_at)
@@ -265,17 +352,24 @@ class RoundTripNotificationRepository:
             if row is None:
                 return None
             attempts = int(row["attempts"]) + 1
-            connection.execute(
+            claimed = connection.execute(
                 update(notification_outbox)
-                .where(notification_outbox.c.notification_id == row["notification_id"])
+                .where(
+                    notification_outbox.c.notification_id == row["notification_id"],
+                    notification_outbox.c.status == row["status"],
+                    notification_outbox.c.attempts == row["attempts"],
+                )
                 .values(
                     status=NotificationStatus.SENDING.value,
                     attempts=attempts,
+                    claimed_at=now,
                 )
             )
+            if not claimed.rowcount:
+                return None
             return OutboxMessage(
                 notification_id=UUID(str(row["notification_id"])),
-                cycle_id=UUID(str(row["cycle_id"])),
+                cycle_id=UUID(str(row["cycle_id"])) if row["cycle_id"] is not None else None,
                 notification_type=str(row["notification_type"]),
                 payload=dict(row["payload"]),
                 status=NotificationStatus.SENDING,
@@ -334,10 +428,17 @@ class NotificationDispatcher:
             return False
         try:
             provider_message_id = self._provider.send(message)
-        except EmailDeliveryError:
-            self._repository.mark_failed(message.notification_id)
+        except EmailDeliveryError as error:
+            if not error.outcome_unknown:
+                self._repository.mark_failed(message.notification_id)
             raise
         self._repository.mark_sent(message.notification_id, provider_message_id)
+        logging.getLogger(__name__).info(
+            "Email accepted: type=%s notification_id=%s provider_id=%s",
+            message.notification_type,
+            message.notification_id,
+            provider_message_id,
+        )
         return True
 
 
