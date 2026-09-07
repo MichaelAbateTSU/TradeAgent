@@ -13,6 +13,7 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperOrder,
     AlpacaPaperPosition,
     PaperAsset,
+    PaperCalendarSession,
     PaperClock,
 )
 from tradeagent.config import AppConfig
@@ -20,6 +21,7 @@ from tradeagent.domain import OrderRequest
 from tradeagent.event_orders import ExperimentalOrderManager
 from tradeagent.event_store import EventStore
 from tradeagent.experimental_policy import ExperimentalSettings, certificate
+from tradeagent.intraday import NyseSessionCalendar
 from tradeagent.persistence import Database, ProductionRepository
 
 NOW = datetime(2026, 9, 8, 15, 0, tzinfo=UTC)
@@ -76,6 +78,19 @@ class Broker:
             next_open=self.now + timedelta(days=1),
             next_close=self.now + timedelta(hours=4),
         )
+
+    def calendar(self, *, start, end):
+        result = []
+        calendar = NyseSessionCalendar(AppConfig().intraday)
+        day = start
+        while day <= end:
+            bounds = calendar.session_bounds(day)
+            if bounds is not None:
+                result.append(
+                    PaperCalendarSession(session_date=day, open_at=bounds[0], close_at=bounds[1])
+                )
+            day += timedelta(days=1)
+        return tuple(result)
 
     def asset(self, symbol):
         return PaperAsset.model_validate(

@@ -8,6 +8,7 @@ Purpose = Literal["research", "iex-practice"]
 
 IEX_PRACTICE_LIMITATION = (
     "Real-time Alpaca IEX is single-venue data, not consolidated SIP/NBBO. "
+    "Alpaca paper matching uses NBBO, which can differ from the bot's IEX observations. "
     "Paper practice fills and quote paths do not validate strategy economics."
 )
 NO_INFERENCE_LIMITATIONS = {
@@ -45,7 +46,7 @@ def evidence_labels(purpose: str) -> dict[str, Any]:
 def is_calibration(payload: dict[str, Any]) -> bool:
     return (
         payload.get("entry_kind") == "calibration"
-        or payload.get("trade_classification") == "calibration"
+        or payload.get("trade_classification") in {"calibration", "EQUIPMENT_TEST"}
         or payload.get("calibration") is True
     )
 
@@ -61,10 +62,29 @@ def reported_calibration(details: dict[str, Any]) -> dict[str, Any] | str | None
 def observation_labels(payload: dict[str, Any], purpose: str) -> dict[str, Any]:
     labels = evidence_labels(reporting_purpose({"purpose": purpose}, payload))
     if is_calibration(payload):
-        labels.update(trade_classification="calibration", qualification_eligible=False)
+        labels.update(
+            trade_classification=(
+                "EQUIPMENT_TEST"
+                if payload.get("trade_classification") == "EQUIPMENT_TEST"
+                else "calibration"
+            ),
+            qualification_eligible=False,
+            evidence_use="operational_equipment_test_only",
+        )
     elif payload.get("qualification_eligible") is False:
         labels["qualification_eligible"] = False
     return labels
+
+
+def trade_classification(payload: dict[str, Any]) -> str:
+    if is_calibration(payload):
+        return "EQUIPMENT_TEST"
+    if (
+        payload.get("trade_classification") == "NEWS_STRATEGY"
+        or payload.get("entry_kind") == "strategy"
+    ):
+        return "NEWS_STRATEGY"
+    return "UNCLASSIFIED"
 
 
 def reporting_limitations(details: dict[str, Any], purpose: str) -> dict[str, list[str]]:

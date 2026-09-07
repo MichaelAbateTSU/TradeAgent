@@ -6,6 +6,7 @@ from contextlib import ExitStack, nullcontext
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import ClassVar
+from uuid import uuid4
 
 import httpx
 import pytest
@@ -14,6 +15,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 
 from tradeagent import event_cli
+from tradeagent.domain import MarketBar
 from tradeagent.event_context import HaltStatus, OfficialContextSnapshot
 from tradeagent.event_market import EventMarketState
 from tradeagent.event_research import DEFAULT_EVENT_POLICY, EventQuote
@@ -22,7 +24,7 @@ from tradeagent.event_store import EventStore, event_order_links
 from tradeagent.experimental_policy import ExperimentalSettings, certificate
 from tradeagent.persistence import Database, ProductionRepository
 
-NOW = datetime(2026, 9, 8, 13, 35, tzinfo=UTC)
+NOW = datetime(2026, 9, 8, 13, 35, 5, tzinfo=UTC)
 D = Decimal
 
 
@@ -38,7 +40,19 @@ class Source:
     capabilities: ClassVar = {"sec_enabled": True, "primary_urls_configured": 0}
     last_errors = ()
 
+    def __init__(self):
+        self.last_poll_stats = {}
+
     def poll(self, **kwargs):
+        self.last_poll_stats = {
+            "poll_id": str(uuid4()),
+            "observed_at": Clock.current.isoformat(),
+            "requested_start": kwargs["start"].isoformat(),
+            "requested_end": kwargs["end"].isoformat(),
+            "coverage_complete": True,
+            "coverage_watermark": kwargs["end"].isoformat(),
+            "source_health": {},
+        }
         return ()
 
 
@@ -62,10 +76,19 @@ class Market:
                 "ask_size": D(100),
                 "quote_at": now,
                 "raw_quote": {},
-                "completed_bar": None,
+                "completed_bar": MarketBar(
+                    symbol=symbol,
+                    timestamp=now.replace(minute=now.minute // 5 * 5, second=0, microsecond=0),
+                    open=D(100),
+                    high=D("100.1"),
+                    low=D("99.9"),
+                    close=D(100),
+                    volume=D(1000),
+                ),
                 "previous_close": D(100),
                 "median_daily_dollar_volume": D("100000000"),
                 "pre_event_volatility_bps": D(100),
+                "completed_daily_sessions": 30,
                 **self.changes,
             }
         )
@@ -89,14 +112,15 @@ class Context:
             macro_calendar_available_at=now,
             macro_calendar_covers_until=now + timedelta(days=1),
             scheduled_macro_events=self.scheduled,
-            halts=(
+            halts=tuple(
                 HaltStatus(
-                    symbol="AAPL",
+                    symbol=symbol,
                     halted=self.halted,
                     available_at=now,
                     valid_until=now + timedelta(minutes=5),
                     reason="synthetic",
-                ),
+                )
+                for symbol in kwargs.get("symbols", ["AAPL"])
             ),
         )
 
@@ -147,6 +171,9 @@ def make_runtime(tmp_path, monkeypatch):
             )
             runtime.context_client.close()
             runtime.context_client = Context()
+            runtime.first_bar_receipts[("AAPL", NOW.replace(second=0, microsecond=0))] = (
+                NOW - timedelta(seconds=2)
+            )
             repo.set_control("v20:mechanics_attestation", "practice-code")
             if confirmed:
                 proof = certificate(
@@ -281,7 +308,15 @@ def test_denied_preflight_rechecks_after_transient_other_symbol_failure(make_run
 @pytest.mark.parametrize("boundary", ["calibration_window", "quote_age"])
 def test_final_dispatch_rechecks_window_and_quote_after_lookup(make_runtime, monkeypatch, boundary):
     runtime = make_runtime()
-    at = datetime(2026, 9, 8, 13, 59, 59, tzinfo=UTC) if boundary == "calibration_window" else NOW
+    at = (
+        datetime(2026, 9, 8, 13, 59, 59, tzinfo=UTC)
+        if boundary == "calibration_window"
+        else NOW + timedelta(seconds=5)
+    )
+    if boundary == "calibration_window":
+        runtime.first_bar_receipts[("AAPL", at.replace(minute=55, second=0))] = at - timedelta(
+            seconds=10
+        )
     if boundary == "quote_age":
         runtime.market.changes["quote_at"] = at - timedelta(seconds=4)
 

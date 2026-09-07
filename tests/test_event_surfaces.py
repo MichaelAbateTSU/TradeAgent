@@ -110,6 +110,7 @@ def market_state(**updates: Any) -> EventMarketState:
         "previous_close": "100",
         "median_daily_dollar_volume": "100000000",
         "pre_event_volatility_bps": "100",
+        "completed_daily_sessions": 30,
     }
     values.update(updates)
     return EventMarketState.model_validate(values)

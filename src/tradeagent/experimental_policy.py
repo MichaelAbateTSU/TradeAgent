@@ -63,6 +63,9 @@ class ExperimentalSettings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_practice(self) -> Self:
+        symbols = self.symbols.split(",")
+        if not symbols or any(symbol not in {"AAPL", "MSFT", "NVDA"} for symbol in symbols):
+            raise ValueError("v20 supports only AAPL, MSFT and NVDA")
         if self.purpose == "iex-practice":
             if self.practice_start_date is None:
                 raise ValueError("IEX practice requires an explicit start date")

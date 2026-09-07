@@ -82,6 +82,7 @@ class Market:
             previous_close=Decimal(100),
             median_daily_dollar_volume=Decimal("100000000"),
             pre_event_volatility_bps=Decimal(100),
+            completed_daily_sessions=30,
         )
 
 

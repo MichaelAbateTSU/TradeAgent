@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, date, datetime, time
 from decimal import Decimal
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, Literal, Self
+from zoneinfo import ZoneInfo
 
 import httpx
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from tradeagent.domain import OrderRequest, OrderType
@@ -109,6 +110,24 @@ class PaperClock(BaseModel):
     next_close: datetime
 
 
+class PaperCalendarSession(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    session_date: date
+    open_at: AwareDatetime
+    close_at: AwareDatetime
+
+    @model_validator(mode="after")
+    def validate_bounds(self) -> Self:
+        zone = ZoneInfo("America/New_York")
+        if (
+            self.open_at >= self.close_at
+            or self.open_at.astimezone(zone).date() != self.session_date
+            or self.close_at.astimezone(zone).date() != self.session_date
+        ):
+            raise ValueError("invalid broker calendar session bounds")
+        return self
+
+
 class AlpacaPaperClient:
     """Typed client that is structurally unable to address Alpaca's live endpoint."""
 
@@ -140,6 +159,33 @@ class AlpacaPaperClient:
 
     def clock(self) -> PaperClock:
         return PaperClock.model_validate(self._request("GET", "/v2/clock"))
+
+    def calendar(self, *, start: date, end: date) -> tuple[PaperCalendarSession, ...]:
+        if start > end:
+            raise ValueError("broker calendar range must increase")
+        payload = self._request(
+            "GET", "/v2/calendar", params={"start": start.isoformat(), "end": end.isoformat()}
+        )
+        if not isinstance(payload, list):
+            raise ValueError("broker calendar response must be an array")
+        sessions: list[PaperCalendarSession] = []
+        zone = ZoneInfo("America/New_York")
+        for row in payload:
+            day = date.fromisoformat(row["date"])
+            if not start <= day <= end or any(item.session_date == day for item in sessions):
+                raise ValueError("broker calendar contains an unexpected or duplicate date")
+            sessions.append(
+                PaperCalendarSession(
+                    session_date=day,
+                    open_at=datetime.combine(day, time.fromisoformat(row["open"]), zone).astimezone(
+                        UTC
+                    ),
+                    close_at=datetime.combine(
+                        day, time.fromisoformat(row["close"]), zone
+                    ).astimezone(UTC),
+                )
+            )
+        return tuple(sorted(sessions, key=lambda item: item.session_date))
 
     def asset(self, symbol: str) -> PaperAsset:
         if not symbol.isalpha():

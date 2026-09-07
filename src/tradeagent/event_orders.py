@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
@@ -21,7 +22,14 @@ from tradeagent.alpaca_paper import (
 from tradeagent.config import AppConfig
 from tradeagent.domain import OrderRequest, OrderType, Side
 from tradeagent.event_performance import allocation_ledgers
-from tradeagent.event_research import EventQuote
+from tradeagent.event_research import DEFAULT_EVENT_POLICY, EventQuote
+from tradeagent.event_session import (
+    empty_session_budget,
+    equipment_identity,
+    locked_session_budget,
+    save_session_budget,
+    session_control_key,
+)
 from tradeagent.event_store import (
     EventStore,
     event_cluster_claims,
@@ -94,7 +102,9 @@ class ExperimentalOrderManager:
         rows = self.store.linked_orders(self.settings.cohort_id)
         mismatches: list[str] = []
         for row in rows:
-            if row["status"] in FINAL:
+            if row["status"] in FINAL and (
+                not row["broker_order_id"] or _utc(row["created_at"]).date() != now.date()
+            ):
                 continue
             broker_order = self.broker.find_order_by_client_id(row["client_order_id"])
             if broker_order is not None:
@@ -103,6 +113,8 @@ class ExperimentalOrderManager:
                 mismatches.append("SUBMISSION_OUTCOME_UNKNOWN:" + row["client_order_id"])
         rows = self.store.linked_orders(self.settings.cohort_id)
         owned = self.inventory(rows)
+        positions = self.broker.positions()
+        open_orders = self.broker.open_orders()
         actual = {position.symbol: position.quantity for position in positions}
         if owned != {symbol: quantity for symbol, quantity in actual.items() if quantity}:
             mismatches.append("BROKER_POSITION_MISMATCH")
@@ -144,6 +156,9 @@ class ExperimentalOrderManager:
             quantity = Decimal(str(row["filled_quantity"]))
             response = row["link"].get("broker")
             if quantity <= 0 or not response or row["status"] not in FINAL:
+                continue
+            if response.get("filled_average_price") is None:
+                self.pause("FILL_PRICE_UNCONFIRMED", now)
                 continue
             value = quantity * Decimal(str(response["filled_average_price"]))
             if row["side"] == "buy":
@@ -202,6 +217,19 @@ class ExperimentalOrderManager:
         self.repo.set_control(f"{self.settings.cohort_id}:pause", reason)
         self.store.audit("pause", {"reason": reason}, now, self.settings.cohort_id)
 
+    def session_budget(self) -> dict[str, Any] | None:
+        if self.settings.purpose != "iex-practice" or self.settings.practice_start_date is None:
+            return None
+        digest = self.repo.get_control(f"{self.settings.cohort_id}:broker-account")
+        if digest is None:
+            digest = sha256(self.broker.account().id.encode()).hexdigest()
+        raw = self.repo.get_control(session_control_key(digest, self.settings.practice_start_date))
+        return (
+            dict(json.loads(raw))
+            if raw is not None
+            else empty_session_budget(digest, self.settings.practice_start_date)
+        )
+
     def valuation(self, marks: dict[str, Decimal], now: datetime) -> dict[str, Any]:
         report = allocation_ledgers(
             self.store.linked_orders(self.settings.cohort_id),
@@ -248,6 +276,8 @@ class ExperimentalOrderManager:
         now: datetime,
         execution_quote: EventQuote | None = None,
         entry_kind: Literal["strategy", "calibration"] = "strategy",
+        decision_ticket: dict[str, Any] | None = None,
+        maximum_limit_price: Decimal | None = None,
     ) -> dict[str, Any]:
         self.assert_owner(now)
         errors: list[str] = []
@@ -259,6 +289,23 @@ class ExperimentalOrderManager:
             or local_date < self.settings.practice_start_date
         ):
             errors.append("PRACTICE_NOT_STARTED")
+        if (
+            self.settings.purpose == "iex-practice"
+            and self.settings.practice_start_date is not None
+            and local_date > self.settings.practice_start_date
+        ):
+            errors.append("PRACTICE_SESSION_ENDED")
+        if (
+            self.settings.purpose == "iex-practice"
+            and entry_kind == "strategy"
+            and (
+                decision_ticket is None
+                or not decision_ticket.get("evidence_ids")
+                or decision_ticket.get("decision", {}).get("action") != "eligible"
+                or decision_ticket.get("decision", {}).get("symbol") != symbol
+            )
+        ):
+            errors.append("DECISION_TICKET_REQUIRED")
         if self.broker.broker_host != PAPER_HOST:
             raise ValueError("broker host forbidden")
         gate = self.calendar.gate(now)
@@ -335,18 +382,44 @@ class ExperimentalOrderManager:
             errors.append("UNSUPPORTED_ASSET")
         # Hard limit, not a market notional estimate: the broker cannot fill above this ceiling.
         limit = ask.quantize(Decimal("0.01"), rounding=ROUND_UP)
+        if maximum_limit_price is not None and limit > maximum_limit_price:
+            errors.append("POST_EVENT_CHASE_LIMIT")
         cap = self.settings.effective_notional(self.app)
         quantity = (cap / limit).quantize(Decimal("0.000001"), rounding=ROUND_DOWN)
         if quantity * limit < self.app.intraday.minimum_order_notional or account.cash < cap:
             errors.append("SIZE_OR_CASH_LIMIT")
         if errors:
-            result = {"state": "risk_rejected", "reasons": errors}
+            result = {
+                "state": "risk_rejected",
+                "reasons": errors,
+                "observed": {
+                    "quote_at": quote_at.isoformat(),
+                    "evaluated_at": now.isoformat(),
+                    "bid": str(bid),
+                    "ask": str(ask),
+                    "limit_price": str(limit),
+                    "maximum_limit_price": str(maximum_limit_price)
+                    if maximum_limit_price is not None
+                    else None,
+                    "median_daily_dollar_volume": str(median_dollar_volume),
+                    "notional": str(quantity * limit),
+                    "maximum_notional": str(cap),
+                    "market_phase": gate.phase.value,
+                    "source_valid": source_valid,
+                    "certificate_permits_paper": certificate.permits_paper,
+                },
+            }
             self.store.audit(
                 "risk_decision", result, now, self.settings.cohort_id + ":" + decision_id
             )
             return result
 
-        claim_key = sha256(f"{self.settings.cohort_id}:{cluster_key}".encode()).hexdigest()
+        account_digest = sha256(account.id.encode()).hexdigest()
+        claim_key = (
+            equipment_identity(account_digest, local_date)
+            if entry_kind == "calibration"
+            else sha256(f"{self.settings.cohort_id}:{cluster_key}".encode()).hexdigest()
+        )
         client_id = "ta20-" + sha256(f"{claim_key}:buy:1".encode()).hexdigest()[:40]
         with self.store.database.begin() as connection:
             # Serializes all entry reservations on PostgreSQL; reservation survives broker timeouts.
@@ -361,6 +434,26 @@ class ExperimentalOrderManager:
             )
             if cohort["config_hash"] != self.config_hash:
                 raise ValueError("cohort configuration mismatch")
+            budget = (
+                locked_session_budget(connection, account_digest, local_date, now)
+                if self.settings.purpose == "iex-practice"
+                else None
+            )
+            if budget is not None:
+                if entry_kind == "calibration" and budget["equipment_client_order_id"] is not None:
+                    return {
+                        "state": "duplicate_event",
+                        "client_order_id": budget["equipment_client_order_id"],
+                        "equipment_test_id": budget["equipment_test_id"],
+                        "owning_cohort": budget["equipment_cohort_id"],
+                    }
+                if entry_kind == "strategy" and budget["news_entries_reserved"] >= 1:
+                    return {
+                        "state": "risk_rejected",
+                        "reasons": ["NEWS_ENTRY_LIMIT"],
+                        "observed": {"news_entries_reserved": budget["news_entries_reserved"]},
+                        "limit": 1,
+                    }
             if connection.scalar(
                 select(event_cluster_claims.c.claim_key).where(
                     event_cluster_claims.c.claim_key == claim_key
@@ -374,7 +467,12 @@ class ExperimentalOrderManager:
                         event_order_links,
                         orders.c.client_order_id == event_order_links.c.client_order_id,
                     )
-                    .where(event_order_links.c.cohort_id == self.settings.cohort_id)
+                    .where(
+                        event_order_links.c.payload["session_id"].as_string()
+                        == budget["session_id"]
+                        if budget is not None
+                        else event_order_links.c.cohort_id == self.settings.cohort_id
+                    )
                 ).mappings()
             )
             if (
@@ -384,9 +482,13 @@ class ExperimentalOrderManager:
                 or self.broker.open_orders()
             ):
                 return {"state": "risk_rejected", "reasons": ["POSITION_OR_ORDER_RESERVED"]}
-            entries_today = sum(
-                row["side"] == "buy" and _utc(row["created_at"]).date() == now.date()
-                for row in linked
+            entries_today = (
+                budget["total_entries_reserved"]
+                if budget is not None
+                else sum(
+                    row["side"] == "buy" and _utc(row["created_at"]).date() == now.date()
+                    for row in linked
+                )
             )
             if entries_today >= min(
                 self.settings.max_entries_per_session, self.app.intraday.maximum_round_trips_per_day
@@ -399,6 +501,14 @@ class ExperimentalOrderManager:
                     created_at=now,
                 )
             )
+            if budget is not None:
+                budget["total_entries_reserved"] += 1
+                if entry_kind == "strategy":
+                    budget["news_entries_reserved"] += 1
+                else:
+                    budget["equipment_client_order_id"] = client_id
+                    budget["equipment_cohort_id"] = self.settings.cohort_id
+                save_session_budget(connection, budget, now)
             request = OrderRequest(
                 client_order_id=client_id,
                 decision_id=decision_id,
@@ -438,7 +548,36 @@ class ExperimentalOrderManager:
                     "entry_kind": entry_kind,
                     "purpose": self.settings.purpose,
                     "qualification_eligible": self.settings.purpose != "iex-practice",
+                    "trade_classification": (
+                        "EQUIPMENT_TEST" if entry_kind == "calibration" else "NEWS_STRATEGY"
+                    ),
+                    "account_digest": account_digest,
+                    "planned_session_date": local_date.isoformat(),
+                    "session_id": budget["session_id"] if budget is not None else None,
+                    "equipment_test_id": budget["equipment_test_id"]
+                    if entry_kind == "calibration" and budget is not None
+                    else None,
+                    "decision_ticket": decision_ticket,
                 },
+            )
+            self.store.audit(
+                "decision_ticket",
+                {
+                    **(decision_ticket or {}),
+                    "trade_classification": (
+                        "EQUIPMENT_TEST" if entry_kind == "calibration" else "NEWS_STRATEGY"
+                    ),
+                    "client_order_id": client_id,
+                    "request": request.model_dump(mode="json"),
+                    "limit_price": str(limit),
+                    "entry_notional": str(quantity * limit),
+                    "quote": execution_quote.model_dump(mode="json") if execution_quote else None,
+                    "risk_approved": True,
+                    "session_budget": budget,
+                },
+                now,
+                self.settings.cohort_id,
+                connection,
             )
         return self._dispatch(request, limit, now)
 
@@ -517,6 +656,15 @@ class ExperimentalOrderManager:
                 <= clock.timestamp
                 < gate.session_open + timedelta(minutes=30)
             )
+            insufficient_news_horizon = link.get("entry_kind") == "strategy" and (
+                gate.session_close is None
+                or clock.timestamp
+                + timedelta(
+                    minutes=DEFAULT_EVENT_POLICY.horizon_minutes
+                    + DEFAULT_EVENT_POLICY.flatten_before_close_minutes
+                )
+                > gate.session_close
+            )
             if (
                 not clock.is_open
                 or not gate.can_enter
@@ -526,6 +674,7 @@ class ExperimentalOrderManager:
                 or not timedelta(0) <= clock.timestamp - quote_at <= timedelta(seconds=5)
                 or clock.timestamp > datetime.fromisoformat(link["expires_at"])
                 or expired_calibration
+                or insufficient_news_horizon
                 or self.repo.get_control("kill_switch") == "active"
                 or self.repo.get_control(f"{self.settings.cohort_id}:pause")
             ):
@@ -539,6 +688,20 @@ class ExperimentalOrderManager:
                         .values(status="expired", updated_at=clock.timestamp)
                     )
                 return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
+        self.store.update_link(
+            request.client_order_id,
+            {**link, "submission_attempted_at": now.isoformat()},
+        )
+        self.store.audit(
+            "submission_attempt",
+            {
+                "client_order_id": request.client_order_id,
+                "side": request.side.value,
+                "request": request.model_dump(mode="json"),
+            },
+            now,
+            self.settings.cohort_id,
+        )
         try:
             response = (
                 self.broker.submit_limit_order(request, limit)
@@ -546,6 +709,59 @@ class ExperimentalOrderManager:
                 else self.broker.submit_market_order(request)
             )
         except (httpx.TransportError, httpx.HTTPStatusError) as error:
+            if isinstance(error, httpx.HTTPStatusError) and error.response.status_code in {
+                400,
+                401,
+                403,
+                404,
+                422,
+            }:
+                error_code = None
+                if "application/json" in error.response.headers.get("content-type", ""):
+                    try:
+                        payload = error.response.json()
+                    except ValueError:
+                        payload = None
+                    if isinstance(payload, dict) and isinstance(payload.get("code"), (str, int)):
+                        error_code = payload["code"]
+                if error.response.status_code == 422:
+                    existing = self.broker.find_order_by_client_id(request.client_order_id)
+                    if existing is not None:
+                        self._observe(request.client_order_id, existing, now)
+                        return {"state": "recovered", "client_order_id": request.client_order_id}
+                rejection = {
+                    "http_status": error.response.status_code,
+                    "provider_code": error_code,
+                    "reason": "broker_rejected_submission",
+                }
+                with self.store.database.begin() as connection:
+                    connection.execute(
+                        update(orders)
+                        .where(orders.c.client_order_id == request.client_order_id)
+                        .values(status="rejected", updated_at=now)
+                    )
+                    current_link = connection.execute(
+                        select(event_order_links.c.payload).where(
+                            event_order_links.c.client_order_id == request.client_order_id
+                        )
+                    ).scalar_one()
+                    connection.execute(
+                        update(event_order_links)
+                        .where(event_order_links.c.client_order_id == request.client_order_id)
+                        .values(payload={**current_link, "rejection": rejection})
+                    )
+                    self.store.audit(
+                        "broker_rejection",
+                        {"client_order_id": request.client_order_id, **rejection},
+                        now,
+                        self.settings.cohort_id,
+                        connection,
+                    )
+                return {
+                    "state": "rejected",
+                    "client_order_id": request.client_order_id,
+                    **rejection,
+                }
             self.store.audit(
                 "submission_unknown",
                 {"client_order_id": request.client_order_id, "error_type": type(error).__name__},
@@ -573,25 +789,62 @@ class ExperimentalOrderManager:
                 response.client_order_id != client_id
                 or response.symbol != current["symbol"]
                 or response.side != current["side"]
-                or response.filled_quantity < Decimal(str(current["filled_quantity"]))
+                or (
+                    current["broker_order_id"] is not None
+                    and response.id != current["broker_order_id"]
+                )
+                or not response.filled_quantity.is_finite()
+                or response.filled_quantity < 0
                 or response.filled_quantity > Decimal(str(current["quantity"]))
             ):
                 raise ValueError("broker state does not reconcile to durable intent")
+            link_value = connection.execute(
+                select(event_order_links.c.payload).where(
+                    event_order_links.c.client_order_id == client_id
+                )
+            ).scalar_one()
+            previous = link_value.get("broker")
+            previous_at = (
+                datetime.fromisoformat(previous["updated_at"])
+                if previous and previous.get("updated_at")
+                else None
+            )
+            incoming_state = lifecycle_state_from_alpaca(response).value
+            stale = (
+                previous_at is not None
+                and response.updated_at is not None
+                and response.updated_at < previous_at
+            ) or (
+                current["status"] in FINAL
+                and incoming_state not in FINAL
+                and response.filled_quantity <= Decimal(str(current["filled_quantity"]))
+            )
+            if stale:
+                self.store.audit(
+                    "broker_update_ignored",
+                    {
+                        "client_order_id": client_id,
+                        "reason": "out_of_order_update",
+                        "received": response.model_dump(mode="json"),
+                        "retained_status": current["status"],
+                    },
+                    now,
+                    self.settings.cohort_id,
+                    connection,
+                )
+                return
+            if response.filled_quantity < Decimal(str(current["filled_quantity"])):
+                raise ValueError("unexplained decrease in broker cumulative filled quantity")
             connection.execute(
                 update(orders)
                 .where(orders.c.client_order_id == client_id)
                 .values(
                     broker_order_id=response.id,
                     filled_quantity=response.filled_quantity,
-                    status=lifecycle_state_from_alpaca(response).value,
+                    status=incoming_state,
                     updated_at=now,
                 )
             )
-            link_value = connection.execute(
-                select(event_order_links.c.payload).where(
-                    event_order_links.c.client_order_id == client_id
-                )
-            ).scalar_one()
             link = dict(link_value)
             link["broker"] = response.model_dump(mode="json")
             connection.execute(
@@ -607,6 +860,82 @@ class ExperimentalOrderManager:
                 connection,
             )
 
+    def reconcile_stream_update(self, payload: dict[str, Any], now: datetime) -> None:
+        self.assert_owner(now)
+        if self.broker.broker_host != PAPER_HOST:
+            raise ValueError("broker stream reconciliation requires the paper host")
+        order = payload.get("order") or payload
+        client_id = order.get("client_order_id")
+        rows = self.store.linked_orders(self.settings.cohort_id)
+        if not any(row["client_order_id"] == client_id for row in rows):
+            self.store.audit(
+                "broker_stream_update",
+                {**payload, "owned": False, "reconciliation": "account reconciliation required"},
+                now,
+                self.settings.cohort_id,
+            )
+            self.reconcile(now)
+            return
+        actual = self.broker.find_order_by_client_id(str(client_id))
+        self.store.audit(
+            "broker_stream_update",
+            {
+                **payload,
+                "owned": True,
+                "rest_confirmed": actual is not None,
+                "rest_order": actual.model_dump(mode="json") if actual else None,
+            },
+            now,
+            self.settings.cohort_id,
+        )
+        if actual is None:
+            self.pause("STREAM_ORDER_NOT_CONFIRMED_BY_REST", now)
+        else:
+            self._observe(str(client_id), actual, now)
+
+    def _cancel(self, row: dict[str, Any], now: datetime) -> None:
+        self.assert_owner(now)
+        try:
+            self.broker.cancel_order(row["broker_order_id"])
+        except httpx.HTTPStatusError as error:
+            if error.response.status_code not in {404, 422}:
+                raise
+            actual = self.broker.find_order_by_client_id(row["client_order_id"])
+            if actual is None or lifecycle_state_from_alpaca(actual).value not in FINAL:
+                raise
+            self._observe(row["client_order_id"], actual, now)
+            self.store.audit(
+                "cancellation_race",
+                {
+                    "client_order_id": row["client_order_id"],
+                    "resolved_order": actual.model_dump(mode="json"),
+                },
+                now,
+                self.settings.cohort_id,
+            )
+            return
+        self.store.update_link(
+            row["client_order_id"], {**row["link"], "cancel_requested_at": now.isoformat()}
+        )
+        with self.store.database.begin() as connection:
+            connection.execute(
+                update(orders)
+                .where(orders.c.client_order_id == row["client_order_id"])
+                .values(status="cancel_pending", updated_at=now)
+            )
+        self.store.audit(
+            "cancel_requested",
+            {
+                "client_order_id": row["client_order_id"],
+                "broker_order_id": row["broker_order_id"],
+                "side": row["side"],
+                "filled_quantity_at_request": str(row["filled_quantity"]),
+                "cancellation_confirmed": False,
+            },
+            now,
+            self.settings.cohort_id,
+        )
+
     def supervise(self, now: datetime, *, feed_healthy: bool) -> None:
         """Always called before event ingestion, including outages and operational pauses."""
         self.assert_owner(now)
@@ -621,13 +950,8 @@ class ExperimentalOrderManager:
                 )
                 if not feed_healthy or now >= expiry or gate.must_flatten or paused:
                     if row["broker_order_id"]:
-                        self.broker.cancel_order(row["broker_order_id"])
-                        with self.store.database.begin() as connection:
-                            connection.execute(
-                                update(orders)
-                                .where(orders.c.client_order_id == row["client_order_id"])
-                                .values(status="cancel_pending", updated_at=now)
-                            )
+                        if row["status"] != "cancel_pending":
+                            self._cancel(row, now)
                     elif row["status"] == "approved":
                         with self.store.database.begin() as connection:
                             connection.execute(
@@ -638,6 +962,14 @@ class ExperimentalOrderManager:
                                 )
                                 .values(status="expired", updated_at=now)
                             )
+            elif (
+                row["side"] == "sell"
+                and row["status"] not in FINAL
+                and row["status"] != "cancel_pending"
+                and row["broker_order_id"]
+                and now >= _utc(row["created_at"]) + timedelta(seconds=30)
+            ):
+                self._cancel(row, now)
         self.reconcile(now)
         rows = self.store.linked_orders(self.settings.cohort_id)
         inventory = self.inventory(rows)
@@ -670,7 +1002,12 @@ class ExperimentalOrderManager:
                 continue
             if any(row["symbol"] == symbol and row["status"] not in FINAL for row in rows):
                 continue  # cancellation/unknown state must reconcile before the exit can oversell
-            if not self.broker.clock().is_open:
+            if (
+                not self.broker.clock().is_open
+                or gate.session_open is None
+                or gate.session_close is None
+                or not gate.session_open <= now < gate.session_close
+            ):
                 self.pause("POSITION_REQUIRES_NEXT_OPEN_EXIT", now)
                 continue
             sequence = len(
@@ -714,6 +1051,25 @@ class ExperimentalOrderManager:
                         "entry_kind": buys[-1]["link"].get("entry_kind", "strategy"),
                         "purpose": self.settings.purpose,
                         "qualification_eligible": self.settings.purpose != "iex-practice",
+                        "entry_client_order_id": buys[-1]["client_order_id"],
+                        "trade_classification": buys[-1]["link"].get("trade_classification"),
+                        "planned_session_date": buys[-1]["link"].get("planned_session_date"),
+                        "account_digest": buys[-1]["link"].get("account_digest"),
+                        "session_id": buys[-1]["link"].get("session_id"),
+                        "equipment_test_id": buys[-1]["link"].get("equipment_test_id"),
+                        "decision_ticket": buys[-1]["link"].get("decision_ticket"),
+                        "exit_decision": {
+                            "decided_at": now.isoformat(),
+                            "holding_deadline_reached": now >= due,
+                            "flatten_required": gate.must_flatten,
+                            "feed_unhealthy": not feed_healthy,
+                            "cohort_pause": self.repo.get_control(
+                                f"{self.settings.cohort_id}:pause"
+                            ),
+                            "global_kill": self.repo.get_control("kill_switch") == "active",
+                            "owned_quantity": str(owned),
+                            "broker_confirmed_quantity": str(broker_positions.get(symbol)),
+                        },
                     },
                 )
             self._dispatch(request, None, now)

@@ -51,8 +51,8 @@ The practice purpose is explicit, starts on a declared date, and requires its ow
 cohort and operator-confirmed preflight. The normal `research` purpose still requires SIP.
 
 ```powershell
-tradeagent paper-preflight --cohort-id v20-iex-practice-20260908-r2 --purpose iex-practice --practice-start-date 2026-09-08 --confirm-experimental-paper
-tradeagent run --mode experimental-paper --cohort-id v20-iex-practice-20260908-r2 --purpose iex-practice --practice-start-date 2026-09-08
+tradeagent paper-preflight --cohort-id v20-tuesday-20260908 --purpose iex-practice --practice-start-date 2026-09-08 --confirm-experimental-paper
+tradeagent run --mode experimental-paper --cohort-id v20-tuesday-20260908 --purpose iex-practice --practice-start-date 2026-09-08
 ```
 
 The planned first session is **Tuesday, September 8, 2026**. The existing 09:35 Eastern
@@ -69,6 +69,40 @@ the following day. After the calibration attempt, only actual H1/H2 events meeti
 existing source and signal rules can request another entry, within the same two-entry
 daily cap. There is no promise of a trade on a day with no valid event.
 
+The detailed Tuesday protocol adds **at most one news-strategy entry**. The two-total
+budget and `EQUIPMENT_TEST` identity are bound to the paper account and planned session,
+not the deployment/cohort name. Submitted rejections consume the budget; a candidate
+check alone does not. Reserved-but-never-dispatched intents are reported separately.
+New entries are restricted to the declared September 8 session; later sessions are not
+silently presented as Tuesday. Risk recovery remains active after an incident.
+
+The broker calendar independently confirms the regular session and the preceding
+regular close. For this test the collection window starts **Friday, September 4, at
+16:00 Eastern**, including the holiday weekend. The runtime persists and updates a
+premarket brief before Tuesday's open. Collection eligibility never changes the
+30-minute event-age, publication-latency, completed-bar, or quote-freshness rules.
+
+At 09:35 the equipment test still needs the actual completed opening observation,
+its receipt plus the existing processing delay, and sufficient observed daily history.
+The clock alone is not permission. A missed window records `MISSED` with its prior
+blocking evidence, not an invented fill.
+
+Eligible news observations remain immutable while separate durable execution states
+allow waiting candidates to be evaluated again. Equipment exposure/pending orders
+block news entry. After the slot clears, the worker obtains a fresh quote and repeats
+the complete source, price-reaction, session and risk decision. Simultaneously eligible
+candidates use **latest verified primary receipt, then symbol, then evidence ID**.
+Ranking alternatives and subsequent eligibility changes are recorded before selection.
+Newly received related corrections/retractions veto a queued candidate without rewriting
+its frozen extraction packet or earlier decision.
+
+Every news entry has a durable ticket with source references/excerpts, comparable facts,
+original and current decisions, observed price reaction, limits, actual order sizing,
+invalidation conditions, the existing maximum 60-minute holding period, session exit
+deadline and the frozen cost model. There is no invented price stop, profit target,
+consensus surprise or positive expected return. The equipment test's 60-second exit
+does not apply to the news position.
+
 Risk-exit link identities are hashed to fit PostgreSQL's fixed-width key column, including
 long production cohort names. The final dispatch rechecks quote age and the calibration
 deadline after broker lookups. Temporarily denied operational checks can be re-evaluated
@@ -78,8 +112,10 @@ Apply `0008_control_values` before preflight: complete certificates require a `T
 control value, not the original 500-character field. The first production setup attempt
 hit that storage limit before authorization was saved and submitted no orders. Its
 `v20-iex-practice-20260908` cohort is preserved; the corrected release uses the separate
-`-r2` cohort rather than rewriting a frozen configuration. Downgrade refuses to truncate
-certificates or other long control values.
+`-r2` cohort rather than rewriting a frozen configuration. The expanded Tuesday checklist
+uses the new cohort named above. Downgrade refuses to truncate certificates or other
+long control values. Apply `0009_candidate_states` for deferred-candidate state; its
+downgrade also refuses to discard populated history.
 
 Runtime permission renewal requires the original explicit confirmation to match the
 same account, cohort, code and configuration. A global replay attestation alone cannot
@@ -90,12 +126,23 @@ Practice quotes must have valid positive sizes, the declared feed, causal receip
 and an age of at most five seconds. Fifteen-minute-old quotes cannot authorize an order.
 Partial fills, unknown submission outcomes and account mismatches retain the existing
 cancel/reconcile/pause behavior; owned-position risk exits continue during pauses.
+The paper-only trade-update stream is a reconciliation hint, never fill authority.
+Updates are retained with their timestamps and checked against REST orders/positions.
+Known out-of-order updates cannot reduce confirmed fills. Cancel acceptance is not
+cancellation confirmation; late fills remain owned. Stalled partial exits request
+cancellation before a replacement exit for the reconciled remaining quantity.
 
 Practice broker fills and dollar P&L remain factual **broker-paper** observations. Any
 cost-adjusted figures remain illustrative single-venue practice estimates. All practice
 sessions and round trips contribute **zero** to strategy qualification, including the
 60-session/60-round-trip floor. Dashboard, API, daily mail and round-trip mail identify
 practice; none may describe these results as validated economic alpha.
+Equipment and `NEWS_STRATEGY` ledgers are separate. The news ledger retains every actual
+news outcome, including losses. Base residual-cost rates remain unchanged; 1.5x, 2x and
+3x stresses are separate. Spread is not charged again on top of broker fill prices.
+Returns state the actual deployed-notional and allocated-capital denominators. Cash is
+the declared zero-interest comparison over matching timing/capital; missing passive
+benchmark observations remain unknown. No meaningful Sharpe is inferred from two trades.
 
 No real-money orders, new brokerage account, account reset, AI subscription, market-data
 purchase or additional long-lived Render service is part of this change.
@@ -145,6 +192,14 @@ Original content and receipt versions are retained only under the source's reten
 profile. Licensed news defaults to metadata retention; do not enable body retention
 without verifying the account's rights.
 
+Fixed official-feed discovery is enabled for Apple Newsroom, NVIDIA Newsroom and
+Microsoft Cloud Blog within the existing issuer-domain allowlists. It is not arbitrary
+web crawling. NVIDIA and the permitted Microsoft feed supply genuine publication times;
+the Microsoft feed is not complete corporate/IR coverage. Apple's Atom `updated` and
+date-only article metadata do not establish an exact publication time. Such gaps remain
+explicit. SEC acceptance is not relabeled as publication, and older documents first
+downloaded now are not backdated into pre-event knowledge.
+
 Fed meeting days, the BLS ICS calendar and Nasdaq halt RSS are polled with caching.
 Date-only Fed meetings block the full day rather than inventing announcement times.
 Missing, stale or malformed context abstains.
@@ -176,6 +231,14 @@ migration requires explicitly archiving non-trade outbox history first.
 The dashboard's Event paper experiments section and `/api/event-product` show:
 mode, code/config identity, worker state, next session, separate allocation ledgers,
 source errors, leading abstention reasons, and evidence/decision detail.
+
+`/api/event-session-report` and `experiment-report` expose the structured session record:
+source/decision funnel, premarket evidence, selection/tickets, equipment and news outcomes,
+base/stress economics, meaningful incidents, and broker-confirmed quantities plus pending
+orders. The 18:00 email includes this report through the existing outbox; the snapshot
+persists even if delivery fails, and failures remain visible. A session is complete only
+when positions are flat **and** no outstanding or unconfirmed order can change exposure.
+Unknown state is an incident requiring continued recovery, not a successful flatten.
 
 The heartbeat is not a trading day. Real news receipt is not a completed round trip.
 Only prospective, usable session observations enter the forward clock. The initial

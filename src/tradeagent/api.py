@@ -3,12 +3,12 @@ from __future__ import annotations
 import os
 
 # ruff: noqa: E501
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
-from sqlalchemy import select
+from sqlalchemy import inspect, select
 
 from tradeagent import __version__
 from tradeagent.broker import PaperBroker
@@ -20,6 +20,12 @@ from tradeagent.event_reporting import (
     reported_calibration,
     reporting_limitations,
     reporting_purpose,
+)
+from tradeagent.event_session_report import (
+    EASTERN,
+    render_session_report,
+    report_delivery,
+    session_report,
 )
 from tradeagent.event_store import EventStore
 from tradeagent.experimental_policy import ExperimentalSettings
@@ -78,6 +84,7 @@ DASHBOARD = """<!doctype html>
     <h3>Trading blockers and abstentions</h3><pre id="event-reasons" style="white-space:pre-wrap"></pre>
     <h3>Source and capability limitations</h3><pre id="event-limitations" style="white-space:pre-wrap"></pre>
     <h3>Calibration (operational only)</h3><pre id="event-calibration" style="white-space:pre-wrap"></pre>
+    <h3>Planned session report</h3><pre id="event-session-report" style="white-space:pre-wrap"></pre>
     <h3>Recent evidence and decisions</h3>
     <div id="event-decisions"></div>
   </section>
@@ -125,6 +132,8 @@ DASHBOARD = """<!doctype html>
         JSON.stringify({source: product.source_limitations || [], capability: product.capability_limitations || []}, null, 2);
       document.querySelector('#event-calibration').textContent =
         JSON.stringify(product.calibration || product.calibration_status || 'Not reported / not applicable', null, 2);
+      document.querySelector('#event-session-report').textContent =
+        product.session_report_text || 'No session report recorded.';
       document.querySelector('#event-decisions').replaceChildren(...(product.decisions || []).map(row => {
         const detail = document.createElement('details');
         const title = document.createElement('summary');
@@ -200,7 +209,14 @@ def create_app(
             heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
             # During rolling upgrades the old worker has no event schema yet.
             if heartbeat is None:
-                return base
+                if not inspect(database.engine).has_table("event_cohorts"):
+                    return base
+                structured = session_report(database, None, observed_at=datetime.now(UTC))
+                return {
+                    **base,
+                    "session_report": structured,
+                    "session_report_text": render_session_report(structured),
+                }
             cohort_id = str(heartbeat[2].get("cohort_id", settings.cohort_id))
             purpose = reporting_purpose(
                 heartbeat[2],
@@ -220,6 +236,7 @@ def create_app(
                     .limit(1)
                 )
             age = (datetime.now(UTC) - heartbeat[1]).total_seconds()
+            structured = session_report(database, cohort_id, observed_at=datetime.now(UTC))
             return {
                 **base,
                 **heartbeat[2],
@@ -227,10 +244,56 @@ def create_app(
                 "ledgers": performance_labels(latest, purpose) if latest is not None else None,
                 "calibration": reported_calibration(heartbeat[2]),
                 "calibration_status": reported_calibration(heartbeat[2]),
+                "session_report": structured,
+                "session_report_text": render_session_report(structured),
                 "heartbeat_at": heartbeat[1].isoformat(),
                 "state": heartbeat[2].get("state") if 0 <= age <= 120 else "worker_stale",
                 **reporting_limitations(heartbeat[2], purpose),
                 "code_sha": heartbeat[2].get("code_sha", base["code_sha"]),
+            }
+
+    @app.get("/api/event-session-report")
+    def event_session_report(
+        cohort_id: str | None = Query(default=None, max_length=64),
+        session_date: date | None = None,
+        report_id: str | None = Query(default=None, max_length=36),
+    ) -> dict[str, object]:
+        if production_database_url is None:
+            return {"state": "database_not_configured", "session_report": None}
+        with Database(production_database_url) as database:
+            if report_id is not None:
+                with database.begin() as connection:
+                    saved = connection.scalar(
+                        select(stored_events.c.payload).where(
+                            stored_events.c.event_type == "event_session_report",
+                            stored_events.c.event_id == report_id,
+                        )
+                    )
+                if saved is None:
+                    raise HTTPException(status_code=404, detail="Session report not found")
+                saved_day = datetime.fromisoformat(saved["snapshot_at"]).astimezone(EASTERN).date()
+                return {
+                    "session_report": saved,
+                    "text": render_session_report(saved),
+                    "daily_email_delivery": report_delivery(
+                        database, saved["cohort_id"], saved_day
+                    ),
+                }
+            selected_cohort = cohort_id
+            if selected_cohort is None:
+                heartbeat = ProductionRepository(database).latest_heartbeat(
+                    "tradeagent-event-worker"
+                )
+                selected_cohort = heartbeat[2].get("cohort_id") if heartbeat else None
+            report = session_report(
+                database, selected_cohort, session_date, observed_at=datetime.now(UTC)
+            )
+            return {
+                "session_report": report,
+                "text": render_session_report(report),
+                "daily_email_delivery": report_delivery(
+                    database, report["cohort_id"], datetime.now(EASTERN).date()
+                ),
             }
 
     @app.get("/api/status")

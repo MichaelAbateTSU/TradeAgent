@@ -6,6 +6,7 @@ import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from tradeagent.config import AppConfig
 from tradeagent.event_context import OfficialContextClient
@@ -13,6 +14,7 @@ from tradeagent.event_doctor import code_identity, source_capabilities
 from tradeagent.event_outcomes import outcome_summary
 from tradeagent.event_replay import evaluate_extraction_fixture, replay_event_pipeline
 from tradeagent.event_runtime import cohort_manifest, run_event_service
+from tradeagent.event_session import verify_session_plan
 from tradeagent.event_store import EventStore
 from tradeagent.execution_reference import run_execution_accounting_audit
 from tradeagent.experimental_policy import ExperimentalSettings, certificate
@@ -95,11 +97,14 @@ def handle_event_command(args: argparse.Namespace) -> bool:
             )
         result = manifest
     elif args.command == "experiment-report":
+        from tradeagent.event_session_report import session_report
+
         with Database(AppConfig().database_url.get_secret_value()) as database:
             store = EventStore(database)
             result = {
                 **store.report(settings.cohort_id),
                 "prospective_diagnostics": outcome_summary(store, settings.cohort_id),
+                "session_report": session_report(database, settings.cohort_id),
             }
     elif args.command == "risk-pause":
         with Database(AppConfig().database_url.get_secret_value()) as database:
@@ -138,6 +143,18 @@ def handle_event_command(args: argparse.Namespace) -> bool:
         with AlpacaPaperClient(AlpacaPaperSettings.model_validate({})) as broker:
             account = broker.account()
         now = datetime.now(UTC)
+        plan = None
+        calendar_error = None
+        if experimental.purpose == "iex-practice":
+            with AlpacaPaperClient(AlpacaPaperSettings.model_validate({})) as broker:
+                try:
+                    if experimental.practice_start_date is None:
+                        raise ValueError("practice session date is missing")
+                    plan = verify_session_plan(
+                        broker, experimental.practice_start_date, AppConfig().intraday, now
+                    )
+                except ValueError as error:
+                    calendar_error = str(error)
         proof = certificate(
             experimental,
             config_hash=digest,
@@ -165,6 +182,14 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                         experimental.practice_start_date
                     )
                     is not None
+                ),
+                "broker_calendar_verified": experimental.purpose != "iex-practice"
+                or plan is not None,
+                "planned_session_not_missed": experimental.purpose != "iex-practice"
+                or (
+                    plan is not None
+                    and now < plan.session_close
+                    and now.astimezone(ZoneInfo("America/New_York")).date() <= plan.session_date
                 ),
                 "official_macro_context": not context.blocking_reasons(now=now),
                 "halts_verified": all(
@@ -198,6 +223,13 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                 )
                 if proof.permits_paper:
                     repository = ProductionRepository(database)
+                    if plan is not None:
+                        repository.set_control(
+                            f"{settings.cohort_id}:session-plan", plan.model_dump_json()
+                        )
+                        store.audit(
+                            "broker_calendar", plan.model_dump(mode="json"), now, settings.cohort_id
+                        )
                     repository.set_control(
                         f"{settings.cohort_id}:certificate", proof.model_dump_json()
                     )
@@ -214,6 +246,8 @@ def handle_event_command(args: argparse.Namespace) -> bool:
             "edge_established": False,
             "purpose": experimental.purpose,
             "qualification_eligible": experimental.purpose != "iex-practice",
+            "broker_calendar": plan.model_dump(mode="json") if plan else None,
+            "calendar_error": calendar_error,
         }
     text = json.dumps(result, indent=2, default=str, sort_keys=True)
     if args.output:

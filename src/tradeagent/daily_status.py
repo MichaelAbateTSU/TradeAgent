@@ -17,6 +17,7 @@ from tradeagent.event_reporting import (
     reporting_limitations,
     reporting_purpose,
 )
+from tradeagent.event_session_report import render_session_report, session_report
 from tradeagent.event_store import event_cohorts, event_decisions, event_order_links
 from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.persistence import Database, ProductionRepository, events, orders
@@ -110,6 +111,13 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
     worker = repository.latest_heartbeat("tradeagent-event-worker")
     details = worker[2] if worker else {}
     cohort_id = str(details["cohort_id"]) if details.get("cohort_id") else None
+    if cohort_id is None:
+        with database.begin() as connection:
+            cohort_id = connection.scalar(
+                select(event_cohorts.c.cohort_id)
+                .order_by(event_cohorts.c.created_at.desc())
+                .limit(1)
+            )
     fresh = worker is not None and timedelta(0) <= now - worker[1] <= timedelta(seconds=120)
     status = str(details.get("state", "not_started")) if fresh else "stale_or_missing"
     reasons: Counter[str] = Counter()
@@ -254,6 +262,8 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         f"Configuration: {details.get('config_hash', 'unknown')}",
         "",
         "TODAY'S EVENT ACTIVITY",
+        "First persisted decisions; "
+        "current candidate execution states appear in the session report.",
         f"Decisions: {decisions_today}; eligible: {candidates}; "
         f"abstained: {decisions_today - candidates}",
         f"Calibration status (last reported): {calibration_state or 'not reported'}",
@@ -279,6 +289,7 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         f"Positions (last valuation): {position_count if perf else 'unknown'}",
         "",
         "LAST RECORDED ALLOCATION RESULTS (NOT NECESSARILY TODAY'S P&L)",
+        "All executions combined; not NEWS_STRATEGY performance. Separate session ledgers follow.",
         f"Valuation: {perf_at.astimezone(zone).isoformat() if perf_at else 'unavailable'}"
         f" ({'current' if perf_current else 'stale or missing; current results unknown'})",
         f"Broker-paper cumulative P&L: {metric('broker_paper_pnl')} USD",
@@ -322,12 +333,15 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         "Dashboard: https://tradeagent-runtime-dashboard.onrender.com",
         "This email does not change any strategy, risk limit, order permission, or subscription.",
     ]
+    structured = session_report(database, cohort_id, observed_at=now, persist=True)
     return {
         **evidence_labels(purpose),
         **limitations,
         "calibration": calibration,
         "subject": f"[TradeAgent PAPER] Daily agent status - {local.date()}",
-        "text": "\n".join(lines),
+        "text": "\n".join(lines) + "\n\n" + render_session_report(structured),
+        "session_report": structured,
+        "session_report_id": structured["report_id"],
         "local_date": local.date().isoformat(),
         "timezone": timezone,
         "cohort_id": cohort_id,

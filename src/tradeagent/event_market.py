@@ -6,7 +6,7 @@ from statistics import median
 from typing import Any, Literal
 
 import httpx
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from tradeagent.alpaca import AlpacaDataSettings
 from tradeagent.domain import MarketBar
@@ -28,6 +28,9 @@ class EventMarketState(BaseModel):
     previous_close: Decimal | None
     median_daily_dollar_volume: Decimal | None
     pre_event_volatility_bps: Decimal | None
+    daily_history_feed: Literal["sip"] = "sip"
+    daily_history_adjustment: Literal["raw"] = "raw"
+    completed_daily_sessions: int | None = Field(default=None, ge=0)
 
 
 class EventMarketClient:
@@ -147,6 +150,7 @@ class EventMarketClient:
             previous_close=Decimal(str(daily[0]["c"])) if daily else None,
             median_daily_dollar_volume=volume,
             pre_event_volatility_bps=volatility,
+            completed_daily_sessions=len(daily),
         )
 
     def refresh_quote(self, state: EventMarketState) -> EventMarketState:

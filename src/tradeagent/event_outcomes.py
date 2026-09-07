@@ -10,6 +10,7 @@ from typing import Any
 from sqlalchemy import JSON, Column, DateTime, String, Table, insert, select
 
 from tradeagent.event_market import EventMarketState
+from tradeagent.event_performance import COST_MODEL_VERSION
 from tradeagent.event_reporting import (
     IEX_PRACTICE_LIMITATION,
     evidence_labels,
@@ -85,11 +86,21 @@ def record_quote_paths(
                             **evidence_labels(reporting_purpose(manifest, decision)),
                             "qualification_eligible": False,
                             **(
-                                {"trade_classification": "calibration"}
+                                {
+                                    "trade_classification": decision.get(
+                                        "trade_classification", "calibration"
+                                    )
+                                }
                                 if is_calibration(decision)
                                 else {}
                             ),
                             "kind": "quote_path_diagnostic_not_executed_trade",
+                            "cost_model_version": COST_MODEL_VERSION,
+                            "cost_baseline": "entry ask to exit bid; spread already represented",
+                            "feed_measurements": {
+                                "entry": quote.get("feed", quote.get("source")),
+                                "exit": state.feed,
+                            },
                             "horizon_minutes": minutes,
                             "entry_quote": quote,
                             "exit_quote": state.model_dump(mode="json"),
@@ -104,6 +115,7 @@ def record_quote_paths(
                             "policy_action": decision["action"],
                             "expected_net_return_bps": None,
                             "not_independent_trade_sample": True,
+                            "eligible_candidate": decision.get("action") == "eligible",
                         },
                     )
                 )
@@ -111,16 +123,58 @@ def record_quote_paths(
     return inserted
 
 
-def outcome_summary(store: EventStore, cohort_id: str) -> dict[str, Any]:
+def outcome_summary(
+    store: EventStore, cohort_id: str, *, decision_ids: set[str] | None = None
+) -> dict[str, Any]:
     with store.database.begin() as connection:
         manifest = connection.scalar(
             select(event_cohorts.c.manifest).where(event_cohorts.c.cohort_id == cohort_id)
         )
-        rows = list(
+        recorded = list(
             connection.execute(
-                select(event_outcomes.c.payload).where(event_outcomes.c.cohort_id == cohort_id)
-            ).scalars()
+                select(event_outcomes)
+                .where(event_outcomes.c.cohort_id == cohort_id)
+                .order_by(event_outcomes.c.observed_at)
+            ).mappings()
         )
+        decisions = list(
+            connection.execute(
+                select(event_decisions).where(event_decisions.c.cohort_id == cohort_id)
+            ).mappings()
+        )
+    if decision_ids is not None:
+        recorded = [row for row in recorded if row["decision_id"] in decision_ids]
+        decisions = [row for row in decisions if row["decision_id"] in decision_ids]
+    rows = [row["payload"] for row in recorded]
+    coverage = []
+    for decision in decisions:
+        payload = decision["payload"]
+        if (
+            payload.get("action") != "eligible"
+            or is_calibration(payload)
+            or payload.get("mode") == "offline_replay"
+            or payload.get("synthetic") is True
+        ):
+            continue
+        for minutes in (1, 5, 15, 60):
+            observation = next(
+                (
+                    row
+                    for row in recorded
+                    if row["decision_id"] == decision["decision_id"]
+                    and row["payload"]["horizon_minutes"] == minutes
+                ),
+                None,
+            )
+            coverage.append(
+                {
+                    "decision_id": decision["decision_id"],
+                    "horizon_minutes": minutes,
+                    "state": "observed" if observation else "not_observed",
+                    "outcome": observation["payload"] if observation else None,
+                    "not_broker_fill": True,
+                }
+            )
     purpose = reporting_purpose(manifest, *rows)
     return {
         **evidence_labels(purpose),
@@ -130,6 +184,8 @@ def outcome_summary(store: EventStore, cohort_id: str) -> dict[str, Any]:
         "available_quote_paths": len(rows),
         "hypothetical_not_broker_performance": True,
         "horizons": [1, 5, 15, 60],
+        "eligible_candidate_horizons": coverage,
+        "missing_candidate_horizons": sum(row["state"] == "not_observed" for row in coverage),
         "latest": [
             {**row, **evidence_labels(purpose), "qualification_eligible": False}
             for row in rows[-20:]

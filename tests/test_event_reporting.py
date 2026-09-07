@@ -23,6 +23,7 @@ from tradeagent.event_reporting import (
     reporting_limitations,
     reporting_purpose,
 )
+from tradeagent.event_session_report import session_report
 from tradeagent.event_store import (
     EventStore,
     event_cohorts,
@@ -356,6 +357,28 @@ def test_event_api_never_uses_other_cohort_pnl_when_current_has_none(database: D
     store.audit("performance", {"broker_paper_pnl": "999999"}, NOW, "other-research")
     with TestClient(api.create_app(production_database_url="sqlite:///:memory:")) as client:
         assert client.get("/api/event-product").json()["ledgers"] is None
+
+
+def test_session_report_api_exposes_persisted_snapshot_even_without_worker(
+    database: Database,
+) -> None:
+    store = EventStore(database)
+    store.freeze(COHORT, "hash", MANIFEST, "experimental-paper", NOW)
+    saved = session_report(database, COHORT, observed_at=NOW, persist=True)
+    with TestClient(api.create_app(production_database_url="sqlite:///:memory:")) as client:
+        result = client.get("/api/event-session-report", params={"report_id": saved["report_id"]})
+        assert result.status_code == 200
+        assert result.json()["session_report"] == saved
+        assert result.json()["session_report"]["snapshot_persisted"] is True
+        product = client.get("/api/event-product").json()
+        assert product["state"] == "not_running"
+        assert product["session_report"]["cohort_id"] == COHORT
+        assert product["session_report"]["health"]["worker"]["fresh"] is False
+        assert client.post("/api/event-session-report").status_code == 405
+        assert (
+            client.get("/api/event-session-report", params={"report_id": "unknown"}).status_code
+            == 404
+        )
 
 
 def test_runtime_calibration_contract_reports_audit_facts_not_source_evidence(

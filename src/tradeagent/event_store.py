@@ -11,6 +11,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
+    Index,
     String,
     Table,
     insert,
@@ -71,6 +72,20 @@ event_cluster_claims = Table(
     Column("claim_key", String(64), primary_key=True),
     Column("cohort_id", String(64), ForeignKey("event_cohorts.cohort_id"), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
+)
+event_candidate_states = Table(
+    "event_candidate_states",
+    metadata,
+    Column("decision_id", String(64), ForeignKey("event_decisions.decision_id"), primary_key=True),
+    Column("cohort_id", String(64), ForeignKey("event_cohorts.cohort_id"), nullable=False),
+    Column("status", String(32), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    Column("payload", JSON, nullable=False),
+)
+Index(
+    "ix_event_candidate_cohort_status",
+    event_candidate_states.c.cohort_id,
+    event_candidate_states.c.status,
 )
 
 
@@ -162,17 +177,63 @@ class EventStore:
                 is not None
             )
 
+    def candidate_state(
+        self, decision_id: str, cohort_id: str, status: str, payload: dict[str, Any], now: datetime
+    ) -> None:
+        if status not in {"waiting", "attempted", "rejected", "expired"}:
+            raise ValueError("unsupported candidate execution state")
+        with self.database.begin() as connection:
+            existing = connection.scalar(
+                select(event_candidate_states.c.decision_id).where(
+                    event_candidate_states.c.decision_id == decision_id
+                )
+            )
+            values = {"status": status, "payload": payload, "updated_at": now}
+            if existing is None:
+                connection.execute(
+                    insert(event_candidate_states).values(
+                        decision_id=decision_id, cohort_id=cohort_id, **values
+                    )
+                )
+            else:
+                connection.execute(
+                    update(event_candidate_states)
+                    .where(
+                        event_candidate_states.c.decision_id == decision_id,
+                        event_candidate_states.c.cohort_id == cohort_id,
+                    )
+                    .values(**values)
+                )
+            self.audit(
+                "candidate_state",
+                {"decision_id": decision_id, "status": status, **payload},
+                now,
+                cohort_id,
+                connection,
+            )
+
     def pending_evidence(self, cohort_id: str, limit: int = 500) -> list[dict[str, Any]]:
         with self.database.begin() as connection:
-            processed = select(event_decisions.c.evidence_id).where(
-                event_decisions.c.cohort_id == cohort_id
+            processed = (
+                select(event_decisions.c.evidence_id)
+                .outerjoin(
+                    event_candidate_states,
+                    event_decisions.c.decision_id == event_candidate_states.c.decision_id,
+                )
+                .where(
+                    event_decisions.c.cohort_id == cohort_id,
+                    or_(
+                        event_candidate_states.c.decision_id.is_(None),
+                        event_candidate_states.c.status != "waiting",
+                    ),
+                )
             )
             return [
                 dict(row)
                 for row in connection.execute(
                     select(event_evidence)
                     .where(event_evidence.c.evidence_id.not_in(processed))
-                    .order_by(event_evidence.c.received_at)
+                    .order_by(event_evidence.c.received_at, event_evidence.c.evidence_id)
                     .limit(limit)
                 ).mappings()
             ]
