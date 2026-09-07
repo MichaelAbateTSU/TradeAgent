@@ -20,9 +20,45 @@ commands or requesting redeployments. PostgreSQL remains available with an empty
 public IP allowlist; the dashboard remains healthy with live trading unavailable.
 The unrelated `My project` / `InSightAI` deployment was left unchanged.
 
-## v20 event workflow (September 6, 2026)
+## Current IEX paper-practice release (September 7, 2026)
 
-The existing `tradeagent-news-worker` now runs
+Worker, dashboard and notifier are deployed at
+`fb4a7b438e0427ed48a72d89833a2380b2b4b21e`. The event worker now runs:
+
+```text
+tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-08 --cohort-id v20-iex-practice-20260908-r2
+```
+
+The worker's pre-deploy command applies `alembic upgrade head`, including
+`0008_control_values`. The exact new cohort's paper preflight completed successfully in
+job `job-daf4ck8n74is7389dbhg`, with permission saved at `2026-09-07T05:06:50.278756Z`.
+The live heartbeat confirms the new code and configuration, `market_closed`, no blockers,
+and a calibration scheduled for **September 8**. No orders have been submitted.
+
+The earliest possible calibration entry is **09:35 Eastern**, retaining the existing
+five-minute opening warm-up. The one-attempt window ends at 10:00; quotes, account,
+liquidity, context and risk checks must all pass. Real-time IEX is used, never 15-minute-old
+execution quotes. Practice activity cannot qualify a strategy or establish profitability.
+See [practice operations](../../docs/V20_OPERATIONS.md#free-iex-paper-practice).
+
+Full deployment IDs, the frozen config hash, feed permissions, limits, initial zero-order
+state and validation are in the
+[practice deployment record](../../research/results/v20-iex-practice-deployment.json).
+Latest SIP remains denied; no market-data or inference subscription was purchased.
+
+The original research cohort remains unchanged. The first practice setup failed to save
+its certificate in the old 500-character control field and submitted no orders. It is
+preserved under its original ID; the corrected code uses a new `-r2` cohort.
+
+All four services now have automatic deploys disabled, including the retained
+shadow-stream recorder. That recorder remains at `2a1db33e7cf4f596e8fce9aac47c4e1e8c854630`;
+it was not restarted or given order permission. This avoids accidental recorder restarts
+and global safety pauses from documentation pushes. The daily email schedule is still
+**18:00 America/New_York**. The notifier completed its normal lease handoff.
+
+## Initial v20 event workflow (September 6, 2026)
+
+The existing `tradeagent-news-worker` was deployed with
 `tradeagent run --mode shadow --cohort-id v20-forward-shadow-001`.
 It retains licensed-news storage/heartbeat and adds SEC discovery, immutable event
 extraction, official risk context, decisions and sampled market evidence.

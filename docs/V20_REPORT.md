@@ -12,6 +12,13 @@ Practice results are excluded from every research qualification clock and are no
 validated economic results. See [practice operations](V20_OPERATIONS.md#free-iex-paper-practice)
 and the [deployment record](../infra/render/DEPLOYMENT.md).
 
+The corrected practice release is deployed at `fb4a7b4`, with its own persisted
+operator-confirmed preflight and a scheduled September 8 calibration. At the recorded
+readiness snapshot there were zero orders and no blockers. This is readiness, not a
+completed broker round trip; actual market-open fills remain to be observed.
+The [practice record](../research/results/v20-iex-practice-deployment.json) also preserves
+the initial PostgreSQL permission-storage failure and the separate corrected cohort.
+
 The evidence and counts below describe the **September 6 initial v20 milestone**.
 They remain intact rather than being relabeled as results of the new practice cohort.
 
