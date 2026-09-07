@@ -1,5 +1,25 @@
 # Active Render deployment
 
+## Project organization
+
+All TradeAgent resources are grouped under **Trade agent**
+(`prj-daf34jn40ujc739c852g`) in the existing `InSight AI` workspace.
+The environment is **Production** (`evm-daf34jn40ujc739c8530`).
+This is an organizational label, not permission for live or autonomous trading.
+
+| Resource | Render ID |
+| --- | --- |
+| `tradeagent-runtime-dashboard` | `srv-dadoa3740ujc73cb09c0` |
+| `tradeagent-shadow-worker` | `srv-dadn8son74is73apqcc0` |
+| `tradeagent-news-worker` | `srv-dae4tr7qj5pc73a9e0k0` |
+| `tradeagent-notifier` | `srv-dadnn6mq1p3s73ef7ef0` |
+| `tradeagent-postgres` | `dpg-dadn7nht0dsc73f9jja0-a` |
+
+Grouping completed September 6, 2026 Eastern without changing worker start
+commands or requesting redeployments. PostgreSQL remains available with an empty
+public IP allowlist; the dashboard remains healthy with live trading unavailable.
+The unrelated `My project` / `InSightAI` deployment was left unchanged.
+
 ## v20 event workflow (September 6, 2026)
 
 The existing `tradeagent-news-worker` now runs
@@ -28,6 +48,22 @@ The first digest, dated September 6, 2026 Eastern, was accepted by Resend at
 `c9cbdf72-924d-40a6-aed2-574cd7b686c4`. This confirms provider acceptance, not
 mailbox delivery. The notifier is pinned with automatic deploys disabled;
 future changes use explicit deployment.
+
+### One-off example email
+
+At the owner's request, job `job-daf3578u01pc738l89sg` reused the notifier's deployed
+code and environment to build the current daily status and enqueue a separate
+`[TEST]` message. The job succeeded; the running notifier accepted the new outbox
+item without a second delivery daemon or a change to the scheduled digest.
+
+- Subject: `[TEST] [TradeAgent PAPER] Daily agent status - 2026-09-06`
+- Notification ID: `58a0f479-b52f-5b01-ba13-133ae01f1559`
+- Resend acceptance: `2026-09-07T03:42:41Z`
+- Provider message ID: `450be5aa-3d83-468d-be1a-9e88fc823576`
+
+The job confirmed the schedule remains enabled at **18:00 America/New_York**.
+It did not replace the daily notification ID or consume a future scheduled send.
+Provider acceptance is recorded; inbox delivery was not independently confirmed.
 
 ## Original deployment record
 
