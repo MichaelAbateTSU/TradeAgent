@@ -51,8 +51,8 @@ The practice purpose is explicit, starts on a declared date, and requires its ow
 cohort and operator-confirmed preflight. The normal `research` purpose still requires SIP.
 
 ```powershell
-tradeagent paper-preflight --cohort-id v20-tuesday-20260908 --purpose iex-practice --practice-start-date 2026-09-08 --confirm-experimental-paper
-tradeagent run --mode experimental-paper --cohort-id v20-tuesday-20260908 --purpose iex-practice --practice-start-date 2026-09-08
+tradeagent paper-preflight --cohort-id v20-tuesday-20260908-r2 --purpose iex-practice --practice-start-date 2026-09-08 --confirm-experimental-paper
+tradeagent run --mode experimental-paper --cohort-id v20-tuesday-20260908-r2 --purpose iex-practice --practice-start-date 2026-09-08
 ```
 
 The planned first session is **Tuesday, September 8, 2026**. The existing 09:35 Eastern
@@ -113,7 +113,9 @@ control value, not the original 500-character field. The first production setup 
 hit that storage limit before authorization was saved and submitted no orders. Its
 `v20-iex-practice-20260908` cohort is preserved; the corrected release uses the separate
 `-r2` cohort rather than rewriting a frozen configuration. The expanded Tuesday checklist
-uses the new cohort named above. Downgrade refuses to truncate certificates or other
+uses the new cohort named above. Its initial unsuffixed setup is preserved after a
+final missing-worker calendar-report fallback repair; the unsuffixed setup submitted
+no orders during preparation. Downgrade refuses to truncate certificates or other
 long control values. Apply `0009_candidate_states` for deferred-candidate state; its
 downgrade also refuses to discard populated history.
 

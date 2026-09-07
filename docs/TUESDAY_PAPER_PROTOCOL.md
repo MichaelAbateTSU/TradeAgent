@@ -1,10 +1,13 @@
 # Frozen Tuesday paper protocol
 
-Protocol: `tuesday-paper-v1`; cohort: `v20-tuesday-20260908`.
+Protocol: `tuesday-paper-v1`; cohort: `v20-tuesday-20260908-r2`.
 The deployed manifest, configuration fingerprint, module hashes and release identity
 are recorded in `research/results/v20-tuesday-20260908-deployment.json`.
 This is a separately versioned, hypothesis-driven IEX paper experiment, not a formal
 forward qualification sample. Formal evaluation has **not** started.
+The initial `v20-tuesday-20260908` setup remains immutable and submitted no orders.
+The `-r2` preparation release incorporates the final missing-worker calendar-report
+fallback; no trading thresholds or source policy changed.
 
 ## Scope and clock
 

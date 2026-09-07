@@ -526,6 +526,7 @@ def test_both_confirmed_positions_and_orders_required_for_completion(database: D
         {"mismatches": ["owned_quantity_mismatch"]},
         {"state": "unresolved"},
         {"state": "awaiting_confirmation"},
+        {"state": "reconciliation_required"},
         {"broker_confirmed": False},
     ],
 )
@@ -723,14 +724,16 @@ def test_missing_or_mismatched_session_budget_remains_unknown(database: Database
     assert mismatch["total_entries_reserved"] is None
 
 
+@pytest.mark.parametrize("status", ["UNKNOWN", "reconciliation_required"])
 def test_attempt_counts_require_dispatch_not_reservations_or_local_status(
     database: Database,
+    status: str,
 ) -> None:
     rows = [
         fill("reserved", "buy", "0", "0", "NEWS_STRATEGY", status="reserved", requested=".1"),
         fill("expired", "buy", "0", "0", "NEWS_STRATEGY", status="expired", requested=".1"),
         fill("rejected", "buy", "0", "0", "NEWS_STRATEGY", status="rejected", requested=".1"),
-        fill("uncertain", "buy", "0", "0", "NEWS_STRATEGY", status="UNKNOWN", requested=".1"),
+        fill("uncertain", "buy", "0", "0", "NEWS_STRATEGY", status=status, requested=".1"),
         fill("audit-only", "buy", "0", "0", "NEWS_STRATEGY", status="UNKNOWN", requested=".1"),
         fill("exit", "sell", "0", "0", "NEWS_STRATEGY", status="UNKNOWN", requested=".1"),
     ]
@@ -804,6 +807,22 @@ def test_predispatch_expiration_is_zero_attempts_not_a_broker_rejection(database
     assert report["submission_activity"]["pre_dispatch_expirations"] == 1
     assert report["submission_activity"]["entries"][0]["broker_order_id"] is None
     assert "pre_dispatch_expired" in render_session_report(report)
+
+
+def test_broker_calendar_audit_supplies_session_plan_when_worker_is_missing(
+    database: Database,
+) -> None:
+    plan = {
+        "session_date": DAY.isoformat(),
+        "session_open": "2026-09-08T13:30:00+00:00",
+        "session_close": "2026-09-08T20:00:00+00:00",
+        "previous_session_close": "2026-09-04T20:00:00+00:00",
+        "verified_at": OPEN.isoformat(),
+        "calendar_source": "broker",
+    }
+    EventStore(database).audit("broker_calendar", {"plan": plan}, OPEN, COHORT)
+    report = session_report(database, COHORT, observed_at=CLOSE)
+    assert report["protocol"]["entry_and_exit_times"] == plan
 
 
 def test_dispatch_audit_without_order_snapshot_is_counted_but_not_completed(

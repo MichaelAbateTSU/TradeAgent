@@ -1322,7 +1322,7 @@ def session_report(
             (
                 row["payload"].get("plan", row["payload"])
                 for row in reversed(audit)
-                if row["event_type"] == "event_session_plan"
+                if row["event_type"] in {"event_session_plan", "event_broker_calendar"}
             ),
             None,
         )
