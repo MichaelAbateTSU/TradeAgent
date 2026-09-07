@@ -9,10 +9,82 @@ The corrected release uses a **new immutable `v20-tuesday-20260908-r3` cohort**.
 The earlier deployment JSON and all cohort manifests remain historical evidence,
 not permission to rely on the old completion matrix.
 
-The corrected release is pending final independent review and deployed verification.
+**Corrected release verified September 7, 2026, 09:00–09:06 UTC (05:00–05:06 Eastern).**
 No Tuesday result or preparation trade is claimed. See the corrected
-[protocol](TUESDAY_PAPER_PROTOCOL.md) for account/session recovery ownership,
-durable UNKNOWN handling and the strictly bounded reservation-release rule.
+[protocol](TUESDAY_PAPER_PROTOCOL.md) and immutable
+[r3 deployment evidence](../research/results/v20-tuesday-20260908-r3-deployment.json).
+
+| Current release | Verified value |
+|---|---|
+| Exact code on worker, dashboard and notifier | `40f3ee2a6d2dc103e2eccf8faa71872277a491bd` |
+| Immutable cohort | `v20-tuesday-20260908-r3` |
+| Effective configuration | `a7ab993c246d353797a001809e398e09a578e17e96f98d8a41172d9cb5832bd5` |
+| Worker / dashboard / notifier deployments | `dep-daf7ni0n74is738nt4h0` / `dep-daf7nhlg1s2s73dcpua0` / `dep-daf7nhlg1s2s73dcpu00`, all live |
+| Same-service paper preflight | `job-daf7oc0u01pc7397j9ug`, succeeded; all certificate checks true |
+| Certificate | `de736f29d917289329cf70dc29b3734952b52b1c06161b16bbab3b140fb51f23`, issued 08:56:45 UTC |
+| Saved account/lease/report verification | `job-daf7qcn40ujc73a1g3mg`, succeeded |
+| Saved notifier/report verification | `job-daf7qcon74is738o9vqg`, succeeded |
+| Paper account | Same fingerprint below; active/unblocked, **zero positions, open orders and event-order history** |
+| Account/session budget | **0 of 2 total, 0 of 1 news**; original stable session/equipment IDs unchanged |
+| Migration | `0009_candidate_states`; no schema change required |
+| Full validation | **723 passed**, **86.51% coverage** above unchanged 85%; Ruff check/format and mypy pass |
+| Independent final review | `practice-review`: **no significant remaining issues**, 22 independently executed memory-only checks; confirmed before deployment |
+
+The parent-issued pause `job-daf7c9qd0e5s73b57frg` succeeded at **08:31:09 UTC**.
+The r2 `OPERATOR_PAUSE` is still persisted. Only the new r3 preflight restored the
+global operational permission; the old cohort was not unpaused or rewritten.
+The current cohort has no pause/blockers. Normal worker/notifier lease expiry and
+restarts completed without manually stealing or deleting locks.
+
+### What the safety closeout established
+
+- Prior-cohort full/partial equipment and partial-exit recovery use verified account/
+  session links, original frozen settings and current global worker ownership.
+  Unverified quantity is never liquidated; old UNKNOWNs remain EOD incidents.
+- Slow audit/link writes occur **before** final equipment/news cutoff and quote-age
+  checks. Prepared is not submitted. A crash after broker acceptance but before
+  attempt logging remains UNKNOWN, reserved, and recoverable by its original ID.
+- Only **definitively never-submitted** local expiry releases budget under the same
+  account/session lock. Release is idempotent; rejected/submitted/UNKNOWN attempts
+  stay consumed. Claims, tickets and equipment identity remain preserved.
+- A new feed-only revision becomes available no earlier than observation of that
+  changed feed evidence. Identical/restarted versions retain original receipt times.
+  Publication and provider revision are not substituted for receipt.
+- The older-denominator correction veto and immutable extraction-packet hash
+  regression remain intact. No source permissions, thresholds or strategy scope changed.
+
+### Actual current collection and reporting
+
+The worker lease owner is `srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx`,
+matching the saved heartbeat owner. The final sampled heartbeat at **09:05:52 UTC**
+has no blockers or market errors; actual configured-source acquisition is fresh,
+and the paper trade-update stream is authenticated and subscribed.
+
+Premarket brief `cc6c556e-a2ca-40bf-9804-139ee5f05ef0` covers the configured sources
+from **September 4, 20:00 UTC through September 7, 09:05:14 UTC**. Its roughly
+37-second observation tail is explicitly uncovered, not claimed as complete news.
+This r3 snapshot has **521 raw receptions, 70 source-health checks, 23 immutable
+evidence versions / 21 events, two revision versions and two older context documents**.
+It has **zero valid quantitative events or strategy candidates**; no news trade is owed.
+IEX, AAPL publication uncertainty, Microsoft Cloud-only coverage/optional >5 MB context
+gap, metadata-only licensed news and other finite-source limitations below remain.
+
+Saved report **`f9fe03ef-0e44-5f6e-81a9-dd72201c9eff`**, **09:00:59 UTC**, is
+`NOT_STARTED`; two independent API reads returned identical immutable content.
+[Open the corrected readiness report](https://tradeagent-runtime-dashboard.onrender.com/api/event-session-report?report_id=f9fe03ef-0e44-5f6e-81a9-dd72201c9eff).
+Monday's flat account is explicitly **not** Tuesday's broker-confirmed ending state.
+
+The notifier heartbeat was fresh at the **09:01:01 UTC** probe. It persists reports,
+retains the approved Resend sender/recipient and **18:00 America/New_York** schedule,
+and retains exactly two previously sent daily messages. Verification sent/enqueued
+no test email. Next daily update is Monday September 7 at 18:00 ET; Tuesday's report
+and provider acceptance remain pending. Original shadow deployment, empty database
+public allowlist and both sealed manifest hashes are unchanged.
+
+**Pending Tuesday:** actual completed opening observations, conditional one-time
+equipment result, any genuine rule-supported news opportunity, verified recovery/
+ending exposure and 18:00 report delivery. Formal qualification remains excluded.
+The historical r2 matrix below is not evidence of any future Tuesday outcome.
 
 ## Historical r2 verification (superseded; retained for audit)
 

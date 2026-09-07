@@ -3,7 +3,7 @@
 Protocol: `tuesday-paper-v1`; corrected cohort: `v20-tuesday-20260908-r3`.
 The deployed manifest, configuration fingerprint, module hashes and release identity
 are recorded in `research/results/v20-tuesday-20260908-r3-deployment.json`
-after reviewed deployment. The earlier `v20-tuesday-20260908-deployment.json`
+after independently reviewed, verified deployment. The earlier `v20-tuesday-20260908-deployment.json`
 is an immutable, superseded `-r2` snapshot, not current release authority.
 This is a separately versioned, hypothesis-driven IEX paper experiment, not a formal
 forward qualification sample. Formal evaluation has **not** started.
