@@ -45,6 +45,9 @@ database. Its synthetic entry, exit, email-outbox item, and P&L never enter real
 
 ## Free-IEX paper practice
 
+The deployed Tuesday release, actual verification evidence and remaining source
+limitations are recorded in [TUESDAY_PAPER_READINESS.md](TUESDAY_PAPER_READINESS.md).
+
 This is an operational drill, not a new strategy family or evidence of profitability.
 Use **real-time IEX** quotes already available on Alpaca Basic, not 15-minute-delayed SIP.
 The practice purpose is explicit, starts on a declared date, and requires its own immutable
