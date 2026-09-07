@@ -6,11 +6,29 @@ from hashlib import sha256
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import JSON, Column, DateTime, ForeignKey, String, Table, insert, select, update
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    ForeignKey,
+    String,
+    Table,
+    insert,
+    or_,
+    select,
+    update,
+)
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError
 
 from tradeagent.config import IntradayConfig
+from tradeagent.event_reporting import (
+    IEX_PRACTICE_LIMITATION,
+    evidence_labels,
+    is_calibration,
+    observation_labels,
+    reporting_purpose,
+)
 from tradeagent.intraday import NyseSessionCalendar
 from tradeagent.persistence import Database, events, metadata, orders
 
@@ -204,7 +222,9 @@ class EventStore:
                 .values(payload=payload)
             )
 
-    def report(self, cohort_id: str, limit: int = 100) -> dict[str, Any]:
+    def report(
+        self, cohort_id: str, limit: int = 100, *, purpose: str = "research"
+    ) -> dict[str, Any]:
         with self.database.begin() as connection:
             cohort = (
                 connection.execute(
@@ -224,7 +244,12 @@ class EventStore:
                 dict(row)
                 for row in connection.execute(
                     select(events)
-                    .where(events.c.trace_id.like(f"{cohort_id}%"))
+                    .where(
+                        or_(
+                            events.c.trace_id == cohort_id,
+                            events.c.trace_id.startswith(f"{cohort_id}:", autoescape=True),
+                        )
+                    )
                     .order_by(events.c.recorded_at.desc())
                     .limit(limit)
                 ).mappings()
@@ -234,33 +259,89 @@ class EventStore:
             for reason in decision["payload"].get("reasons", []):
                 reasons[str(reason)] += 1
         calendar = NyseSessionCalendar(IntradayConfig())
+        purpose = reporting_purpose({"purpose": purpose}, cohort["manifest"] if cohort else None)
+        practice = purpose == "iex-practice"
+        qualifying_decisions = [
+            row
+            for row in decisions
+            if not practice
+            and reporting_purpose(row["payload"]) == "research"
+            and row["payload"].get("qualification_eligible") is not False
+            and not is_calibration(row["payload"])
+        ]
         evaluated_days = {
             _aware(row["decided_at"]).date()
-            for row in decisions
+            for row in qualifying_decisions
             if row["payload"].get("action") == "eligible"
             and calendar.gate(_aware(row["decided_at"])).can_enter
             and row["payload"].get("mode") != "offline_replay"
         }
         return {
+            **evidence_labels(purpose),
             "cohort": dict(cohort) if cohort else None,
-            "decisions": [dict(row) for row in decisions[:limit]],
+            "decisions": [
+                {
+                    **dict(row),
+                    "payload": {
+                        **row["payload"],
+                        **observation_labels(row["payload"], purpose),
+                    },
+                }
+                for row in decisions[:limit]
+            ],
             "decision_count": len(decisions),
             "leading_no_trade_reasons": dict(reasons),
-            "orders": self.linked_orders(cohort_id),
-            "timeline": recent_events,
-            "performance_label": "experimental; edge unproven",
+            "orders": [
+                {
+                    **row,
+                    "link": {
+                        **row["link"],
+                        **observation_labels(row["link"], purpose),
+                    },
+                }
+                for row in self.linked_orders(cohort_id)
+            ],
+            "timeline": [
+                {
+                    **row,
+                    "payload": {
+                        **row["payload"],
+                        **evidence_labels(purpose),
+                        "qualification_eligible": False,
+                        "record_classification": "operational_calibration_status",
+                        "not_source_event": True,
+                    },
+                }
+                if row["event_type"] == "event_calibration_status"
+                else row
+                for row in recent_events
+            ],
             "qualified": False,
             "usable_forward_trading_sessions": len(evaluated_days),
+            "operational_practice_sessions": (
+                len(
+                    {
+                        _aware(row["decided_at"]).date()
+                        for row in decisions
+                        if row["payload"].get("mode") != "offline_replay"
+                        and calendar.gate(_aware(row["decided_at"])).can_enter
+                    }
+                )
+                if practice
+                else 0
+            ),
+            "calibration_decision_count": sum(is_calibration(row["payload"]) for row in decisions),
             "independent_event_clusters": len(
                 {
                     row["payload"].get("event_cluster_id")
-                    for row in decisions
+                    for row in qualifying_decisions
                     if row["payload"].get("event_cluster_id")
                     and row["payload"].get("issuer_id")
                     and row["payload"].get("hypothesis") in {"H1", "H2"}
                 }
             ),
             "abstention_count": sum(row["payload"].get("action") == "abstain" for row in decisions),
+            **({"source_limitations": [IEX_PRACTICE_LIMITATION]} if practice else {}),
         }
 
 

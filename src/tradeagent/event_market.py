@@ -149,6 +149,26 @@ class EventMarketClient:
             pre_event_volatility_bps=volatility,
         )
 
+    def refresh_quote(self, state: EventMarketState) -> EventMarketState:
+        if state.feed != self.settings.feed:
+            raise ValueError("execution feed changed within a frozen market state")
+        quote = self.get(
+            "/v2/stocks/quotes/latest",
+            {"symbols": state.symbol, "feed": self.settings.feed},
+        )["quotes"][state.symbol]
+        return EventMarketState.model_validate(
+            {
+                **state.model_dump(),
+                "observed_at": datetime.now(UTC),
+                "bid": quote["bp"],
+                "ask": quote["ap"],
+                "bid_size": quote["bs"],
+                "ask_size": quote["as"],
+                "quote_at": _timestamp(quote["t"]),
+                "raw_quote": quote,
+            }
+        )
+
     def close(self) -> None:
         if self.owns_client:
             self.client.close()

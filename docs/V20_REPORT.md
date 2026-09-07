@@ -2,8 +2,18 @@
 
 ## Status
 
-**Shadow collection works; experimental brokerage operation is not yet certified.
+**The original research cohort remains SIP-blocked and unqualified.
 No strategy edge or profitable forward period is established.**
+
+The September 7 operator request adds an isolated `iex-practice` purpose using free,
+real-time IEX quotes, not delayed execution prices. It includes one conditional,
+durably deduplicated opening calibration and then only rule-eligible paper entries.
+Practice results are excluded from every research qualification clock and are not
+validated economic results. See [practice operations](V20_OPERATIONS.md#free-iex-paper-practice)
+and the [deployment record](../infra/render/DEPLOYMENT.md).
+
+The evidence and counts below describe the **September 6 initial v20 milestone**.
+They remain intact rather than being relabeled as results of the new practice cohort.
 
 This is an explicit replacement of the v0.10 stop-search policy, not a promotion of
 failed configurations. The release introduces only two bounded event hypotheses and one

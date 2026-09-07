@@ -8,16 +8,25 @@ from pathlib import Path
 
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse, PlainTextResponse
+from sqlalchemy import select
 
 from tradeagent import __version__
 from tradeagent.broker import PaperBroker
 from tradeagent.config import BrokerConfig
 from tradeagent.domain import AccountSnapshot, PaperBrokerState
+from tradeagent.event_reporting import (
+    evidence_labels,
+    performance_labels,
+    reported_calibration,
+    reporting_limitations,
+    reporting_purpose,
+)
 from tradeagent.event_store import EventStore
 from tradeagent.experimental_policy import ExperimentalSettings
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.news import NewsRepository
 from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.persistence import events as stored_events
 from tradeagent.research import ExperimentRegistry
 
 DASHBOARD = """<!doctype html>
@@ -61,11 +70,14 @@ DASHBOARD = """<!doctype html>
     <tbody id="experiment-rows"></tbody></table>
   </section>
   <section class="card">
-    <h2>Event paper experiments</h2>
+    <h2>Event paper cohorts</h2>
     <p id="event-state">Connecting to event worker...</p>
     <p>Operational permission is not statistical qualification. No live broker is connected.</p>
+    <p id="event-evidence"></p>
     <pre id="event-ledgers" style="white-space:pre-wrap"></pre>
-    <h3>Why is it not trading?</h3><pre id="event-reasons"></pre>
+    <h3>Trading blockers and abstentions</h3><pre id="event-reasons" style="white-space:pre-wrap"></pre>
+    <h3>Source and capability limitations</h3><pre id="event-limitations" style="white-space:pre-wrap"></pre>
+    <h3>Calibration (operational only)</h3><pre id="event-calibration" style="white-space:pre-wrap"></pre>
     <h3>Recent evidence and decisions</h3>
     <div id="event-decisions"></div>
   </section>
@@ -97,14 +109,22 @@ DASHBOARD = """<!doctype html>
         runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
       document.querySelector('#news-count').textContent = news.items.length;
       document.querySelector('#event-state').textContent = JSON.stringify({
-        version: product.version, mode: product.mode, state: product.state,
+        version: product.version, mode: product.mode, purpose: product.purpose, state: product.state,
+        execution_feed: product.execution_feed, practice_start_date: product.practice_start_date,
         market_phase: product.market_phase, next_session: product.next_open,
-        performance: 'Experimental - edge unproven', code: product.code_sha
+        performance: product.performance_label, code: product.code_sha
       });
+      document.querySelector('#event-evidence').textContent = product.purpose === 'iex-practice'
+        ? 'IEX paper practice only. Sessions and round trips, including calibration, do not count toward the 60-session/60-round-trip research qualification floors. Dollar results are broker-paper facts and modeled operational estimates, not validated strategy economics.'
+        : 'Research evidence remains unproven; qualification gates and minimum evidence floors still apply.';
       document.querySelector('#event-ledgers').textContent =
         JSON.stringify(product.ledgers || {performance:'No measured forward outcomes'}, null, 2);
       document.querySelector('#event-reasons').textContent =
-        JSON.stringify(product.leading_no_trade_reasons || product.blockers || {}, null, 2);
+        JSON.stringify({blockers: product.blockers || [], abstentions: product.leading_no_trade_reasons || {}}, null, 2);
+      document.querySelector('#event-limitations').textContent =
+        JSON.stringify({source: product.source_limitations || [], capability: product.capability_limitations || []}, null, 2);
+      document.querySelector('#event-calibration').textContent =
+        JSON.stringify(product.calibration || product.calibration_status || 'Not reported / not applicable', null, 2);
       document.querySelector('#event-decisions').replaceChildren(...(product.decisions || []).map(row => {
         const detail = document.createElement('details');
         const title = document.createElement('summary');
@@ -164,6 +184,7 @@ def create_app(
     def event_product() -> dict[str, object]:
         settings = ExperimentalSettings()
         base: dict[str, object] = {
+            **evidence_labels(reporting_purpose(settings.model_dump())),
             "version": __version__,
             "code_sha": os.getenv("RENDER_GIT_COMMIT", "local"),
             "mode": settings.mode,
@@ -181,17 +202,34 @@ def create_app(
             if heartbeat is None:
                 return base
             cohort_id = str(heartbeat[2].get("cohort_id", settings.cohort_id))
-            report = EventStore(database).report(cohort_id, limit=20)
-            latest = repository.latest_event_payload("event_performance")
+            purpose = reporting_purpose(
+                heartbeat[2],
+                settings.model_dump() if settings.cohort_id == cohort_id else None,
+            )
+            report = EventStore(database).report(cohort_id, limit=20, purpose=purpose)
+            purpose = report["purpose"]
+            with database.begin() as connection:
+                latest = connection.scalar(
+                    select(stored_events.c.payload)
+                    .where(
+                        stored_events.c.event_type == "event_performance",
+                        stored_events.c.trace_id == cohort_id,
+                        stored_events.c.occurred_at <= datetime.now(UTC),
+                    )
+                    .order_by(stored_events.c.occurred_at.desc())
+                    .limit(1)
+                )
             age = (datetime.now(UTC) - heartbeat[1]).total_seconds()
             return {
                 **base,
                 **heartbeat[2],
                 **report,
-                "ledgers": latest,
+                "ledgers": performance_labels(latest, purpose) if latest is not None else None,
+                "calibration": reported_calibration(heartbeat[2]),
+                "calibration_status": reported_calibration(heartbeat[2]),
                 "heartbeat_at": heartbeat[1].isoformat(),
-                "state": heartbeat[2].get("state") if age <= 120 else "worker_stale",
-                "blockers": heartbeat[2].get("blockers", []),
+                "state": heartbeat[2].get("state") if 0 <= age <= 120 else "worker_stale",
+                **reporting_limitations(heartbeat[2], purpose),
                 "code_sha": heartbeat[2].get("code_sha", base["code_sha"]),
             }
 

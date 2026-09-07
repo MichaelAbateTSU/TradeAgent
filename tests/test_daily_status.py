@@ -148,6 +148,11 @@ def test_status_uses_actual_cohort_today_counts_and_latest_scoped_pnl(database: 
     assert "Resolve the reported source errors" in text
     assert "Fixed service costs: unknown / not recorded" in text
     assert "No profitability or alpha claim" in text
+    assert summary["purpose"] == "research"
+    assert "IEX_SHADOW_ONLY_FROZEN_POLICY" in summary["blockers"]
+    assert "NO_CONFIGURED_INFERENCE_PROVIDER" not in summary["blockers"]
+    assert "NO_CONFIGURED_INFERENCE_PROVIDER" in summary["capability_limitations"]
+    assert "declared 60-session/60-round-trip floor" in text
 
 
 def test_missing_or_stale_worker_is_reported_not_pretended_healthy(database: Database):

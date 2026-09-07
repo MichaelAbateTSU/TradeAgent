@@ -4,8 +4,9 @@ from collections import defaultdict
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
 from hashlib import sha256
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 from uuid import NAMESPACE_URL, uuid4, uuid5
+from zoneinfo import ZoneInfo
 
 import httpx
 from sqlalchemy import insert, select, update
@@ -20,6 +21,7 @@ from tradeagent.alpaca_paper import (
 from tradeagent.config import AppConfig
 from tradeagent.domain import OrderRequest, OrderType, Side
 from tradeagent.event_performance import allocation_ledgers
+from tradeagent.event_research import EventQuote
 from tradeagent.event_store import (
     EventStore,
     event_cluster_claims,
@@ -165,7 +167,11 @@ class ExperimentalOrderManager:
                         connection.execute(
                             insert(position_cycles).values(
                                 cycle_id=str(cycle_id),
-                                strategy_version="v20-experimental-edge-unproven",
+                                strategy_version=(
+                                    "v20-iex-practice-not-qualification"
+                                    if self.settings.purpose == "iex-practice"
+                                    else "v20-experimental-edge-unproven"
+                                ),
                                 symbol=first["symbol"],
                                 opened_at=_utc(first["created_at"]),
                                 opening_quantity=bought,
@@ -202,6 +208,7 @@ class ExperimentalOrderManager:
             marks,
             self.settings.virtual_equity,
             session_date=now.date(),
+            purpose=self.settings.purpose,
         )
         if report["state"] != "valued":
             self.pause("VALUATION_REQUIRED", now)
@@ -239,11 +246,19 @@ class ExperimentalOrderManager:
         source_valid: bool,
         certificate: OperationalCertificate,
         now: datetime,
+        execution_quote: EventQuote | None = None,
+        entry_kind: Literal["strategy", "calibration"] = "strategy",
     ) -> dict[str, Any]:
         self.assert_owner(now)
         errors: list[str] = []
         if self.settings.mode != "experimental-paper":
             errors.append("SHADOW_NO_ORDERS")
+        local_date = now.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
+        if self.settings.purpose == "iex-practice" and (
+            self.settings.practice_start_date is None
+            or local_date < self.settings.practice_start_date
+        ):
+            errors.append("PRACTICE_NOT_STARTED")
         if self.broker.broker_host != PAPER_HOST:
             raise ValueError("broker host forbidden")
         gate = self.calendar.gate(now)
@@ -252,12 +267,39 @@ class ExperimentalOrderManager:
             errors.append("MARKET_CLOSED_OR_ENTRY_CUTOFF")
         if abs((now - broker_clock.timestamp).total_seconds()) > 60:
             errors.append("BROKER_CLOCK_STALE")
+        if entry_kind == "calibration" and (
+            self.settings.purpose != "iex-practice"
+            or local_date != self.settings.practice_start_date
+            or symbol != "AAPL"
+            or cluster_key != f"opening-calibration:{local_date}:AAPL"
+            or gate.session_open is None
+            or not gate.session_open <= now < gate.session_open + timedelta(minutes=30)
+        ):
+            errors.append("CALIBRATION_NOT_AUTHORIZED")
         if not eligible_at <= now <= expires_at:
             errors.append("EVENT_NOT_EXECUTABLE_NOW")
         if not source_valid:
             errors.append("UNVERIFIED_SOURCE_OR_ISSUER")
         if not timedelta(0) <= now - quote_at <= timedelta(seconds=10):
             errors.append("STALE_QUOTE")
+        if execution_quote is None and self.settings.purpose == "iex-practice":
+            errors.append("EXECUTION_QUOTE_REQUIRED")
+        if execution_quote is not None and (
+            execution_quote.symbol != symbol
+            or execution_quote.bid != bid
+            or execution_quote.ask != ask
+            or execution_quote.timestamp != quote_at
+            or execution_quote.feed != self.settings.execution_feed
+            or execution_quote.size_unit != "shares"
+            or execution_quote.bid_size is None
+            or execution_quote.ask_size is None
+            or execution_quote.bid_size <= 0
+            or execution_quote.ask_size <= 0
+            or not quote_at <= execution_quote.received_at <= now
+            or not timedelta(0) <= now - quote_at <= timedelta(seconds=5)
+            or quote_at < eligible_at
+        ):
+            errors.append("INVALID_EXECUTION_QUOTE")
         if bid <= 0 or ask < bid or ask < Decimal(5) or (ask - bid) / ask > Decimal("0.001"):
             errors.append("INVALID_PRICE_OR_SPREAD")
         if median_dollar_volume < Decimal("50000000"):
@@ -360,7 +402,13 @@ class ExperimentalOrderManager:
             request = OrderRequest(
                 client_order_id=client_id,
                 decision_id=decision_id,
-                strategy_id="v20-event",
+                strategy_id=(
+                    "v20-calibration"
+                    if entry_kind == "calibration"
+                    else "v20-iex-practice"
+                    if self.settings.purpose == "iex-practice"
+                    else "v20-event"
+                ),
                 symbol=symbol,
                 side=Side.BUY,
                 order_type=OrderType.LIMIT,
@@ -375,13 +423,21 @@ class ExperimentalOrderManager:
                     "limit_price": str(limit),
                     "expires_at": expires_at.isoformat(),
                     "exit_at": (
-                        now + timedelta(minutes=self.settings.max_holding_minutes)
+                        now
+                        + (
+                            timedelta(seconds=60)
+                            if entry_kind == "calibration"
+                            else timedelta(minutes=self.settings.max_holding_minutes)
+                        )
                     ).isoformat(),
                     "entry_bid": str(bid),
                     "entry_ask": str(ask),
                     "quote_at": quote_at.isoformat(),
                     "certificate_id": certificate.certificate_id,
                     "synthetic": False,
+                    "entry_kind": entry_kind,
+                    "purpose": self.settings.purpose,
+                    "qualification_eligible": self.settings.purpose != "iex-practice",
                 },
             )
         return self._dispatch(request, limit, now)
@@ -429,27 +485,6 @@ class ExperimentalOrderManager:
         if existing is not None:
             self._observe(request.client_order_id, existing, now)
             return {"state": "recovered", "client_order_id": request.client_order_id}
-        if request.side is Side.BUY:
-            clock = self.broker.clock()
-            if (
-                not clock.is_open
-                or not self.calendar.gate(clock.timestamp).can_enter
-                or not timedelta(0)
-                <= clock.timestamp - request.submitted_at
-                <= timedelta(seconds=5)
-                or self.repo.get_control("kill_switch") == "active"
-                or self.repo.get_control(f"{self.settings.cohort_id}:pause")
-            ):
-                with self.store.database.begin() as connection:
-                    connection.execute(
-                        update(orders)
-                        .where(
-                            orders.c.client_order_id == request.client_order_id,
-                            orders.c.status == "approved",
-                        )
-                        .values(status="expired", updated_at=now)
-                    )
-                return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
         with self.store.database.begin() as connection:
             claimed = connection.execute(
                 update(orders)
@@ -464,6 +499,46 @@ class ExperimentalOrderManager:
                     "state": "submission_outcome_unknown",
                     "client_order_id": request.client_order_id,
                 }
+            link = connection.execute(
+                select(event_order_links.c.payload).where(
+                    event_order_links.c.client_order_id == request.client_order_id
+                )
+            ).scalar_one()
+        if request.side is Side.BUY:
+            clock = self.broker.clock()
+            gate = self.calendar.gate(clock.timestamp)
+            quote_at = datetime.fromisoformat(link["quote_at"])
+            expired_calibration = link.get("entry_kind") == "calibration" and (
+                self.settings.purpose != "iex-practice"
+                or clock.timestamp.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
+                != self.settings.practice_start_date
+                or gate.session_open is None
+                or not gate.session_open
+                <= clock.timestamp
+                < gate.session_open + timedelta(minutes=30)
+            )
+            if (
+                not clock.is_open
+                or not gate.can_enter
+                or not timedelta(0)
+                <= clock.timestamp - request.submitted_at
+                <= timedelta(seconds=5)
+                or not timedelta(0) <= clock.timestamp - quote_at <= timedelta(seconds=5)
+                or clock.timestamp > datetime.fromisoformat(link["expires_at"])
+                or expired_calibration
+                or self.repo.get_control("kill_switch") == "active"
+                or self.repo.get_control(f"{self.settings.cohort_id}:pause")
+            ):
+                with self.store.database.begin() as connection:
+                    connection.execute(
+                        update(orders)
+                        .where(
+                            orders.c.client_order_id == request.client_order_id,
+                            orders.c.status == "reconciliation_required",
+                        )
+                        .values(status="expired", updated_at=clock.timestamp)
+                    )
+                return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
         try:
             response = (
                 self.broker.submit_limit_order(request, limit)
@@ -630,7 +705,17 @@ class ExperimentalOrderManager:
                 )
                 if active:
                     continue
-                self._reserve(connection, request, key, {"reason": "time_or_risk_exit"})
+                self._reserve(
+                    connection,
+                    request,
+                    sha256(key.encode()).hexdigest(),
+                    {
+                        "reason": "time_or_risk_exit",
+                        "entry_kind": buys[-1]["link"].get("entry_kind", "strategy"),
+                        "purpose": self.settings.purpose,
+                        "qualification_eligible": self.settings.purpose != "iex-practice",
+                    },
+                )
             self._dispatch(request, None, now)
 
 

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, Literal
+from zoneinfo import ZoneInfo
 
 import httpx
 from pydantic import ValidationError
@@ -22,11 +24,12 @@ from tradeagent.event_context import (
 )
 from tradeagent.event_doctor import code_identity
 from tradeagent.event_market import EventMarketClient, EventMarketState
-from tradeagent.event_orders import EventLeaseLostError, ExperimentalOrderManager
+from tradeagent.event_orders import FINAL, EventLeaseLostError, ExperimentalOrderManager
 from tradeagent.event_outcomes import record_quote_paths
 from tradeagent.event_research import (
     DEFAULT_EVENT_POLICY,
     EventDecision,
+    EventPolicy,
     EventQuote,
     ExtractionResult,
     IssuerEligibility,
@@ -49,22 +52,62 @@ from tradeagent.news import MarketNewsItem, NewsCategory, NewsRepository, Source
 from tradeagent.persistence import Database, ProductionRepository, events
 
 
+def policy_for(settings: ExperimentalSettings) -> EventPolicy:
+    return DEFAULT_EVENT_POLICY.model_copy(
+        update={"allow_iex_experimental_paper": settings.purpose == "iex-practice"}
+    )
+
+
 def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str, dict[str, Any]]:
-    policy = DEFAULT_EVENT_POLICY.model_dump(mode="json")
+    policy = policy_for(settings).model_dump(mode="json")
+    app = AppConfig()
+    operational_settings = {
+        "intraday": app.intraday.model_dump(mode="json"),
+        "risk": app.risk.model_dump(mode="json"),
+    }
     root = Path(__file__).parent
     modules = sorted(
         {
             *root.glob("event_*.py"),
-            *(root / name for name in ("experimental_policy.py", "alpaca_paper.py", "domain.py")),
+            *(
+                root / name
+                for name in (
+                    "experimental_policy.py",
+                    "alpaca_paper.py",
+                    "domain.py",
+                    "config.py",
+                    "intraday.py",
+                    "order_state.py",
+                    "persistence.py",
+                )
+            ),
         }
     )
     module_hashes = {
         path.name: sha256(path.read_text(encoding="utf-8").encode()).hexdigest() for path in modules
     }
-    digest = settings.fingerprint({"policy": policy, "module_hashes": module_hashes}, code_sha)
+    digest = settings.fingerprint(
+        {
+            "policy": policy,
+            "module_hashes": module_hashes,
+            "operational_settings": operational_settings,
+        },
+        code_sha,
+    )
     manifest = {
         "policy_change": (
-            "User v20 instruction replaces stop-discovery with bounded experimental paper"
+            "Explicit separate IEX paper practice; frozen research remains unchanged"
+            if settings.purpose == "iex-practice"
+            else "User v20 instruction replaces stop-discovery with bounded experimental paper"
+        ),
+        "purpose": settings.purpose,
+        "execution_feed": settings.execution_feed,
+        "operational_settings": operational_settings,
+        "qualification_eligible": settings.purpose != "iex-practice",
+        "evidence_use": (
+            "operational_practice_only"
+            if settings.purpose == "iex-practice"
+            else "prospective_research"
         ),
         "code_sha": code_sha,
         "runtime_module_hashes": module_hashes,
@@ -111,6 +154,25 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
             "macro and halt completeness checked independently",
         ],
     }
+    if settings.purpose == "iex-practice":
+        manifest.update(
+            {
+                "evidence_clock": "excluded from all research qualification clocks",
+                "review": "operational practice only; no 60-session/60-round-trip qualification",
+                "primary_outcome": "order handling, reconciliation and safety; not economic alpha",
+                "calibration": {
+                    "session_date": str(settings.practice_start_date),
+                    "symbol": "AAPL",
+                    "maximum_entry_attempts": 1,
+                    "window_minutes_after_open": 30,
+                    "existing_entry_warmup_preserved": True,
+                    "entry_expiry_seconds": 30,
+                    "exit_after_seconds": 60,
+                    "maximum_notional_usd": "25",
+                    "missed_or_rejected_fill": "record honestly; no forced replacement",
+                },
+            }
+        )
     return digest, manifest
 
 
@@ -132,6 +194,7 @@ class EventRuntime:
         self.instance_id, self.code_sha = instance_id, code_sha
         self.app = AppConfig()
         self.calendar = NyseSessionCalendar(self.app.intraday)
+        self.policy = policy_for(settings)
         self.config_hash, manifest = cohort_manifest(settings, code_sha)
         store.freeze(
             settings.cohort_id, self.config_hash, manifest, settings.mode, datetime.now(UTC)
@@ -151,6 +214,8 @@ class EventRuntime:
     def operational_preflight(self, now: datetime) -> OperationalCertificate:
         reconciliation = self.oms.reconcile(now)
         account = self.broker.account()
+        confirmation = self.repo.get_control(f"{self.settings.cohort_id}:certificate")
+        prior = OperationalCertificate.model_validate_json(confirmation) if confirmation else None
         checks = {
             "paper_host": self.broker.broker_host == "https://paper-api.alpaca.markets",
             "no_live_credentials": not any(
@@ -160,10 +225,10 @@ class EventRuntime:
             "account_reconciled": reconciliation["healthy"],
             "cohort_frozen": True,
             "source_connected": self._sources_fresh(now),
-            "frozen_policy_market_feed": bool(self.market_states)
-            and all(
-                state.feed == "sip" or DEFAULT_EVENT_POLICY.allow_iex_experimental_paper
-                for state in self.market_states.values()
+            "frozen_policy_market_feed": all(
+                symbol in self.market_states
+                and self.market_states[symbol].feed == self.settings.execution_feed
+                for symbol in self.settings.symbols.split(",")
             ),
             "primary_source_configured": bool(
                 self.source.capabilities["sec_enabled"]
@@ -172,6 +237,13 @@ class EventRuntime:
             "operational_test_attestation": self.repo.get_control("v20:mechanics_attestation")
             == self.code_sha,
             "current_inputs_required_at_each_entry": True,
+            "operator_confirmation": prior is not None
+            and prior.permits_paper
+            and prior.checks.get("operator_confirmation") is True
+            and prior.config_hash == self.config_hash
+            and prior.code_sha == self.code_sha
+            and prior.cohort_id == self.settings.cohort_id
+            and prior.account_digest == sha256(account.id.encode()).hexdigest(),
         }
         cert = certificate(
             self.settings,
@@ -185,6 +257,11 @@ class EventRuntime:
                 "macro/halt/quote checked per decision",
                 "no configured LLM or consensus",
                 "no broker mechanics proof from a market closure",
+                *(
+                    ("IEX practice only; excluded from strategy qualification",)
+                    if self.settings.purpose == "iex-practice"
+                    else ()
+                ),
             ),
         )
         self.store.audit(
@@ -258,6 +335,8 @@ class EventRuntime:
                     )
             except (httpx.HTTPError, ValueError) as error:
                 market_errors.append(f"{symbol}:{type(error).__name__}")
+        if market_errors:
+            self.oms.supervise(datetime.now(UTC), feed_healthy=False)
         self.oms.valuation(marks, datetime.now(UTC))
         record_quote_paths(
             self.store, self.settings.cohort_id, self.market_states, datetime.now(UTC)
@@ -332,6 +411,7 @@ class EventRuntime:
             try:
                 extraction = self._extraction(event, evaluated_at)
                 decision = self._decision(event, extraction, evaluated_at, pre_receipt_states)
+                evaluated_at = decision.decided_at
                 if decision.position_review_required and event.is_primary_source:
                     self.oms.pause("R1_EVENT_REQUIRES_POSITION_REVIEW", evaluated_at)
                 # Keep waitable, semantically valid events alive, without rewriting past decisions.
@@ -367,9 +447,13 @@ class EventRuntime:
                     evaluated_at,
                 )
                 if decision.action == "eligible" and self.settings.mode == "experimental-paper":
-                    if self.cert is None or self.cert.expires_at <= evaluated_at:
+                    if (
+                        self.cert is None
+                        or not self.cert.permits_paper
+                        or self.cert.expires_at <= evaluated_at
+                    ):
                         self.operational_preflight(evaluated_at)
-                    self._entry(decision, event, evaluated_at)
+                    self._entry(decision, event, datetime.now(UTC))
             except (ValidationError, ArithmeticError) as error:
                 self.store.decision(
                     self.settings.cohort_id,
@@ -382,11 +466,28 @@ class EventRuntime:
                     },
                     evaluated_at,
                 )
+        calibration = self._practice_calibration(datetime.now(UTC))
         completed_at = datetime.now(UTC)
         clock = self.broker.clock()
+        blockers = list(self.context.errors)
+        if self.settings.purpose == "research" and any(
+            state.feed == "iex" for state in self.market_states.values()
+        ):
+            blockers.append("IEX_SHADOW_ONLY_FROZEN_POLICY")
+        if self.cert is not None and not self.cert.permits_paper:
+            blockers.extend(key for key, passed in self.cert.checks.items() if not passed)
+        if self.repo.get_control("kill_switch") == "active":
+            blockers.append("GLOBAL_KILL_SWITCH")
         heartbeat_state = {
             "state": "market_closed" if not clock.is_open else "collecting",
             "mode": self.settings.mode,
+            "purpose": self.settings.purpose,
+            "qualification_eligible": self.settings.purpose != "iex-practice",
+            "execution_feed": self.settings.execution_feed,
+            "practice_start_date": str(self.settings.practice_start_date)
+            if self.settings.practice_start_date
+            else None,
+            "calibration": calibration,
             "cohort_id": self.settings.cohort_id,
             "code_sha": self.code_sha,
             "config_hash": self.config_hash,
@@ -399,11 +500,15 @@ class EventRuntime:
             "events_received": len(source_events),
             "market_errors": market_errors,
             "tick_latency_seconds": (completed_at - tick_at).total_seconds(),
-            "blockers": [
+            "limitations": [
                 "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY",
-                *self.context.errors,
-                "IEX_SHADOW_ONLY_FROZEN_POLICY",
+                *(
+                    ["IEX_PRACTICE_ONLY_NOT_QUALIFICATION_EVIDENCE"]
+                    if self.settings.purpose == "iex-practice"
+                    else []
+                ),
             ],
+            "blockers": list(dict.fromkeys(blockers)),
             "official_context": self.context_client.capabilities,
             "operational_certificate": self.cert.model_dump(mode="json") if self.cert else None,
             "edge_established": False,
@@ -453,8 +558,12 @@ class EventRuntime:
                 quote=None,
                 market=MarketContext(mode=mode),
                 eligibility=None,
+                policy=self.policy,
             )
         current = self.market_states[mapping.symbol]
+        if self.settings.mode == "experimental-paper":
+            current = self._refresh_quote(mapping.symbol)
+            now = datetime.now(UTC)
         asset = self.broker.asset(mapping.symbol)
         eligibility = IssuerEligibility(
             symbol=mapping.symbol,
@@ -470,17 +579,7 @@ class EventRuntime:
             liquidity_available_at=current.observed_at,
             liquidity_completed_sessions=30,
         )
-        quote = EventQuote(
-            symbol=mapping.symbol,
-            bid=current.bid,
-            ask=current.ask,
-            bid_size=current.bid_size,
-            ask_size=current.ask_size,
-            timestamp=current.quote_at,
-            received_at=current.observed_at,
-            feed=current.feed,
-            size_unit=latest_rest_quote_size_unit(feed=current.feed, quote_at=current.quote_at),
-        )
+        quote = _execution_quote(current)
         with self.store.database.begin() as connection:
             saved = connection.execute(
                 select(events.c.payload)
@@ -501,6 +600,7 @@ class EventRuntime:
             now=now,
             quote=quote,
             eligibility=eligibility,
+            policy=self.policy,
             market=MarketContext(
                 symbol=mapping.symbol,
                 mode=mode,
@@ -534,6 +634,14 @@ class EventRuntime:
     def _entry(self, decision: Any, event: SourceEvent, now: datetime) -> None:
         if self.cert is None or decision.symbol is None:
             return
+        if self._calibration_waiting(now):
+            self.store.audit(
+                "submission_result",
+                {"state": "risk_rejected", "reasons": ["PRACTICE_CALIBRATION_PENDING"]},
+                now,
+                self.settings.cohort_id,
+            )
+            return
         market = self.market_states[decision.symbol]
         result = self.oms.submit_entry(
             symbol=decision.symbol,
@@ -552,8 +660,126 @@ class EventRuntime:
             ),
             certificate=self.cert,
             now=now,
+            execution_quote=_execution_quote(market),
         )
         self.store.audit("submission_result", result, now, self.settings.cohort_id)
+
+    def _refresh_quote(self, symbol: str) -> EventMarketState:
+        state = self.market.refresh_quote(self.market_states[symbol])
+        self.market_states[symbol] = state
+        self.repo.store_market_quote(
+            symbol=symbol,
+            event_at=state.quote_at,
+            received_at=state.observed_at,
+            bid_price=state.bid,
+            ask_price=state.ask,
+            bid_size=state.bid_size,
+            ask_size=state.ask_size,
+            feed_source=state.feed,
+            bid_exchange=str(state.raw_quote.get("bx", "")),
+            ask_exchange=str(state.raw_quote.get("ax", "")),
+        )
+        return state
+
+    def _calibration_waiting(self, now: datetime) -> bool:
+        if self.settings.purpose != "iex-practice":
+            return False
+        local_date = now.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
+        gate = self.calendar.gate(now)
+        return (
+            local_date == self.settings.practice_start_date
+            and gate.session_open is not None
+            and now < gate.session_open + timedelta(minutes=30)
+            and not any(
+                row["link"].get("entry_kind") == "calibration"
+                for row in self.store.linked_orders(self.settings.cohort_id)
+            )
+        )
+
+    def _practice_calibration(self, now: datetime) -> dict[str, Any] | None:
+        if self.settings.purpose != "iex-practice":
+            return None
+        result = self._calibration_step(now)
+        value = json.dumps(result, sort_keys=True)
+        key = f"{self.settings.cohort_id}:calibration_status"
+        if self.repo.get_control(key) != value:
+            self.repo.set_control(key, value)
+            self.store.audit("calibration_status", result, now, self.settings.cohort_id)
+        return result
+
+    def _calibration_step(self, now: datetime) -> dict[str, Any]:
+        rows = [
+            row
+            for row in self.store.linked_orders(self.settings.cohort_id)
+            if row["link"].get("entry_kind") == "calibration"
+        ]
+        if rows:
+            if any(row["status"] not in FINAL for row in rows):
+                state = "order_pending_or_unknown"
+            elif self.oms.inventory(rows):
+                state = "awaiting_risk_exit"
+            elif any(Decimal(str(row["filled_quantity"])) > 0 for row in rows):
+                state = "completed_round_trip"
+            else:
+                state = "completed_without_fill"
+            return {"state": state, "entry_attempts": 1, "qualification_eligible": False}
+        if self.settings.mode != "experimental-paper":
+            return {"state": "shadow_no_orders"}
+        local_date = now.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
+        start = self.settings.practice_start_date
+        if start is None or local_date < start:
+            return {"state": "scheduled", "session_date": str(start)}
+        gate = self.calendar.gate(now)
+        if local_date > start or (
+            gate.session_open and now >= gate.session_open + timedelta(minutes=30)
+        ):
+            return {"state": "missed_window_no_trade", "entry_attempts": 0}
+        if not gate.can_enter or not self.broker.clock().is_open:
+            return {"state": "waiting_for_regular_entry_window"}
+        if self.context is None:
+            return {"state": "blocked", "reasons": ["OFFICIAL_CONTEXT_REQUIRED"]}
+        reasons = [*self.context.errors, *self.context.blocking_reasons(now=now)]
+        if any(
+            now - timedelta(minutes=self.policy.macro_blackout_minutes)
+            <= event_at
+            <= now
+            + timedelta(
+                minutes=self.settings.max_holding_minutes + self.policy.macro_blackout_minutes
+            )
+            for event_at in self.context.scheduled_macro_events
+        ):
+            reasons.append("SCHEDULED_MACRO_BLACKOUT")
+        if self.context.halted_for("AAPL", now=now) is not False:
+            reasons.append("HALT_STATUS_NOT_CLEAR")
+        if not self._sources_fresh(now):
+            reasons.append("SOURCE_NOT_FRESH")
+        if "AAPL" not in self.market_states:
+            reasons.append("MARKET_STATE_REQUIRED")
+        if reasons:
+            return {"state": "blocked", "reasons": reasons}
+        if self.cert is None or not self.cert.permits_paper or self.cert.expires_at <= now:
+            self.operational_preflight(now)
+        if self.cert is None or not self.cert.permits_paper:
+            return {"state": "blocked", "reasons": ["OPERATIONAL_CERTIFICATE_REQUIRED"]}
+        quote_state = self._refresh_quote("AAPL")
+        evaluated_at = datetime.now(UTC)
+        result = self.oms.submit_entry(
+            symbol="AAPL",
+            cluster_key=f"opening-calibration:{local_date}:AAPL",
+            decision_id=f"opening-calibration:{self.settings.cohort_id}",
+            eligible_at=gate.session_open or now,
+            expires_at=evaluated_at + timedelta(seconds=30),
+            bid=quote_state.bid,
+            ask=quote_state.ask,
+            quote_at=quote_state.quote_at,
+            median_dollar_volume=quote_state.median_daily_dollar_volume or Decimal(0),
+            source_valid=True,
+            certificate=self.cert,
+            now=evaluated_at,
+            execution_quote=_execution_quote(quote_state),
+            entry_kind="calibration",
+        )
+        return {**result, "qualification_eligible": False, "purpose": "operator_calibration"}
 
     def _sources_fresh(self, now: datetime) -> bool:
         return (
@@ -561,6 +787,20 @@ class EventRuntime:
             and timedelta(0) <= now - self.last_source_success <= timedelta(seconds=120)
             and not self.source.last_errors
         )
+
+
+def _execution_quote(state: EventMarketState) -> EventQuote:
+    return EventQuote(
+        symbol=state.symbol,
+        bid=state.bid,
+        ask=state.ask,
+        bid_size=state.bid_size,
+        ask_size=state.ask_size,
+        timestamp=state.quote_at,
+        received_at=state.observed_at,
+        feed=state.feed,
+        size_unit=latest_rest_quote_size_unit(feed=state.feed, quote_at=state.quote_at),
+    )
 
 
 async def run_event_service(
@@ -624,6 +864,8 @@ async def run_event_service(
                                 "state": "paused",
                                 "cohort_id": settings.cohort_id,
                                 "mode": settings.mode,
+                                "purpose": settings.purpose,
+                                "qualification_eligible": settings.purpose != "iex-practice",
                                 "code_sha": runtime.code_sha,
                                 "blockers": [type(error).__name__],
                             },

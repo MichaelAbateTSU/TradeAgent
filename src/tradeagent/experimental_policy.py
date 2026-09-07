@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
-from typing import Literal
+from typing import Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from tradeagent.config import AppConfig
@@ -38,6 +38,8 @@ class ExperimentalSettings(BaseSettings):
         frozen=True,
     )
     mode: ExperimentMode = "shadow"
+    purpose: Literal["research", "iex-practice"] = "research"
+    practice_start_date: date | None = None
     cohort_id: str = "v20-event-cohort-001"
     virtual_equity: Decimal = Field(default=Decimal("10000"), gt=0, le=Decimal("10000"))
     max_entry_notional: Decimal = Field(default=Decimal("25"), gt=0, le=25)
@@ -57,6 +59,21 @@ class ExperimentalSettings(BaseSettings):
     # No inference provider is configured; unknown forecasts stay unknown.
     inference_provider: Literal["deterministic-only"] = "deterministic-only"
     estimated_fixed_monthly_usd: Decimal | None = None
+
+    @model_validator(mode="after")
+    def validate_practice(self) -> Self:
+        if self.purpose == "iex-practice":
+            if self.practice_start_date is None:
+                raise ValueError("IEX practice requires an explicit start date")
+            if "AAPL" not in self.symbols.split(","):
+                raise ValueError("IEX practice requires AAPL for its declared calibration")
+        elif self.practice_start_date is not None:
+            raise ValueError("a practice start date cannot alter a research cohort")
+        return self
+
+    @property
+    def execution_feed(self) -> Literal["iex", "sip"]:
+        return "iex" if self.purpose == "iex-practice" else "sip"
 
     def effective_notional(self, app: AppConfig) -> Decimal:
         return min(

@@ -11,6 +11,12 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import func, select
 
+from tradeagent.event_reporting import (
+    evidence_labels,
+    reported_calibration,
+    reporting_limitations,
+    reporting_purpose,
+)
 from tradeagent.event_store import event_cohorts, event_decisions, event_order_links
 from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.persistence import Database, ProductionRepository, events, orders
@@ -166,11 +172,11 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
                 perf, perf_at = dict(performance["payload"]), _utc(performance["occurred_at"])
                 position_count = len(perf.get("positions", {}))
     perf_current = perf_at is not None and timedelta(0) <= now - perf_at <= timedelta(seconds=120)
-    blockers = list(dict.fromkeys(str(value) for value in details.get("blockers", [])))
-    source = details.get("source_capabilities", {})
-    if isinstance(source, dict):
-        blockers.extend(str(value) for value in source.get("last_errors", []))
-    blockers.extend(str(value) for value in details.get("market_errors", []))
+    purpose = reporting_purpose(cohort, details, perf)
+    practice = purpose == "iex-practice"
+    limitations = reporting_limitations(details, purpose)
+    blockers = limitations["blockers"]
+    capabilities = limitations["capability_limitations"]
     pause = repository.get_control(f"{cohort_id}:pause") if cohort_id else None
     if pause:
         blockers.append(f"Operational pause: {pause}")
@@ -185,10 +191,13 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         )
     if any("IEX" in value or "SIP" in value for value in blockers):
         next_steps.append(
-            "Resolve latest-SIP access and select a feed allowed by the frozen protocol, "
+            "Restore fresh real-time Alpaca IEX data and rerun the practice paper-preflight. "
+            "SIP is not required for this isolated practice cohort; all risk gates remain."
+            if practice
+            else "Resolve latest-SIP access and select a feed allowed by the frozen protocol, "
             "then rerun paper-preflight. No subscription purchase or gate relaxation is automatic."
         )
-    if any("INFERENCE" in value for value in blockers):
+    if any("INFERENCE" in value for value in [*capabilities, *blockers]):
         next_steps.append(
             "Continue the deterministic extractor; broader document understanding requires an "
             "explicitly configured, budgeted inference provider. Unknown facts remain abstentions."
@@ -206,8 +215,12 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
             "Continue the frozen cohort, monitor risk/reconciliation, and review forward evidence."
         )
     next_steps.append(
-        "No profitability or alpha claim is established. Forward qualification requires genuine "
-        "observations, including the declared 60-session/60-round-trip floor."
+        "Operational IEX paper practice only: sessions and round trips (including calibration) "
+        "are excluded from research qualification and its 60-session/60-round-trip floor. "
+        "No profitability or alpha claim is established."
+        if practice
+        else "No profitability or alpha claim is established. Forward qualification requires "
+        "genuine observations, including the declared 60-session/60-round-trip floor."
     )
 
     def metric(key: str) -> str:
@@ -215,6 +228,13 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         return str(value) if value is not None else "unknown / not recorded"
 
     config = cohort.get("settings", {})
+    practice_start_date = details.get(
+        "practice_start_date", config.get("practice_start_date", "unknown")
+    )
+    calibration = reported_calibration(details)
+    calibration_state = (
+        calibration.get("state", "not reported") if isinstance(calibration, dict) else calibration
+    )
     lines = [
         "TRADEAGENT DAILY STATUS - PAPER ONLY",
         f"Reporting date: {local.date()} ({timezone})",
@@ -222,6 +242,9 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         "",
         "CURRENT AGENT STATUS",
         f"Mode (last reported): {details.get('mode', 'unknown')}",
+        f"Purpose: {purpose}",
+        f"Execution feed (last reported): {details.get('execution_feed', 'unknown')}",
+        *([f"Practice start date: {practice_start_date}"] if practice else []),
         f"Event worker: {status}",
         f"Last heartbeat: {worker[1].astimezone(zone).isoformat() if worker else 'none'}",
         f"Market phase (last reported): {details.get('market_phase', 'unknown')}",
@@ -233,6 +256,25 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         "TODAY'S EVENT ACTIVITY",
         f"Decisions: {decisions_today}; eligible: {candidates}; "
         f"abstained: {decisions_today - candidates}",
+        f"Calibration status (last reported): {calibration_state or 'not reported'}",
+        *(
+            [
+                "Calibration entry attempts (last reported): "
+                f"{calibration.get('entry_attempts', 'unknown')}",
+                "Calibration reasons (last reported): "
+                f"{', '.join(str(reason) for reason in calibration.get('reasons', [])) or 'none'}",
+            ]
+            if isinstance(calibration, dict)
+            else []
+        ),
+        *(
+            [
+                "Calibration records are operational checks, "
+                "not source events or qualification evidence."
+            ]
+            if practice
+            else []
+        ),
         f"Pending/unknown orders: {pending_count}",
         f"Positions (last valuation): {position_count if perf else 'unknown'}",
         "",
@@ -240,8 +282,22 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         f"Valuation: {perf_at.astimezone(zone).isoformat() if perf_at else 'unavailable'}"
         f" ({'current' if perf_current else 'stale or missing; current results unknown'})",
         f"Broker-paper cumulative P&L: {metric('broker_paper_pnl')} USD",
-        f"Economic-paper cumulative P&L: {metric('economic_paper_pnl')} USD",
+        (
+            "Practice cumulative P&L after modeled reserves (operational estimate only): "
+            f"{metric('economic_paper_pnl')} USD"
+            if practice
+            else f"Economic-paper cumulative P&L: {metric('economic_paper_pnl')} USD"
+        ),
         f"Reconciled round trips: {metric('closed_round_trips')}",
+        *(
+            [
+                f"Calibration round trips (operational only): {metric('calibration_round_trips')}",
+                "Research-qualifying practice sessions: 0; research-qualifying round trips: 0",
+                "Practice P&L is not validated strategy economics.",
+            ]
+            if practice
+            else []
+        ),
         f"Fixed service costs: {metric('fixed_service_cost_usd')} USD",
         "Economic reserves are estimates; paper results do not establish executable live profits.",
         f"Entry ceiling: {config.get('max_entry_notional', 'unknown')} USD; "
@@ -254,6 +310,12 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         ),
         *[f"- Abstention {reason}: {count}" for reason, count in reasons.most_common(5)],
         "",
+        "SOURCE / CAPABILITY LIMITATIONS (NOT TRADING-PERMISSION FAILURES)",
+        *(
+            [f"- {value}" for value in [*limitations["source_limitations"], *capabilities]]
+            or ["- None reported."]
+        ),
+        "",
         "NEXT STEPS",
         *[f"{index}. {step}" for index, step in enumerate(next_steps, start=1)],
         "",
@@ -261,6 +323,9 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         "This email does not change any strategy, risk limit, order permission, or subscription.",
     ]
     return {
+        **evidence_labels(purpose),
+        **limitations,
+        "calibration": calibration,
         "subject": f"[TradeAgent PAPER] Daily agent status - {local.date()}",
         "text": "\n".join(lines),
         "local_date": local.date().isoformat(),

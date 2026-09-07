@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +16,7 @@ from tradeagent.event_runtime import cohort_manifest, run_event_service
 from tradeagent.event_store import EventStore
 from tradeagent.execution_reference import run_execution_accounting_audit
 from tradeagent.experimental_policy import ExperimentalSettings, certificate
+from tradeagent.intraday import NyseSessionCalendar
 from tradeagent.persistence import Database, ProductionRepository
 
 COMMANDS = {
@@ -39,6 +40,8 @@ def register_event_commands(subparsers: Any) -> None:
         parser = subparsers.add_parser(name, help=f"v20 event experiment: {name}")
         parser.add_argument("--output", type=Path)
         parser.add_argument("--cohort-id")
+        parser.add_argument("--purpose", choices=["research", "iex-practice"])
+        parser.add_argument("--practice-start-date", type=date.fromisoformat)
         if name == "run":
             parser.add_argument(
                 "--mode", choices=["shadow", "experimental-paper"], default="shadow"
@@ -59,9 +62,12 @@ def register_event_commands(subparsers: Any) -> None:
 def handle_event_command(args: argparse.Namespace) -> bool:
     if args.command not in COMMANDS:
         return False
-    settings = ExperimentalSettings.model_validate(
-        {"cohort_id": args.cohort_id} if args.cohort_id else {}
-    )
+    overrides = {
+        key: value
+        for key in ("cohort_id", "purpose", "practice_start_date")
+        if (value := getattr(args, key, None)) is not None
+    }
+    settings = ExperimentalSettings.model_validate(overrides)
     result: Any
     if args.command in {"doctor", "source-capabilities"}:
         result = source_capabilities()
@@ -146,10 +152,20 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                 "flat_unreserved_account": diagnostics["broker_positions"] == 0
                 and diagnostics["broker_open_orders"] == 0,
                 "synthetic_lifecycle": replay["reconciled"],
-                "frozen_policy_feed_entitlement": diagnostics["market_data"]["sip_latest_quote"][
-                    "accessible"
-                ],
-                "configured_execution_feed": diagnostics["active_execution_feed"] == "sip",
+                "frozen_policy_feed_entitlement": diagnostics["market_data"][
+                    f"{experimental.execution_feed}_latest_quote"
+                ]["accessible"],
+                "configured_execution_feed": (
+                    diagnostics["active_execution_feed"] == experimental.execution_feed
+                ),
+                "practice_session_valid": experimental.purpose != "iex-practice"
+                or (
+                    experimental.practice_start_date is not None
+                    and NyseSessionCalendar(AppConfig().intraday).session_bounds(
+                        experimental.practice_start_date
+                    )
+                    is not None
+                ),
                 "official_macro_context": not context.blocking_reasons(now=now),
                 "halts_verified": all(
                     context.halted_for(s, now=now) is False for s in settings.symbols.split(",")
@@ -163,6 +179,11 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                 "synthetic mechanics are not live exchange execution evidence",
                 "each actual order rechecks source, quote, session, exposure and loss limits",
                 "profitability unproven",
+                *(
+                    ("IEX practice only; excluded from strategy qualification",)
+                    if experimental.purpose == "iex-practice"
+                    else ()
+                ),
             ),
         )
         if args.confirm_experimental_paper:
@@ -191,6 +212,8 @@ def handle_event_command(args: argparse.Namespace) -> bool:
             "blockers": [key for key, passed in proof.checks.items() if not passed],
             "confirmation_received": args.confirm_experimental_paper,
             "edge_established": False,
+            "purpose": experimental.purpose,
+            "qualification_eligible": experimental.purpose != "iex-practice",
         }
     text = json.dumps(result, indent=2, default=str, sort_keys=True)
     if args.output:

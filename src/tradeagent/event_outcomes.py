@@ -10,7 +10,13 @@ from typing import Any
 from sqlalchemy import JSON, Column, DateTime, String, Table, insert, select
 
 from tradeagent.event_market import EventMarketState
-from tradeagent.event_store import EventStore, event_decisions
+from tradeagent.event_reporting import (
+    IEX_PRACTICE_LIMITATION,
+    evidence_labels,
+    is_calibration,
+    reporting_purpose,
+)
+from tradeagent.event_store import EventStore, event_cohorts, event_decisions
 from tradeagent.persistence import metadata
 
 event_outcomes = Table(
@@ -29,6 +35,9 @@ def record_quote_paths(
 ) -> int:
     inserted = 0
     with store.database.begin() as connection:
+        manifest = connection.scalar(
+            select(event_cohorts.c.manifest).where(event_cohorts.c.cohort_id == cohort_id)
+        )
         rows = list(
             connection.execute(
                 select(event_decisions).where(
@@ -73,6 +82,13 @@ def record_quote_paths(
                         decision_id=row["decision_id"],
                         observed_at=now,
                         payload={
+                            **evidence_labels(reporting_purpose(manifest, decision)),
+                            "qualification_eligible": False,
+                            **(
+                                {"trade_classification": "calibration"}
+                                if is_calibration(decision)
+                                else {}
+                            ),
                             "kind": "quote_path_diagnostic_not_executed_trade",
                             "horizon_minutes": minutes,
                             "entry_quote": quote,
@@ -97,17 +113,33 @@ def record_quote_paths(
 
 def outcome_summary(store: EventStore, cohort_id: str) -> dict[str, Any]:
     with store.database.begin() as connection:
+        manifest = connection.scalar(
+            select(event_cohorts.c.manifest).where(event_cohorts.c.cohort_id == cohort_id)
+        )
         rows = list(
             connection.execute(
                 select(event_outcomes.c.payload).where(event_outcomes.c.cohort_id == cohort_id)
             ).scalars()
         )
+    purpose = reporting_purpose(manifest, *rows)
     return {
+        **evidence_labels(purpose),
+        "qualification_eligible": False,
+        "qualifying_round_trips": 0,
+        "qualifying_sessions": 0,
         "available_quote_paths": len(rows),
         "hypothetical_not_broker_performance": True,
         "horizons": [1, 5, 15, 60],
-        "latest": rows[-20:],
+        "latest": [
+            {**row, **evidence_labels(purpose), "qualification_eligible": False}
+            for row in rows[-20:]
+        ],
         "dsr": None,
         "pbo": None,
-        "statistical_status": "insufficient prospective evidence",
+        "statistical_status": (
+            "excluded: operational IEX paper practice only"
+            if purpose == "iex-practice"
+            else "insufficient prospective evidence"
+        ),
+        **({"source_limitations": [IEX_PRACTICE_LIMITATION]} if purpose == "iex-practice" else {}),
     }

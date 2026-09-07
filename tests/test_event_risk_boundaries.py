@@ -24,7 +24,7 @@ from tradeagent.event_orders import EventLeaseLostError
 from tradeagent.event_research import SourceEvent, extract_event, text_hash
 from tradeagent.event_runtime import EventRuntime
 from tradeagent.event_store import EventStore
-from tradeagent.experimental_policy import ExperimentalSettings
+from tradeagent.experimental_policy import ExperimentalSettings, certificate
 from tradeagent.persistence import Database
 
 NOW = surface_fixtures.NOW
@@ -358,7 +358,11 @@ def synthetic_runtime(monkeypatch: pytest.MonkeyPatch) -> Iterator[tuple[Any, ..
             volume=D(10000),
         ),
     )
-    market = SimpleNamespace(state=Mock(return_value=current), close=Mock())
+    market = SimpleNamespace(
+        state=Mock(return_value=current),
+        refresh_quote=Mock(return_value=current),
+        close=Mock(),
+    )
     context = SimpleNamespace(
         poll=Mock(return_value=surface_fixtures.clear_context()),
         close=Mock(),
@@ -402,6 +406,15 @@ def synthetic_runtime(monkeypatch: pytest.MonkeyPatch) -> Iterator[tuple[Any, ..
     extraction = extract_event(event, now=received + timedelta(seconds=1))
     runtime.extractions[event.evidence_id] = extraction
     runtime.repo.set_control("v20:mechanics_attestation", runtime.code_sha)
+    confirmation = certificate(
+        settings,
+        config_hash=runtime.config_hash,
+        code_sha=runtime.code_sha,
+        account_id=broker.account().id,
+        checks={"operator_confirmation": True},
+        now=NOW,
+    )
+    runtime.repo.set_control(f"{settings.cohort_id}:certificate", confirmation.model_dump_json())
     runtime.operational_preflight(NOW)
     try:
         yield runtime, event, extraction, source, market, broker
