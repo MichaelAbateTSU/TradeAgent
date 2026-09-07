@@ -50,7 +50,7 @@ controls = Table(
     "controls_v2",
     metadata,
     Column("control_key", String(100), primary_key=True),
-    Column("control_value", String(500), nullable=False),
+    Column("control_value", Text, nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 

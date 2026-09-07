@@ -51,8 +51,8 @@ The practice purpose is explicit, starts on a declared date, and requires its ow
 cohort and operator-confirmed preflight. The normal `research` purpose still requires SIP.
 
 ```powershell
-tradeagent paper-preflight --cohort-id v20-iex-practice-20260908 --purpose iex-practice --practice-start-date 2026-09-08 --confirm-experimental-paper
-tradeagent run --mode experimental-paper --cohort-id v20-iex-practice-20260908 --purpose iex-practice --practice-start-date 2026-09-08
+tradeagent paper-preflight --cohort-id v20-iex-practice-20260908-r2 --purpose iex-practice --practice-start-date 2026-09-08 --confirm-experimental-paper
+tradeagent run --mode experimental-paper --cohort-id v20-iex-practice-20260908-r2 --purpose iex-practice --practice-start-date 2026-09-08
 ```
 
 The planned first session is **Tuesday, September 8, 2026**. The existing 09:35 Eastern
@@ -73,6 +73,13 @@ Risk-exit link identities are hashed to fit PostgreSQL's fixed-width key column,
 long production cohort names. The final dispatch rechecks quote age and the calibration
 deadline after broker lookups. Temporarily denied operational checks can be re-evaluated
 on the next eligible tick without resetting an order claim or granting missing consent.
+
+Apply `0008_control_values` before preflight: complete certificates require a `TEXT`
+control value, not the original 500-character field. The first production setup attempt
+hit that storage limit before authorization was saved and submitted no orders. Its
+`v20-iex-practice-20260908` cohort is preserved; the corrected release uses the separate
+`-r2` cohort rather than rewriting a frozen configuration. Downgrade refuses to truncate
+certificates or other long control values.
 
 Runtime permission renewal requires the original explicit confirmation to match the
 same account, cohort, code and configuration. A global replay attestation alone cannot

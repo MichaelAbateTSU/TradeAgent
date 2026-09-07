@@ -40,7 +40,8 @@ class ExperimentalSettings(BaseSettings):
     mode: ExperimentMode = "shadow"
     purpose: Literal["research", "iex-practice"] = "research"
     practice_start_date: date | None = None
-    cohort_id: str = "v20-event-cohort-001"
+    # Evidence traces reserve 77 of the 128 characters for the hash and suffix.
+    cohort_id: str = Field(default="v20-event-cohort-001", min_length=1, max_length=51)
     virtual_equity: Decimal = Field(default=Decimal("10000"), gt=0, le=Decimal("10000"))
     max_entry_notional: Decimal = Field(default=Decimal("25"), gt=0, le=25)
     max_positions: Literal[1] = 1
