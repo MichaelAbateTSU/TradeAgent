@@ -982,7 +982,7 @@ class EventRuntime:
             if self.session_plan is not None and now >= self.session_plan.session_close
             else None
         )
-        local_rows = self.store.linked_orders(self.settings.cohort_id)
+        local_rows = self.oms.scoped_orders()
         waiting_reason = (
             "PRACTICE_CALIBRATION_PENDING"
             if self._calibration_waiting(now)
@@ -1085,6 +1085,8 @@ class EventRuntime:
                 if retryable
                 else "rejected"
                 if result["state"] == "risk_rejected"
+                else "expired"
+                if result["state"] == "expired"
                 else "attempted",
                 {
                     "evidence_id": event.evidence_id,
@@ -1218,9 +1220,7 @@ class EventRuntime:
             return
         result = self.oms.reconcile(now)
         unconfirmed = [
-            row["client_order_id"]
-            for row in self.store.linked_orders(self.settings.cohort_id)
-            if row["status"] not in FINAL
+            row["client_order_id"] for row in self.oms.scoped_orders() if row["status"] not in FINAL
         ]
         complete = (
             result["healthy"]
@@ -1235,6 +1235,7 @@ class EventRuntime:
             "open_orders": result["open_orders"],
             "unconfirmed_local_orders": unconfirmed,
             "mismatches": result["mismatches"],
+            "recovery_cohorts": result["recovery_cohorts"],
         }
         key = f"{self.settings.cohort_id}:session-completion"
         value = json.dumps(summary, sort_keys=True)

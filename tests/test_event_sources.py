@@ -12,6 +12,7 @@ from pydantic import SecretStr
 from tradeagent.alpaca import AlpacaDataSettings
 from tradeagent.event_research import (
     SourceEvent,
+    config_hash,
     extract_event,
     supported_issuer_mappings,
     text_hash,
@@ -815,6 +816,32 @@ def test_official_rss_publication_and_provenance_work_without_configured_primary
     assert client.capabilities["primary_urls_configured"] == 0
     assert client.last_poll_stats["coverage_complete"] is True
     assert len(calls) == 3
+
+
+def test_feed_only_revision_of_cached_document_uses_changed_feed_observation() -> None:
+    feed, wall, ticks = [rss_feed(rss_item())], [NOW], [0.0]
+    client, calls = feed_client(feed, wall=wall, ticks=ticks)
+    first = client.poll(start=NOW - timedelta(days=4), end=NOW, symbols=("NVDA",))[0]
+    # Keep the article cached while forcing a new feed observation.
+    client._http_cache.pop(config_hash(("https://nvidianews.nvidia.com/rss.xml", None)))
+    feed[0] = rss_feed(
+        rss_item(updated="Tue, 08 Sep 2026 14:00:30 GMT", headline="Correction: NVIDIA outlook")
+    )
+    wall[0] = NOW + timedelta(seconds=61)
+    revised = client.poll(start=NOW - timedelta(days=4), end=wall[0], symbols=("NVDA",))[0]
+    assert len([call for call in calls if str(call.url) == NVDA_URL]) == 1
+    assert revised.content_sha256 == first.content_sha256
+    assert revised.revision_of == first.evidence_id
+    assert revised.published_at == first.published_at
+    assert revised.provider_updated_at == NOW + timedelta(seconds=30)
+    assert revised.first_received_at == wall[0]
+    assert revised.content_available_at == wall[0]
+    assert first.first_received_at == NOW
+    again = client.poll(
+        start=NOW - timedelta(days=3), end=wall[0] + timedelta(seconds=10), symbols=("NVDA",)
+    )[0]
+    assert again.first_received_at == revised.first_received_at
+    assert again.evidence_id == revised.evidence_id
 
 
 def test_atom_updated_and_date_only_document_are_not_publication_timestamps() -> None:

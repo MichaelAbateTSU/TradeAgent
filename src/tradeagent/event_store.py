@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from hashlib import sha256
 from typing import Any
 from uuid import uuid4
@@ -30,6 +30,7 @@ from tradeagent.event_reporting import (
     observation_labels,
     reporting_purpose,
 )
+from tradeagent.event_session import session_identity
 from tradeagent.intraday import NyseSessionCalendar
 from tradeagent.persistence import Database, events, metadata, orders
 
@@ -265,12 +266,52 @@ class EventStore:
             return [
                 dict(row)
                 for row in connection.execute(
-                    select(orders, event_order_links.c.payload.label("link"))
+                    select(
+                        orders,
+                        event_order_links.c.payload.label("link"),
+                        event_order_links.c.cohort_id.label("owning_cohort"),
+                    )
                     .join(
                         event_order_links,
                         orders.c.client_order_id == event_order_links.c.client_order_id,
                     )
                     .where(event_order_links.c.cohort_id == cohort_id)
+                    .order_by(orders.c.created_at, orders.c.order_id)
+                ).mappings()
+            ]
+
+    def session_orders(
+        self, cohort_id: str, account_digest: str, session_date: date
+    ) -> list[dict[str, Any]]:
+        """Discover exposure by durable links, never by a budget counter alone."""
+        with self.database.begin() as connection:
+            return [
+                dict(row)
+                for row in connection.execute(
+                    select(
+                        orders,
+                        event_order_links.c.payload.label("link"),
+                        event_order_links.c.cohort_id.label("owning_cohort"),
+                    )
+                    .join(
+                        event_order_links,
+                        orders.c.client_order_id == event_order_links.c.client_order_id,
+                    )
+                    .where(
+                        or_(
+                            event_order_links.c.cohort_id == cohort_id,
+                            event_order_links.c.payload["session_id"].as_string()
+                            == session_identity(account_digest, session_date),
+                            (
+                                event_order_links.c.payload["account_digest"].as_string()
+                                == account_digest
+                            )
+                            & (
+                                event_order_links.c.payload["planned_session_date"].as_string()
+                                == str(session_date)
+                            ),
+                        )
+                    )
                     .order_by(orders.c.created_at, orders.c.order_id)
                 ).mappings()
             ]

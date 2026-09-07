@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
 from hashlib import sha256
 from typing import Any, Literal, Protocol
@@ -29,6 +29,7 @@ from tradeagent.event_session import (
     locked_session_budget,
     save_session_budget,
     session_control_key,
+    session_identity,
 )
 from tradeagent.event_store import (
     EventStore,
@@ -80,12 +81,87 @@ class ExperimentalOrderManager:
         config_hash: str,
         code_sha: str,
         owner_id: str | None = None,
+        *,
+        recovery_only: bool = False,
     ):
         self.store, self.broker, self.settings = store, broker, settings
         self.app, self.config_hash, self.code_sha = app, config_hash, code_sha
         self.repo = ProductionRepository(store.database)
         self.calendar = NyseSessionCalendar(app.intraday)
         self.owner_id = owner_id
+        self.recovery_only = recovery_only
+        self._recoveries: dict[str, ExperimentalOrderManager] = {}
+        self._unverified_cohorts: set[str] = set()
+
+    def scoped_orders(self) -> list[dict[str, Any]]:
+        if self.settings.purpose != "iex-practice" or self.settings.practice_start_date is None:
+            return self.store.linked_orders(self.settings.cohort_id)
+        digest = sha256(self.broker.account().id.encode()).hexdigest()
+        return self.store.session_orders(
+            self.settings.cohort_id, digest, self.settings.practice_start_date
+        )
+
+    def _recovery_manager(
+        self, cohort_id: str, digest: str, now: datetime
+    ) -> ExperimentalOrderManager:
+        if self.settings.practice_start_date is None:
+            raise ValueError("recovery requires a planned session")
+        if self.repo.get_control(f"{cohort_id}:broker-account") != digest:
+            raise ValueError("prior cohort account ownership is unverified")
+        if cohort_id not in self._recoveries:
+            with self.store.database.begin() as connection:
+                cohort = (
+                    connection.execute(
+                        select(event_cohorts).where(event_cohorts.c.cohort_id == cohort_id)
+                    )
+                    .mappings()
+                    .one()
+                )
+            manifest = cohort["manifest"]
+            settings = ExperimentalSettings.model_validate(manifest["settings"])
+            if (
+                settings.cohort_id != cohort_id
+                or settings.purpose != "iex-practice"
+                or settings.practice_start_date != self.settings.practice_start_date
+                or settings.mode != "experimental-paper"
+                or manifest["config_hash"] != cohort["config_hash"]
+            ):
+                raise ValueError("prior cohort recovery scope mismatch")
+            frozen_app = AppConfig(
+                intraday=manifest["operational_settings"]["intraday"],
+                risk=manifest["operational_settings"]["risk"],
+            )
+            self._recoveries[cohort_id] = ExperimentalOrderManager(
+                self.store,
+                self.broker,
+                settings,
+                frozen_app,
+                cohort["config_hash"],
+                manifest["code_sha"],
+                self.owner_id,
+                recovery_only=True,
+            )
+        manager = self._recoveries[cohort_id]
+        if not self.recovery_only:
+            handoff = {
+                "from_cohort": cohort_id,
+                "to_cohort": self.settings.cohort_id,
+                "worker_owner": self.owner_id,
+                "account_digest": digest,
+                "session_id": session_identity(digest, self.settings.practice_start_date),
+                "authority": "recovery_only_under_current_global_worker_lease",
+                "old_config_hash": manager.config_hash,
+                "old_manifest_unchanged": True,
+            }
+            key = (
+                "recovery-handoff:"
+                + sha256(json.dumps(handoff, sort_keys=True).encode()).hexdigest()
+            )
+            if self.repo.get_control(key) is None:
+                self.assert_owner(now)
+                self.store.audit("recovery_handoff", handoff, now, self.settings.cohort_id)
+                self.repo.set_control(key, now.isoformat())
+        return manager
 
     def assert_owner(self, now: datetime) -> None:
         if self.owner_id is not None and not self.repo.refresh_worker_lock(
@@ -97,21 +173,47 @@ class ExperimentalOrderManager:
         if self.broker.broker_host != PAPER_HOST:
             raise ValueError("live or unknown broker endpoint forbidden")
         account = self.broker.account()
+        digest = sha256(account.id.encode()).hexdigest()
+        account_key = f"{self.settings.cohort_id}:broker-account"
+        recorded_account = self.repo.get_control(account_key)
+        if recorded_account is None:
+            self.repo.set_control(account_key, digest)
+        elif recorded_account != digest:
+            self.pause("ACCOUNT_RESET_OR_SWITCH", now)
+            raise ValueError("account reset or switch; recovery forbidden")
         positions = self.broker.positions()
         open_orders = self.broker.open_orders()
-        rows = self.store.linked_orders(self.settings.cohort_id)
+        rows = self.scoped_orders()
         mismatches: list[str] = []
+        self._unverified_cohorts = set()
         for row in rows:
+            manager = self
+            if self.settings.purpose == "iex-practice" and (
+                self.settings.practice_start_date is None
+                or row["link"].get("account_digest") != digest
+                or row["link"].get("session_id")
+                != session_identity(digest, self.settings.practice_start_date)
+            ):
+                self._unverified_cohorts.add(row["owning_cohort"])
+                mismatches.append("RECOVERY_OWNERSHIP_UNVERIFIED:" + row["client_order_id"])
+                continue
+            if row["owning_cohort"] != self.settings.cohort_id:
+                try:
+                    manager = self._recovery_manager(row["owning_cohort"], digest, now)
+                except (ValueError, KeyError):
+                    self._unverified_cohorts.add(row["owning_cohort"])
+                    mismatches.append("RECOVERY_OWNERSHIP_UNVERIFIED:" + row["client_order_id"])
+                    continue
             if row["status"] in FINAL and (
                 not row["broker_order_id"] or _utc(row["created_at"]).date() != now.date()
             ):
                 continue
             broker_order = self.broker.find_order_by_client_id(row["client_order_id"])
             if broker_order is not None:
-                self._observe(row["client_order_id"], broker_order, now)
+                manager._observe(row["client_order_id"], broker_order, now)
             elif row["status"] not in {"created", "approved"}:
                 mismatches.append("SUBMISSION_OUTCOME_UNKNOWN:" + row["client_order_id"])
-        rows = self.store.linked_orders(self.settings.cohort_id)
+        rows = self.scoped_orders()
         owned = self.inventory(rows)
         positions = self.broker.positions()
         open_orders = self.broker.open_orders()
@@ -131,19 +233,22 @@ class ExperimentalOrderManager:
             "positions": {s: str(q) for s, q in actual.items()},
             "open_orders": len(open_orders),
             "observed_at": now.isoformat(),
+            "recovery_cohorts": sorted(
+                {
+                    row["owning_cohort"]
+                    for row in rows
+                    if row["owning_cohort"] != self.settings.cohort_id
+                }
+            ),
+            "unconfirmed_local_orders": [
+                row["client_order_id"] for row in rows if row["status"] not in FINAL
+            ],
         }
-        account_key = f"{self.settings.cohort_id}:broker-account"
-        recorded_account = self.repo.get_control(account_key)
-        if recorded_account is None:
-            self.repo.set_control(account_key, sha256(account.id.encode()).hexdigest())
-        elif recorded_account != result["account_digest"]:
-            mismatches.append("ACCOUNT_RESET_OR_SWITCH")
-            result["healthy"] = False
         self.store.audit("reconciliation", result, now, self.settings.cohort_id)
         if mismatches:
             self.pause("RECONCILIATION_REQUIRED", now)
         else:
-            self._notify_completed_cycles(rows, now)
+            self._notify_completed_cycles(self.store.linked_orders(self.settings.cohort_id), now)
         return result
 
     def _notify_completed_cycles(self, rows: list[dict[str, Any]], now: datetime) -> None:
@@ -281,6 +386,11 @@ class ExperimentalOrderManager:
     ) -> dict[str, Any]:
         self.assert_owner(now)
         errors: list[str] = []
+        if self.recovery_only:
+            errors.append("RECOVERY_ONLY_NO_ENTRIES")
+        reconciliation = self.reconcile(now)
+        if not reconciliation["healthy"]:
+            errors.append("ACCOUNT_SESSION_RECONCILIATION_REQUIRED")
         if self.settings.mode != "experimental-paper":
             errors.append("SHADOW_NO_ORDERS")
         local_date = now.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
@@ -619,6 +729,8 @@ class ExperimentalOrderManager:
         self, request: OrderRequest, limit: Decimal | None, now: datetime
     ) -> dict[str, Any]:
         reject_live_environment()
+        if self.broker.broker_host != PAPER_HOST:
+            raise ValueError("broker dispatch requires the paper host")
         self.assert_owner(now)
         existing = self.broker.find_order_by_client_id(request.client_order_id)
         if existing is not None:
@@ -643,6 +755,22 @@ class ExperimentalOrderManager:
                     event_order_links.c.client_order_id == request.client_order_id
                 )
             ).scalar_one()
+        self.store.update_link(
+            request.client_order_id, {**link, "submission_prepared_at": now.isoformat()}
+        )
+        self.store.audit(
+            "submission_prepared",
+            {"client_order_id": request.client_order_id, "side": request.side.value},
+            now,
+            self.settings.cohort_id,
+        )
+        paused = self.repo.get_control("kill_switch") == "active" or self.repo.get_control(
+            f"{self.settings.cohort_id}:pause"
+        )
+        digest = sha256(self.broker.account().id.encode()).hexdigest()
+        if self.repo.get_control(f"{self.settings.cohort_id}:broker-account") != digest:
+            raise ValueError("account changed before dispatch")
+        self.assert_owner(now)
         if request.side is Side.BUY:
             clock = self.broker.clock()
             gate = self.calendar.gate(clock.timestamp)
@@ -675,39 +803,47 @@ class ExperimentalOrderManager:
                 or clock.timestamp > datetime.fromisoformat(link["expires_at"])
                 or expired_calibration
                 or insufficient_news_horizon
-                or self.repo.get_control("kill_switch") == "active"
-                or self.repo.get_control(f"{self.settings.cohort_id}:pause")
+                or paused
             ):
-                with self.store.database.begin() as connection:
-                    connection.execute(
-                        update(orders)
-                        .where(
-                            orders.c.client_order_id == request.client_order_id,
-                            orders.c.status == "reconciliation_required",
-                        )
-                        .values(status="expired", updated_at=clock.timestamp)
-                    )
+                self._expire_unsent(
+                    request.client_order_id, clock.timestamp, claimed_in_this_dispatch=True
+                )
                 return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
-        self.store.update_link(
-            request.client_order_id,
-            {**link, "submission_attempted_at": now.isoformat()},
-        )
-        self.store.audit(
-            "submission_attempt",
-            {
-                "client_order_id": request.client_order_id,
-                "side": request.side.value,
-                "request": request.model_dump(mode="json"),
-            },
-            now,
-            self.settings.cohort_id,
-        )
+            now = clock.timestamp
+        # No database/control work may occur between these guards and the broker call.
+        # The durable prepared UNKNOWN state covers a crash before acknowledgement.
         try:
-            response = (
-                self.broker.submit_limit_order(request, limit)
-                if limit is not None
-                else self.broker.submit_market_order(request)
-            )
+            try:
+                response = (
+                    self.broker.submit_limit_order(request, limit)
+                    if limit is not None
+                    else self.broker.submit_market_order(request)
+                )
+            finally:
+                with self.store.database.begin() as connection:
+                    current_link = connection.execute(
+                        select(event_order_links.c.payload).where(
+                            event_order_links.c.client_order_id == request.client_order_id
+                        )
+                    ).scalar_one()
+                    connection.execute(
+                        update(event_order_links)
+                        .where(event_order_links.c.client_order_id == request.client_order_id)
+                        .values(
+                            payload={**current_link, "submission_attempted_at": now.isoformat()}
+                        )
+                    )
+                    self.store.audit(
+                        "submission_attempt",
+                        {
+                            "client_order_id": request.client_order_id,
+                            "side": request.side.value,
+                            "request": request.model_dump(mode="json"),
+                        },
+                        now,
+                        self.settings.cohort_id,
+                        connection,
+                    )
         except (httpx.TransportError, httpx.HTTPStatusError) as error:
             if isinstance(error, httpx.HTTPStatusError) and error.response.status_code in {
                 400,
@@ -775,6 +911,86 @@ class ExperimentalOrderManager:
             }
         self._observe(request.client_order_id, response, now)
         return {"state": response.status.value, "client_order_id": request.client_order_id}
+
+    def _expire_unsent(
+        self, client_id: str, now: datetime, *, claimed_in_this_dispatch: bool = False
+    ) -> None:
+        """Release only proven local expiry; a restarted prepared UNKNOWN is never releasable."""
+        with self.store.database.begin() as connection:
+            connection.execute(
+                select(event_cohorts)
+                .where(event_cohorts.c.cohort_id == self.settings.cohort_id)
+                .with_for_update()
+            ).one()
+            link = connection.execute(
+                select(event_order_links.c.payload).where(
+                    event_order_links.c.client_order_id == client_id
+                )
+            ).scalar_one()
+            budget = (
+                locked_session_budget(
+                    connection,
+                    link["account_digest"],
+                    date.fromisoformat(link["planned_session_date"]),
+                    now,
+                )
+                if link.get("session_id")
+                else None
+            )
+            row = (
+                connection.execute(
+                    select(orders).where(orders.c.client_order_id == client_id).with_for_update()
+                )
+                .mappings()
+                .one()
+            )
+            if (
+                row["status"]
+                != ("reconciliation_required" if claimed_in_this_dispatch else "approved")
+                or row["broker_order_id"]
+                or row["filled_quantity"]
+                or link.get("submission_attempted_at")
+                or link.get("reservation_released_at")
+            ):
+                return
+            if budget is not None:
+                if budget["session_id"] != link["session_id"]:
+                    raise ValueError("unsent reservation session identity mismatch")
+                if budget["total_entries_reserved"] < 1 or (
+                    link["entry_kind"] == "strategy" and budget["news_entries_reserved"] < 1
+                ):
+                    raise ValueError("unsent reservation counter mismatch")
+                budget["total_entries_reserved"] -= 1
+                if link["entry_kind"] == "strategy":
+                    budget["news_entries_reserved"] -= 1
+                save_session_budget(connection, budget, now)
+            connection.execute(
+                update(orders)
+                .where(orders.c.client_order_id == client_id)
+                .values(status="expired", updated_at=now)
+            )
+            connection.execute(
+                update(event_order_links)
+                .where(event_order_links.c.client_order_id == client_id)
+                .values(
+                    payload={
+                        **link,
+                        "definitively_unsent_at": now.isoformat(),
+                        "reservation_released_at": now.isoformat() if budget is not None else None,
+                    }
+                )
+            )
+            self.store.audit(
+                "unsent_reservation_released",
+                {
+                    "client_order_id": client_id,
+                    "session_budget": budget,
+                    "claim_and_intent_preserved": True,
+                },
+                now,
+                self.settings.cohort_id,
+                connection,
+            )
 
     def _observe(self, client_id: str, response: AlpacaPaperOrder, now: datetime) -> None:
         with self.store.database.begin() as connection:
@@ -866,8 +1082,11 @@ class ExperimentalOrderManager:
             raise ValueError("broker stream reconciliation requires the paper host")
         order = payload.get("order") or payload
         client_id = order.get("client_order_id")
-        rows = self.store.linked_orders(self.settings.cohort_id)
-        if not any(row["client_order_id"] == client_id for row in rows):
+        self.reconcile(now)
+        row = next(
+            (row for row in self.scoped_orders() if row["client_order_id"] == client_id), None
+        )
+        if row is None or row["owning_cohort"] in self._unverified_cohorts:
             self.store.audit(
                 "broker_stream_update",
                 {**payload, "owned": False, "reconciliation": "account reconciliation required"},
@@ -891,7 +1110,12 @@ class ExperimentalOrderManager:
         if actual is None:
             self.pause("STREAM_ORDER_NOT_CONFIRMED_BY_REST", now)
         else:
-            self._observe(str(client_id), actual, now)
+            manager = (
+                self
+                if row["owning_cohort"] == self.settings.cohort_id
+                else self._recoveries[row["owning_cohort"]]
+            )
+            manager._observe(str(client_id), actual, now)
 
     def _cancel(self, row: dict[str, Any], now: datetime) -> None:
         self.assert_owner(now)
@@ -940,6 +1164,13 @@ class ExperimentalOrderManager:
         """Always called before event ingestion, including outages and operational pauses."""
         self.assert_owner(now)
         self.reconcile(now)
+        if not self.recovery_only:
+            for manager in tuple(self._recoveries.values()):
+                if manager.settings.cohort_id not in self._unverified_cohorts:
+                    manager.supervise(now, feed_healthy=False)
+            self.reconcile(now)
+        if self.settings.cohort_id in self._unverified_cohorts:
+            return
         rows = self.store.linked_orders(self.settings.cohort_id)
         gate = self.calendar.gate(now)
         for row in rows:
@@ -953,15 +1184,7 @@ class ExperimentalOrderManager:
                         if row["status"] != "cancel_pending":
                             self._cancel(row, now)
                     elif row["status"] == "approved":
-                        with self.store.database.begin() as connection:
-                            connection.execute(
-                                update(orders)
-                                .where(
-                                    orders.c.client_order_id == row["client_order_id"],
-                                    orders.c.status == "approved",
-                                )
-                                .values(status="expired", updated_at=now)
-                            )
+                        self._expire_unsent(row["client_order_id"], now)
             elif (
                 row["side"] == "sell"
                 and row["status"] not in FINAL
@@ -1000,7 +1223,10 @@ class ExperimentalOrderManager:
             if owned <= 0 or broker_positions.get(symbol) != owned:
                 self.pause("EXIT_POSITION_MISMATCH", now)
                 continue
-            if any(row["symbol"] == symbol and row["status"] not in FINAL for row in rows):
+            if any(
+                row["symbol"] == symbol and row["status"] not in FINAL
+                for row in self.scoped_orders()
+            ) or any(order.symbol == symbol for order in self.broker.open_orders()):
                 continue  # cancellation/unknown state must reconcile before the exit can oversell
             if (
                 not self.broker.clock().is_open

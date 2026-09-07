@@ -1,13 +1,17 @@
 # Frozen Tuesday paper protocol
 
-Protocol: `tuesday-paper-v1`; cohort: `v20-tuesday-20260908-r2`.
+Protocol: `tuesday-paper-v1`; corrected cohort: `v20-tuesday-20260908-r3`.
 The deployed manifest, configuration fingerprint, module hashes and release identity
-are recorded in `research/results/v20-tuesday-20260908-deployment.json`.
+are recorded in `research/results/v20-tuesday-20260908-r3-deployment.json`
+after reviewed deployment. The earlier `v20-tuesday-20260908-deployment.json`
+is an immutable, superseded `-r2` snapshot, not current release authority.
 This is a separately versioned, hypothesis-driven IEX paper experiment, not a formal
 forward qualification sample. Formal evaluation has **not** started.
 The initial `v20-tuesday-20260908` setup remains immutable and submitted no orders.
-The `-r2` preparation release incorporates the final missing-worker calendar-report
-fallback; no trading thresholds or source policy changed.
+The `-r2` preparation release was paused for bounded safety repair before Tuesday.
+The `-r3` release repairs cross-cohort recovery, final dispatch timing, provably-unsent
+reservation accounting and feed-only revision availability. No strategy threshold,
+source permission, immutable evidence packet or old manifest is rewritten.
 
 ## Scope and clock
 
@@ -20,7 +24,9 @@ fallback; no trading thresholds or source policy changed.
   (stricter existing limits win), one occupied/reserved slot.
 - At most two durable entry reservations and one news entry for the account/session.
   Submitted rejections count; candidate checks do not. Reserved but never submitted
-  intents remain consumed conservatively and are distinguished in reporting.
+  intents release capacity only on definitively local expiry, atomically under the
+  same account/session budget lock. Claims, tickets and the equipment identity remain.
+  A restarted prepared UNKNOWN or any submitted rejection never releases capacity.
 - No entry before 09:35; actual completed five-minute observations, at least 20
   completed daily liquidity observations, and two-second processing latency are required.
   Equipment eligibility ends at 10:00. The 60-minute news horizon must fit before
@@ -52,6 +58,8 @@ fallback; no trading thresholds or source policy changed.
   evidence ID. Persist alternatives and re-evaluate after equipment/pending orders
   clear. Persist a full decision/risk ticket before submission; final dispatch
   rechecks quotes and deadlines. Expected net edge stays unknown.
+  All blocking database preparation and control reads precede the final broker clock,
+  quote-age and entry-window checks. Preparation is not a confirmed submission.
 
 ## Orders and measurement
 
@@ -65,6 +73,14 @@ fallback; no trading thresholds or source policy changed.
   Uncertainty is reconciled with the same ID. Cancel acceptance is not cancellation;
   actual cumulative broker fills and positions govern partial exits/replacements.
   Completion requires confirmed zero quantity and no outstanding/unconfirmed order.
+- Recovery ownership spans current/prior links for the same paper account and planned
+  session. The account fingerprint, stable link identity, pinned original cohort account
+  and stored settings must agree; a budget counter alone grants no ownership.
+  The current global worker lease explicitly hands older cohorts to entry-disabled
+  recovery managers. They retain original IDs, deadlines, classification and manifests,
+  cancel/reconcile old orders and exit only broker-confirmed owned quantity. Unverified
+  ownership or unresolved orders block new exposure; pauses never disable verified exits.
+  Completion and reporting include all relevant current/prior unresolved orders.
 - Cost version `v20-paper-residual-20260906-v1`: actual broker-fill VWAP baseline;
   0.5 bps residual friction on each side, sell value fee reserve 0.00002060,
   $0.000195/share with $0.01 minimum per filled sell order. No second spread charge.

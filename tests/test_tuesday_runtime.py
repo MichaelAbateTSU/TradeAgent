@@ -311,8 +311,209 @@ def test_final_dispatch_preserves_full_news_horizon_before_flatten(make_runtime,
     result = runtime.oms.submit_entry(**news_order_args(runtime, at))
     assert result["state"] == "expired"
     assert runtime.broker.submissions == 0
-    assert runtime.oms.session_budget()["total_entries_reserved"] == 1
+    assert runtime.oms.session_budget()["total_entries_reserved"] == 0
     assert not recorded(runtime, "submission_attempt")
+
+
+@pytest.mark.parametrize(
+    "at,delay,kind",
+    [
+        (NOW.replace(hour=13, minute=59, second=59), 2, "calibration"),
+        (NOW.replace(hour=14, minute=10, second=0), 6, "strategy"),
+        (NOW.replace(hour=18, minute=49, second=59), 2, "strategy"),
+    ],
+)
+@pytest.mark.parametrize("operation", ["update_link", "audit"])
+def test_slow_dispatch_preparation_cannot_bypass_final_time_guards(
+    make_runtime, monkeypatch, at, delay, kind, operation
+):
+    runtime = make_runtime()
+    runtime.broker.now = at
+    original = getattr(runtime.store, operation)
+
+    def slow(*args, **kwargs):
+        if operation == "update_link" or args[0] == "submission_prepared":
+            runtime.broker.now = at + timedelta(seconds=delay)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(runtime.store, operation, slow)
+    args = news_order_args(runtime, at)
+    if kind == "calibration":
+        args.update(entry_kind=kind, cluster_key="opening-calibration:2026-09-08:AAPL")
+    assert runtime.oms.submit_entry(**args)["state"] == "expired"
+    assert runtime.broker.submissions == 0
+    assert runtime.oms.session_budget()["total_entries_reserved"] == 0
+    row = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
+    assert row["link"]["submission_prepared_at"]
+    assert row["link"]["definitively_unsent_at"]
+    assert not row["link"].get("submission_attempted_at")
+    assert not recorded(runtime, "submission_attempt")
+
+
+def test_unsent_news_release_is_idempotent_and_allows_fresh_candidate(make_runtime, monkeypatch):
+    runtime = make_runtime()
+    at = NOW + timedelta(minutes=31)
+    runtime.broker.now = at
+    audit = runtime.store.audit
+
+    def slow(kind, *args, **kwargs):
+        if kind == "submission_prepared":
+            runtime.broker.now = at + timedelta(seconds=6)
+        return audit(kind, *args, **kwargs)
+
+    monkeypatch.setattr(runtime.store, "audit", slow)
+    assert runtime.oms.submit_entry(**news_order_args(runtime, at))["state"] == "expired"
+    row = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
+    runtime.oms._expire_unsent(row["client_order_id"], runtime.broker.now)
+    assert len(recorded(runtime, "unsent_reservation_released")) == 1
+    assert runtime.oms.session_budget()["news_entries_reserved"] == 0
+    monkeypatch.setattr(runtime.store, "audit", audit)
+    assert (
+        runtime.oms.submit_entry(**news_order_args(runtime, runtime.broker.now, "fresh-news"))[
+            "state"
+        ]
+        == "filled"
+    )
+    assert runtime.oms.session_budget()["news_entries_reserved"] == 1
+    assert len(recorded(runtime, "decision_ticket")) == 2
+    assert runtime.broker.submissions == 1
+
+
+def test_unknown_news_reservation_never_releases_without_submission_evidence(
+    make_runtime, monkeypatch
+):
+    runtime = make_runtime()
+    at = NOW + timedelta(minutes=31)
+    runtime.broker.now = at
+
+    def crash_after_preparation(kind, *args, **kwargs):
+        if kind == "submission_prepared":
+            raise RuntimeError("synthetic crash before final checks")
+
+    monkeypatch.setattr(runtime.store, "audit", crash_after_preparation)
+    with pytest.raises(RuntimeError, match="synthetic crash"):
+        runtime.oms.submit_entry(**news_order_args(runtime, at))
+    row = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
+    runtime.oms._expire_unsent(row["client_order_id"], at)
+    assert row["status"] == "reconciliation_required"
+    assert not row["link"].get("submission_attempted_at")
+    assert runtime.oms.session_budget()["news_entries_reserved"] == 1
+    assert runtime.broker.submissions == 0
+
+
+def restart_cohort(runtime):
+    new = EventRuntime(
+        runtime.store,
+        runtime.settings.model_copy(update={"cohort_id": "recovery-deployment"}),
+        runtime.source,
+        runtime.market,
+        runtime.broker,
+        instance_id="fixture",
+        code_sha="repair",
+    )
+    new.context_client.close()
+    new.context_client = Context()
+    return new
+
+
+@pytest.mark.parametrize("partial", [False, True])
+def test_new_cohort_recovers_prior_equipment_under_current_lease(make_runtime, partial):
+    runtime = make_runtime()
+    runtime.broker.partial = partial
+    tick(runtime)
+    old_manifest = runtime.store.report(runtime.settings.cohort_id)["cohort"]
+    new = restart_cohort(runtime)
+    later = NOW + timedelta(seconds=65)
+    tick(new, later)
+    assert not runtime.broker.positions()
+    assert not runtime.broker.open_orders()
+    assert runtime.broker.submissions == 2
+    assert len(runtime.store.linked_orders(runtime.settings.cohort_id)) == 2
+    assert not runtime.store.linked_orders(new.settings.cohort_id)
+    assert runtime.store.report(runtime.settings.cohort_id)["cohort"] == old_manifest
+    handoffs = recorded(new, "recovery_handoff")
+    assert len(handoffs) == 1
+    assert handoffs[0]["worker_owner"] == "fixture"
+    assert handoffs[0]["authority"] == "recovery_only_under_current_global_worker_lease"
+    recovery = new.oms._recoveries[runtime.settings.cohort_id]
+    assert (
+        "RECOVERY_ONLY_NO_ENTRIES"
+        in recovery.submit_entry(**news_order_args(runtime, later, "forbidden-recovery-entry"))[
+            "reasons"
+        ]
+    )
+
+
+def test_new_cohort_unknown_order_blocks_entries_and_session_completion(make_runtime, monkeypatch):
+    runtime = make_runtime()
+
+    def unknown(request, limit):
+        runtime.broker.submissions += 1
+        raise httpx.ReadTimeout("synthetic unknown, no observable broker position")
+
+    monkeypatch.setattr(runtime.broker, "submit_limit_order", unknown)
+    tick(runtime)
+    old_id = runtime.store.linked_orders(runtime.settings.cohort_id)[0]["client_order_id"]
+    new = restart_cohort(runtime)
+    end = NOW.replace(hour=20, minute=0, second=1)
+    tick(new, end)
+    summary = recorded(new, "session_completion")[-1]
+    assert summary["state"] == "incident_unresolved_exposure"
+    assert old_id in summary["unconfirmed_local_orders"]
+    assert runtime.settings.cohort_id in summary["recovery_cohorts"]
+    assert runtime.broker.submissions == 1
+    from tradeagent.event_session_report import session_report
+
+    report = session_report(new.store.database, new.settings.cohort_id, observed_at=end)
+    assert report["session_state"] != "COMPLETE"
+    assert report["prior_cohort_activity"]["versions"][0]["orders"][0]["client_order_id"] == old_id
+
+
+def test_accepted_post_crash_before_attempt_log_recovers_original_id(make_runtime, monkeypatch):
+    runtime = make_runtime()
+    audit = runtime.store.audit
+
+    def crash(kind, *args, **kwargs):
+        if kind == "submission_attempt":
+            raise RuntimeError("synthetic crash after POST before attempt bookkeeping")
+        return audit(kind, *args, **kwargs)
+
+    monkeypatch.setattr(runtime.store, "audit", crash)
+    with pytest.raises(RuntimeError, match="synthetic crash after POST"):
+        tick(runtime)
+    row = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
+    assert row["status"] == "reconciliation_required"
+    assert not row["link"].get("submission_attempted_at")
+    assert runtime.broker.find_order_by_client_id(row["client_order_id"]) is not None
+    runtime.oms._expire_unsent(row["client_order_id"], NOW)
+    assert runtime.oms.session_budget()["total_entries_reserved"] == 1
+    monkeypatch.setattr(runtime.store, "audit", audit)
+    new = restart_cohort(runtime)
+    tick(new, NOW + timedelta(seconds=65))
+    rows = runtime.store.linked_orders(runtime.settings.cohort_id)
+    assert rows[0]["client_order_id"] == row["client_order_id"]
+    assert rows[0]["status"] == "filled"
+    assert runtime.broker.submissions == 2
+    assert not runtime.broker.positions()
+    assert runtime.oms.session_budget()["total_entries_reserved"] == 1
+    assert not rows[0]["link"].get("reservation_released_at")
+
+
+def test_unverified_old_link_never_authorizes_liquidation(make_runtime):
+    runtime = make_runtime()
+    tick(runtime)
+    row = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
+    runtime.store.update_link(
+        row["client_order_id"], {**row["link"], "account_digest": "different-account"}
+    )
+    new = restart_cohort(runtime)
+    tick(new, NOW + timedelta(seconds=65))
+    assert runtime.broker.submissions == 1
+    assert runtime.broker.positions()
+    assert any(
+        "OWNERSHIP_UNVERIFIED" in item
+        for item in new.oms.reconcile(runtime.broker.now)["mismatches"]
+    )
 
 
 def test_one_news_limit_applies_without_equipment_and_across_deployments(make_runtime):

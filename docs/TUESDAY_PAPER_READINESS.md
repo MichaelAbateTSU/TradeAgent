@@ -1,5 +1,21 @@
 # Tuesday, September 8, 2026 — paper readiness
 
+## Safety closeout — supersedes the earlier armed snapshot
+
+The `-r2` cohort was paused for four bounded safety repairs before Tuesday:
+cross-cohort recovery/completion, database latency after final dispatch guards,
+provably-unsent reservation accounting, and feed-only revision availability.
+The corrected release uses a **new immutable `v20-tuesday-20260908-r3` cohort**.
+The earlier deployment JSON and all cohort manifests remain historical evidence,
+not permission to rely on the old completion matrix.
+
+The corrected release is pending final independent review and deployed verification.
+No Tuesday result or preparation trade is claimed. See the corrected
+[protocol](TUESDAY_PAPER_PROTOCOL.md) for account/session recovery ownership,
+durable UNKNOWN handling and the strictly bounded reservation-release rule.
+
+## Historical r2 verification (superseded; retained for audit)
+
 **Verified September 7, 2026, 08:11–08:13 UTC (04:11–04:13 Eastern).**
 The existing Render environment is armed for a **conditional, paper-only operational
 and news experiment**. Tuesday has not started. No preparation orders, simulated

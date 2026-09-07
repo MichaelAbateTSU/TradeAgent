@@ -175,7 +175,9 @@ def test_absent_unknown_order_never_resubmits_even_after_negative_lookup(
     assert manager._dispatch(request, D(100), order_fixtures.NOW)["state"] == (
         "submission_outcome_unknown"
     )
-    assert manager.submit_entry(**args)["state"] == "duplicate_event"
+    blocked = manager.submit_entry(**args)
+    assert blocked["state"] == "risk_rejected"
+    assert "ACCOUNT_SESSION_RECONCILIATION_REQUIRED" in blocked["reasons"]
     assert submit.call_count == 1
     assert store.linked_orders("fixture")[0]["status"] == "reconciliation_required"
 

@@ -956,6 +956,11 @@ class EventSourceClient:
         source = "sec_edgar" if urlsplit(url).hostname == "www.sec.gov" else "issuer_primary"
         if feed_metadata is not None:
             source += ":official_feed"
+            # A cached document cannot backdate newly observed feed corrections.
+            feed_received_at = _timestamp(feed_metadata["feed_received_at"])
+            if feed_received_at is None:
+                raise SourceAcquisitionError("feed_receipt_timestamp_missing")
+            received = max(received, feed_received_at)
         event = SourceEvent(
             source_event_id=url,
             source=source,
