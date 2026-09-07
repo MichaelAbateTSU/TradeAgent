@@ -22,6 +22,13 @@ The existing `tradeagent-notifier` also schedules daily status/next-step emails 
 Its pre-deploy command applies `0007_daily_status_email`. This change does not
 redeploy or alter the frozen trading/event cohort.
 
+Daily notifier release: `1c061c7` (Render deploy `dep-daf2unqd0e5s73aiulig`).
+The first digest, dated September 6, 2026 Eastern, was accepted by Resend at
+`2026-09-07T03:34:09Z` after the old notifier lease expired. Provider message ID:
+`c9cbdf72-924d-40a6-aed2-574cd7b686c4`. This confirms provider acceptance, not
+mailbox delivery. The notifier is pinned with automatic deploys disabled;
+future changes use explicit deployment.
+
 ## Original deployment record
 
 Deployed September 4, 2026 in the `InSight AI` Render workspace.
