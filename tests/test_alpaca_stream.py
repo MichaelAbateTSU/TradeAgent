@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -13,6 +14,7 @@ from tradeagent.alpaca_stream import (
     MarketQuote,
     MarketTrade,
     StreamProtocolError,
+    StreamProviderError,
 )
 from tradeagent.domain import MarketBar
 
@@ -38,11 +40,18 @@ def _settings() -> AlpacaStreamSettings:
     )
 
 
+def _subscription(symbols: tuple[str, ...] = ("SPY",)) -> str:
+    return json.dumps(
+        [{"T": "subscription", **{channel: symbols for channel in ("bars", "quotes", "trades")}}]
+    )
+
+
 def test_stream_authenticates_subscribes_and_parses_events() -> None:
     socket = FakeWebSocket(
         [
             json.dumps([{"T": "success", "msg": "connected"}]),
             json.dumps([{"T": "success", "msg": "authenticated"}]),
+            _subscription(),
             json.dumps(
                 [
                     {
@@ -122,7 +131,7 @@ def test_stream_rejects_authentication_and_protocol_errors() -> None:
             json.dumps([{"T": "error", "code": 401, "msg": "not authenticated"}]),
         ]
     )
-    with pytest.raises(StreamProtocolError, match="authentication failed"):
+    with pytest.raises(StreamProtocolError, match="authentication error 401: not authenticated"):
         asyncio.run(collect(unauthenticated))
 
     stream_error = FakeWebSocket(
@@ -172,3 +181,166 @@ def test_stream_endpoint_cannot_be_changed_to_live_sip() -> None:
             secret_key=SecretStr("secret"),
             data_stream_url="wss://stream.data.alpaca.markets/v2/sip",
         )
+
+
+@pytest.mark.parametrize(
+    ("code", "retryable", "description"),
+    [
+        (406, True, "connection limit"),
+        (407, True, "slow client/backpressure"),
+        (404, True, "authentication timeout"),
+        (402, False, "authentication failed"),
+        (409, False, "entitlement"),
+    ],
+)
+def test_real_shaped_provider_errors_preserve_safe_code(code, retryable, description) -> None:
+    socket = FakeWebSocket(
+        [
+            json.dumps([{"T": "success", "msg": "connected"}]),
+            json.dumps([{"T": "error", "code": code, "msg": "echo stream-secret stream-key"}]),
+        ]
+    )
+    stream = AlpacaMarketStream(_settings())
+
+    async def collect():
+        return [event async for event in stream.stream_connection(socket, ["SPY"])]
+
+    with pytest.raises(StreamProviderError, match=description) as failure:
+        asyncio.run(collect())
+    assert failure.value.code == code
+    assert failure.value.retryable is retryable
+    assert "stream-secret" not in str(failure.value)
+    assert "stream-key" not in str(failure.value)
+    assert stream.health()["authenticated"] is False
+    assert stream.health()["subscribed"] is False
+
+
+@pytest.mark.parametrize(
+    "ack",
+    [
+        json.dumps([{"T": "q", "S": "SPY"}]),
+        json.dumps([{"T": "subscription", "bars": ["SPY"], "quotes": [], "trades": ["SPY"]}]),
+    ],
+)
+def test_stream_requires_complete_subscription_ack_before_market_data(ack) -> None:
+    socket = FakeWebSocket(
+        [
+            json.dumps([{"T": "success", "msg": "connected"}]),
+            json.dumps([{"T": "success", "msg": "authenticated"}]),
+            ack,
+        ]
+    )
+    stream = AlpacaMarketStream(_settings())
+
+    async def collect():
+        return [event async for event in stream.stream_connection(socket, ["SPY"])]
+
+    with pytest.raises(StreamProtocolError, match="subscription"):
+        asyncio.run(collect())
+    assert stream.health()["subscribed"] is False
+
+
+def test_connection_limit_then_disconnect_reconnects_and_stamps_at_receipt(monkeypatch) -> None:
+    exchange_at = datetime(2026, 9, 8, 14, 30, tzinfo=UTC)
+    received_at = datetime(2026, 9, 8, 14, 30, 11, tzinfo=UTC)
+    quote = json.dumps(
+        [
+            {
+                "T": "q",
+                "S": "SPY",
+                "t": exchange_at.isoformat(),
+                "bp": 100,
+                "ap": 101,
+                "bs": 10,
+                "as": 20,
+            }
+        ]
+    )
+    sockets = [
+        FakeWebSocket([json.dumps([{"T": "error", "code": 406, "msg": "connection limit"}])]),
+        FakeWebSocket(
+            [
+                json.dumps([{"T": "success", "msg": "connected"}]),
+                json.dumps([{"T": "success", "msg": "authenticated"}]),
+                _subscription(),
+                quote,
+            ]
+        ),
+        FakeWebSocket(
+            [
+                json.dumps([{"T": "success", "msg": "connected"}]),
+                json.dumps([{"T": "success", "msg": "authenticated"}]),
+                _subscription(),
+                quote,
+            ]
+        ),
+    ]
+    opens = []
+
+    class Connection:
+        async def __aenter__(self):
+            socket = sockets.pop(0)
+            opens.append(socket)
+            return socket
+
+        async def __aexit__(self, *args):
+            return False
+
+    monkeypatch.setattr("tradeagent.alpaca_stream.connect", lambda *args, **kwargs: Connection())
+    stream = AlpacaMarketStream(
+        _settings().model_copy(
+            update={
+                "reconnect_initial_seconds": 0.001,
+                "reconnect_max_seconds": 0.002,
+            }
+        ),
+        clock=lambda: received_at,
+    )
+    statuses = []
+    stream.on_status = statuses.append
+
+    async def collect():
+        iterator = stream.received_events(["SPY"])
+        try:
+            return [await anext(iterator), await anext(iterator)]
+        finally:
+            await iterator.aclose()
+
+    receipts = asyncio.run(collect())
+    assert len(opens) == 3
+    assert all(receipt.event.timestamp == exchange_at for receipt in receipts)
+    assert all(receipt.received_at == received_at for receipt in receipts)
+    retries = [status for status in statuses if status["state"] == "reconnecting"]
+    assert [status["retry_in_seconds"] for status in retries] == [0.001, 0.002]
+    assert retries[0]["code"] == 406
+    assert retries[0]["authenticated"] is False
+    assert retries[1]["gap"] is True
+    assert stream.health()["state"] == "stopped"
+    assert stream.health()["authenticated"] is False
+    assert sum(status["state"] == "subscribed" for status in statuses) == 2
+
+
+def test_bad_auth_does_not_retry_or_claim_authentication(monkeypatch) -> None:
+    class Connection:
+        async def __aenter__(self):
+            return FakeWebSocket(
+                [
+                    json.dumps([{"T": "success", "msg": "connected"}]),
+                    json.dumps([{"T": "error", "code": 402, "msg": "auth failed"}]),
+                ]
+            )
+
+        async def __aexit__(self, *args):
+            return False
+
+    monkeypatch.setattr("tradeagent.alpaca_stream.connect", lambda *args, **kwargs: Connection())
+    stream = AlpacaMarketStream(_settings())
+
+    async def collect():
+        return await anext(stream.received_events(["SPY"]))
+
+    with pytest.raises(StreamProviderError, match="402"):
+        asyncio.run(collect())
+    assert stream.health()["state"] == "failed"
+    assert stream.health()["authenticated"] is False
+    assert stream.health()["reconnects"] == 0

@@ -21,6 +21,7 @@ from tradeagent.event_session_report import render_session_report, session_repor
 from tradeagent.event_store import event_cohorts, event_decisions, event_order_links
 from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.persistence import Database, ProductionRepository, events, orders
+from tradeagent.reporting_reads import payload_from_projection, projected_payload, stream_rows
 
 LOGGER = logging.getLogger(__name__)
 
@@ -132,18 +133,19 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
                 select(event_cohorts.c.manifest).where(event_cohorts.c.cohort_id == cohort_id)
             )
             cohort = dict(manifest) if manifest else {}
-            decisions = connection.scalars(
-                select(event_decisions.c.payload).where(
+            decisions = stream_rows(
+                connection,
+                select(*projected_payload(event_decisions.c.payload, ("action", "reasons"))).where(
                     event_decisions.c.cohort_id == cohort_id,
                     event_decisions.c.decided_at >= start,
                     event_decisions.c.decided_at < end,
                     event_decisions.c.decided_at <= now,
-                )
+                ),
             )
             for decision in decisions:
                 decisions_today += 1
                 candidates += decision.get("action") == "eligible"
-                reasons.update(str(reason) for reason in decision.get("reasons", []))
+                reasons.update(str(reason) for reason in (decision.get("reasons") or []))
             pending_count = int(
                 connection.scalar(
                     select(func.count())
@@ -162,9 +164,21 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
                 )
                 or 0
             )
+            performance_fields = (
+                "purpose",
+                "positions",
+                "broker_paper_pnl",
+                "economic_paper_pnl",
+                "closed_round_trips",
+                "calibration_round_trips",
+                "fixed_service_cost_usd",
+            )
             performance = (
                 connection.execute(
-                    select(events.c.payload, events.c.occurred_at)
+                    select(
+                        *projected_payload(events.c.payload, performance_fields),
+                        events.c.occurred_at,
+                    )
                     .where(
                         events.c.event_type == "event_performance",
                         events.c.trace_id == cohort_id,
@@ -177,7 +191,8 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
                 .one_or_none()
             )
             if performance:
-                perf, perf_at = dict(performance["payload"]), _utc(performance["occurred_at"])
+                perf = payload_from_projection(dict(performance), performance_fields)
+                perf_at = _utc(performance["occurred_at"])
                 position_count = len(perf.get("positions", {}))
     perf_current = perf_at is not None and timedelta(0) <= now - perf_at <= timedelta(seconds=120)
     purpose = reporting_purpose(cohort, details, perf)
@@ -340,7 +355,12 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
         "calibration": calibration,
         "subject": f"[TradeAgent PAPER] Daily agent status - {local.date()}",
         "text": "\n".join(lines) + "\n\n" + render_session_report(structured),
-        "session_report": structured,
+        "session_report_reference": {
+            "report_id": structured["report_id"],
+            "snapshot_at": structured["snapshot_at"],
+            "immutable_table": "events_v2",
+            "url": f"/api/event-session-report?report_id={structured['report_id']}",
+        },
         "session_report_id": structured["report_id"],
         "local_date": local.date().isoformat(),
         "timezone": timezone,

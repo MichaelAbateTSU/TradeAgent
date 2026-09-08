@@ -33,13 +33,6 @@ from tradeagent.data import read_bars, synthetic_bars, write_bars
 from tradeagent.data_quality import analyze_dataset
 from tradeagent.diagnostics import StrategyDiagnostics, diagnose_strategy
 from tradeagent.domain import PaperBrokerState
-from tradeagent.economic_ml import (
-    build_economic_events,
-    evaluate_economic_ml,
-)
-from tradeagent.economic_ml import (
-    report_hash as economic_ml_report_hash,
-)
 from tradeagent.engine import TradingEngine
 from tradeagent.execution_calibration import (
     calibrate_squeeze_execution,
@@ -93,11 +86,6 @@ from tradeagent.lower_turnover_research import (
 )
 from tradeagent.lower_turnover_research import (
     report_hash as lower_turnover_report_hash,
-)
-from tradeagent.meta_label import (
-    TrendPullbackCandidateStrategy,
-    build_meta_label_events,
-    evaluate_meta_labels,
 )
 from tradeagent.monitor import monitor_take_profit
 from tradeagent.news import NewsBlackoutPolicy, NewsContextService, NewsRepository
@@ -1138,6 +1126,12 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     if args.command == "economic-ml-research":
+        from tradeagent.economic_ml import (
+            build_economic_events,
+            evaluate_economic_ml,
+        )
+        from tradeagent.economic_ml import report_hash as economic_ml_report_hash
+
         symbols = tuple(
             symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
         )
@@ -1689,6 +1683,12 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     if args.command == "meta-label-evaluate":
+        from tradeagent.meta_label import (
+            TrendPullbackCandidateStrategy,
+            build_meta_label_events,
+            evaluate_meta_labels,
+        )
+
         symbols = tuple(
             symbol.strip().upper() for symbol in args.symbols.split(",") if symbol.strip()
         )

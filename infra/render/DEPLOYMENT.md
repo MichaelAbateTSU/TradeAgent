@@ -1,5 +1,13 @@
 # Active Render deployment
 
+## September 8 incident
+
+The earlier point-in-time readiness statements below are historical, not current
+health guarantees. See [the incident record](../../docs/RENDER_INCIDENT_20260908.md)
+and the [mandatory post-deployment acceptance procedure](POSTDEPLOY_ACCEPTANCE.md).
+Every corrective deployment requires sustained dependency, data-progress, memory
+and failure-event tests; a successful `/health` response is not sufficient.
+
 ## Project organization
 
 All TradeAgent resources are grouped under **Trade agent**

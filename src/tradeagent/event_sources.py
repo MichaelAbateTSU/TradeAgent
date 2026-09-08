@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import time
+from collections import OrderedDict
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -276,6 +277,8 @@ class EventSourceClient:
         retain_news_content: bool = False,
         news_rights_profile: str = "metadata_only_retention_not_authorized",
         cache_ttl_seconds: int = 60,
+        cache_max_bytes: int = 16_000_000,
+        cache_max_entries: int = 64,
         max_pages: int = 5,
         max_sec_filings_per_symbol: int = 2,
         issuer_feeds_enabled: bool = True,
@@ -286,6 +289,8 @@ class EventSourceClient:
             raise ValueError("news credentials may only be sent to the fixed Alpaca data host")
         if cache_ttl_seconds < 1 or not 1 <= max_pages <= 20:
             raise ValueError("cache TTL and pagination bounds must be positive and bounded")
+        if cache_max_bytes < 1 or cache_max_entries < 1:
+            raise ValueError("HTTP cache byte and entry bounds must be positive")
         if not 0 <= max_sec_filings_per_symbol <= 5:
             raise ValueError("SEC filing batch must be bounded")
         if not 1 <= max_feed_documents_per_symbol <= 20:
@@ -318,6 +323,10 @@ class EventSourceClient:
         self._retain_news_content = retain_news_content
         self._news_rights_profile = news_rights_profile
         self._cache_ttl = cache_ttl_seconds
+        self._cache_max_bytes = cache_max_bytes
+        self._cache_max_entries = cache_max_entries
+        self._cache_bytes = 0
+        self._cache_evictions = 0
         self._max_pages = max_pages
         self._max_sec_filings = max_sec_filings_per_symbol
         self._issuer_feeds_enabled = issuer_feeds_enabled
@@ -335,7 +344,7 @@ class EventSourceClient:
         }
         self._versions: dict[tuple[str, str, str], SourceEvent] = {}
         self._latest: dict[tuple[str, str], SourceEvent] = {}
-        self._http_cache: dict[str, tuple[float, httpx.Response, datetime]] = {}
+        self._http_cache: OrderedDict[str, tuple[float, httpx.Response, datetime]] = OrderedDict()
         self._http_verified_at: dict[str, datetime] = {}
         self._last_request: dict[str, float] = {}
         self._blocked_until: dict[str, float] = {}
@@ -382,6 +391,14 @@ class EventSourceClient:
             "primary_rate_limit_per_second": 2,
             "news_rate_limit_per_second": 2,
             "cache_ttl_seconds": self._cache_ttl,
+            "http_cache": {
+                "entries": len(self._http_cache),
+                "bytes": self._cache_bytes,
+                "maximum_entries": self._cache_max_entries,
+                "maximum_bytes": self._cache_max_bytes,
+                "evictions": self._cache_evictions,
+                "evidence_history_evicted": False,
+            },
             "max_pages": self._max_pages,
             "max_sec_filings_per_symbol": self._max_sec_filings,
             "last_errors": self.last_errors,
@@ -398,6 +415,8 @@ class EventSourceClient:
         key = config_hash((url, params))
         tick = self._monotonic()
         cached = self._http_cache.get(key)
+        if cached is not None:
+            self._http_cache.move_to_end(key)
         if cached is not None and tick - cached[0] < self._cache_ttl:
             if self._health is not None:
                 self._health["cache_hits"] += 1
@@ -419,13 +438,26 @@ class EventSourceClient:
                 request_headers["If-None-Match"] = cached[1].headers["etag"]
             if cached[1].headers.get("last-modified"):
                 request_headers["If-Modified-Since"] = cached[1].headers["last-modified"]
-        response = self._client.get(
-            url,
-            headers=request_headers,
-            params=params,
-            follow_redirects=False,
-            timeout=20,
-        )
+        with self._client.stream(
+            "GET", url, headers=request_headers, params=params, follow_redirects=False, timeout=20
+        ) as streamed:
+            chunks: list[bytes] = []
+            size = 0
+            for chunk in streamed.iter_bytes(chunk_size=65536):
+                size += len(chunk)
+                if size > 5_000_000:
+                    raise SourceAcquisitionError("source_document_exceeds_size_bound")
+                chunks.append(chunk)
+            response = httpx.Response(
+                streamed.status_code,
+                headers={
+                    name: value
+                    for name, value in streamed.headers.items()
+                    if name.lower() not in {"content-encoding", "content-length"}
+                },
+                content=b"".join(chunks),
+                request=streamed.request,
+            )
         received = _utc(self._clock())
         if response.status_code == 429:
             try:
@@ -435,8 +467,7 @@ class EventSourceClient:
             self._blocked_until[budget] = self._monotonic() + retry
             raise SourceAcquisitionError("source_rate_limited")
         if response.status_code == 304 and cached is not None:
-            self._http_cache[key] = (self._monotonic(), cached[1], cached[2])
-            self._http_verified_at[key] = received
+            self._cache_response(key, cached[1], cached[2], received)
             if self._health is not None:
                 self._health["http_successes"] += 1
                 self._health["last_http_received_at"] = received.isoformat()
@@ -444,14 +475,33 @@ class EventSourceClient:
         if response.is_redirect:
             raise SourceAcquisitionError("source_redirect_not_authorized")
         response.raise_for_status()
-        if len(response.content) > 5_000_000:
-            raise SourceAcquisitionError("source_document_exceeds_size_bound")
-        self._http_cache[key] = (self._monotonic(), response, received)
-        self._http_verified_at[key] = received
+        self._cache_response(key, response, received, received)
         if self._health is not None:
             self._health["http_successes"] += 1
             self._health["last_http_received_at"] = received.isoformat()
         return response, received
+
+    def _cache_response(
+        self, key: str, response: httpx.Response, first_received: datetime, verified_at: datetime
+    ) -> None:
+        previous = self._http_cache.pop(key, None)
+        if previous is not None:
+            self._cache_bytes -= len(previous[1].content)
+        self._http_verified_at.pop(key, None)
+        size = len(response.content)
+        if size > self._cache_max_bytes:
+            return
+        while self._http_cache and (
+            len(self._http_cache) >= self._cache_max_entries
+            or self._cache_bytes + size > self._cache_max_bytes
+        ):
+            old_key, old = self._http_cache.popitem(last=False)
+            self._cache_bytes -= len(old[1].content)
+            self._http_verified_at.pop(old_key, None)
+            self._cache_evictions += 1
+        self._http_cache[key] = (self._monotonic(), response, first_received)
+        self._http_verified_at[key] = verified_at
+        self._cache_bytes += size
 
     def _remember(self, event: SourceEvent) -> SourceEvent:
         key = (event.source, event.source_event_id, event.source_version)

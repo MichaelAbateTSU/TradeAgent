@@ -37,6 +37,8 @@ def test_read_only_console_exposes_health_status_events_and_metrics(
         "status": "ok",
         "mode": "paper",
         "live_trading_available": False,
+        "check": "process_liveness_only",
+        "dependencies": "/ready",
     }
     status = client.get("/api/status").json()
     assert status["event_count"] == 1
@@ -100,7 +102,7 @@ def test_console_exposes_production_runtime_state(tmp_path: Path) -> None:
         database.initialize()
         repository = ProductionRepository(database)
         repository.heartbeat(
-            "tradeagent-worker",
+            "tradeagent-shadow-recorder",
             "worker-1",
             {"state": "running"},
             observed_at=now,
@@ -130,3 +132,34 @@ def test_console_exposes_production_runtime_state(tmp_path: Path) -> None:
         "items": [],
         "feed_heartbeat": None,
     }
+
+
+def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path) -> None:
+    production_url = f"sqlite:///{tmp_path / 'role-names.db'}"
+    now = datetime.now(UTC)
+    with Database(production_url) as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        for legacy in ("tradeagent-worker", "tradeagent-market-feed"):
+            repository.heartbeat(legacy, "obsolete", {"state": "healthy"}, observed_at=now)
+        repository.heartbeat(
+            "tradeagent-shadow-recorder",
+            "current",
+            {"state": "degraded", "healthy": False, "last_committed_event_at": now.isoformat()},
+            observed_at=now,
+        )
+        repository.heartbeat(
+            "tradeagent-shadow-market-feed", "monitor", {"state": "stale"}, observed_at=now
+        )
+    client = TestClient(create_app(production_database_url=production_url))
+    runtime = client.get("/api/runtime").json()
+    assert runtime["worker_status"]["instance_id"] == "current"
+    assert runtime["worker_status"]["reported"]["healthy"] is False
+    assert runtime["market_feed_status"]["reported"]["state"] == "stale"
+    ready = client.get("/ready").json()["operational_status"]["roles"]
+    assert "tradeagent-shadow-market-feed" in ready
+    assert "tradeagent-market-feed" not in ready
+    assert "tradeagent-worker" not in ready
+    page = client.get("/").text
+    assert 'id="service-observations"' in page
+    assert "Heartbeat freshness is not proof of market-data coverage or entry permission" in page

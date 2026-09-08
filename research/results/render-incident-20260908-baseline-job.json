@@ -1,0 +1,9 @@
+{
+  "createdAt": "2026-09-08T15:01:02.682028Z",
+  "finishedAt": "2026-09-08T15:01:24Z",
+  "id": "job-dag26bn40ujc73dg9vpg",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+  "startedAt": "2026-09-08T15:01:02Z",
+  "status": "succeeded"
+}

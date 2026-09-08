@@ -381,7 +381,7 @@ def test_run_shadow_once_runs_real_service_persists_abstention_and_releases_leas
 def test_event_product_api_reports_idle_then_persisted_state_and_stale_worker(
     memory_database: Database, replay: dict[str, Any]
 ) -> None:
-    app = api.create_app(production_database_url="sqlite:///:memory:")
+    app = api.create_app(production_database_url="sqlite:///:memory:", overview_cache_seconds=0)
     with TestClient(app) as client:
         idle = client.get("/api/event-product").json()
         assert idle["state"] == "not_running"

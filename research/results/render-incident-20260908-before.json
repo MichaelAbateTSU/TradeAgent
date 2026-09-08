@@ -1,0 +1,1953 @@
+{
+  "observed_at": "2026-09-08T15:00:50.796855+00:00",
+  "services": {
+    "event": {
+      "events": [
+        {
+          "event": {
+            "details": {
+              "jobId": "job-dag1pl9594qs73e07fp0",
+              "status": "succeeded"
+            },
+            "id": "evt-dag1prajnfac73a3ko80",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-08T14:34:21.302405Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "DiGa-UbQAAlwcmFqbmZhYzczYTNrbzgw"
+        },
+        {
+          "event": {
+            "details": {
+              "jobId": "job-daf7qcn40ujc73a1g3mg",
+              "status": "succeeded"
+            },
+            "id": "evt-daf7ql2jnfac739mqv5g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T09:01:08.48331Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "JU0Nb5cV7CZxbDJqbmZhYzczOW1xdjVn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daf7q2ajnfac739mpnlg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:59:53.486905Z",
+            "type": "server_available"
+          },
+          "cursor": "JU0Nb5cV7CZxMmFqbmZhYzczOW1wbmxn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dae4tr7qj5pc73a9e0k0-tx5gx",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daf7peajnfac739mphlg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:58:33.136644Z",
+            "type": "server_failed"
+          },
+          "cursor": "JU0Nb5cV7CZwZWFqbmZhYzczOW1waGxn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daf7pb2jnfac739mpgp0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:58:20.050348Z",
+            "type": "server_available"
+          },
+          "cursor": "JU0Nb5cV7CZwYjJqbmZhYzczOW1wZ3Aw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dae4tr7qj5pc73a9e0k0-tx5gx",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daf7ouajnfac739mpcbg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:57:29.857931Z",
+            "type": "server_failed"
+          },
+          "cursor": "JU0Nb5cV7CZvdWFqbmZhYzczOW1wY2Jn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daf7orijnfac739mpbpg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:57:18.784458Z",
+            "type": "server_available"
+          },
+          "cursor": "JU0Nb5cV7CZvcmlqbmZhYzczOW1wYnBn"
+        },
+        {
+          "event": {
+            "details": {
+              "jobId": "job-daf7oc0u01pc7397j9ug",
+              "status": "succeeded"
+            },
+            "id": "evt-daf7omajnfac739mp8ng",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:56:57.005179Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "JU0Nb5cV7CZvbWFqbmZhYzczOW1wOG5n"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dae4tr7qj5pc73a9e0k0-tx5gx",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daf7okijnfac739mp8jg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:56:50.655397Z",
+            "type": "server_failed"
+          },
+          "cursor": "JU0Nb5cV7CZva2lqbmZhYzczOW1wOGpn"
+        },
+        {
+          "event": {
+            "details": {
+              "deployId": "dep-daf7ni0n74is738nt4h0",
+              "deployStatus": "succeeded",
+              "reason": {},
+              "status": 2
+            },
+            "id": "evt-daf7o5n9l3cc73bvpa20",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:55:50.936971Z",
+            "type": "deploy_ended"
+          },
+          "cursor": "JU0Nb5cV7CZvNW45bDNjYzczYnZwYTIw"
+        },
+        {
+          "event": {
+            "details": {
+              "deployCommandExecutionId": "",
+              "deployId": "",
+              "preDeployStatus": "succeeded",
+              "reason": {},
+              "status": 1
+            },
+            "id": "evt-daf7o1oejobc73a7vlpg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:55:35.107672Z",
+            "type": "pre_deploy_ended"
+          },
+          "cursor": "JU0Nb5cV7CZvMW9lam9iYzczYTd2bHBn"
+        },
+        {
+          "event": {
+            "details": {
+              "deployCommandExecutionId": "dce-daf7ni0n74is738nt4mg",
+              "deployId": "dep-daf7ni0n74is738nt4h0"
+            },
+            "id": "evt-daf7nsrggs9s73brfv30",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:55:15.680266Z",
+            "type": "pre_deploy_started"
+          },
+          "cursor": "JU0Nb5cV7CZuc3JnZ3M5czczYnJmdjMw"
+        },
+        {
+          "event": {
+            "details": {
+              "buildId": "bld-daf7ni0n74is738nt4hg",
+              "buildStatus": "succeeded",
+              "reason": {},
+              "status": 2
+            },
+            "id": "evt-daf7nsjggs9s73brfus0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:55:14.702409Z",
+            "type": "build_ended"
+          },
+          "cursor": "JU0Nb5cV7CZuc2pnZ3M5czczYnJmdXMw"
+        },
+        {
+          "event": {
+            "details": {
+              "buildId": "bld-daf7ni0n74is738nt4hg",
+              "trigger": {
+                "clearCache": false,
+                "deployedByRender": false,
+                "envUpdated": false,
+                "firstBuild": false,
+                "manual": false,
+                "rollback": false,
+                "user": {
+                  "email": "michaelabate819@gmail.com",
+                  "id": "usr-d9dqrkr7uimc73c2e2b0"
+                }
+              }
+            },
+            "id": "evt-daf7nic34b2s73chojkg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:54:32.316902Z",
+            "type": "build_started"
+          },
+          "cursor": "JU0Nb5cV7CZuaWMzNGIyczczY2hvamtn"
+        },
+        {
+          "event": {
+            "details": {
+              "deployId": "dep-daf7ni0n74is738nt4h0",
+              "trigger": {
+                "clearCache": false,
+                "deployedByRender": false,
+                "envUpdated": false,
+                "firstBuild": false,
+                "manual": false,
+                "rollback": false,
+                "user": {
+                  "email": "michaelabate819@gmail.com",
+                  "id": "usr-d9dqrkr7uimc73c2e2b0"
+                }
+              }
+            },
+            "id": "evt-daf7ni0ejobc73a7vb0g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:54:32.302755Z",
+            "type": "deploy_started"
+          },
+          "cursor": "JU0Nb5cV7CZuaTBlam9iYzczYTd2YjBn"
+        },
+        {
+          "event": {
+            "details": {
+              "jobId": "job-daf7c9qd0e5s73b57frg",
+              "status": "succeeded"
+            },
+            "id": "evt-daf7cjajnfac739mjpmg",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:31:09.464963Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "JU0Nb5cV7CZjamFqbmZhYzczOW1qcG1n"
+        },
+        {
+          "event": {
+            "details": {
+              "jobId": "job-daf73muq1p3s73bvmslg",
+              "status": "succeeded"
+            },
+            "id": "evt-daf73s2jnfac739mf48g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:12:32.811444Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "JU0Nb5cV7CYzczJqbmZhYzczOW1mNDhn"
+        },
+        {
+          "event": {
+            "details": {
+              "jobId": "job-daf72vu7bikc73fbii70",
+              "status": "succeeded"
+            },
+            "id": "evt-daf738ajnfac739meta0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:11:13.788766Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "JU0Nb5cV7CYzOGFqbmZhYzczOW1ldGEw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daf72gqjnfac739med00",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:09:39.191545Z",
+            "type": "server_available"
+          },
+          "cursor": "JU0Nb5cV7CYyZ3FqbmZhYzczOW1lZDAw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dae4tr7qj5pc73a9e0k0-dxr7x",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daf71rajnfac739me77g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:08:13.97117Z",
+            "type": "server_failed"
+          },
+          "cursor": "JU0Nb5cV7CYxcmFqbmZhYzczOW1lNzdn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daf71oqjnfac739me5e0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:08:03.791557Z",
+            "type": "server_available"
+          },
+          "cursor": "JU0Nb5cV7CYxb3FqbmZhYzczOW1lNWUw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dae4tr7qj5pc73a9e0k0-dxr7x",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daf71eijnfac739me22g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:07:22.225385Z",
+            "type": "server_failed"
+          },
+          "cursor": "JU0Nb5cV7CYxZWlqbmZhYzczOW1lMjJn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daf71bqjnfac739me15g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:07:11.042387Z",
+            "type": "server_available"
+          },
+          "cursor": "JU0Nb5cV7CYxYnFqbmZhYzczOW1lMTVn"
+        },
+        {
+          "event": {
+            "details": {
+              "jobId": "job-daf70rpt0dsc73crgh90",
+              "status": "succeeded"
+            },
+            "id": "evt-daf7162jnfac739mdu9g",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:06:48.918447Z",
+            "type": "job_run_ended"
+          },
+          "cursor": "JU0Nb5cV7CYxNjJqbmZhYzczOW1kdTln"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dae4tr7qj5pc73a9e0k0-dxr7x",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daf715ajnfac739mdtug",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:06:45.648959Z",
+            "type": "server_failed"
+          },
+          "cursor": "JU0Nb5cV7CYxNWFqbmZhYzczOW1kdHVn"
+        },
+        {
+          "event": {
+            "details": {
+              "deployId": "dep-daf702lg1s2s73da7p20",
+              "deployStatus": "succeeded",
+              "reason": {},
+              "status": 2
+            },
+            "id": "evt-daf70n0ou94c73a0j0h0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:05:48.293915Z",
+            "type": "deploy_ended"
+          },
+          "cursor": "JU0Nb5cV7CYwbjBvdTk0YzczYTBqMGgw"
+        },
+        {
+          "event": {
+            "details": {
+              "deployCommandExecutionId": "",
+              "deployId": "",
+              "preDeployStatus": "succeeded",
+              "reason": {},
+              "status": 1
+            },
+            "id": "evt-daf70j8ejobc73a7f9m0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:05:33.429828Z",
+            "type": "pre_deploy_ended"
+          },
+          "cursor": "JU0Nb5cV7CYwajhlam9iYzczYTdmOW0w"
+        },
+        {
+          "event": {
+            "details": {
+              "deployCommandExecutionId": "dce-daf702lg1s2s73da7p7g",
+              "deployId": "dep-daf702lg1s2s73da7p20"
+            },
+            "id": "evt-daf70e8ejobc73a7f6l0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:05:13.241765Z",
+            "type": "pre_deploy_started"
+          },
+          "cursor": "JU0Nb5cV7CYwZThlam9iYzczYTdmNmww"
+        },
+        {
+          "event": {
+            "details": {
+              "buildId": "bld-daf702lg1s2s73da7p2g",
+              "buildStatus": "succeeded",
+              "reason": {},
+              "status": 2
+            },
+            "id": "evt-daf70e6cveuc73f9o000",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:05:12.445143Z",
+            "type": "build_ended"
+          },
+          "cursor": "JU0Nb5cV7CYwZTZjdmV1YzczZjlvMDAw"
+        },
+        {
+          "event": {
+            "details": {
+              "buildId": "bld-daf702lg1s2s73da7p2g",
+              "trigger": {
+                "clearCache": false,
+                "deployedByRender": false,
+                "envUpdated": false,
+                "firstBuild": false,
+                "manual": false,
+                "rollback": false,
+                "user": {
+                  "email": "michaelabate819@gmail.com",
+                  "id": "usr-d9dqrkr7uimc73c2e2b0"
+                }
+              }
+            },
+            "id": "evt-daf702oou94c73a0ijk0",
+            "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+            "timestamp": "2026-09-07T08:04:26.886437Z",
+            "type": "build_started"
+          },
+          "cursor": "JU0Nb5cV7CYwMm9vdTk0YzczYTBpamsw"
+        }
+      ],
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-daf7ni0n74is738nt4h0",
+            "commit": {
+              "id": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+              "message": "fix: close Tuesday paper recovery and dispatch safety gaps\n\nRecover prior owned cohorts under the current global lease, fence final dispatch after bookkeeping, release only provably unsent reservations, and preserve feed-only revision observation time.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-07T08:53:32Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-07T08:54:32.096108Z",
+            "updatedAt": "2026-09-07T08:55:50.802203Z",
+            "startedAt": "2026-09-07T08:54:32.094692Z",
+            "finishedAt": "2026-09-07T08:55:50.80189Z"
+          },
+          "cursor": "O0Rq1YBY9UpuaTBuNzRpczczOG50NGgw"
+        },
+        {
+          "deploy": {
+            "id": "dep-daf702lg1s2s73da7p20",
+            "commit": {
+              "id": "c01aa6af532e73982704ddb062832ff52b2ff96f",
+              "message": "fix: preserve calendar evidence when the session worker is missing\n\nAccept the runtime broker-calendar audit contract in incident reports and retain exact dispatch accounting in regressions. Preserve the initial Tuesday setup; use a new r2 immutable cohort for the final reporting repair without changing strategy rules.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-07T08:03:40Z"
+            },
+            "status": "deactivated",
+            "trigger": "api",
+            "createdAt": "2026-09-07T08:04:26.628443Z",
+            "updatedAt": "2026-09-07T08:55:50.800976Z",
+            "startedAt": "2026-09-07T08:04:26.626825Z",
+            "finishedAt": "2026-09-07T08:05:48.187854Z"
+          },
+          "cursor": "O0Rq1YBY9UowMmxnMXMyczczZGE3cDIw"
+        }
+      ]
+    },
+    "recorder": {
+      "events": [
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag24kijnfac73a3pqtg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:57:22.375136Z",
+            "type": "server_failed"
+          },
+          "cursor": "_wbbW48Qwjg0a2lqbmZhYzczYTNwcXRn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag220qjnfac73a3omtg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:51:47.691635Z",
+            "type": "server_failed"
+          },
+          "cursor": "_wbbW48QwjgyMHFqbmZhYzczYTNvbXRn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1vcajnfac73a3nhbg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:46:09.095053Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAl2Y2FqbmZhYzczYTNuaGJn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1sqijnfac73a3m810",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:40:42.084935Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlzcWlqbmZhYzczYTNtODEw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1q2ijnfac73a3kqbg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:34:50.782968Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlxMmlqbmZhYzczYTNrcWJn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1nfijnfac73a3iqbg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:29:18.179881Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAluZmlqbmZhYzczYTNpcWJn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1krijnfac73a3hkn0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:23:42.507216Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlrcmlqbmZhYzczYTNoa24w"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1i92jnfac73a3gfj0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:18:12.835947Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlpOTJqbmZhYzczYTNnZmow"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1fmqjnfac73a3f600",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:12:43.150716Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlmbXFqbmZhYzczYTNmNjAw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1d2qjnfac73a3du1g",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:07:07.486645Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlkMnFqbmZhYzczYTNkdTFn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag1apqjnfac73a3cqv0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T14:02:15.51309Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlhcHFqbmZhYzczYTNjcXYw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag17rqjnfac73a3adhg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:55:59.025326Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAk3cnFqbmZhYzczYTNhZGhn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag159ajnfac73a398r0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:50:29.230618Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAk1OWFqbmZhYzczYTM5OHIw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag12iijnfac73a37o10",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:44:42.666217Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAkyaWlqbmZhYzczYTM3bzEw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0vsqjnfac73a36f10",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:38:59.959726Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEF2c3FqbmZhYzczYTM2ZjEw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0ubqjnfac73a35sl0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:35:43.075439Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEF1YnFqbmZhYzczYTM1c2ww"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0tdijnfac73a35cc0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:33:42.392861Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEF0ZGlqbmZhYzczYTM1Y2Mw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0srijnfac73a3567g",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:32:30.019353Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEFzcmlqbmZhYzczYTM1Njdn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0sfajnfac73a350lg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:31:41.285876Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEFzZmFqbmZhYzczYTM1MGxn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0s82jnfac73a34u2g",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:31:12.313563Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEFzODJqbmZhYzczYTM0dTJn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-dag0ruijnfac73a345p0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-08T13:30:34.941156Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEFydWlqbmZhYzczYTM0NXAw"
+        },
+        {
+          "event": {
+            "details": {
+              "fromTrigger": "commit",
+              "reason": "setting_change"
+            },
+            "id": "evt-daf45muq1p3s73bivik0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-07T04:51:39.552002Z",
+            "type": "auto_deploy_disabled"
+          },
+          "cursor": "Qg0YYAYiwTk1bXVxMXAzczczYml2aWsw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-daese12jnfac739hindg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:03:16.105026Z",
+            "type": "server_available"
+          },
+          "cursor": "0ptzV7hasEZlMTJqbmZhYzczOWhpbmRn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+              "reason": {
+                "evicted": false,
+                "nonZeroExit": 1
+              }
+            },
+            "id": "evt-daesdpijnfac739hijrg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:02:46.966399Z",
+            "type": "server_failed"
+          },
+          "cursor": "0ptzV7hasEZkcGlqbmZhYzczOWhpanJn"
+        },
+        {
+          "event": {
+            "details": {
+              "deployId": "dep-daesclgn74is73f9ro5g",
+              "deployStatus": "succeeded",
+              "reason": {},
+              "status": 2
+            },
+            "id": "evt-daesdc434b2s73c9jl00",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:01:52.041685Z",
+            "type": "deploy_ended"
+          },
+          "cursor": "0ptzV7hasEZkYzQzNGIyczczYzlqbDAw"
+        },
+        {
+          "event": {
+            "details": {
+              "deployCommandExecutionId": "",
+              "deployId": "",
+              "preDeployStatus": "succeeded",
+              "reason": {},
+              "status": 1
+            },
+            "id": "evt-daesd98ejobc739vo3o0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:01:41.249697Z",
+            "type": "pre_deploy_ended"
+          },
+          "cursor": "0ptzV7hasEZkOThlam9iYzczOXZvM28w"
+        },
+        {
+          "event": {
+            "details": {
+              "deployCommandExecutionId": "dce-daesclgn74is73f9roa0",
+              "deployId": "dep-daesclgn74is73f9ro5g"
+            },
+            "id": "evt-daesd4s34b2s73c9jfqg",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:01:23.442456Z",
+            "type": "pre_deploy_started"
+          },
+          "cursor": "0ptzV7hasEZkNHMzNGIyczczYzlqZnFn"
+        },
+        {
+          "event": {
+            "details": {
+              "buildId": "bld-daesclgn74is73f9ro60",
+              "buildStatus": "succeeded",
+              "reason": {},
+              "status": 2
+            },
+            "id": "evt-daesd4gou94c739ou250",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:01:22.627372Z",
+            "type": "build_ended"
+          },
+          "cursor": "0ptzV7hasEZkNGdvdTk0YzczOW91MjUw"
+        },
+        {
+          "event": {
+            "details": {
+              "buildId": "bld-daesclgn74is73f9ro60",
+              "trigger": {
+                "clearCache": false,
+                "deployedByRender": false,
+                "envUpdated": false,
+                "firstBuild": false,
+                "manual": false,
+                "rollback": false,
+                "user": {
+                  "email": "michaelabate819@gmail.com",
+                  "id": "usr-d9dqrkr7uimc73c2e2b0"
+                }
+              }
+            },
+            "id": "evt-daesclucveuc73f23jl0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:00:22.624178Z",
+            "type": "build_started"
+          },
+          "cursor": "0ptzV7hasEZjbHVjdmV1YzczZjIzamww"
+        },
+        {
+          "event": {
+            "details": {
+              "deployId": "dep-daesclgn74is73f9ro5g",
+              "trigger": {
+                "clearCache": false,
+                "deployedByRender": false,
+                "envUpdated": false,
+                "firstBuild": false,
+                "manual": false,
+                "rollback": false,
+                "user": {
+                  "email": "michaelabate819@gmail.com",
+                  "id": "usr-d9dqrkr7uimc73c2e2b0"
+                }
+              }
+            },
+            "id": "evt-daescln9r02s73etjde0",
+            "serviceId": "srv-dadn8son74is73apqcc0",
+            "timestamp": "2026-09-06T20:00:22.607206Z",
+            "type": "deploy_started"
+          },
+          "cursor": "0ptzV7hasEZjbG45cjAyczczZXRqZGUw"
+        }
+      ],
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-daesclgn74is73f9ro5g",
+            "commit": {
+              "id": "2a1db33e7cf4f596e8fce9aac47c4e1e8c854630",
+              "message": "docs: release TradeAgent v0.10.0\n\nPublish the statistical-gate audit, fully observed lower-turnover costs, frozen plateau manifests, both untouched era results, complete trial accounting, and final Fail decision. End strategy discovery, keep holdouts sealed and orders disabled, and prohibit starting the paper-validation clock.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-06T20:00:12Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-06T20:00:22.39965Z",
+            "updatedAt": "2026-09-06T20:01:51.954211Z",
+            "startedAt": "2026-09-06T20:00:22.39804Z",
+            "finishedAt": "2026-09-06T20:01:51.95403Z"
+          },
+          "cursor": "G7gSgTBiCGljbGduNzRpczczZjlybzVn"
+        },
+        {
+          "deploy": {
+            "id": "dep-daeqkeeq1p3s73agbve0",
+            "commit": {
+              "id": "808c28e658aeb112e326047fce7fd7e3371ab9db",
+              "message": "docs: release TradeAgent v0.9.0\n\nPublish the complete data, quote coverage, cost attribution, frozen squeeze, lower-turnover, ML, shadow, qualification, blocker, and next-action report. Classify the milestone as D: no demonstrated edge; keep orders disabled and holdouts sealed.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-06T18:00:15Z"
+            },
+            "status": "deactivated",
+            "trigger": "api",
+            "createdAt": "2026-09-06T18:00:25.159268Z",
+            "updatedAt": "2026-09-06T20:01:51.953126Z",
+            "startedAt": "2026-09-06T18:00:25.157491Z",
+            "finishedAt": "2026-09-06T18:01:57.34818Z"
+          },
+          "cursor": "mz6LnxmiMBZrZWVxMXAzczczYWdidmUw"
+        }
+      ]
+    },
+    "notifier": {
+      "events": [
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafogd2jnfac739utmv0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:59:48.910352Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoZnZDJqbmZhYzczOXV0bXYw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafodv2jnfac739usq70",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:54:36.436084Z",
+            "type": "server_failed"
+          },
+          "cursor": "T2qPldqTqoZkdjJqbmZhYzczOXVzcTcw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafodoajnfac739usof0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:54:09.314091Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoZkb2FqbmZhYzczOXVzb2Yw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafobbqjnfac739urpa0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:49:03.906452Z",
+            "type": "server_failed"
+          },
+          "cursor": "T2qPldqTqoZiYnFqbmZhYzczOXVycGEw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafob3qjnfac739urn2g",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:48:31.710842Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoZiM3FqbmZhYzczOXVybjJn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafo8mijnfac739uqmug",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:43:22.302789Z",
+            "type": "server_failed"
+          },
+          "cursor": "T2qPldqTqoY4bWlqbmZhYzczOXVxbXVn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafo8fajnfac739uqjm0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:42:53.1403Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoY4ZmFqbmZhYzczOXVxam0w"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafo63qjnfac739upja0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:37:51.73543Z",
+            "type": "server_failed"
+          },
+          "cursor": "T2qPldqTqoY2M3FqbmZhYzczOXVwamEw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafo5t2jnfac739uphe0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:37:24.607744Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoY1dDJqbmZhYzczOXVwaGUw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafo3h2jnfac739uomcg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:32:20.239999Z",
+            "type": "server_failed"
+          },
+          "cursor": "T2qPldqTqoYzaDJqbmZhYzczOXVvbWNn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafo39qjnfac739uoirg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:31:51.033858Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoYzOXFqbmZhYzczOXVvaXJn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafo0tijnfac739un31g",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:26:46.727517Z",
+            "type": "server_failed"
+          },
+          "cursor": "T2qPldqTqoYwdGlqbmZhYzczOXVuMzFn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafo0m2jnfac739un1q0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:26:16.504921Z",
+            "type": "server_available"
+          },
+          "cursor": "T2qPldqTqoYwbTJqbmZhYzczOXVuMXEw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnu8ijnfac739um500",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:21:06.050136Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUl1OGlqbmZhYzczOXVtNTAw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnu1qjnfac739um2og",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:20:39.901319Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUl1MXFqbmZhYzczOXVtMm9n"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnro2jnfac739ul4jg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:15:44.55367Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUlybzJqbmZhYzczOXVsNGpn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnrfajnfac739uksp0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:15:09.386972Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUlyZmFqbmZhYzczOXVrc3Aw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnp4ajnfac739ujsf0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:10:09.739365Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUlwNGFqbmZhYzczOXVqc2Yw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnot2jnfac739ujmg0",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:09:40.76302Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUlvdDJqbmZhYzczOXVqbWcw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnmhajnfac739uiqeg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:04:37.463427Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUltaGFqbmZhYzczOXVpcWVn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnmaijnfac739uiorg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T03:04:10.226269Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUltYWlqbmZhYzczOXVpb3Jn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnjuqjnfac739uh4jg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:59:07.76678Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUlqdXFqbmZhYzczOXVoNGpn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnjoijnfac739uh28g",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:58:42.597971Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUlqb2lqbmZhYzczOXVoMjhn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnhbijnfac739ug57g",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:53:34.278901Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUloYmlqbmZhYzczOXVnNTdn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnh4ijnfac739ug3ag",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:53:06.138342Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUloNGlqbmZhYzczOXVnM2Fn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafneoijnfac739uf47g",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:48:02.870539Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUllb2lqbmZhYzczOXVmNDdn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnehajnfac739uf1sg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:47:33.601413Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUllaGFqbmZhYzczOXVmMXNn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafnc42jnfac739ue1og",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:42:24.17633Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUljNDJqbmZhYzczOXVlMW9n"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dafnbtajnfac739udu50",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:41:57.023552Z",
+            "type": "server_available"
+          },
+          "cursor": "BCZBKI2qJUlidGFqbmZhYzczOXVkdTUw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadnn6mq1p3s73ef7ef0-q48kc",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dafn9hijnfac739ucuvg",
+            "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+            "timestamp": "2026-09-08T02:36:54.678404Z",
+            "type": "server_failed"
+          },
+          "cursor": "BCZBKI2qJUk5aGlqbmZhYzczOXVjdXZn"
+        }
+      ],
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-daf7nhlg1s2s73dcpu00",
+            "commit": {
+              "id": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+              "message": "fix: close Tuesday paper recovery and dispatch safety gaps\n\nRecover prior owned cohorts under the current global lease, fence final dispatch after bookkeeping, release only provably unsent reservations, and preserve feed-only revision observation time.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-07T08:53:32Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-07T08:54:30.873678Z",
+            "updatedAt": "2026-09-07T08:55:48.860327Z",
+            "startedAt": "2026-09-07T08:54:30.871756Z",
+            "finishedAt": "2026-09-07T08:55:48.860101Z"
+          },
+          "cursor": "O0Rq1YBY9UpuaGxnMXMyczczZGNwdTAw"
+        },
+        {
+          "deploy": {
+            "id": "dep-daf70ruq1p3s73bv9qag",
+            "commit": {
+              "id": "c01aa6af532e73982704ddb062832ff52b2ff96f",
+              "message": "fix: preserve calendar evidence when the session worker is missing\n\nAccept the runtime broker-calendar audit contract in incident reports and retain exact dispatch accounting in regressions. Preserve the initial Tuesday setup; use a new r2 immutable cohort for the final reporting repair without changing strategy rules.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-07T08:03:40Z"
+            },
+            "status": "deactivated",
+            "trigger": "api",
+            "createdAt": "2026-09-07T08:06:07.584424Z",
+            "updatedAt": "2026-09-07T08:55:48.858798Z",
+            "startedAt": "2026-09-07T08:06:07.58271Z",
+            "finishedAt": "2026-09-07T08:07:24.061882Z"
+          },
+          "cursor": "O0Rq1YBY9UowcnVxMXAzczczYnY5cWFn"
+        }
+      ]
+    },
+    "dashboard": {
+      "events": [
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag255ajnfac73a3q1dg",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:58:29.925628Z",
+            "type": "server_failed"
+          },
+          "cursor": "_wbbW48Qwjg1NWFqbmZhYzczYTNxMWRn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag24v2jnfac73a3pv60",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:58:04.907538Z",
+            "type": "server_available"
+          },
+          "cursor": "_wbbW48Qwjg0djJqbmZhYzczYTNwdjYw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag22dijnfac73a3os5g",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:52:38.477909Z",
+            "type": "server_failed"
+          },
+          "cursor": "_wbbW48QwjgyZGlqbmZhYzczYTNvczVn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag227ijnfac73a3oqm0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:52:14.898866Z",
+            "type": "server_available"
+          },
+          "cursor": "_wbbW48QwjgyN2lqbmZhYzczYTNvcW0w"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1vn2jnfac73a3nl3g",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:46:52.123189Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAl2bjJqbmZhYzczYTNubDNn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1vg2jnfac73a3nip0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:46:24.914869Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAl2ZzJqbmZhYzczYTNuaXAw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1suajnfac73a3m9og",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:40:57.954235Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlzdWFqbmZhYzczYTNtOW9n"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1soijnfac73a3m7ag",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:40:34.900193Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAlzb2lqbmZhYzczYTNtN2Fn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1q5ijnfac73a3ksd0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:35:02.741216Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlxNWlqbmZhYzczYTNrc2Qw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1ps2jnfac73a3koe0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:34:24.896474Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAlwczJqbmZhYzczYTNrb2Uw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1naajnfac73a3inog",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:28:57.289398Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAluYWFqbmZhYzczYTNpbm9n"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1n4ijnfac73a3ilug",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:28:34.916742Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAluNGlqbmZhYzczYTNpbHVn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1kjijnfac73a3himg",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:23:10.215658Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlramlqbmZhYzczYTNoaW1n"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1kd2jnfac73a3hfj0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:22:44.937768Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAlrZDJqbmZhYzczYTNoZmow"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1hqqjnfac73a3g9v0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:17:15.903819Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlocXFqbmZhYzczYTNnOXYw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1hlijnfac73a3g6og",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:16:54.919933Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAlobGlqbmZhYzczYTNnNm9n"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1f62jnfac73a3ev2g",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:11:36.798628Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlmNjJqbmZhYzczYTNldjJn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1f0ijnfac73a3eteg",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:11:14.927191Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAlmMGlqbmZhYzczYTNldGVn"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1ch2jnfac73a3dm10",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:05:56.568961Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAljaDJqbmZhYzczYTNkbTEw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1cbijnfac73a3dkc0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:05:34.883461Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAljYmlqbmZhYzczYTNka2Mw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag1a1ajnfac73a3bmv0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T14:00:37.117763Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAlhMWFqbmZhYzczYTNibXYw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag19mijnfac73a3b360",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:59:54.909501Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAk5bWlqbmZhYzczYTNiMzYw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag174ajnfac73a3a170",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:54:25.066178Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAk3NGFqbmZhYzczYTNhMTcw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag16sqjnfac73a39tj0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:53:55.033971Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAk2c3FqbmZhYzczYTM5dGow"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag14aqjnfac73a38ncg",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:48:27.780387Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAk0YXFqbmZhYzczYTM4bmNn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag1452jnfac73a38kv0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:48:04.921131Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAk0NTJqbmZhYzczYTM4a3Yw"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag11iijnfac73a37btg",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:42:34.574418Z",
+            "type": "server_failed"
+          },
+          "cursor": "DiGa-UbQAAkxaWlqbmZhYzczYTM3YnRn"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag11dqjnfac73a37ang",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:42:15.048883Z",
+            "type": "server_available"
+          },
+          "cursor": "DiGa-UbQAAkxZHFqbmZhYzczYTM3YW5n"
+        },
+        {
+          "event": {
+            "details": {
+              "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+              "reason": {
+                "evicted": false,
+                "oomKilled": {
+                  "memoryLimit": "512Mi"
+                }
+              }
+            },
+            "id": "evt-dag0uqijnfac73a362r0",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:36:42.465265Z",
+            "type": "server_failed"
+          },
+          "cursor": "YkbhVZdasEF1cWlqbmZhYzczYTM2MnIw"
+        },
+        {
+          "event": {
+            "details": {},
+            "id": "evt-dag0ujijnfac73a360ng",
+            "serviceId": "srv-dadoa3740ujc73cb09c0",
+            "timestamp": "2026-09-08T13:36:14.905848Z",
+            "type": "server_available"
+          },
+          "cursor": "YkbhVZdasEF1amlqbmZhYzczYTM2MG5n"
+        }
+      ],
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-daf7nhlg1s2s73dcpua0",
+            "commit": {
+              "id": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+              "message": "fix: close Tuesday paper recovery and dispatch safety gaps\n\nRecover prior owned cohorts under the current global lease, fence final dispatch after bookkeeping, release only provably unsent reservations, and preserve feed-only revision observation time.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-07T08:53:32Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-07T08:54:30.970436Z",
+            "updatedAt": "2026-09-07T08:56:11.904355Z",
+            "startedAt": "2026-09-07T08:54:30.933859Z",
+            "finishedAt": "2026-09-07T08:55:45.299239Z"
+          },
+          "cursor": "O0Rq1YBY9UpuaGxnMXMyczczZGNwdWEw"
+        },
+        {
+          "deploy": {
+            "id": "dep-daf70rqd0e5s73b3p580",
+            "commit": {
+              "id": "c01aa6af532e73982704ddb062832ff52b2ff96f",
+              "message": "fix: preserve calendar evidence when the session worker is missing\n\nAccept the runtime broker-calendar audit contract in incident reports and retain exact dispatch accounting in regressions. Preserve the initial Tuesday setup; use a new r2 immutable cohort for the final reporting repair without changing strategy rules.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-07T08:03:40Z"
+            },
+            "status": "deactivated",
+            "trigger": "api",
+            "createdAt": "2026-09-07T08:06:07.652891Z",
+            "updatedAt": "2026-09-07T08:55:45.298403Z",
+            "startedAt": "2026-09-07T08:06:07.621445Z",
+            "finishedAt": "2026-09-07T08:07:18.839441Z"
+          },
+          "cursor": "O0Rq1YBY9UowcnFkMGU1czczYjNwNTgw"
+        }
+      ]
+    }
+  },
+  "database": {
+    "connectionPool": "none",
+    "createdAt": "2026-09-05T01:43:58.415023Z",
+    "dashboardUrl": "https://dashboard.render.com/d/dpg-dadn7nht0dsc73f9jja0-a",
+    "databaseName": "tradeagent",
+    "databaseUser": "tradeagent",
+    "diskAutoscalingEnabled": false,
+    "diskSizeGB": 15,
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "highAvailabilityEnabled": false,
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "ipAllowList": [],
+    "name": "tradeagent-postgres",
+    "owner": {
+      "email": "michaelabate819@gmail.com",
+      "id": "tea-d9dqrkr7uimc73c2e240",
+      "name": "Trade Agent",
+      "type": "team"
+    },
+    "plan": "0.1c-256mb",
+    "readReplicas": [],
+    "region": "oregon",
+    "role": "primary",
+    "status": "available",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "updatedAt": "2026-09-07T03:41:13.796654Z",
+    "version": "17"
+  }
+}

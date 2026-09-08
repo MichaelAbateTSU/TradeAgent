@@ -23,6 +23,14 @@ from tradeagent.event_research import (
 from tradeagent.event_sources import verify_primary_url
 from tradeagent.event_store import EventStore, event_decisions, event_evidence
 from tradeagent.persistence import Database, events
+from tradeagent.reporting_reads import (
+    DISPLAY_LIMIT,
+    POLL_FIELDS,
+    compact_poll,
+    payload_from_projection,
+    projected_payload,
+    stream_rows,
+)
 
 
 def _utc(value: datetime) -> datetime:
@@ -43,6 +51,30 @@ def _time(value: object) -> datetime | None:
 def _metadata(event: SourceEvent) -> dict[str, Any]:
     raw = json.loads(event.raw_metadata_json)
     return raw if isinstance(raw, dict) else {}
+
+
+def _brief_metadata(event: SourceEvent) -> SourceEvent:
+    """Compact a validated document for this read model only, never for extraction.
+
+    The only content operation below is ANNUAL_RE presence. Retain that exact
+    matched span and metadata used by the brief; hashes still refer to the full
+    immutable original, not this internal projection.
+    """
+    annual = ANNUAL_RE.search(event.content or "")
+    raw = _metadata(event)
+    filing = raw.get("filing")
+    metadata = {
+        "source": raw.get("source", event.source),
+        "filing": {"collection_role": filing.get("collection_role")}
+        if isinstance(filing, dict)
+        else None,
+    }
+    return event.model_copy(
+        update={
+            "content": annual.group(0) if annual else "" if event.content is not None else None,
+            "raw_metadata_json": json.dumps(metadata),
+        }
+    )
 
 
 def _older_context(event: SourceEvent, boundary: datetime) -> bool:
@@ -260,86 +292,98 @@ def persist_premarket_brief(
             )
             if existing is None:
                 store.audit("source_poll", stats, now, poll_trace, connection)
-        previous = connection.execute(
-            select(events.c.payload)
-            .where(events.c.event_type == "event_premarket_brief", events.c.trace_id == trace)
-            .order_by(events.c.occurred_at.desc(), events.c.recorded_at.desc())
-            .limit(1)
-        ).scalar_one_or_none()
+        previous_fields = ("snapshot_id", "prepared_at", "initial_prepared_at")
+        previous_row = (
+            connection.execute(
+                select(*projected_payload(events.c.payload, previous_fields))
+                .where(events.c.event_type == "event_premarket_brief", events.c.trace_id == trace)
+                .order_by(events.c.occurred_at.desc(), events.c.recorded_at.desc())
+                .limit(1)
+            )
+            .mappings()
+            .one_or_none()
+        )
+        previous = dict(previous_row) if previous_row else None
         if previous and (_time(previous.get("prepared_at")) or now) > now:
             raise ValueError("brief observations cannot be backdated")
-        poll_rows = (
-            connection.execute(
-                select(events.c.payload).where(
+        polls = [
+            compact_poll(payload_from_projection(row, POLL_FIELDS))
+            for row in stream_rows(
+                connection,
+                select(*projected_payload(events.c.payload, POLL_FIELDS)).where(
                     events.c.event_type == "event_source_poll",
                     events.c.trace_id.startswith(f"{trace}:poll:", autoescape=True),
                     events.c.occurred_at <= now,
-                )
+                ),
             )
-            .scalars()
-            .all()
-        )
-        evidence_rows = (
-            connection.execute(
-                select(event_evidence.c.payload).where(
-                    event_evidence.c.received_at >= previous_session_close - timedelta(days=550),
-                    event_evidence.c.received_at <= now,
-                )
-            )
-            .scalars()
-            .all()
-        )
-        extraction_rows = (
-            connection.execute(
-                select(events.c.payload)
-                .where(
-                    events.c.event_type == "event_extraction",
-                    events.c.trace_id.startswith(f"{cohort_id}:", autoescape=True),
-                    events.c.occurred_at >= previous_session_close,
-                    events.c.occurred_at <= now,
-                )
-                .order_by(events.c.occurred_at)
-            )
-            .scalars()
-            .all()
-        )
-        decision_rows = connection.execute(
-            select(event_decisions.c.evidence_id, event_decisions.c.payload).where(
-                event_decisions.c.cohort_id == cohort_id,
-                event_decisions.c.decided_at >= previous_session_close,
-                event_decisions.c.decided_at <= now,
-            )
-        ).all()
+        ]
 
-    polls = [dict(row) for row in poll_rows]
-    latest_stats = stats or max(
-        polls, key=lambda row: _time(row.get("observed_at")) or previous_session_close, default={}
+    latest_stats = (
+        compact_poll(stats)
+        if stats
+        else max(
+            polls,
+            key=lambda row: _time(row.get("observed_at")) or previous_session_close,
+            default={},
+        )
     )
     evidence: list[SourceEvent] = []
     invalid_evidence = 0
     synthetic_excluded = 0
-    for row in evidence_rows:
-        try:
-            event = SourceEvent.model_validate(row)
-        except ValidationError:
-            invalid_evidence += 1
-            continue
-        if event.availability_basis != "observed_receipt":
-            synthetic_excluded += 1
-        elif event.first_received_at <= now and event.content_available_at <= now:
-            evidence.append(event)
+    with database.begin() as connection:
+        for row in stream_rows(
+            connection,
+            select(event_evidence.c.payload).where(
+                event_evidence.c.received_at >= previous_session_close - timedelta(days=550),
+                event_evidence.c.received_at <= now,
+            ),
+        ):
+            try:
+                event = SourceEvent.model_validate(row["payload"])
+            except ValidationError:
+                invalid_evidence += 1
+                continue
+            if event.availability_basis != "observed_receipt":
+                synthetic_excluded += 1
+            elif event.first_received_at <= now and event.content_available_at <= now:
+                evidence.append(_brief_metadata(event))
     extractions: dict[str, ExtractionResult] = {}
     evidence_by_id = {item.evidence_id: item for item in evidence}
     invalid_extractions = 0
-    for row in extraction_rows:
-        try:
-            parsed_extraction = ExtractionResult.model_validate(row)
-        except ValidationError:
-            invalid_extractions += 1
-            continue
-        if parsed_extraction.completed_at <= now and parsed_extraction.available_at <= now:
-            extractions.setdefault(parsed_extraction.source_event_id, parsed_extraction)
-    decisions = {str(evidence_id): dict(payload) for evidence_id, payload in decision_rows}
+    with database.begin() as connection:
+        for row in stream_rows(
+            connection,
+            select(events.c.payload)
+            .where(
+                events.c.event_type == "event_extraction",
+                events.c.trace_id.startswith(f"{cohort_id}:", autoescape=True),
+                events.c.occurred_at >= previous_session_close,
+                events.c.occurred_at <= now,
+            )
+            .order_by(events.c.occurred_at, events.c.recorded_at, events.c.event_id),
+        ):
+            try:
+                parsed_extraction = ExtractionResult.model_validate(row["payload"])
+            except ValidationError:
+                invalid_extractions += 1
+                continue
+            if parsed_extraction.completed_at <= now and parsed_extraction.available_at <= now:
+                extractions.setdefault(parsed_extraction.source_event_id, parsed_extraction)
+        decision_fields = ("action", "reasons", "decided_at")
+        decisions = {
+            str(row["evidence_id"]): payload_from_projection(row, decision_fields)
+            for row in stream_rows(
+                connection,
+                select(
+                    event_decisions.c.evidence_id,
+                    *projected_payload(event_decisions.c.payload, decision_fields),
+                ).where(
+                    event_decisions.c.cohort_id == cohort_id,
+                    event_decisions.c.decided_at >= previous_session_close,
+                    event_decisions.c.decided_at <= now,
+                ),
+            )
+        }
     target = min(now, session_open)
     collected = [
         event
@@ -439,7 +483,9 @@ def persist_premarket_brief(
                     if extraction and extraction.facts and event.content is not None
                     else "permitted_immutable_reference_only"
                 ),
-                "prior_evidence_ids": [item.evidence_id for item in prior],
+                "prior_evidence_ids": [item.evidence_id for item in prior[:DISPLAY_LIMIT]],
+                "prior_evidence_total": len(prior),
+                "prior_evidence_ids_truncated": len(prior) > DISPLAY_LIMIT,
                 "prior_annual_revenue_status": (
                     "available_observed_pre_event"
                     if prior
@@ -594,19 +640,34 @@ def persist_premarket_brief(
         "latest_poll": latest_stats or None,
         "funnel": counts,
         "blocking_reason_counts": dict(sorted(reasons.items())),
-        "news": rows,
+        "news": rows[:DISPLAY_LIMIT],
+        "display": {
+            "news_total": len(rows),
+            "news_shown": min(len(rows), DISPLAY_LIMIT),
+            "news_truncated": len(rows) > DISPLAY_LIMIT,
+            "limit": DISPLAY_LIMIT,
+            "accounting": "all counters and company totals include every observed evidence version",
+            "immutable_history": (
+                "event_evidence (evidence_id), event_decisions and events_v2 extraction audits"
+            ),
+        },
         "companies": {
             symbol: {
                 "discovery_matches": sum(symbol in row["symbols"] for row in rows),
                 "verified_primary_matches": sum(
                     symbol in row["symbols"] and row["issuer_verified"] for row in rows
                 ),
-                "evidence_ids": [row["evidence_id"] for row in rows if symbol in row["symbols"]],
+                "evidence_ids": [row["evidence_id"] for row in rows if symbol in row["symbols"]][
+                    :DISPLAY_LIMIT
+                ],
+                "evidence_ids_truncated": sum(symbol in row["symbols"] for row in rows)
+                > DISPLAY_LIMIT,
                 "silence_means": "no_observed_match_not_proof_of_no_company_news",
             }
             for symbol in sorted(symbols)
         },
-        "older_context_evidence_ids": [event.evidence_id for event in older],
+        "older_context_evidence_ids": [event.evidence_id for event in older[:DISPLAY_LIMIT]],
+        "older_context_evidence_ids_truncated": len(older) > DISPLAY_LIMIT,
         "source_health_status": (
             "unobserved"
             if not polls

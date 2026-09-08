@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import signal
 from collections.abc import Callable
+from contextlib import suppress
 from datetime import UTC, datetime
 from typing import Protocol
+from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict
 
@@ -12,13 +15,20 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperOrder,
     AlpacaPaperPosition,
 )
-from tradeagent.alpaca_stream import AlpacaMarketStream, MarketQuote, MarketTrade
+from tradeagent.alpaca_stream import (
+    AlpacaMarketStream,
+    MarketQuote,
+    MarketTrade,
+    ReceivedStreamEvent,
+    StreamEvent,
+)
 from tradeagent.config import IntradayConfig
 from tradeagent.domain import MarketBar
 from tradeagent.intraday import NyseSessionCalendar, SessionPhase
 from tradeagent.persistence import ProductionRepository
 from tradeagent.scheduler import ReconciliationScheduler
-from tradeagent.worker import AutonomousPaperWorker
+from tradeagent.shadow_recorder import persist_shadow_batch, raw_already_recorded
+from tradeagent.worker import AutonomousPaperWorker, WorkerMode
 
 
 class RuntimeReconciliationStatus(BaseModel):
@@ -81,74 +91,24 @@ class ShadowAuditProcessor:
         self._repository = repository
 
     async def on_bar(self, bar: MarketBar, *, can_enter: bool) -> None:
-        received_at = datetime.now(UTC)
-        self._repository.store_market_bar(
-            symbol=bar.symbol,
-            timeframe="1Min",
-            event_at=bar.timestamp,
-            received_at=received_at,
-            open_price=bar.open,
-            high_price=bar.high,
-            low_price=bar.low,
-            close_price=bar.close,
-            volume=bar.volume,
-        )
-        self._repository.append_event(
-            "shadow_market_bar",
-            {
-                "bar": bar.model_dump(mode="json"),
-                "can_enter": can_enter,
-            },
-            occurred_at=bar.timestamp,
-            trace_id=f"bar:{bar.symbol}:{bar.timestamp.isoformat()}",
-        )
+        await self._record(bar)
 
     async def on_quote(self, quote: MarketQuote, *, can_enter: bool) -> None:
-        received_at = datetime.now(UTC)
-        self._repository.store_market_quote(
-            symbol=quote.symbol,
-            event_at=quote.timestamp,
-            received_at=received_at,
-            bid_price=quote.bid_price,
-            ask_price=quote.ask_price,
-            bid_size=quote.bid_size,
-            ask_size=quote.ask_size,
-            feed_source=quote.feed_source,
-            bid_exchange=quote.bid_exchange,
-            ask_exchange=quote.ask_exchange,
-        )
-        self._repository.append_event(
-            "shadow_market_quote",
-            {
-                "quote": quote.model_dump(mode="json"),
-                "can_enter": can_enter,
-            },
-            occurred_at=quote.timestamp,
-            trace_id=f"quote:{quote.symbol}:{quote.timestamp.isoformat()}",
-        )
+        await self._record(quote)
 
     async def on_trade(self, trade: MarketTrade, *, can_enter: bool) -> None:
-        received_at = datetime.now(UTC)
-        self._repository.store_market_trade(
-            provider_trade_id=str(trade.trade_id),
-            symbol=trade.symbol,
-            event_at=trade.timestamp,
-            received_at=received_at,
-            price=trade.price,
-            size=trade.size,
-            exchange=trade.exchange,
-            conditions=trade.conditions,
-            tape=trade.tape,
-            feed_source=trade.feed_source,
-        )
-        self._repository.append_event(
-            "shadow_market_trade",
-            {
-                "trade": trade.model_dump(mode="json"),
-                "can_enter": can_enter,
-            },
-            occurred_at=trade.timestamp,
-            trace_id=f"trade:{trade.symbol}:{trade.trade_id}",
+        await self._record(trade)
+
+    async def _record(self, event: StreamEvent) -> None:
+        if raw_already_recorded.get():
+            return
+        receipt = ReceivedStreamEvent(event, datetime.now(UTC))
+        await asyncio.to_thread(
+            persist_shadow_batch,
+            self._repository,
+            [receipt],
+            [],
+            str(uuid4()),
         )
 
 
@@ -164,31 +124,68 @@ class MarketFeedStatusMonitor:
         self._repository = repository
         self._calendar = NyseSessionCalendar(intraday)
         self._maximum_age_seconds = intraday.heartbeat_max_age_seconds
+        self._maximum_event_age_seconds = intraday.quote_max_age_seconds
         self._instance_id = instance_id
         self._clock = clock
 
     def check(self) -> str:
         now = self._clock()
         phase = self._calendar.gate(now).phase
-        worker = self._repository.latest_heartbeat("tradeagent-worker")
-        last_event_at = worker[1] if worker is not None else None
-        age_seconds = (now - last_event_at).total_seconds() if last_event_at is not None else None
+        worker = self._repository.latest_heartbeat("tradeagent-shadow-recorder")
+        details = worker[2] if worker is not None else {}
+        last_event_at = details.get("last_committed_event_at")
+
+        def age_of(field: str) -> float | None:
+            value = details.get(field)
+            try:
+                return (
+                    (now - datetime.fromisoformat(value)).total_seconds()
+                    if isinstance(value, str)
+                    else None
+                )
+            except (ValueError, TypeError):
+                return None
+
+        event_age = age_of("last_committed_event_at")
+        received_event_age = age_of("last_event_at")
+        market_commit_age = age_of("last_market_commit_at")
+        heartbeat_age = (now - worker[1]).total_seconds() if worker else None
         market_open = phase is not SessionPhase.CLOSED
-        stale = market_open and (age_seconds is None or age_seconds > self._maximum_age_seconds)
-        state = "stale" if stale else "healthy" if market_open else "market_closed"
-        if stale:
-            self._repository.set_control("kill_switch", "active")
+        alive = (
+            heartbeat_age is not None
+            and 0 <= heartbeat_age <= self._maximum_age_seconds
+            and details.get("state") in {"healthy", "degraded"}
+        )
+        healthy = (
+            alive
+            and details.get("healthy") is True
+            and event_age is not None
+            and 0 <= event_age <= self._maximum_event_age_seconds
+            and received_event_age is not None
+            and 0 <= received_event_age <= self._maximum_event_age_seconds
+            and market_commit_age is not None
+            and 0 <= market_commit_age <= self._maximum_event_age_seconds
+        )
+        state = "market_closed" if not market_open else "healthy" if healthy else "stale"
         self._repository.heartbeat(
-            "tradeagent-market-feed",
+            "tradeagent-shadow-market-feed",
             self._instance_id,
             {
                 "state": state,
                 "session_phase": phase.value,
-                "last_market_event_at": (
-                    last_event_at.isoformat() if last_event_at is not None else None
-                ),
-                "event_age_seconds": age_seconds,
-                "stale_after_seconds": self._maximum_age_seconds,
+                "healthy": healthy,
+                "recorder_alive": alive,
+                "last_market_event_at": last_event_at,
+                "last_received_market_event_at": details.get("last_received_event_at"),
+                "last_market_commit_at": details.get("last_market_commit_at"),
+                "heartbeat_age_seconds": heartbeat_age,
+                "event_age_seconds": event_age,
+                "received_event_age_seconds": age_of("last_received_event_at"),
+                "received_progress_age_seconds": received_event_age,
+                "market_commit_age_seconds": market_commit_age,
+                "recorder": details,
+                "stale_after_seconds": self._maximum_event_age_seconds,
+                "liveness_max_age_seconds": self._maximum_age_seconds,
             },
             observed_at=now,
         )
@@ -196,11 +193,11 @@ class MarketFeedStatusMonitor:
 
     async def run(self, stop_event: asyncio.Event) -> None:
         while not stop_event.is_set():
-            self.check()
+            await asyncio.to_thread(self.check)
             try:
                 await asyncio.wait_for(
                     stop_event.wait(),
-                    timeout=self._maximum_age_seconds,
+                    timeout=min(self._maximum_age_seconds, self._maximum_event_age_seconds / 2, 5),
                 )
             except TimeoutError:
                 continue
@@ -215,8 +212,38 @@ async def run_shadow_runtime(
     feed_monitor: MarketFeedStatusMonitor | None = None,
 ) -> None:
     stop_event = asyncio.Event()
-    async with asyncio.TaskGroup() as tasks:
-        tasks.create_task(worker.run(stream.events(symbols), stop_event=stop_event))
-        tasks.create_task(scheduler.run(stop_event))
+    stream.on_status = worker.observe_stream_status
+    loop = asyncio.get_running_loop()
+    previous_sigterm = signal.getsignal(signal.SIGTERM)
+    handles_sigterm = False
+    if worker.mode is WorkerMode.SHADOW:
+        with suppress(NotImplementedError, RuntimeError):
+            loop.add_signal_handler(signal.SIGTERM, stop_event.set)
+            handles_sigterm = True
+
+    async def run_worker() -> None:
+        try:
+            await worker.run(
+                stream.received_events(symbols), stop_event=stop_event, stream_health=stream.health
+            )
+        finally:
+            stop_event.set()
+
+    try:
+        async with asyncio.TaskGroup() as tasks:
+            tasks.create_task(run_worker())
+            # A recorder is not a broker execution role. Its lifecycle must not control
+            # the global/operator kill switch through broker reconciliation or watchdogs.
+            if worker.mode is WorkerMode.AUTONOMOUS_PAPER:
+                tasks.create_task(scheduler.run(stop_event))
+            if feed_monitor is not None:
+                tasks.create_task(feed_monitor.run(stop_event))
+    finally:
+        stream.on_status = None
+        if handles_sigterm:
+            loop.remove_signal_handler(signal.SIGTERM)
+            signal.signal(signal.SIGTERM, previous_sigterm)
         if feed_monitor is not None:
-            tasks.create_task(feed_monitor.run(stop_event))
+            # The worker's terminal heartbeat is durable before TaskGroup exits. Do
+            # not leave a previous healthy feed snapshot behind on a routine stop.
+            await asyncio.to_thread(feed_monitor.check)

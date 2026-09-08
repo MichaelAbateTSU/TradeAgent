@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import os
+from collections import Counter
 
 # ruff: noqa: E501
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
+from threading import Lock
+from time import monotonic
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import HTMLResponse, PlainTextResponse
-from sqlalchemy import inspect, select
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
+from sqlalchemy import func, inspect, select
+from sqlalchemy.exc import SQLAlchemyError
 
 from tradeagent import __version__
 from tradeagent.broker import PaperBroker
@@ -27,13 +32,345 @@ from tradeagent.event_session_report import (
     report_delivery,
     session_report,
 )
-from tradeagent.event_store import EventStore
+from tradeagent.event_store import event_cohorts, event_decisions
 from tradeagent.experimental_policy import ExperimentalSettings
 from tradeagent.ledger import SQLiteLedger
-from tradeagent.news import NewsRepository
-from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.persistence import (
+    Database,
+    ProductionRepository,
+    controls,
+    heartbeats,
+    market_news,
+    worker_locks,
+)
 from tradeagent.persistence import events as stored_events
+from tradeagent.reporting_reads import (
+    payload_from_projection,
+    projected_payload,
+    stream_rows,
+)
 from tradeagent.research import ExperimentRegistry
+
+PERFORMANCE_FIELDS = (
+    "purpose",
+    "state",
+    "broker_paper_pnl",
+    "economic_paper_pnl",
+    "broker_paper_equity",
+    "economic_paper_equity",
+    "closed_round_trips",
+    "calibration_round_trips",
+    "qualifying_closed_round_trips",
+    "virtual_equity_anchor",
+    "fixed_service_cost_usd",
+)
+EVENT_HEARTBEAT_FIELDS = (
+    "state",
+    "mode",
+    "purpose",
+    "execution_feed",
+    "practice_start_date",
+    "planned_session_date",
+    "cohort_id",
+    "code_sha",
+    "config_hash",
+    "market_phase",
+    "next_open",
+    "last_successful_source_at",
+    "events_received",
+    "market_errors",
+    "tick_latency_seconds",
+    "limitations",
+    "blockers",
+    "source_limitations",
+    "capability_limitations",
+    "calibration",
+    "calibration_status",
+    "session_budget",
+    "broker_stream",
+)
+ROLE_HEARTBEAT_FIELDS = (
+    "state",
+    "healthy",
+    "mode",
+    "cohort_id",
+    "code_sha",
+    "last_successful_source_at",
+    "events_received",
+    "tick_latency_seconds",
+    "received",
+    "committed",
+    "inserted",
+    "duplicates",
+    "queue_depth",
+    "queue_capacity",
+    "in_flight",
+    "gaps",
+    "dropped_events",
+    "notice_overflow",
+    "decision_errors",
+    "persistence_error",
+    "last_received_at",
+    "last_received_event_at",
+    "last_event_at",
+    "last_committed_event_at",
+    "last_market_commit_at",
+    "last_commit_at",
+    "last_committed_received_at",
+    "receive_lag_seconds",
+    "commit_lag_seconds",
+    "exchange_to_commit_lag_seconds",
+    "committed_event_age_seconds",
+    "market_commit_age_seconds",
+    "oldest_uncommitted_age_seconds",
+    "batch_write_seconds",
+    "dispatched",
+)
+ROLE_LOCKS = {
+    "tradeagent-event-worker": "tradeagent-event-worker",
+    "tradeagent-shadow-recorder": "tradeagent-shadow-recorder",
+    "tradeagent-notifier": "tradeagent-notifier",
+    "tradeagent-news-worker": None,
+    "tradeagent-shadow-market-feed": None,
+}
+
+
+def _aware(value: datetime) -> datetime:
+    return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+
+
+def _operational_status(database: Database, now: datetime) -> dict[str, Any]:
+    """Fixed-size role/control projections and one committed batch, never history scans."""
+    with database.begin() as connection:
+        observations = {
+            row["service_name"]: row
+            for row in stream_rows(
+                connection,
+                select(
+                    heartbeats.c.service_name,
+                    heartbeats.c.instance_id,
+                    heartbeats.c.observed_at,
+                    *projected_payload(heartbeats.c.details, ROLE_HEARTBEAT_FIELDS),
+                    heartbeats.c.details["source_capabilities"]["http_cache"].label(
+                        "source_http_cache"
+                    ),
+                ).where(heartbeats.c.service_name.in_(ROLE_LOCKS)),
+            )
+        }
+        leases = {
+            row["lock_name"]: row
+            for row in stream_rows(
+                connection,
+                select(worker_locks).where(
+                    worker_locks.c.lock_name.in_([name for name in ROLE_LOCKS.values() if name]),
+                ),
+            )
+        }
+        cohort = observations.get("tradeagent-event-worker", {}).get("cohort_id")
+        control_keys = ["kill_switch", *([f"{cohort}:pause"] if cohort else [])]
+        current_controls = {
+            row["control_key"]: {
+                "value": row["control_value"],
+                "updated_at": _aware(row["updated_at"]).isoformat(),
+            }
+            for row in stream_rows(
+                connection,
+                select(controls).where(
+                    controls.c.control_key.in_(control_keys),
+                ),
+            )
+        }
+        batch_fields = (
+            "received",
+            "inserted",
+            "duplicates",
+            "first_event_at",
+            "last_event_at",
+            "first_received_at",
+            "last_received_at",
+            "processing_started_at",
+        )
+        batch = (
+            connection.execute(
+                select(
+                    stored_events.c.event_id,
+                    stored_events.c.occurred_at,
+                    *projected_payload(stored_events.c.payload, batch_fields),
+                )
+                .where(
+                    stored_events.c.event_type == "shadow_recorder_batch",
+                    stored_events.c.occurred_at <= now,
+                )
+                .order_by(stored_events.c.occurred_at.desc(), stored_events.c.event_id)
+                .limit(1)
+            )
+            .mappings()
+            .one_or_none()
+        )
+    roles: dict[str, Any] = {}
+    for service, lock_name in ROLE_LOCKS.items():
+        row = observations.get(service)
+        observed_at = _aware(row["observed_at"]) if row else None
+        age = (now - observed_at).total_seconds() if observed_at else None
+        lease = leases.get(lock_name) if lock_name else None
+        renewed = _aware(lease["acquired_at"]) if lease else None
+        lease_age = (now - renewed).total_seconds() if renewed else None
+        roles[service] = {
+            "heartbeat_at": observed_at.isoformat() if observed_at else None,
+            "age_seconds": age,
+            "fresh": age is not None and 0 <= age <= 120,
+            "instance_id": row["instance_id"] if row else None,
+            "reported": {
+                **payload_from_projection(row, ROLE_HEARTBEAT_FIELDS),
+                "source_http_cache": row.get("source_http_cache"),
+            }
+            if row
+            else {},
+            "lease": {
+                "lock_name": lock_name,
+                "present": lease is not None,
+                "owner_id": lease["owner_id"] if lease else None,
+                "renewed_at": renewed.isoformat() if renewed else None,
+                "age_seconds": lease_age,
+                "owner_matches_heartbeat": (
+                    row["instance_id"] == lease["owner_id"] if row and lease else None
+                ),
+                "recent_within_120_seconds": lease_age is not None and 0 <= lease_age <= 120,
+                "basis": "observation only; actual takeover thresholds are role-configured",
+            }
+            if lock_name
+            else None,
+        }
+    return {
+        "as_of": now.isoformat(),
+        "state_source": "production_database",
+        "database": "reachable",
+        "roles": roles,
+        "controls": {
+            "cohort_id": cohort,
+            "kill_switch": current_controls.get("kill_switch"),
+            "cohort_pause": current_controls.get(f"{cohort}:pause") if cohort else None,
+            "missing_means": "not_recorded_not_inferred_inactive",
+        },
+        "latest_committed_recorder_batch": {
+            "event_id": batch["event_id"],
+            "at": _aware(batch["occurred_at"]).isoformat(),
+            **payload_from_projection(dict(batch), batch_fields),
+        }
+        if batch
+        else None,
+        "progress_basis": (
+            "Compare batch IDs and timestamps between samples for durable progress. "
+            "Recorder counters are instance-local; event-worker events_received is last-tick only. "
+            "Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+        ),
+    }
+
+
+def _event_overview(database: Database, cohort_id: str, now: datetime) -> dict[str, Any]:
+    """Small read model: never invoke EventStore.report or a full EOD report here."""
+    decision_fields = ("action", "state", "reasons", "symbol", "trade_classification", "entry_kind")
+    with database.begin() as connection:
+        manifest = (
+            connection.scalar(
+                select(event_cohorts.c.manifest).where(
+                    event_cohorts.c.cohort_id == cohort_id,
+                )
+            )
+            or {}
+        )
+        decision_scope = (
+            event_decisions.c.cohort_id == cohort_id,
+            event_decisions.c.decided_at <= now,
+        )
+        count = (
+            connection.scalar(
+                select(func.count()).select_from(event_decisions).where(*decision_scope)
+            )
+            or 0
+        )
+        reasons: Counter[str] = Counter()
+        for row in stream_rows(
+            connection,
+            select(event_decisions.c.payload["reasons"].label("reasons")).where(*decision_scope),
+        ):
+            reasons.update(str(reason) for reason in (row["reasons"] or []))
+        decisions = [
+            {
+                "decision_id": row["decision_id"],
+                "evidence_id": row["evidence_id"],
+                "decided_at": row["decided_at"],
+                "payload": payload_from_projection(row, decision_fields),
+                "immutable_reference": f"event_decisions:{row['decision_id']}",
+            }
+            for row in stream_rows(
+                connection,
+                select(
+                    event_decisions.c.decision_id,
+                    event_decisions.c.evidence_id,
+                    event_decisions.c.decided_at,
+                    *projected_payload(event_decisions.c.payload, decision_fields),
+                )
+                .where(*decision_scope)
+                .order_by(event_decisions.c.decided_at.desc(), event_decisions.c.decision_id)
+                .limit(20),
+            )
+        ]
+        latest = (
+            connection.execute(
+                select(
+                    stored_events.c.occurred_at,
+                    *projected_payload(stored_events.c.payload, PERFORMANCE_FIELDS),
+                )
+                .where(
+                    stored_events.c.event_type == "event_performance",
+                    stored_events.c.trace_id == cohort_id,
+                    stored_events.c.occurred_at <= now,
+                )
+                .order_by(stored_events.c.occurred_at.desc(), stored_events.c.recorded_at.desc())
+                .limit(1)
+            )
+            .mappings()
+            .one_or_none()
+        )
+        saved = (
+            connection.execute(
+                select(
+                    stored_events.c.event_id.label("report_id"),
+                    stored_events.c.occurred_at.label("snapshot_at"),
+                    stored_events.c.payload["planned_session_date"]
+                    .as_string()
+                    .label("planned_session_date"),
+                )
+                .where(
+                    stored_events.c.event_type == "event_session_report",
+                    stored_events.c.trace_id == cohort_id,
+                    stored_events.c.occurred_at <= now,
+                )
+                .order_by(stored_events.c.occurred_at.desc())
+                .limit(1)
+            )
+            .mappings()
+            .one_or_none()
+        )
+    return {
+        "manifest": manifest,
+        "decisions": decisions,
+        "decision_count": int(count),
+        "leading_no_trade_reasons": dict(reasons),
+        "decisions_display": {
+            "shown": len(decisions),
+            "total": int(count),
+            "truncated": count > len(decisions),
+            "projection": "decision summary; full evidence retained in event_decisions by decision_id",
+        },
+        "performance": payload_from_projection(dict(latest), PERFORMANCE_FIELDS)
+        if latest
+        else None,
+        "performance_as_of": latest["occurred_at"].isoformat() if latest else None,
+        "latest_persisted_report": dict(saved) if saved else None,
+    }
+
 
 DASHBOARD = """<!doctype html>
 <html lang="en">
@@ -57,7 +394,7 @@ DASHBOARD = """<!doctype html>
   </style>
 </head>
 <body>
-  <header><div><h1>TradeAgent</h1><div>Local paper-trading console</div></div><span class="badge">PAPER ONLY</span></header>
+  <header><div><h1>TradeAgent</h1><div>Read-only paper-trading console</div></div><span class="badge">PAPER ONLY</span></header>
   <p class="warning">No live broker is connected. Qualification means a research gate passed, not that profit is guaranteed.</p>
   <section class="grid">
     <div class="card"><div>NAV</div><div id="nav" class="value">-</div></div>
@@ -79,12 +416,17 @@ DASHBOARD = """<!doctype html>
     <h2>Event paper cohorts</h2>
     <p id="event-state">Connecting to event worker...</p>
     <p>Operational permission is not statistical qualification. No live broker is connected.</p>
+    <h3>Service observations</h3>
+    <pre id="service-observations" style="white-space:pre-wrap;overflow-wrap:anywhere" role="status">Waiting for production service observations...</pre>
+    <p>Heartbeat freshness is not proof of market-data coverage or entry permission. <a href="/ready" target="_blank" rel="noopener">Open current dependency and recorder progress details</a>.</p>
     <p id="event-evidence"></p>
     <pre id="event-ledgers" style="white-space:pre-wrap"></pre>
     <h3>Trading blockers and abstentions</h3><pre id="event-reasons" style="white-space:pre-wrap"></pre>
     <h3>Source and capability limitations</h3><pre id="event-limitations" style="white-space:pre-wrap"></pre>
     <h3>Calibration (operational only)</h3><pre id="event-calibration" style="white-space:pre-wrap"></pre>
-    <h3>Planned session report</h3><pre id="event-session-report" style="white-space:pre-wrap"></pre>
+    <h3>Planned session report</h3>
+    <p id="event-session-report" role="status">Loading report reference...</p>
+    <a href="/api/event-session-report" target="_blank" rel="noopener">Open full session evidence report on demand</a>
     <h3>Recent evidence and decisions</h3>
     <div id="event-decisions"></div>
   </section>
@@ -94,32 +436,66 @@ DASHBOARD = """<!doctype html>
       element.textContent = String(value);
       return element.innerHTML;
     }
-    async function refresh() {
-      const [status, experiments, runtime, news, product] = await Promise.all([
-        fetch('/api/status').then(r => r.json()),
-        fetch('/api/experiments?limit=10').then(r => r.json()),
-        fetch('/api/runtime').then(r => r.json()),
-        fetch('/api/news?limit=20').then(r => r.json()),
-        fetch('/api/event-product').then(r => r.json())
-      ]);
+    async function refreshSection(name, url, targets, render) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      try {
+        const response = await fetch(url, {signal: controller.signal});
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        render(await response.json());
+      } catch (error) {
+        targets.forEach(target => {
+          const element = document.querySelector(target);
+          element.textContent = `${name} unavailable (${error.name === 'AbortError' ? 'request timed out' : error.message}). Retrying automatically; previous values are not current.`;
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+    function renderStatus(status) {
       document.querySelector('#events').textContent = status.event_count;
       document.querySelector('#nav').textContent =
-        status.account ? `$${Number(status.account.equity).toLocaleString()}` : 'No run';
+        status.account ? `$${Number(status.account.equity).toLocaleString()}`
+          : status.state_source === 'production_database' ? 'Broker snapshot unavailable' : 'No run';
       document.querySelector('#exposure').textContent =
         status.account ? `${(Number(status.account.gross_exposure_ratio) * 100).toFixed(2)}%` : '-';
       document.querySelector('#kill-switch').textContent = status.kill_switch;
+    }
+    function renderExperiments(experiments) {
       document.querySelector('#experiments').textContent = experiments.total;
       document.querySelector('#qualified').textContent = experiments.qualified_total;
+      document.querySelector('#experiment-rows').innerHTML = experiments.items.map(item =>
+        `<tr><td>${escapeHtml(item.experiment_id)}</td><td>${escapeHtml(item.strategy_id)}</td>` +
+        `<td>${escapeHtml(item.random_seed)}</td><td>${item.qualified ? 'yes' : 'no'}</td>` +
+        `<td><code>${escapeHtml(item.git_sha.slice(0, 8))}</code></td></tr>`
+      ).join('');
+    }
+    function renderRuntime(runtime) {
       document.querySelector('#hosted-bars').textContent = runtime.market_bars ?? '-';
       document.querySelector('#hosted-quotes').textContent = runtime.market_quotes ?? '-';
       document.querySelector('#shadow-nav').textContent =
         runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
-      document.querySelector('#news-count').textContent = news.items.length;
+    }
+    function renderProduct(product) {
+      const operational = product.operational_status;
+      document.querySelector('#service-observations').textContent = operational
+        ? `Dashboard: responding; PostgreSQL: ${operational.database}; observed ${operational.as_of}\\n` +
+          Object.entries(operational.roles || {}).map(([name, role]) => {
+            const observed = role.reported || {};
+            const state = role.fresh ? (observed.state || 'heartbeat only') : 'stale or missing';
+            const age = role.age_seconds == null ? 'unknown' : `${role.age_seconds.toFixed(1)}s`;
+            const owner = role.lease ? `; lease owner match: ${role.lease.owner_matches_heartbeat ?? 'unknown'}` : '';
+            const progress = observed.last_committed_event_at ? `; committed exchange time: ${observed.last_committed_event_at}; queue: ${observed.queue_depth ?? 'unknown'}; dropped: ${observed.dropped_events ?? 'unknown'}` : '';
+            return `${name}: ${state}; heartbeat age: ${age}${owner}${progress}`;
+          }).join('\\n')
+        : 'Production service observations unavailable; not evidence of healthy workers.';
       document.querySelector('#event-state').textContent = JSON.stringify({
         version: product.version, mode: product.mode, purpose: product.purpose, state: product.state,
         execution_feed: product.execution_feed, practice_start_date: product.practice_start_date,
         market_phase: product.market_phase, next_session: product.next_open,
-        performance: product.performance_label, code: product.code_sha
+        performance: product.performance_label, code: product.code_sha,
+        overview_as_of: product.as_of, heartbeat_at: product.heartbeat_at,
+        cache_ttl_seconds: product.cache_ttl_seconds
       });
       document.querySelector('#event-evidence').textContent = product.purpose === 'iex-practice'
         ? 'IEX paper practice only. Sessions and round trips, including calibration, do not count toward the 60-session/60-round-trip research qualification floors. Dollar results are broker-paper facts and modeled operational estimates, not validated strategy economics.'
@@ -133,7 +509,9 @@ DASHBOARD = """<!doctype html>
       document.querySelector('#event-calibration').textContent =
         JSON.stringify(product.calibration || product.calibration_status || 'Not reported / not applicable', null, 2);
       document.querySelector('#event-session-report').textContent =
-        product.session_report_text || 'No session report recorded.';
+        product.latest_persisted_report
+          ? `Latest persisted report: ${product.latest_persisted_report.snapshot_at}. Full immutable evidence is available through the on-demand report link.`
+          : 'No persisted report yet. The overview is not a full report or proof of no activity. Open the full report on demand.';
       document.querySelector('#event-decisions').replaceChildren(...(product.decisions || []).map(row => {
         const detail = document.createElement('details');
         const title = document.createElement('summary');
@@ -142,14 +520,27 @@ DASHBOARD = """<!doctype html>
         text.textContent = JSON.stringify(row.payload, null, 2);
         detail.append(title, text); return detail;
       }));
-      document.querySelector('#experiment-rows').innerHTML = experiments.items.map(item =>
-        `<tr><td>${escapeHtml(item.experiment_id)}</td><td>${escapeHtml(item.strategy_id)}</td>` +
-        `<td>${escapeHtml(item.random_seed)}</td><td>${item.qualified ? 'yes' : 'no'}</td>` +
-        `<td><code>${escapeHtml(item.git_sha.slice(0, 8))}</code></td></tr>`
-      ).join('');
+    }
+    let refreshing = false;
+    async function refresh() {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        await Promise.allSettled([
+          refreshSection('Production controls', '/api/status', ['#kill-switch', '#events', '#nav', '#exposure'], renderStatus),
+          refreshSection('Experiments', '/api/experiments?limit=10', ['#experiments', '#qualified'], renderExperiments),
+          refreshSection('Recorder', '/api/runtime', ['#hosted-bars', '#hosted-quotes', '#shadow-nav'], renderRuntime),
+          refreshSection('News', '/api/news?limit=20', ['#news-count'], news => {
+            document.querySelector('#news-count').textContent = news.items.length;
+          }),
+          refreshSection('Event overview', '/api/event-product', ['#event-state', '#event-session-report', '#service-observations'], renderProduct)
+        ]);
+      } finally {
+        refreshing = false;
+        setTimeout(refresh, 10000);
+      }
     }
     refresh();
-    setInterval(refresh, 10000);
   </script>
 </body>
 </html>
@@ -170,12 +561,18 @@ def create_app(
     ledger_path: Path = Path("data/tradeagent.db"),
     experiments_path: Path = Path("data/experiments.db"),
     production_database_url: str | None = None,
+    overview_cache_seconds: float = 15.0,
 ) -> FastAPI:
     app = FastAPI(
         title="TradeAgent Paper Console",
         version=__version__,
-        description="Read-only local observability for fake-money trading.",
+        description="Read-only process and paper-trading evidence; no trading authority.",
     )
+    overview_lock = Lock()
+    report_lock = Lock()
+    cached_overview: dict[str, object] | None = None
+    overview_expires = 0.0
+    overview_failed = False
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def dashboard() -> str:
@@ -187,10 +584,80 @@ def create_app(
             "status": "ok",
             "mode": "paper",
             "live_trading_available": False,
+            "check": "process_liveness_only",
+            "dependencies": "/ready",
         }
+
+    @app.get("/ready")
+    def ready() -> JSONResponse:
+        if production_database_url is None:
+            return JSONResponse(
+                {
+                    "ready": True,
+                    "database": "not_configured_local_mode",
+                    "live_trading_available": False,
+                }
+            )
+        try:
+            with Database(production_database_url) as database:
+                with database.begin() as connection:
+                    connection.execute(select(1)).scalar_one()
+                operational = _operational_status(database, datetime.now(UTC))
+                event_worker = operational["roles"]["tradeagent-event-worker"]
+            return JSONResponse(
+                {
+                    "ready": True,
+                    "database": "reachable",
+                    "check": "dashboard_read_dependency",
+                    "event_worker_fresh": event_worker["fresh"],
+                    "event_worker_age_seconds": event_worker["age_seconds"],
+                    "operational_status": operational,
+                    "live_trading_available": False,
+                }
+            )
+        except SQLAlchemyError:
+            return JSONResponse(
+                {
+                    "ready": False,
+                    "database": "unavailable",
+                    "error": "production_database_unavailable",
+                },
+                status_code=503,
+            )
 
     @app.get("/api/event-product")
     def event_product() -> dict[str, object]:
+        nonlocal cached_overview, overview_expires, overview_failed
+        with overview_lock:
+            if cached_overview is None or monotonic() >= overview_expires:
+                try:
+                    cached_overview = build_event_product()
+                    overview_failed = False
+                except SQLAlchemyError:
+                    overview_failed = True
+                    cached_overview = {
+                        "state": "reporting_unavailable",
+                        "error": "production_read_failed",
+                        "as_of": datetime.now(UTC).isoformat(),
+                        "message": "Dashboard reporting failed; not evidence of no activity. Retry after the cache interval.",
+                    }
+                overview_expires = monotonic() + (
+                    5.0 if overview_failed else overview_cache_seconds
+                )
+            if overview_failed:
+                raise HTTPException(
+                    status_code=503, detail=cached_overview, headers={"Retry-After": "5"}
+                )
+            return {
+                **cached_overview,
+                "served_at": datetime.now(UTC).isoformat(),
+                "cache_ttl_seconds": overview_cache_seconds,
+                "overview_only": True,
+                "full_report_url": "/api/event-session-report",
+            }
+
+    def build_event_product() -> dict[str, object]:
+        now = datetime.now(UTC)
         settings = ExperimentalSettings()
         base: dict[str, object] = {
             **evidence_labels(reporting_purpose(settings.model_dump())),
@@ -201,55 +668,102 @@ def create_app(
             "qualified": False,
             "live_execution_available": False,
             "blockers": ["EVENT_WORKER_NOT_STARTED"],
+            "as_of": now.isoformat(),
         }
         if production_database_url is None:
             return base
         with Database(production_database_url) as database:
-            repository = ProductionRepository(database)
-            heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
-            # During rolling upgrades the old worker has no event schema yet.
-            if heartbeat is None:
-                if not inspect(database.engine).has_table("event_cohorts"):
-                    return base
-                structured = session_report(database, None, observed_at=datetime.now(UTC))
-                return {
-                    **base,
-                    "session_report": structured,
-                    "session_report_text": render_session_report(structured),
+            with database.begin() as connection:
+                heartbeat_row = (
+                    connection.execute(
+                        select(
+                            heartbeats.c.observed_at,
+                            *projected_payload(heartbeats.c.details, EVENT_HEARTBEAT_FIELDS),
+                            heartbeats.c.details["source_capabilities"]["last_errors"].label(
+                                "source_errors"
+                            ),
+                            heartbeats.c.details["source_capabilities"]["http_cache"].label(
+                                "source_http_cache"
+                            ),
+                            heartbeats.c.details["premarket_brief"]["funnel"].label(
+                                "premarket_funnel"
+                            ),
+                            heartbeats.c.details["premarket_brief"]["coverage"].label(
+                                "premarket_coverage"
+                            ),
+                            heartbeats.c.details["premarket_brief"]["preparation_status"].label(
+                                "preparation_status"
+                            ),
+                        ).where(heartbeats.c.service_name == "tradeagent-event-worker")
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+            heartbeat_at = _aware(heartbeat_row["observed_at"]) if heartbeat_row else None
+            base["operational_status"] = _operational_status(database, now)
+            if not inspect(database.engine).has_table("event_cohorts"):
+                return base
+            details = (
+                payload_from_projection(dict(heartbeat_row), EVENT_HEARTBEAT_FIELDS)
+                if heartbeat_row
+                else {}
+            )
+            if heartbeat_row:
+                details["source_capabilities"] = {
+                    "last_errors": heartbeat_row["source_errors"] or [],
+                    "http_cache": heartbeat_row["source_http_cache"],
+                    "projection": "errors and cache metrics only; not full source capability evidence",
                 }
-            cohort_id = str(heartbeat[2].get("cohort_id", settings.cohort_id))
+                details["premarket_brief"] = {
+                    "funnel": heartbeat_row["premarket_funnel"],
+                    "coverage": heartbeat_row["premarket_coverage"],
+                    "preparation_status": heartbeat_row["preparation_status"],
+                    "projection": "overview only; full brief remains in immutable audit evidence",
+                }
+            with database.begin() as connection:
+                cohort_id = str(
+                    details.get("cohort_id")
+                    or connection.scalar(
+                        select(event_cohorts.c.cohort_id)
+                        .order_by(event_cohorts.c.created_at.desc())
+                        .limit(1)
+                    )
+                    or settings.cohort_id
+                )
+            overview = _event_overview(database, cohort_id, now)
             purpose = reporting_purpose(
-                heartbeat[2],
+                details,
+                overview.pop("manifest"),
                 settings.model_dump() if settings.cohort_id == cohort_id else None,
             )
-            report = EventStore(database).report(cohort_id, limit=20, purpose=purpose)
-            purpose = report["purpose"]
-            with database.begin() as connection:
-                latest = connection.scalar(
-                    select(stored_events.c.payload)
-                    .where(
-                        stored_events.c.event_type == "event_performance",
-                        stored_events.c.trace_id == cohort_id,
-                        stored_events.c.occurred_at <= datetime.now(UTC),
-                    )
-                    .order_by(stored_events.c.occurred_at.desc())
-                    .limit(1)
-                )
-            age = (datetime.now(UTC) - heartbeat[1]).total_seconds()
-            structured = session_report(database, cohort_id, observed_at=datetime.now(UTC))
+            latest = overview.pop("performance")
+            age = (now - heartbeat_at).total_seconds() if heartbeat_at else None
+            fresh = age is not None and 0 <= age <= 120
             return {
                 **base,
-                **heartbeat[2],
-                **report,
+                **details,
+                **overview,
+                **evidence_labels(purpose),
+                "cohort_id": cohort_id,
                 "ledgers": performance_labels(latest, purpose) if latest is not None else None,
-                "calibration": reported_calibration(heartbeat[2]),
-                "calibration_status": reported_calibration(heartbeat[2]),
-                "session_report": structured,
-                "session_report_text": render_session_report(structured),
-                "heartbeat_at": heartbeat[1].isoformat(),
-                "state": heartbeat[2].get("state") if 0 <= age <= 120 else "worker_stale",
-                **reporting_limitations(heartbeat[2], purpose),
-                "code_sha": heartbeat[2].get("code_sha", base["code_sha"]),
+                "usable_forward_trading_sessions": 0 if purpose == "iex-practice" else None,
+                "calibration": reported_calibration(details),
+                "calibration_status": reported_calibration(details),
+                "session_report": {
+                    "overview_only": True,
+                    "cohort_id": cohort_id,
+                    "health": {"worker": {"fresh": fresh}},
+                    "latest_persisted_report": overview["latest_persisted_report"],
+                    "full_report_url": "/api/event-session-report",
+                },
+                "heartbeat_at": heartbeat_at.isoformat() if heartbeat_at else None,
+                "state": details.get("state")
+                if fresh
+                else "worker_stale"
+                if heartbeat_at
+                else "not_running",
+                **reporting_limitations(details, purpose),
+                "code_sha": details.get("code_sha", base["code_sha"]),
             }
 
     @app.get("/api/event-session-report")
@@ -257,6 +771,22 @@ def create_app(
         cohort_id: str | None = Query(default=None, max_length=64),
         session_date: date | None = None,
         report_id: str | None = Query(default=None, max_length=36),
+    ) -> dict[str, object]:
+        if not report_lock.acquire(blocking=False):
+            raise HTTPException(
+                status_code=429,
+                detail="A full report is already being read; retry shortly.",
+                headers={"Retry-After": "10"},
+            )
+        try:
+            return read_event_session_report(cohort_id, session_date, report_id)
+        finally:
+            report_lock.release()
+
+    def read_event_session_report(
+        cohort_id: str | None,
+        session_date: date | None,
+        report_id: str | None,
     ) -> dict[str, object]:
         if production_database_url is None:
             return {"state": "database_not_configured", "session_report": None}
@@ -298,6 +828,42 @@ def create_app(
 
     @app.get("/api/status")
     def status() -> dict[str, object]:
+        if production_database_url is not None:
+            try:
+                with Database(production_database_url) as database:
+                    repository = ProductionRepository(database)
+                    heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
+                    cohort = heartbeat[2].get("cohort_id") if heartbeat else None
+                    with database.begin() as connection:
+                        counts = {
+                            str(kind): int(count)
+                            for kind, count in connection.execute(
+                                select(stored_events.c.event_type, func.count()).group_by(
+                                    stored_events.c.event_type
+                                )
+                            )
+                        }
+                    return {
+                        "mode": "paper",
+                        "trading_enabled": False,
+                        "live_trading_available": False,
+                        "state_source": "production_database",
+                        "controls_scope": "global kill switch and current heartbeat cohort pause",
+                        "as_of": datetime.now(UTC).isoformat(),
+                        "kill_switch": repository.get_control("kill_switch") or "not_recorded",
+                        "cohort_pause": repository.get_control(f"{cohort}:pause")
+                        if cohort
+                        else None,
+                        "cohort_id": cohort,
+                        "event_count": sum(counts.values()),
+                        "event_counts": counts,
+                        "account": None,
+                        "account_status": "not_a_broker_account_snapshot",
+                    }
+            except SQLAlchemyError as error:
+                raise HTTPException(
+                    status_code=503, detail="Production controls unavailable; no local fallback"
+                ) from error
         with SQLiteLedger(ledger_path) as ledger:
             account = _latest_account(ledger)
             return {
@@ -349,20 +915,23 @@ def create_app(
             repository = ProductionRepository(database)
             bars, quotes, trades = repository.market_data_counts()
             outcome = repository.latest_event_payload("shadow_outcome")
-            worker = repository.latest_heartbeat("tradeagent-worker")
-            notifier = repository.latest_heartbeat("tradeagent-notifier")
-            news = repository.latest_heartbeat("tradeagent-news-worker")
-            market_feed = repository.latest_heartbeat("tradeagent-market-feed")
+            operational = _operational_status(database, datetime.now(UTC))
+            roles = operational["roles"]
+            worker = roles["tradeagent-shadow-recorder"]
+            notifier = roles["tradeagent-notifier"]
+            news = roles["tradeagent-news-worker"]
+            market_feed = roles["tradeagent-shadow-market-feed"]
             return {
                 "connected": True,
                 "market_bars": bars,
                 "market_quotes": quotes,
                 "market_trades": trades,
                 "shadow_nav": outcome.get("shadow_nav") if outcome else None,
-                "worker_heartbeat": worker[1].isoformat() if worker else None,
-                "market_feed_status": market_feed[2] if market_feed else None,
-                "notifier_heartbeat": notifier[1].isoformat() if notifier else None,
-                "news_heartbeat": news[1].isoformat() if news else None,
+                "worker_heartbeat": worker["heartbeat_at"],
+                "worker_status": worker,
+                "market_feed_status": market_feed,
+                "notifier_heartbeat": notifier["heartbeat_at"],
+                "news_heartbeat": news["heartbeat_at"],
             }
 
     @app.get("/api/news")
@@ -372,24 +941,29 @@ def create_app(
         with Database(production_database_url) as database:
             repository = ProductionRepository(database)
             heartbeat = repository.latest_heartbeat("tradeagent-news-worker")
-            items = NewsRepository(database).recent(
-                since=datetime.now(UTC) - timedelta(hours=24),
-                until=datetime.now(UTC),
-            )[:limit]
+            with database.begin() as connection:
+                items = list(
+                    connection.execute(
+                        select(
+                            market_news.c.headline,
+                            market_news.c.source,
+                            market_news.c.source_url,
+                            market_news.c.symbols,
+                            market_news.c.category,
+                            market_news.c.published_at,
+                            market_news.c.received_at,
+                        )
+                        .where(
+                            market_news.c.received_at >= datetime.now(UTC) - timedelta(hours=24),
+                            market_news.c.received_at <= datetime.now(UTC),
+                        )
+                        .order_by(market_news.c.received_at.desc())
+                        .limit(limit)
+                    ).mappings()
+                )
             return {
                 "feed_heartbeat": heartbeat[1].isoformat() if heartbeat else None,
-                "items": [
-                    {
-                        "headline": item.headline,
-                        "source": item.source,
-                        "source_url": item.source_url,
-                        "symbols": item.symbols,
-                        "category": item.category.value,
-                        "published_at": item.published_at.isoformat(),
-                        "received_at": item.received_at.isoformat(),
-                    }
-                    for item in items
-                ],
+                "items": [dict(item) for item in items],
             }
 
     @app.get("/metrics", response_class=PlainTextResponse)
