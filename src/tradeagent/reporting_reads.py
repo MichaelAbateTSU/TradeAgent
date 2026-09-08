@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterator, Sequence
 from typing import Any
 
@@ -11,6 +12,17 @@ from sqlalchemy.sql.elements import ColumnElement
 
 READ_BATCH_SIZE = 32
 DISPLAY_LIMIT = 100
+REPORTING_PROJECTION_VERSION = 1
+REPORT_PAYLOAD_MAX_BYTES = 8 * 1024 * 1024
+AUDIT_SCOPE_FIELDS = (
+    "planned_session_date",
+    "session_date",
+    "mode",
+    "synthetic",
+    "evidence_kind",
+    "session_id",
+    "account_digest",
+)
 
 POLL_FIELDS = (
     "poll_id",
@@ -144,6 +156,107 @@ def compact_poll(payload: dict[str, Any]) -> dict[str, Any]:
             "full provider metadata in immutable poll"
         )
     return result
+
+
+def event_reporting_projection(event_type: str, payload: dict[str, Any]) -> dict[str, Any]:
+    """Capture scope once when retaining an event, without copying historical bodies."""
+    result = {"scope": {key: payload[key] for key in AUDIT_SCOPE_FIELDS if key in payload}}
+    if event_type == "event_source_poll":
+        result["poll"] = compact_poll(payload)
+    return result
+
+
+class ReportingReadModelIncompleteError(RuntimeError):
+    """An immutable event has no usable projection; never replace missing history with zero."""
+
+    def __init__(self, event_id: str) -> None:
+        super().__init__(
+            f"Reporting projection version {REPORTING_PROJECTION_VERSION} is missing or invalid "
+            f"for events_v2:{event_id}; finish the bounded metadata backfill before reporting. "
+            "The original event is retained; no partial report was generated."
+        )
+
+
+ReportingReadModelIncomplete = ReportingReadModelIncompleteError
+
+
+def reporting_metadata_query(event_table: Table, projection_table: Table) -> Select[Any]:
+    """Read the immutable sidecar without referencing the historical payload column."""
+    return select(
+        *(value for value in event_table.c if value.name != "payload"),
+        projection_table.c.payload.label("reporting_projection"),
+    ).select_from(
+        event_table.outerjoin(
+            projection_table,
+            (projection_table.c.event_id == event_table.c.event_id)
+            & (projection_table.c.projection_version == REPORTING_PROJECTION_VERSION),
+        )
+    )
+
+
+def reporting_projection_from_row(row: dict[str, Any]) -> dict[str, Any]:
+    projection = row["reporting_projection"]
+    if (
+        not isinstance(projection, dict)
+        or not isinstance(projection.get("scope"), dict)
+        or (
+            row["event_type"] == "event_source_poll"
+            and not isinstance(projection.get("poll"), dict)
+        )
+    ):
+        raise ReportingReadModelIncompleteError(str(row["event_id"]))
+    return projection
+
+
+def compact_report_evidence(value: Any, immutable_reference: str, path: str = "") -> Any:
+    """Keep every parsed fact while referencing, not duplicating, retained source bodies."""
+    if isinstance(value, dict):
+        result: dict[str, Any] = {}
+        references = {}
+        source_document = any(
+            key in value for key in ("content_sha256", "source_url", "immutable_reference")
+        )
+        for key, item in value.items():
+            pointer = f"{path}/{str(key).replace('~', '~0').replace('/', '~1')}"
+            raw_field = key in {"body_base64", "raw_metadata_json"} or (
+                source_document
+                and key
+                in {"content", "body", "document", "provider_response", "supporting_excerpt"}
+            )
+            if raw_field and isinstance(item, str):
+                references[key] = {
+                    "immutable_reference": f"{immutable_reference}#{pointer}",
+                    "characters": len(item),
+                    "projection": "raw source text omitted; complete immutable original retained",
+                }
+            else:
+                result[key] = compact_report_evidence(item, immutable_reference, pointer)
+        if references:
+            result["source_body_references"] = references
+        return result
+    if isinstance(value, list | tuple):
+        return [
+            compact_report_evidence(item, immutable_reference, f"{path}/{index}")
+            for index, item in enumerate(value)
+        ]
+    return value
+
+
+class ReportPayloadTooLargeError(RuntimeError):
+    """Reject an oversized report before PostgreSQL must allocate its JSON input."""
+
+
+def report_payload_size(report: dict[str, Any]) -> int:
+    total = 0
+    for fragment in json.JSONEncoder().iterencode(report):
+        total += len(fragment.encode("utf-8"))
+        if total > REPORT_PAYLOAD_MAX_BYTES:
+            raise ReportPayloadTooLargeError(
+                f"Report exceeds {REPORT_PAYLOAD_MAX_BYTES} UTF-8 bytes after source projection; "
+                "no oversized snapshot was sent to PostgreSQL and no delivery was enqueued. "
+                "Original evidence and complete accounting are retained, not truncated."
+            )
+    return total
 
 
 def forward_clause(payload: Any) -> ColumnElement[bool]:

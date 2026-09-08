@@ -1,0 +1,10 @@
+{
+  "createdAt": "2026-09-08T16:30:46.20633Z",
+  "id": "job-dag3gdmk1f9s73e1j3lg",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+  "status": "succeeded",
+  "finishedAt": "2026-09-08T16:31:24Z",
+  "startedAt": "2026-09-08T16:30:46Z",
+  "diagnostic_command_sha256": "d0e6a49565601cc333dfb187e5b7b7bd7168c8404306d000207fda7ef1e74f18"
+}

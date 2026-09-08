@@ -1,0 +1,11 @@
+{
+  "read_only": true,
+  "original_cohort": "v20-tuesday-20260908-r3",
+  "query_start_date": "2026-09-01T04:00:00Z",
+  "native_json_semantics": "assertions passed before EXPLAIN",
+  "statement_timeout_seconds": 45,
+  "outcome": "QueryCanceled: statement timeout",
+  "phase": "before audit lookup index migration0010",
+  "job_id": "job-dag3a767bikc73cuq020",
+  "query_shape": "events_v2 trace/time filter JOIN LATERAL json_to_record(payload) selecting seven scope fields; excluded event_session_report; no WindowAgg or GROUP BY"
+}

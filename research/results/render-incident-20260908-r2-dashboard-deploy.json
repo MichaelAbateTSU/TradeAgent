@@ -1,0 +1,14 @@
+{
+  "id": "dep-dag3ebn40ujc73e4ojqg",
+  "commit": {
+    "id": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+    "message": "fix: bound PostgreSQL reporting and dashboard connections\n\nReplace repeated historical JSON/ranking work with single-pass projections and bounded primary-key reads, share a two-connection dashboard pool, add a concurrent audit lookup index, and strengthen live acceptance after the first production soak exposed database pressure.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+    "createdAt": "2026-09-08T16:08:56Z"
+  },
+  "status": "live",
+  "trigger": "api",
+  "createdAt": "2026-09-08T16:26:22.964898Z",
+  "updatedAt": "2026-09-08T16:28:04.350041Z",
+  "startedAt": "2026-09-08T16:26:22.927922Z",
+  "finishedAt": "2026-09-08T16:27:32.246892Z"
+}

@@ -12,24 +12,42 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event, func, insert, select
+from sqlalchemy import (
+    create_engine,
+    event,
+    func,
+    insert,
+    select,
+)
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import OperationalError
 
-from tradeagent import api
-from tradeagent.daily_status import DailyStatusScheduler, DailyStatusSettings
+from tradeagent import api, reporting_reads
+from tradeagent.daily_status import DailyStatusScheduler, DailyStatusSettings, build_daily_status
 from tradeagent.event_brief import persist_premarket_brief
 from tradeagent.event_research import SourceEvent, supported_issuer_mappings, text_hash
 from tradeagent.event_session_report import _audit_read_model, session_report
-from tradeagent.event_store import EventStore, event_evidence, event_order_links
+from tradeagent.event_store import EventStore, event_decisions, event_evidence, event_order_links
 from tradeagent.persistence import (
     Database,
     ProductionRepository,
+    event_reporting_metadata,
     events,
     notification_outbox,
     orders,
 )
-from tradeagent.reporting_reads import POLL_FIELDS, READ_BATCH_SIZE, projected_row_query
+from tradeagent.reporting_reads import (
+    AUDIT_SCOPE_FIELDS,
+    POLL_FIELDS,
+    READ_BATCH_SIZE,
+    REPORTING_PROJECTION_VERSION,
+    ReportingReadModelIncompleteError,
+    ReportPayloadTooLargeError,
+    event_reporting_projection,
+    projected_row_query,
+    reporting_metadata_query,
+    reporting_projection_from_row,
+)
 
 DAY = date(2026, 9, 8)
 NOW = datetime(2026, 9, 8, 22, tzinfo=UTC)
@@ -183,6 +201,19 @@ def test_production_sized_snapshots_do_not_materialize_historical_bodies(
                             }
                         )
                 connection.execute(insert(events), batch)
+                connection.execute(
+                    insert(event_reporting_metadata),
+                    [
+                        {
+                            "event_id": row["event_id"],
+                            "projection_version": REPORTING_PROJECTION_VERSION,
+                            "payload": event_reporting_projection(
+                                row["event_type"], row["payload"]
+                            ),
+                        }
+                        for row in batch
+                    ],
+                )
         EventStore(database).audit("incident", {"error": "retained_real_incident"}, NOW, COHORT)
 
         def observe_query(
@@ -316,6 +347,28 @@ def test_brief_pages_validates_and_compacts_large_historical_documents(
                         }
                     )
                 connection.execute(insert(event_evidence), batch)
+        at = OPEN - timedelta(minutes=1)
+        with database.begin() as connection:
+            for index in range(500):
+                EventStore(database).audit(
+                    "source_poll",
+                    {
+                        "poll_id": str(index),
+                        "observed_at": at.isoformat(),
+                        "raw_items_received": 3,
+                        "source_health": {"news": {"status": "healthy", "provider_response": body}},
+                    },
+                    at,
+                    f"{COHORT}:{DAY}:premarket_brief:poll:{index}",
+                    connection,
+                )
+        sidecar_queries = []
+
+        def observe(connection: Any, clause: Any, *args: Any) -> None:
+            if getattr(clause, "is_select", False) and "event_reporting_metadata" in str(clause):
+                sidecar_queries.append(str(clause))
+
+        event.listen(database.engine, "before_execute", observe)
         tracemalloc.start()
         brief = persist_premarket_brief(
             database,
@@ -333,6 +386,9 @@ def test_brief_pages_validates_and_compacts_large_historical_documents(
         assert brief["funnel"]["older_context_documents"] == 1200
         assert brief["funnel"]["invalid_evidence_records"] == 0
         assert brief["funnel"]["unique_events"] == 0
+        assert brief["funnel"]["raw_items_received"] == 1500
+        assert len(sidecar_queries) == 1
+        assert "events_v2.payload" not in sidecar_queries[0]
         assert brief["older_context_evidence_ids_truncated"] is True
         assert len(brief["older_context_evidence_ids"]) == 100
         with database.begin() as connection:
@@ -497,6 +553,295 @@ def test_postgresql_poll_projection_parses_json_once_instead_of_per_field() -> N
     assert "events_v2.payload" not in sql.split("FROM")[0]
 
 
+def test_immutable_reporting_projection_preserves_scope_types_and_poll_accounting() -> None:
+    scope = {
+        "planned_session_date": None,
+        "session_date": "2026-09-07",
+        "mode": "offline_replay",
+        "synthetic": False,
+        "evidence_kind": "replay",
+        "session_id": "",
+        "account_digest": None,
+    }
+    payload = {
+        **scope,
+        "body": "heavy retained body " * 10000,
+        "poll_id": "unchanged-receipts",
+        "raw_items_received": 0,
+        "healthy": False,
+        "coverage_complete": None,
+        "source_health": {"news": {"status": "failed", "provider_response": "x" * 65536}},
+    }
+    before = json.dumps(payload, sort_keys=True)
+    state = event_reporting_projection("event_official_context", payload)
+    assert state == {"scope": scope}
+    assert set(state["scope"]) == set(AUDIT_SCOPE_FIELDS)
+    assert event_reporting_projection("event_incident", {}) == {"scope": {}}
+    poll = event_reporting_projection("event_source_poll", payload)
+    assert poll["scope"] == scope
+    assert poll["poll"]["raw_items_received"] == 0
+    assert poll["poll"]["healthy"] is False
+    assert poll["poll"]["coverage_complete"] is None
+    assert poll["poll"]["source_health"] == {"news": {"status": "failed"}}
+    assert len(json.dumps(poll)) < 2048
+    assert json.dumps(payload, sort_keys=True) == before
+
+
+def test_postgresql_audit_sidecar_query_never_parses_original_json() -> None:
+    query = reporting_metadata_query(events, event_reporting_metadata).where(
+        events.c.trace_id == COHORT, events.c.occurred_at <= NOW
+    )
+    sql = str(query.compile(dialect=postgresql.dialect()))
+    assert "LEFT OUTER JOIN event_reporting_metadata" in sql
+    assert "event_reporting_metadata.projection_version =" in sql
+    assert "event_reporting_metadata.payload AS reporting_projection" in sql
+    assert "events_v2.payload" not in sql
+    assert "json_to_record" not in sql and " -> " not in sql and " ->> " not in sql
+
+
+@pytest.mark.parametrize("projection", [None, [], {}, {"scope": []}, {"scope": {}, "poll": None}])
+def test_missing_or_invalid_reporting_sidecar_fails_explicitly(projection: Any) -> None:
+    with pytest.raises(ReportingReadModelIncompleteError, match="events_v2:retained-event"):
+        reporting_projection_from_row(
+            {
+                "event_id": "retained-event",
+                "event_type": "event_source_poll",
+                "reporting_projection": projection,
+            }
+        )
+
+
+@pytest.mark.parametrize("version,projection", [(None, None), (2, {"scope": {}}), (1, {})])
+def test_incomplete_sidecar_never_falls_back_to_parsing_historical_bodies(
+    version: int | None, projection: Any
+) -> None:
+    with Database("sqlite:///:memory:") as database:
+        database.initialize()
+        with database.begin() as connection:
+            connection.execute(
+                insert(events).values(
+                    event_id="retained-unprojected",
+                    event_type="event_official_context",
+                    occurred_at=NOW,
+                    recorded_at=NOW,
+                    trace_id=COHORT,
+                    payload={"body_base64": "x" * (4 * 1024 * 1024)},
+                )
+            )
+            if version is not None:
+                connection.execute(
+                    insert(event_reporting_metadata).values(
+                        event_id="retained-unprojected",
+                        projection_version=version,
+                        payload=projection,
+                    )
+                )
+        queries = []
+
+        def observe(connection: Any, clause: Any, *args: Any) -> None:
+            queries.append(str(clause))
+
+        event.listen(database.engine, "before_execute", observe)
+        with (
+            database.begin() as connection,
+            pytest.raises(ReportingReadModelIncompleteError, match="retained-unprojected"),
+        ):
+            _audit_read_model(connection, events.c.trace_id == COHORT, DAY, OPEN, NOW)
+        assert len(queries) == 1
+        assert "events_v2.payload" not in queries[0]
+
+
+def test_sidecar_preserves_absent_null_date_account_session_and_synthetic_semantics() -> None:
+    payloads = {
+        "absent": {},
+        "null_planned": {
+            "planned_session_date": None,
+            "session_date": str(DAY - timedelta(days=1)),
+        },
+        "synthetic_true": {"synthetic": True},
+        "synthetic_string": {"synthetic": "true"},
+        "replay": {"mode": "offline_replay"},
+        "null_account": {"account_digest": None},
+        "other_account": {"account_digest": "other"},
+        "null_session": {"session_id": None},
+        "other_session": {"session_id": "other"},
+        "other_date": {"planned_session_date": str(DAY - timedelta(days=1))},
+    }
+    with Database("sqlite:///:memory:") as database:
+        database.initialize()
+        store = EventStore(database)
+        for identity, payload in payloads.items():
+            store.audit("incident", {"case": identity, **payload}, NOW, COHORT)
+        with database.begin() as connection:
+            rows, history = _audit_read_model(
+                connection,
+                events.c.trace_id == COHORT,
+                DAY,
+                OPEN,
+                NOW,
+                session_id="current-session",
+                account="current-account",
+            )
+        assert {row["payload"]["case"] for row in rows} == {
+            "absent",
+            "null_planned",
+            "synthetic_true",
+            "synthetic_string",
+            "replay",
+        }
+        counts = history["event_counts"]["event_incident"]
+        assert counts["count"] == 5
+        assert counts["forward_count"] == 3
+        assert counts["synthetic_or_replay_count"] == 2
+        assert counts["first_at"] == counts["last_at"] == NOW.isoformat()
+
+
+@pytest.mark.parametrize("decision_count,body_characters", [(6, 4 * 1024 * 1024), (60, 450 * 1024)])
+def test_multimegabyte_official_bodies_are_referenced_before_report_persistence(
+    tmp_path: Path,
+    decision_count: int,
+    body_characters: int,
+    record_property: Any,
+) -> None:
+    body = "eA==" * (body_characters // 4)
+    context = {
+        "observed_at": NOW.isoformat(),
+        "evidence": [
+            {
+                "evidence_id": "official-receipt",
+                "source_url": "https://example.test/official",
+                "content_sha256": "a" * 64,
+                "body_base64": body,
+                "first_received_at": NOW.isoformat(),
+                "received_at": NOW.isoformat(),
+                "error": None,
+            }
+        ],
+        "macro_risk_windows": [{"start": OPEN.isoformat(), "end": NOW.isoformat()}],
+        "halts": [{"symbol": "AAPL", "halted": None, "reason": "unknown_feed_status"}],
+        "errors": ["unverified_source_coverage"],
+    }
+    with Database(f"sqlite:///{tmp_path / 'large-insert.db'}") as database:
+        database.initialize()
+        seed_cohort(database)
+        seed_loss(database)
+        store = EventStore(database)
+        store.audit("official_context", context, NOW, COHORT)
+        with database.begin() as connection:
+            connection.execute(
+                insert(event_evidence),
+                [
+                    {"evidence_id": f"source-{index}", "received_at": NOW, "payload": {}}
+                    for index in range(decision_count)
+                ],
+            )
+        decision_ids = [
+            store.decision(
+                COHORT,
+                f"source-{index}",
+                {
+                    "symbol": "AAPL",
+                    "action": "abstain",
+                    "facts": [{"metric": "revenue", "value": "42", "unit": "USD"}],
+                    "reasons": ["official_halt_status_unknown"],
+                    "official_context": context,
+                },
+                NOW,
+            )
+            for index in range(decision_count)
+        ]
+        # Match the live 60 x 450 KiB decision expansion, as well as larger individual documents.
+        assert len(body) * (decision_count + 1) > 27_000_000
+        tracemalloc.start()
+        report = session_report(database, COHORT, DAY, observed_at=NOW, persist=True)
+        _, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        serialized = json.dumps(report)
+        record_property("decision_report_peak_python_bytes", peak)
+        record_property("decision_report_bytes", len(serialized.encode("utf-8")))
+        assert peak < 96 * 1024 * 1024
+        assert len(serialized.encode("utf-8")) < 512 * 1024
+        assert body[:100] not in serialized
+        assert Decimal(report["news_strategy"]["broker_paper_pnl"]) == Decimal("-2.50")
+        assert report["funnel"]["fills"]["count"] is None
+        assert report["ending_exposure"]["completion_confirmed"] is False
+        assert len(report["news_decisions"]) == decision_count
+        assert report["news_display"]["recorded_decisions_total"] == decision_count
+        assert report["failed_rules"] == {"official_halt_status_unknown": decision_count}
+        assert all(
+            row["facts"] == [{"metric": "revenue", "value": "42", "unit": "USD"}]
+            and row["failed_rules"] == ["official_halt_status_unknown"]
+            and row["original_decision_reference"] == f"event_decisions:{row['decision_id']}"
+            for row in report["news_decisions"]
+        )
+        context_record = next(
+            row for row in report["timeline"] if row["kind"] == "official_context"
+        )
+        for item in [
+            context_record["evidence"],
+            *[row["original_decision"]["official_context"] for row in report["news_decisions"]],
+        ]:
+            assert item["halts"] == context["halts"]
+            assert item["macro_risk_windows"] == context["macro_risk_windows"]
+            assert item["errors"] == context["errors"]
+            receipt = item["evidence"][0]
+            assert receipt["content_sha256"] == "a" * 64
+            assert receipt["first_received_at"] == NOW.isoformat()
+            assert receipt["source_body_references"]["body_base64"]["characters"] == len(body)
+        pointer = report["news_decisions"][0]["original_decision"]["official_context"]["evidence"][
+            0
+        ]["source_body_references"]["body_base64"]["immutable_reference"]
+        assert pointer.startswith("event_decisions:")
+        assert pointer.endswith("#/official_context/evidence/0/body_base64")
+        with database.begin() as connection:
+            original = connection.scalar(
+                select(event_decisions.c.payload).where(
+                    event_decisions.c.decision_id == decision_ids[0]
+                )
+            )
+            assert original["official_context"]["evidence"][0]["body_base64"] == body
+            saved = connection.scalar(
+                select(events.c.payload).where(events.c.event_id == report["report_id"])
+            )
+            assert saved == report
+            assert connection.scalar(
+                select(event_reporting_metadata.c.payload).where(
+                    event_reporting_metadata.c.event_id == report["report_id"],
+                    event_reporting_metadata.c.projection_version == REPORTING_PROJECTION_VERSION,
+                )
+            ) == event_reporting_projection("event_session_report", report)
+            original_context = connection.scalar(
+                select(events.c.payload).where(events.c.event_type == "event_official_context")
+            )
+            assert original_context == context
+        digest = build_daily_status(database, NOW, "America/New_York")
+        assert digest["session_report_id"] == report["report_id"]
+        record_property("decision_digest_bytes", len(json.dumps(digest).encode("utf-8")))
+        assert len(json.dumps(digest).encode("utf-8")) < 512 * 1024
+        assert body[:100] not in digest["text"]
+
+
+def test_oversized_report_is_rejected_before_insert_or_delivery(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with Database("sqlite:///:memory:") as database:
+        database.initialize()
+        seed_cohort(database)
+        writes = []
+
+        def observe(connection: Any, clause: Any, *args: Any) -> None:
+            if getattr(clause, "is_insert", False):
+                writes.append(clause)
+
+        event.listen(database.engine, "before_execute", observe)
+        monkeypatch.setattr(reporting_reads, "REPORT_PAYLOAD_MAX_BYTES", 1024)
+        with pytest.raises(ReportPayloadTooLargeError, match="no delivery was enqueued"):
+            build_daily_status(database, NOW, "America/New_York")
+        assert writes == []
+        with database.begin() as connection:
+            assert connection.scalar(select(func.count()).select_from(notification_outbox)) == 0
+
+
 def test_audit_reads_metadata_once_then_bounded_verified_primary_keys() -> None:
     with Database("sqlite:///:memory:") as database:
         database.initialize()
@@ -536,13 +881,15 @@ def test_audit_reads_metadata_once_then_bounded_verified_primary_keys() -> None:
                 OPEN,
                 NOW,
             )
-        # One narrow metadata query, one latest-state/incident page, and three poll pages.
-        assert len(queries) == 5
+        # One sidecar query covers every poll/scope; only selected context/incident bodies follow.
+        assert len(queries) == 2
         for query in queries[1:]:
             identities = query.compile().params["event_id_1"]
             assert 0 < len(identities) <= READ_BATCH_SIZE
         assert all("row_number" not in str(query).lower() for query in queries)
         assert not any(column is events.c.payload for column in queries[0].selected_columns)
+        assert "events_v2.payload" not in str(queries[0])
+        assert "event_reporting_metadata.payload" in str(queries[0])
         assert history["event_counts"]["event_official_context"]["count"] == 71
         assert history["event_counts"]["event_official_context"]["forward_count"] == 70
         assert history["event_counts"]["event_source_poll"]["count"] == 70

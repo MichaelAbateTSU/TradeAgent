@@ -5,5 +5,6 @@
   "planId": "plan-srv-006",
   "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
   "startedAt": "2026-09-08T15:01:02Z",
-  "status": "succeeded"
+  "status": "succeeded",
+  "diagnostic_command_sha256": "498fea415dab22a1fdfbcdbc4358fc57a4d2c47157ee4a967276b6d72e381258"
 }

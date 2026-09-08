@@ -1,0 +1,1460 @@
+{
+  "cohort": "v20-incident-20260908",
+  "persist": false,
+  "read_only": true,
+  "duration_seconds": 14.678016984835267,
+  "bytes": 27495763,
+  "peak_rss_bytes": 265232384,
+  "largest_sections": [
+    {
+      "path": "report.news_decisions",
+      "bytes": 25782527,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.44",
+      "bytes": 476391,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision",
+      "bytes": 449694,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.market_snapshot",
+      "bytes": 6530,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.extraction",
+      "bytes": 1269,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.issuer_eligibility_snapshot",
+      "bytes": 415,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.reasons",
+      "bytes": 215,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.quote_snapshot",
+      "bytes": 215,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.source_url",
+      "bytes": 110,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.headline",
+      "bytes": 82,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.44.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.44.latest_execution_evaluation",
+      "bytes": 9854,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.latest_execution_status_evidence",
+      "bytes": 9854,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.premarket_evidence",
+      "bytes": 2704,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.original_source_evidence",
+      "bytes": 1348,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.rule_results_and_observed_values",
+      "bytes": 1067,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.candidate_state",
+      "bytes": 396,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.timestamps",
+      "bytes": 235,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.44.failed_rules",
+      "bytes": 215,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.44.source_url",
+      "bytes": 110,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.52",
+      "bytes": 461344,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision",
+      "bytes": 443805,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.extraction",
+      "bytes": 1548,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.reasons",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.source_url",
+      "bytes": 151,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.headline",
+      "bytes": 119,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.52.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.52.latest_execution_evaluation",
+      "bytes": 4139,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.latest_execution_status_evidence",
+      "bytes": 4139,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.premarket_evidence",
+      "bytes": 3541,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.rule_results_and_observed_values",
+      "bytes": 1557,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.original_source_evidence",
+      "bytes": 1389,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.candidate_state",
+      "bytes": 876,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.failed_rules",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.52.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.52.source_url",
+      "bytes": 151,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.47",
+      "bytes": 461274,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision",
+      "bytes": 443795,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.extraction",
+      "bytes": 1548,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.reasons",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.source_url",
+      "bytes": 147,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.headline",
+      "bytes": 113,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.47.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.47.latest_execution_evaluation",
+      "bytes": 4134,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.latest_execution_status_evidence",
+      "bytes": 4134,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.premarket_evidence",
+      "bytes": 3522,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.rule_results_and_observed_values",
+      "bytes": 1556,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.original_source_evidence",
+      "bytes": 1363,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.candidate_state",
+      "bytes": 876,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.failed_rules",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.47.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.47.source_url",
+      "bytes": 147,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.46",
+      "bytes": 461203,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision",
+      "bytes": 443759,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.extraction",
+      "bytes": 1475,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.reasons",
+      "bytes": 657,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.source_url",
+      "bytes": 176,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.headline",
+      "bytes": 159,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.46.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.46.latest_execution_evaluation",
+      "bytes": 4087,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.latest_execution_status_evidence",
+      "bytes": 4087,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.premarket_evidence",
+      "bytes": 3521,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.rule_results_and_observed_values",
+      "bytes": 1518,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.original_source_evidence",
+      "bytes": 1508,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.candidate_state",
+      "bytes": 838,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.failed_rules",
+      "bytes": 657,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.46.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.46.source_url",
+      "bytes": 176,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.53",
+      "bytes": 461113,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision",
+      "bytes": 443754,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.extraction",
+      "bytes": 1548,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.reasons",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.source_url",
+      "bytes": 130,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.headline",
+      "bytes": 89,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.53.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.53.latest_execution_evaluation",
+      "bytes": 4116,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.latest_execution_status_evidence",
+      "bytes": 4116,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.premarket_evidence",
+      "bytes": 3481,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.rule_results_and_observed_values",
+      "bytes": 1555,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.original_source_evidence",
+      "bytes": 1338,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.candidate_state",
+      "bytes": 876,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.failed_rules",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.53.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.53.source_url",
+      "bytes": 130,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.56",
+      "bytes": 461099,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision",
+      "bytes": 443750,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.extraction",
+      "bytes": 1548,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.reasons",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.source_url",
+      "bytes": 135,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.headline",
+      "bytes": 80,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.56.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.56.latest_execution_evaluation",
+      "bytes": 4121,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.latest_execution_status_evidence",
+      "bytes": 4121,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.premarket_evidence",
+      "bytes": 3476,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.rule_results_and_observed_values",
+      "bytes": 1555,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.original_source_evidence",
+      "bytes": 1318,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.candidate_state",
+      "bytes": 876,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.failed_rules",
+      "bytes": 695,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.56.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.56.source_url",
+      "bytes": 135,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.6",
+      "bytes": 461038,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision",
+      "bytes": 443725,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.extraction",
+      "bytes": 1475,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.reasons",
+      "bytes": 675,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.headline",
+      "bytes": 143,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.source_url",
+      "bytes": 140,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.6.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.6.latest_execution_evaluation",
+      "bytes": 4089,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.latest_execution_status_evidence",
+      "bytes": 4089,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.premarket_evidence",
+      "bytes": 3488,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.rule_results_and_observed_values",
+      "bytes": 1538,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.original_source_evidence",
+      "bytes": 1386,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.candidate_state",
+      "bytes": 856,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.failed_rules",
+      "bytes": 675,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.6.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.6.source_url",
+      "bytes": 140,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.43",
+      "bytes": 461015,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision",
+      "bytes": 443741,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.extraction",
+      "bytes": 1475,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.reasons",
+      "bytes": 639,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.source_url",
+      "bytes": 176,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.headline",
+      "bytes": 159,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.43.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.43.latest_execution_evaluation",
+      "bytes": 4051,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.latest_execution_status_evidence",
+      "bytes": 4051,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.premarket_evidence",
+      "bytes": 3454,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.original_source_evidence",
+      "bytes": 1508,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.rule_results_and_observed_values",
+      "bytes": 1500,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.candidate_state",
+      "bytes": 820,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.failed_rules",
+      "bytes": 639,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.43.timestamps",
+      "bytes": 276,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.43.source_url",
+      "bytes": 176,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.2",
+      "bytes": 460884,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision",
+      "bytes": 443669,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.extraction",
+      "bytes": 1475,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.reasons",
+      "bytes": 675,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.source_url",
+      "bytes": 142,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.headline",
+      "bytes": 85,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.2.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.2.latest_execution_evaluation",
+      "bytes": 4091,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.latest_execution_status_evidence",
+      "bytes": 4091,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.premarket_evidence",
+      "bytes": 3432,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.rule_results_and_observed_values",
+      "bytes": 1538,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.original_source_evidence",
+      "bytes": 1338,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.candidate_state",
+      "bytes": 856,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.failed_rules",
+      "bytes": 675,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.2.timestamps",
+      "bytes": 253,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.2.source_url",
+      "bytes": 142,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.15",
+      "bytes": 460571,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision",
+      "bytes": 443723,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.official_context",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.extraction",
+      "bytes": 1491,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.reasons",
+      "bytes": 649,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.market_snapshot",
+      "bytes": 437,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.source_url",
+      "bytes": 168,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.headline",
+      "bytes": 122,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.evidence_ids",
+      "bytes": 68,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.decision_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.event_cluster_id",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.15.original_decision.extraction_sha256",
+      "bytes": 66,
+      "type": "str"
+    },
+    {
+      "path": "report.news_decisions.15.latest_execution_evaluation",
+      "bytes": 4005,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.latest_execution_status_evidence",
+      "bytes": 4005,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.premarket_evidence",
+      "bytes": 3274,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.rule_results_and_observed_values",
+      "bytes": 1451,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.original_source_evidence",
+      "bytes": 1421,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.candidate_state",
+      "bytes": 830,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.failed_rules",
+      "bytes": 649,
+      "type": "list"
+    },
+    {
+      "path": "report.news_decisions.15.timestamps",
+      "bytes": 246,
+      "type": "dict"
+    },
+    {
+      "path": "report.news_decisions.15.source_url",
+      "bytes": 168,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline",
+      "bytes": 1027223,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.229",
+      "bytes": 439833,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.229.evidence",
+      "bytes": 439697,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.229.evidence.evidence",
+      "bytes": 428986,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.229.evidence.scheduled_macro_events",
+      "bytes": 5952,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.229.evidence.macro_risk_windows",
+      "bytes": 3584,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.229.evidence.halts",
+      "bytes": 921,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.229.evidence.observed_at",
+      "bytes": 29,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.229.evidence.macro_calendar_available_at",
+      "bytes": 29,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.229.evidence.macro_calendar_covers_until",
+      "bytes": 22,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.229.evidence.errors",
+      "bytes": 2,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.229.event_id",
+      "bytes": 38,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.229.at",
+      "bytes": 34,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.229.kind",
+      "bytes": 18,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.228",
+      "bytes": 194616,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence",
+      "bytes": 194481,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.news",
+      "bytes": 178300,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.228.evidence.companies",
+      "bytes": 5040,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.source_capabilities",
+      "bytes": 4462,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.latest_poll",
+      "bytes": 2102,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.blocking_reason_counts",
+      "bytes": 1084,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.funnel",
+      "bytes": 839,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.capability_gaps",
+      "bytes": 767,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.228.evidence.coverage",
+      "bytes": 320,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.display",
+      "bytes": 266,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.228.evidence.older_context_evidence_ids",
+      "bytes": 136,
+      "type": "list"
+    },
+    {
+      "path": "report.timeline.228.event_id",
+      "bytes": 38,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.228.at",
+      "bytes": 34,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.228.kind",
+      "bytes": 17,
+      "type": "str"
+    },
+    {
+      "path": "report.timeline.180",
+      "bytes": 9907,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.204",
+      "bytes": 4192,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.189",
+      "bytes": 4187,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.216",
+      "bytes": 4174,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.207",
+      "bytes": 4169,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.58",
+      "bytes": 4144,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.70",
+      "bytes": 4142,
+      "type": "dict"
+    },
+    {
+      "path": "report.timeline.186",
+      "bytes": 4140,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations",
+      "bytes": 228993,
+      "type": "list"
+    },
+    {
+      "path": "report.candidate_evaluations.42",
+      "bytes": 9907,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.50",
+      "bytes": 4192,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.45",
+      "bytes": 4187,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.54",
+      "bytes": 4174,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.51",
+      "bytes": 4169,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.2",
+      "bytes": 4144,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.6",
+      "bytes": 4142,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.44",
+      "bytes": 4140,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.41",
+      "bytes": 4104,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_evaluations.15",
+      "bytes": 4058,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief",
+      "bytes": 194616,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence",
+      "bytes": 194481,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news",
+      "bytes": 178300,
+      "type": "list"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.50",
+      "bytes": 3541,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.45",
+      "bytes": 3522,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.44",
+      "bytes": 3521,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.6",
+      "bytes": 3488,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.51",
+      "bytes": 3481,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.54",
+      "bytes": 3476,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.41",
+      "bytes": 3454,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.2",
+      "bytes": 3432,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.15",
+      "bytes": 3274,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.news.14",
+      "bytes": 3254,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.companies",
+      "bytes": 5040,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.source_capabilities",
+      "bytes": 4462,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.latest_poll",
+      "bytes": 2102,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.blocking_reason_counts",
+      "bytes": 1084,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.funnel",
+      "bytes": 839,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.capability_gaps",
+      "bytes": 767,
+      "type": "list"
+    },
+    {
+      "path": "report.premarket_brief.evidence.coverage",
+      "bytes": 320,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.display",
+      "bytes": 266,
+      "type": "dict"
+    },
+    {
+      "path": "report.premarket_brief.evidence.older_context_evidence_ids",
+      "bytes": 136,
+      "type": "list"
+    },
+    {
+      "path": "report.premarket_brief.event_id",
+      "bytes": 38,
+      "type": "str"
+    },
+    {
+      "path": "report.premarket_brief.at",
+      "bytes": 34,
+      "type": "str"
+    },
+    {
+      "path": "report.premarket_brief.kind",
+      "bytes": 17,
+      "type": "str"
+    },
+    {
+      "path": "report.equipment_test",
+      "bytes": 87162,
+      "type": "dict"
+    },
+    {
+      "path": "report.candidate_state_table_snapshot",
+      "bytes": 51497,
+      "type": "list"
+    },
+    {
+      "path": "report.candidate_states",
+      "bytes": 49369,
+      "type": "list"
+    },
+    {
+      "path": "report.all_execution_economics",
+      "bytes": 28863,
+      "type": "dict"
+    },
+    {
+      "path": "report.protocol",
+      "bytes": 13314,
+      "type": "dict"
+    },
+    {
+      "path": "report.prospective_diagnostics",
+      "bytes": 6634,
+      "type": "dict"
+    }
+  ]
+}

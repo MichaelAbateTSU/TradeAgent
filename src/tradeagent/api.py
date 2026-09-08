@@ -47,6 +47,8 @@ from tradeagent.persistence import (
 )
 from tradeagent.persistence import events as stored_events
 from tradeagent.reporting_reads import (
+    ReportingReadModelIncomplete,
+    ReportPayloadTooLargeError,
     payload_from_projection,
     projected_payload,
     stream_rows,
@@ -415,6 +417,7 @@ DASHBOARD = """<!doctype html>
     <div class="card"><div>Shadow NAV</div><div id="shadow-nav" class="value">-</div></div>
     <div class="card"><div>Recent news</div><div id="news-count" class="value">-</div></div>
   </section>
+  <p id="statistics-status">Hosted counts are sampled once per minute; readiness is checked separately.</p>
   <section class="card"><h2>Recent experiments</h2>
     <table><thead><tr><th>ID</th><th>Strategy</th><th>Seed</th><th>Qualified</th><th>Git SHA</th></tr></thead>
     <tbody id="experiment-rows"></tbody></table>
@@ -480,6 +483,9 @@ DASHBOARD = """<!doctype html>
     function renderRuntime(runtime) {
       document.querySelector('#hosted-bars').textContent = runtime.market_bars ?? '-';
       document.querySelector('#hosted-quotes').textContent = runtime.market_quotes ?? '-';
+      document.querySelector('#statistics-status').textContent = runtime.statistics_as_of
+        ? `Hosted counts observed ${new Date(runtime.statistics_as_of).toLocaleTimeString()}; cached for up to ${runtime.statistics_cache_seconds}s. Readiness is checked separately.`
+        : 'Hosted counts unavailable; readiness is checked separately.';
       document.querySelector('#shadow-nav').textContent =
         runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
     }
@@ -569,7 +575,10 @@ def create_app(
     experiments_path: Path = Path("data/experiments.db"),
     production_database_url: str | None = None,
     overview_cache_seconds: float = 15.0,
+    statistics_cache_seconds: float = 60.0,
 ) -> FastAPI:
+    if not 0 <= statistics_cache_seconds <= 300:
+        raise ValueError("statistics cache duration must be between zero and 300 seconds")
     shared_database = (
         Database(production_database_url, pool_size=2) if production_database_url else None
     )
@@ -601,6 +610,50 @@ def create_app(
     cached_overview: dict[str, object] | None = None
     overview_expires = 0.0
     overview_failed = False
+    statistics_lock = Lock()
+    cached_statistics: dict[str, Any] | None = None
+    statistics_expires = 0.0
+    statistics_failed = False
+
+    def reporting_statistics(database: Database) -> dict[str, Any]:
+        nonlocal cached_statistics, statistics_expires, statistics_failed
+        with statistics_lock:
+            if monotonic() < statistics_expires:
+                if statistics_failed:
+                    raise HTTPException(status_code=503, detail="Production statistics unavailable")
+                assert cached_statistics is not None
+                return cached_statistics
+            try:
+                bars, quotes, trades = ProductionRepository(database).market_data_counts()
+                with database.begin() as connection:
+                    counts = {
+                        str(kind): int(count)
+                        for kind, count in connection.execute(
+                            select(stored_events.c.event_type, func.count()).group_by(
+                                stored_events.c.event_type
+                            )
+                        )
+                    }
+                cached_statistics = {
+                    "market_bars": bars,
+                    "market_quotes": quotes,
+                    "market_trades": trades,
+                    "event_count": sum(counts.values()),
+                    "event_counts": counts,
+                    "statistics_as_of": datetime.now(UTC).isoformat(),
+                    "statistics_cache_seconds": statistics_cache_seconds,
+                    "statistics_basis": "exact counts at the recorded observation, not live health",
+                }
+            except SQLAlchemyError as error:
+                cached_statistics = None
+                statistics_failed = True
+                statistics_expires = monotonic() + 5.0
+                raise HTTPException(
+                    status_code=503, detail="Production statistics unavailable"
+                ) from error
+            statistics_failed = False
+            statistics_expires = monotonic() + statistics_cache_seconds
+            return cached_statistics
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def dashboard() -> str:
@@ -643,7 +696,7 @@ def create_app(
                     "live_trading_available": False,
                 }
             )
-        except SQLAlchemyError:
+        except (SQLAlchemyError, ReportingReadModelIncomplete):
             return JSONResponse(
                 {
                     "ready": False,
@@ -808,6 +861,12 @@ def create_app(
             )
         try:
             return read_event_session_report(cohort_id, session_date, report_id)
+        except (ReportingReadModelIncomplete, ReportPayloadTooLargeError) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=str(error),
+                headers={"Retry-After": "60"},
+            ) from error
         finally:
             report_lock.release()
 
@@ -860,17 +919,15 @@ def create_app(
             try:
                 with production_database() as database:
                     repository = ProductionRepository(database)
-                    heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
-                    cohort = heartbeat[2].get("cohort_id") if heartbeat else None
+                    statistics = reporting_statistics(database)
                     with database.begin() as connection:
-                        counts = {
-                            str(kind): int(count)
-                            for kind, count in connection.execute(
-                                select(stored_events.c.event_type, func.count()).group_by(
-                                    stored_events.c.event_type
-                                )
+                        cohort = connection.scalar(
+                            select(heartbeats.c.details["cohort_id"]).where(
+                                heartbeats.c.service_name == "tradeagent-event-worker"
                             )
-                        }
+                        )
+                    kill = repository.get_control("kill_switch") or "not_recorded"
+                    pause = repository.get_control(f"{cohort}:pause") if cohort else None
                     return {
                         "mode": "paper",
                         "trading_enabled": False,
@@ -878,13 +935,14 @@ def create_app(
                         "state_source": "production_database",
                         "controls_scope": "global kill switch and current heartbeat cohort pause",
                         "as_of": datetime.now(UTC).isoformat(),
-                        "kill_switch": repository.get_control("kill_switch") or "not_recorded",
-                        "cohort_pause": repository.get_control(f"{cohort}:pause")
-                        if cohort
-                        else None,
+                        "kill_switch": kill,
+                        "cohort_pause": pause,
                         "cohort_id": cohort,
-                        "event_count": sum(counts.values()),
-                        "event_counts": counts,
+                        "event_count": statistics["event_count"],
+                        "event_counts": statistics["event_counts"],
+                        "statistics_as_of": statistics["statistics_as_of"],
+                        "statistics_cache_seconds": statistics["statistics_cache_seconds"],
+                        "statistics_basis": statistics["statistics_basis"],
                         "account": None,
                         "account_status": "not_a_broker_account_snapshot",
                     }
@@ -941,7 +999,7 @@ def create_app(
             }
         with production_database() as database:
             repository = ProductionRepository(database)
-            bars, quotes, trades = repository.market_data_counts()
+            statistics = reporting_statistics(database)
             outcome = repository.latest_event_payload("shadow_outcome")
             operational = _operational_status(database)
             roles = operational["roles"]
@@ -951,9 +1009,12 @@ def create_app(
             market_feed = roles["tradeagent-shadow-market-feed"]
             return {
                 "connected": True,
-                "market_bars": bars,
-                "market_quotes": quotes,
-                "market_trades": trades,
+                "market_bars": statistics["market_bars"],
+                "market_quotes": statistics["market_quotes"],
+                "market_trades": statistics["market_trades"],
+                "statistics_as_of": statistics["statistics_as_of"],
+                "statistics_cache_seconds": statistics["statistics_cache_seconds"],
+                "statistics_basis": statistics["statistics_basis"],
                 "shadow_nav": outcome.get("shadow_nav") if outcome else None,
                 "worker_heartbeat": worker["heartbeat_at"],
                 "worker_status": worker,

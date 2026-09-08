@@ -1,0 +1,11 @@
+{
+  "createdAt": "2026-09-08T16:15:50.887452Z",
+  "id": "job-dag39dh594qs73fmkot0",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+  "status": "failed",
+  "failure": "Diagnostic harness parsed JSON colons as SQLAlchemy bind parameters; metadata query was not executed.",
+  "finishedAt": "2026-09-08T16:16:14Z",
+  "startedAt": "2026-09-08T16:15:50Z",
+  "diagnostic_command_sha256": "7bcebf48882b11d504bdc6d4bad53418cc16151061047fcf54af672b316f5fd6"
+}

@@ -29,6 +29,20 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
 1. Confirm the actual service ID, live deployment SHA, start command, plan and
    migration. Observe normal shutdown/lease expiry and the new lease owner.
    A starting process or old heartbeat is not a successful handoff.
+   Serialize a new migration through one application deployment before launching
+   the others. After `0011_reporting_metadata` and all new writers are live, run
+   the one-time, versioned historical projection backfill as a same-service job:
+
+   ```text
+   python -u -m infra.render.backfill_reporting_metadata
+   ```
+
+   Require `METADATA_BACKFILL` with `remaining: 0`. This reads originals one at a
+   time in at-most-32-ID pages, throttles for recorder backlog, and writes only
+   the compact sidecar. It never rewrites original events, controls, or orders.
+   Interrupted pages roll back; reruns safely skip completed projections.
+   Historical PostgreSQL reports intentionally return unavailable until their
+   metadata is complete, rather than silently omitting rows or reparsing gigabytes.
 2. Run the same-service probe as a Render job using the deployed environment:
 
    ```text
@@ -68,7 +82,10 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    drops/new gaps, and non-advancing committed exchange timestamps or raw data counts.
    Inspect database logs for backend termination/recovery too; memory sampling can
    miss a peak. The dashboard uses one bounded two-connection pool, not one pool
-   per request. Migration `0010_event_audit_lookup` must be valid before acceptance.
+   per request. Migration `0011_reporting_metadata`, the valid audit lookup
+   index, and zero `reporting_metadata_missing` in same-service snapshots are
+   required. Hosted totals are timestamped, singleflight snapshots cached for
+   60 seconds; `/ready`, role progress, and trading controls are not that cache.
    Also load the full session report on demand; it is not a hot polling endpoint.
    For a single-role revision, explicitly verify each role's own expected SHA rather
    than pretending the unchanged roles received that revision.

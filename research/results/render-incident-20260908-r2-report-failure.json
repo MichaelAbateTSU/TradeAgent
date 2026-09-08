@@ -1,0 +1,17 @@
+{
+  "commit": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+  "job_id": "job-dag3e0mq1p3s73e688a0",
+  "cohort_id": "v20-incident-20260908",
+  "outcome": "failed",
+  "failed_operation": "INSERT INTO events_v2, event_type=event_session_report",
+  "attempted_event_id": "28b0aaec-09ef-59b7-aae6-ed5c249bd849",
+  "attempted_occurred_at": "2026-09-08T16:25:54.107572+00:00",
+  "attempted_recorded_at": "2026-09-08T16:26:06.417025+00:00",
+  "payload_repr_characters": 27496887,
+  "error_type": "sqlalchemy.exc.OperationalError",
+  "driver_error": "psycopg.OperationalError: consuming input failed: SSL error: unexpected eof while reading",
+  "database_observation": "A PostgreSQL backend was killed by signal 9 and the database recovered during the same interval; see r2-database-interruption.json.",
+  "release_email_enqueued": false,
+  "test_orders_submitted": 0,
+  "read_only_reproduction": "render-incident-20260908-report-size.json"
+}

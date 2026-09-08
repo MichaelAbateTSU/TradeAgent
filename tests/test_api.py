@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from tradeagent.api import create_app
@@ -132,6 +133,131 @@ def test_console_exposes_production_runtime_state(tmp_path: Path) -> None:
         "items": [],
         "feed_heartbeat": None,
     }
+
+
+def test_production_statistics_are_singleflight_but_controls_and_roles_are_live(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Lock
+
+    import tradeagent.api as api
+
+    url = f"sqlite:///{tmp_path / 'sampled-counts.db'}"
+    clock = [100.0]
+    monkeypatch.setattr(api, "monotonic", lambda: clock[0])
+    calls = 0
+    lock = Lock()
+    original = ProductionRepository.market_data_counts
+
+    def count(repository: ProductionRepository) -> tuple[int, int, int]:
+        nonlocal calls
+        with lock:
+            calls += 1
+        time.sleep(0.03)
+        return original(repository)
+
+    monkeypatch.setattr(ProductionRepository, "market_data_counts", count)
+    with Database(url) as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        repository.append_event("test", {}, occurred_at=datetime.now(UTC), trace_id="one")
+        repository.heartbeat(
+            "tradeagent-event-worker",
+            "event",
+            {"cohort_id": "current"},
+            observed_at=datetime.now(UTC),
+        )
+        repository.heartbeat(
+            "tradeagent-shadow-recorder",
+            "recorder",
+            {"state": "healthy"},
+            observed_at=datetime.now(UTC),
+        )
+        repository.set_control("kill_switch", "inactive")
+        with TestClient(create_app(production_database_url=url)) as client:
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                responses = list(pool.map(client.get, ["/api/runtime", "/api/status"] * 12))
+            assert all(response.status_code == 200 for response in responses)
+            assert calls == 1
+            observed = responses[0].json()["statistics_as_of"]
+            assert {response.json()["statistics_as_of"] for response in responses} == {observed}
+            repository.append_event("test", {}, occurred_at=datetime.now(UTC), trace_id="two")
+            repository.set_control("kill_switch", "active")
+            repository.set_control("current:pause", "OPERATOR_PAUSE")
+            repository.heartbeat(
+                "tradeagent-shadow-recorder",
+                "recorder",
+                {"state": "degraded"},
+                observed_at=datetime.now(UTC),
+            )
+            status = client.get("/api/status").json()
+            assert status["event_count"] == 1
+            assert status["kill_switch"] == "active"
+            assert status["cohort_pause"] == "OPERATOR_PAUSE"
+            runtime = client.get("/api/runtime").json()
+            assert runtime["worker_status"]["reported"]["state"] == "degraded"
+            assert runtime["statistics_as_of"] == observed
+            assert calls == 1
+            clock[0] += 61
+            assert client.get("/api/status").json()["event_count"] == 2
+            assert calls == 2
+
+
+def test_statistics_failure_is_not_cached_as_healthy_or_retried_by_every_request(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sqlalchemy.exc import OperationalError
+
+    import tradeagent.api as api
+
+    url = f"sqlite:///{tmp_path / 'failed-counts.db'}"
+    with Database(url) as database:
+        database.initialize()
+    clock = [100.0]
+    monkeypatch.setattr(api, "monotonic", lambda: clock[0])
+    attempts = 0
+
+    def fail(_: ProductionRepository) -> tuple[int, int, int]:
+        nonlocal attempts
+        attempts += 1
+        raise OperationalError("count", {}, RuntimeError("database unavailable"))
+
+    monkeypatch.setattr(ProductionRepository, "market_data_counts", fail)
+    with TestClient(create_app(production_database_url=url)) as client:
+        assert client.get("/api/runtime").status_code == 503
+        assert client.get("/api/status").status_code == 503
+        assert attempts == 1
+        assert client.get("/ready").status_code == 200
+        clock[0] += 6
+        assert client.get("/api/runtime").status_code == 503
+        assert attempts == 2
+
+
+@pytest.mark.parametrize("error_kind", ["incomplete", "oversized"])
+def test_incomplete_production_report_is_explicitly_unavailable_and_releases_singleflight(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error_kind: str
+) -> None:
+    import tradeagent.api as api
+    from tradeagent.reporting_reads import ReportingReadModelIncomplete, ReportPayloadTooLargeError
+
+    url = f"sqlite:///{tmp_path / 'incomplete-report.db'}"
+    with Database(url) as database:
+        database.initialize()
+
+    def incomplete(*args, **kwargs):
+        if error_kind == "oversized":
+            raise ReportPayloadTooLargeError("missing-original")
+        raise ReportingReadModelIncomplete("missing-original")
+
+    monkeypatch.setattr(api, "session_report", incomplete)
+    with TestClient(create_app(production_database_url=url)) as client:
+        for _ in range(2):
+            response = client.get("/api/event-session-report?cohort_id=fixture")
+            assert response.status_code == 503
+            assert response.headers["Retry-After"] == "60"
+            assert "missing-original" in response.json()["detail"]
 
 
 def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path) -> None:

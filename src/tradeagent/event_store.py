@@ -247,8 +247,11 @@ class EventStore:
         trace_id: str,
         connection: Connection | None = None,
     ) -> None:
+        from tradeagent.persistence import append_reporting_metadata
+
+        event_id = str(uuid4())
         statement = insert(events).values(
-            event_id=str(uuid4()),
+            event_id=event_id,
             occurred_at=now,
             recorded_at=datetime.now(UTC),
             event_type=f"event_{kind}",
@@ -257,9 +260,11 @@ class EventStore:
         )
         if connection is not None:
             connection.execute(statement)
+            append_reporting_metadata(connection, event_id, f"event_{kind}", payload)
         else:
             with self.database.begin() as local:
                 local.execute(statement)
+                append_reporting_metadata(local, event_id, f"event_{kind}", payload)
 
     def linked_orders(self, cohort_id: str) -> list[dict[str, Any]]:
         with self.database.begin() as connection:

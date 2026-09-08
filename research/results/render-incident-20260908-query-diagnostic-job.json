@@ -5,5 +5,6 @@
   "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
   "status": "succeeded",
   "startedAt": "2026-09-08T15:32:37Z",
-  "finishedAt": "2026-09-08T15:33:07Z"
+  "finishedAt": "2026-09-08T15:33:07Z",
+  "diagnostic_command_sha256": "2cd5336543896b9738d53cb1837528e06bd9cb92b6e61fd80fb334a1dfa430c4"
 }

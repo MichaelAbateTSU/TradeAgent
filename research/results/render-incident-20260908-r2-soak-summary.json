@@ -1,0 +1,18 @@
+{
+  "commit": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+  "started_at": "2026-09-08T16:37:38.651554+00:00",
+  "finished_at": "2026-09-08T16:48:43.389451+00:00",
+  "duration_seconds": 664.737897,
+  "requests": 476,
+  "failures": [
+    "dashboard_request_failed",
+    "database:missing_memory_or_above_230_mib_acceptance_bound",
+    "recorder:unhealthy_or_dropped_packets",
+    "tradeagent-shadow-market-feed:stale_or_unhealthy",
+    "tradeagent-shadow-recorder:stale_or_unhealthy"
+  ],
+  "separate_report_test": "FAILED: 27.5MB report INSERT caused database backend SIG9/recovery; no email enqueued",
+  "raw_sha256": "bbca3ce674fcce515d939cd6f11a12166e5adf8c6be966b2bf91e3888499b55e",
+  "raw_bytes": 4566480,
+  "raw_archive": "render-incident-20260908-r2-soak.json.gz"
+}

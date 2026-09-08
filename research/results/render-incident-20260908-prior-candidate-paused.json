@@ -1,0 +1,998 @@
+{
+  "broker": {
+    "account_blocked": false,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "clock": {
+      "is_open": true,
+      "next_close": "2026-09-08T16:00:00-04:00",
+      "next_open": "2026-09-09T09:30:00-04:00",
+      "timestamp": "2026-09-08T12:10:55.152522-04:00"
+    },
+    "host": "https://paper-api.alpaca.markets",
+    "open_orders": 0,
+    "positions": 0,
+    "status": "ACTIVE",
+    "test_orders_submitted": 0,
+    "trading_blocked": false
+  },
+  "code_sha": "37c262b7419bed8c1ecaf2db561c4f3bc4bce04d",
+  "controls": {
+    "kill_switch": "active",
+    "v20-incident-20260908:pause": "OPERATOR_PAUSE",
+    "v20-tuesday-20260908-r2:pause": "OPERATOR_PAUSE",
+    "v20-tuesday-20260908-r3:pause": "OPERATOR_INCIDENT_REPAIR"
+  },
+  "database_select_one": 1,
+  "heartbeats": [
+    {
+      "details": {
+        "healthy": true
+      },
+      "instance_id": "srv-dadn8son74is73apqcc0-5dd78cfdc-s4w2d-reconciler",
+      "observed_at": "2026-09-08 15:25:15.569771+00:00",
+      "service_name": "tradeagent-reconciler"
+    },
+    {
+      "details": {
+        "event_age_seconds": 0.227988,
+        "last_market_event_at": "2026-09-08T15:25:15.565795+00:00",
+        "session_phase": "entry",
+        "stale_after_seconds": 60,
+        "state": "healthy"
+      },
+      "instance_id": "srv-dadn8son74is73apqcc0-5dd78cfdc-s4w2d-market-feed",
+      "observed_at": "2026-09-08 15:25:15.793783+00:00",
+      "service_name": "tradeagent-market-feed"
+    },
+    {
+      "details": {
+        "bars": 95,
+        "batch_write_seconds": 1.3439763532951474,
+        "closed": 0,
+        "commit_lag_seconds": 1.767292,
+        "committed": 266609,
+        "committed_event_age_seconds": 2.579429,
+        "decision_errors": 0,
+        "derived": {
+          "cumulative_evidence_complete": false,
+          "duplicate_minutes": 0,
+          "evidence_epoch": "7ebbb7f2-00e7-4417-98b0-b77e7aa662e9",
+          "frame_age_seconds": null,
+          "healthy": false,
+          "ignored_out_of_order_quotes": 0,
+          "last_unusable_frame": {
+            "bucket_start": "2026-09-08T16:00:00+00:00",
+            "discovered_event_at": "2026-09-08T16:05:00+00:00",
+            "frame_at": "2026-09-08T16:05:00+00:00",
+            "missing_minutes": {
+              "GLD": [
+                "2026-09-08T16:04:00+00:00"
+              ],
+              "IWM": [],
+              "QQQ": [],
+              "SPY": [],
+              "TLT": [
+                "2026-09-08T16:03:00+00:00"
+              ]
+            },
+            "reason": "incomplete_five_minute_bucket",
+            "usable": false
+          },
+          "last_usable_frame_at": null,
+          "pending_minutes": 24,
+          "state": "awaiting_complete_frame",
+          "unusable_frame_events": 4
+        },
+        "dropped_events": 0,
+        "duplicates": 37,
+        "event_age_seconds": 0.034635,
+        "events": 267176,
+        "exchange_to_commit_lag_seconds": 1.466196,
+        "execution_enabled": false,
+        "future_events": 0,
+        "gaps": 1,
+        "healthy": true,
+        "in_flight": 441,
+        "inserted": 266572,
+        "last_commit_at": "2026-09-08T16:10:41.377962+00:00",
+        "last_committed_event_at": "2026-09-08T16:10:39.911766+00:00",
+        "last_committed_received_at": "2026-09-08T16:10:39.947162+00:00",
+        "last_event_at": "2026-09-08T16:10:42.456560+00:00",
+        "last_market_commit_at": "2026-09-08T16:10:41.377962+00:00",
+        "last_received_at": "2026-09-08T16:10:42.491109+00:00",
+        "last_received_event_at": "2026-09-08T16:10:42.456560+00:00",
+        "late_events": 0,
+        "market_commit_age_seconds": 1.113233,
+        "max_receive_lag_seconds": 60.248754,
+        "mode": "shadow",
+        "notice_overflow": 0,
+        "oldest_uncommitted_age_seconds": 2.443336,
+        "persistence_error": null,
+        "queue_capacity": 20000,
+        "queue_depth": 126,
+        "quotes": 259840,
+        "receive_age_seconds": 8.6e-05,
+        "receive_lag_seconds": 0.034549,
+        "received": 267176,
+        "state": "healthy",
+        "stream": {
+          "authenticated": true,
+          "code": null,
+          "error": null,
+          "gap": false,
+          "last_event_at": "2026-09-08T16:10:42.456560+00:00",
+          "last_received_at": "2026-09-08T16:10:42.491109+00:00",
+          "observed_at": "2026-09-08T15:49:41.405463+00:00",
+          "reconnects": 0,
+          "retry_in_seconds": null,
+          "state": "subscribed",
+          "subscribed": true
+        },
+        "trades": 1956
+      },
+      "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+      "observed_at": "2026-09-08 16:10:42.491193+00:00",
+      "service_name": "tradeagent-shadow-recorder"
+    },
+    {
+      "details": {
+        "event_age_seconds": 5.167066,
+        "healthy": true,
+        "heartbeat_age_seconds": 2.587639,
+        "last_market_commit_at": "2026-09-08T16:10:41.377962+00:00",
+        "last_market_event_at": "2026-09-08T16:10:39.911766+00:00",
+        "last_received_market_event_at": "2026-09-08T16:10:42.456560+00:00",
+        "liveness_max_age_seconds": 60,
+        "market_commit_age_seconds": 3.70087,
+        "received_event_age_seconds": 2.622272,
+        "received_progress_age_seconds": 2.622272,
+        "recorder": {
+          "bars": 95,
+          "batch_write_seconds": 1.3439763532951474,
+          "closed": 0,
+          "commit_lag_seconds": 1.767292,
+          "committed": 266609,
+          "committed_event_age_seconds": 2.579429,
+          "decision_errors": 0,
+          "derived": {
+            "cumulative_evidence_complete": false,
+            "duplicate_minutes": 0,
+            "evidence_epoch": "7ebbb7f2-00e7-4417-98b0-b77e7aa662e9",
+            "frame_age_seconds": null,
+            "healthy": false,
+            "ignored_out_of_order_quotes": 0,
+            "last_unusable_frame": {
+              "bucket_start": "2026-09-08T16:00:00+00:00",
+              "discovered_event_at": "2026-09-08T16:05:00+00:00",
+              "frame_at": "2026-09-08T16:05:00+00:00",
+              "missing_minutes": {
+                "GLD": [
+                  "2026-09-08T16:04:00+00:00"
+                ],
+                "IWM": [],
+                "QQQ": [],
+                "SPY": [],
+                "TLT": [
+                  "2026-09-08T16:03:00+00:00"
+                ]
+              },
+              "reason": "incomplete_five_minute_bucket",
+              "usable": false
+            },
+            "last_usable_frame_at": null,
+            "pending_minutes": 24,
+            "state": "awaiting_complete_frame",
+            "unusable_frame_events": 4
+          },
+          "dropped_events": 0,
+          "duplicates": 37,
+          "event_age_seconds": 0.034635,
+          "events": 267176,
+          "exchange_to_commit_lag_seconds": 1.466196,
+          "execution_enabled": false,
+          "future_events": 0,
+          "gaps": 1,
+          "healthy": true,
+          "in_flight": 441,
+          "inserted": 266572,
+          "last_commit_at": "2026-09-08T16:10:41.377962+00:00",
+          "last_committed_event_at": "2026-09-08T16:10:39.911766+00:00",
+          "last_committed_received_at": "2026-09-08T16:10:39.947162+00:00",
+          "last_event_at": "2026-09-08T16:10:42.456560+00:00",
+          "last_market_commit_at": "2026-09-08T16:10:41.377962+00:00",
+          "last_received_at": "2026-09-08T16:10:42.491109+00:00",
+          "last_received_event_at": "2026-09-08T16:10:42.456560+00:00",
+          "late_events": 0,
+          "market_commit_age_seconds": 1.113233,
+          "max_receive_lag_seconds": 60.248754,
+          "mode": "shadow",
+          "notice_overflow": 0,
+          "oldest_uncommitted_age_seconds": 2.443336,
+          "persistence_error": null,
+          "queue_capacity": 20000,
+          "queue_depth": 126,
+          "quotes": 259840,
+          "receive_age_seconds": 8.6e-05,
+          "receive_lag_seconds": 0.034549,
+          "received": 267176,
+          "state": "healthy",
+          "stream": {
+            "authenticated": true,
+            "code": null,
+            "error": null,
+            "gap": false,
+            "last_event_at": "2026-09-08T16:10:42.456560+00:00",
+            "last_received_at": "2026-09-08T16:10:42.491109+00:00",
+            "observed_at": "2026-09-08T15:49:41.405463+00:00",
+            "reconnects": 0,
+            "retry_in_seconds": null,
+            "state": "subscribed",
+            "subscribed": true
+          },
+          "trades": 1956
+        },
+        "recorder_alive": true,
+        "session_phase": "entry",
+        "stale_after_seconds": 10,
+        "state": "healthy"
+      },
+      "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+      "observed_at": "2026-09-08 16:10:45.078832+00:00",
+      "service_name": "tradeagent-shadow-market-feed"
+    },
+    {
+      "details": {
+        "bars": 0,
+        "closed": 0,
+        "events": 735,
+        "mode": "shadow",
+        "quotes": 724,
+        "state": "stopped",
+        "trades": 10
+      },
+      "instance_id": "srv-dadn8son74is73apqcc0-5dd78cfdc-s4w2d",
+      "observed_at": "2026-09-08 15:25:28.593523+00:00",
+      "service_name": "tradeagent-worker"
+    },
+    {
+      "details": {
+        "blockers": [
+          "GLOBAL_KILL_SWITCH"
+        ],
+        "broker_stream": {
+          "authenticated": true,
+          "authenticated_at": "2026-09-08T15:49:43.802113+00:00",
+          "connected": true,
+          "connected_at": "2026-09-08T15:49:43.734147+00:00",
+          "connection_attempts": 1,
+          "connections": 1,
+          "disconnects": 0,
+          "dropped_updates": 0,
+          "endpoint": "wss://paper-api.alpaca.markets/stream",
+          "error_count": 0,
+          "gap_count": 0,
+          "gap_started_at": null,
+          "has_gaps": false,
+          "invalid_messages": 0,
+          "last_error": null,
+          "last_error_at": null,
+          "last_gap_at": null,
+          "last_gap_reason": null,
+          "last_message_at": "2026-09-08T15:49:43.869671+00:00",
+          "last_update_at": null,
+          "messages_received": 2,
+          "observed_at": "2026-09-08T16:10:31.376951+00:00",
+          "queue_capacity": 1024,
+          "queue_depth": 0,
+          "received_updates": 0,
+          "reconnects": 0,
+          "retry_delay_seconds": 0,
+          "running": true,
+          "started_at": "2026-09-08T15:49:43.490109+00:00",
+          "state": "subscribed",
+          "stopped_at": null,
+          "subscribed": true,
+          "subscribed_at": "2026-09-08T15:49:43.869738+00:00"
+        },
+        "calibration": {
+          "blocking_evidence": {
+            "reason": "no earlier operational observation"
+          },
+          "entry_attempts": 0,
+          "missed_at": "2026-09-08T15:36:27.884527+00:00",
+          "outcome": "MISSED",
+          "state": "missed_window_no_trade"
+        },
+        "code_sha": "37c262b7419bed8c1ecaf2db561c4f3bc4bce04d",
+        "cohort_id": "v20-incident-20260908",
+        "config_hash": "36c956d7796f11f045b83077d1dc45b4f25962bd7f55c6a892b5d2f04c129320",
+        "edge_established": false,
+        "events_received": 2,
+        "execution_feed": "iex",
+        "last_successful_source_at": "2026-09-08T16:10:26.379836+00:00",
+        "limitations": [
+          "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY",
+          "IEX_PRACTICE_ONLY_NOT_QUALIFICATION_EVIDENCE"
+        ],
+        "market_errors": [],
+        "market_phase": "entry",
+        "mode": "experimental-paper",
+        "next_open": "2026-09-09T09:30:00-04:00",
+        "official_context": {
+          "availability_status_is_as_of_last_poll": true,
+          "calendar_cache_seconds": 3600,
+          "halt_available": true,
+          "halt_cache_seconds": 60,
+          "halt_max_age_seconds": 90,
+          "iex_is_nbbo": false,
+          "last_errors": [],
+          "macro_available": true,
+          "macro_precision": "FOMC_date_only_whole_day_windows_BLS_explicit_times",
+          "macro_scope": "published_FOMC_meeting_days_and_all_scheduled_BLS_releases",
+          "observed_at": "2026-09-08T16:10:21.049744+00:00",
+          "official_urls": [
+            "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+            "https://www.bls.gov/schedule/news_release/bls.ics",
+            "https://www.nasdaqtrader.com/rss.aspx?feed=tradehalts"
+          ],
+          "paper_execution_authorized": false,
+          "quote_size_documentation": [
+            "https://docs.alpaca.markets/us/reference/stocklatestquotes-1",
+            "https://docs.alpaca.markets/us/v1.1/changelog/marketdata-bid-and-ask-size-display-change"
+          ],
+          "quote_size_rest_contract": "shares_on_current_latest_REST_sip_and_iex",
+          "unscheduled_macro_coverage": "not_available"
+        },
+        "operational_certificate": null,
+        "practice_start_date": "2026-09-08",
+        "premarket_brief": {
+          "capability_gaps": [
+            "licensed_news_metadata_only_no_body_extraction",
+            "issuer_feed:AAPL:publication_missing_updated_is_not_publication",
+            "issuer_feed:MSFT:verified_cloud_blog_feed_only_not_full_IR_or_corporate_news:https://www.microsoft.com/en-us/Investor/rss/investor.rss_returned_404;current_IR_site_links_news.microsoft.com_outside_existing_allowlist",
+            "sec:MSFT:prior_comparison:unavailable_context_request_failed",
+            "sec:MSFT:prior_comparison:source_document_exceeds_size_bound",
+            "finite_official_feeds_do_not_prove_all_company_news_or_archived_feed_coverage",
+            "SEC_acceptance_is_not_proven_publication",
+            "older_current_version_does_not_prove_pre_event_availability",
+            "deterministic_extraction_supports_only_existing_explicit_numeric_grammar",
+            "point_in_time_consensus_unavailable"
+          ],
+          "coverage": {
+            "complete_through_observation": true,
+            "coverage_start": "2026-09-04T20:00:00+00:00",
+            "coverage_watermark": "2026-09-08T16:09:33.523384+00:00",
+            "incomplete_polls": 1,
+            "required_through": "2026-09-08T13:30:00+00:00",
+            "scope": "configured_sources_only_not_all_company_news",
+            "uncovered_end": null,
+            "uncovered_start": null
+          },
+          "funnel": {
+            "attempted_entries": null,
+            "completed_round_trips": null,
+            "duplicate_versions": 8,
+            "execution_count_status": "not_counted_by_news_brief_use_order_ledger",
+            "extractions_pending": 0,
+            "fills": null,
+            "future_publication_timestamp_records": 0,
+            "invalid_evidence_records": 0,
+            "invalid_extraction_records": 0,
+            "missing_publication_timestamps": 1,
+            "new_evidence_versions_received": 12,
+            "older_context_documents": 2,
+            "raw_count_basis": "provider_items_feed_entries_and_fetched_documents_including_duplicates_repolls_cache",
+            "raw_items_received": 2379,
+            "revisions": 8,
+            "risk_approved_decisions": null,
+            "source_health_checks": 329,
+            "strategy_candidates": 0,
+            "supported_company_matches": 56,
+            "synthetic_or_replay_evidence_excluded": 0,
+            "unique_events": 48,
+            "unique_evidence_versions": 56,
+            "valid_quantitative_events": 0,
+            "verified_issuer_matches": 1
+          },
+          "preparation_status": "missed_premarket_deadline",
+          "prepared_before_open": false,
+          "snapshot_id": "9e8ea837-4d66-4257-8fc4-20227cda9750"
+        },
+        "purpose": "iex-practice",
+        "qualification_eligible": false,
+        "session_budget": {
+          "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+          "equipment_client_order_id": null,
+          "equipment_cohort_id": null,
+          "equipment_test_id": "56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d",
+          "news_entries_reserved": 0,
+          "planned_session_date": "2026-09-08",
+          "session_id": "f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+          "total_entries_reserved": 0
+        },
+        "session_plan": {
+          "calendar_source": "https://paper-api.alpaca.markets/v2/calendar",
+          "previous_session_close": "2026-09-04T20:00:00Z",
+          "session_close": "2026-09-08T20:00:00Z",
+          "session_date": "2026-09-08",
+          "session_open": "2026-09-08T13:30:00Z",
+          "verified_at": "2026-09-08T15:32:41.045683Z"
+        },
+        "source_capabilities": {
+          "cache_ttl_seconds": 60,
+          "extraction_scope": "existing_deterministic_grammar_only_no_inference",
+          "historical_revision_delivery": "not_provided_no_historical_receipt_reconstruction",
+          "http_cache": {
+            "bytes": 1106422,
+            "entries": 36,
+            "evictions": 0,
+            "evidence_history_evicted": false,
+            "maximum_bytes": 16000000,
+            "maximum_entries": 64
+          },
+          "inference_provider": null,
+          "inference_status": "missing_deterministic_fallback",
+          "issuer_feed_status": {
+            "AAPL": {
+              "cache_hits": 1,
+              "coverage_complete": true,
+              "discovery_time_basis": "item_updated_or_published_never_updated_as_publication",
+              "feed_entries_observed": 20,
+              "feed_entries_without_publication_time": 20,
+              "feed_oldest_discovery_time": "2026-06-18T14:59:41.587000+00:00",
+              "feed_received_at": "2026-09-08T16:03:57.017012+00:00",
+              "feed_sha256": "6eace052b20e5eb0ecfde7b5dd0ad5ff2bc3d92d3adb6e76ba5d65a78cb7f86a",
+              "feed_verified_at": "2026-09-08T16:09:33.523384+00:00",
+              "gap": null,
+              "http_attempts": 0,
+              "http_successes": 0,
+              "pages": 0,
+              "publication_timestamp_status": "feed_publication_missing_requires_explicit_document_timestamp",
+              "raw_items_received": 20,
+              "rejected_link_count": 0,
+              "rejected_link_reasons": [],
+              "revision_timestamp_status": "item_revision_times_available",
+              "scope": "current_feed_allowlisted_article_URLs_only_no_archive_pagination",
+              "status": "healthy",
+              "url": "https://www.apple.com/newsroom/rss-feed.rss"
+            },
+            "MSFT": {
+              "cache_hits": 1,
+              "coverage_complete": true,
+              "discovery_time_basis": "item_updated_or_published_never_updated_as_publication",
+              "feed_entries_observed": 10,
+              "feed_entries_without_publication_time": 0,
+              "feed_oldest_discovery_time": "2026-06-29T16:00:00+00:00",
+              "feed_received_at": "2026-09-08T15:49:48.271760+00:00",
+              "feed_sha256": "9f831d63a8a766df96e4b2f48804ce70e4015386276b3b35fad9f0995ffffc84",
+              "feed_verified_at": "2026-09-08T16:09:33.724420+00:00",
+              "gap": "verified_cloud_blog_feed_only_not_full_IR_or_corporate_news:https://www.microsoft.com/en-us/Investor/rss/investor.rss_returned_404;current_IR_site_links_news.microsoft.com_outside_existing_allowlist",
+              "http_attempts": 0,
+              "http_successes": 0,
+              "pages": 0,
+              "publication_timestamp_status": "feed_publication_times_available",
+              "raw_items_received": 10,
+              "rejected_link_count": 0,
+              "rejected_link_reasons": [],
+              "revision_timestamp_status": "item_revision_times_not_always_provided",
+              "scope": "current_feed_allowlisted_article_URLs_only_no_archive_pagination",
+              "status": "healthy",
+              "url": "https://www.microsoft.com/en-us/microsoft-cloud/blog/feed/"
+            },
+            "NVDA": {
+              "cache_hits": 1,
+              "coverage_complete": true,
+              "discovery_time_basis": "item_updated_or_published_never_updated_as_publication",
+              "feed_entries_observed": 20,
+              "feed_entries_without_publication_time": 0,
+              "feed_oldest_discovery_time": "2026-08-17T12:35:31+00:00",
+              "feed_received_at": "2026-09-08T16:09:34.391435+00:00",
+              "feed_sha256": "9ca2d9f561b92bf02a98d8fe0b80b0b2e8a21978d5693609f11d4e91c918a8b0",
+              "feed_verified_at": "2026-09-08T16:09:34.391435+00:00",
+              "gap": null,
+              "http_attempts": 0,
+              "http_successes": 0,
+              "pages": 0,
+              "publication_timestamp_status": "feed_publication_times_available",
+              "raw_items_received": 20,
+              "rejected_link_count": 0,
+              "rejected_link_reasons": [],
+              "revision_timestamp_status": "item_revision_times_available",
+              "scope": "current_feed_allowlisted_article_URLs_only_no_archive_pagination",
+              "status": "healthy",
+              "url": "https://nvidianews.nvidia.com/rss.xml"
+            }
+          },
+          "issuer_feeds_enabled": true,
+          "issuer_newsroom_discovery": "fixed_official_RSS_Atom_feeds",
+          "last_errors": [],
+          "last_poll_stats": {
+            "coverage_basis": "provider_news_interval_SEC_acceptance_interval_official_feed_item_discovery",
+            "coverage_complete": true,
+            "coverage_excludes": [
+              "optional_older_comparison",
+              "issuer_sources_outside_fixed_feeds_and_verified_URLs",
+              "proof_of_SEC_publication_time",
+              "historical_revision_completeness"
+            ],
+            "coverage_scope": "configured_sources_only_not_all_company_news",
+            "coverage_watermark": "2026-09-08T16:09:33.523384+00:00",
+            "duplicates": 0,
+            "errors": [],
+            "interval_end": "2026-09-08T16:10:24.225812+00:00",
+            "new_evidence_versions": 0,
+            "observed_at": "2026-09-08T16:10:24.419793+00:00",
+            "poll_id": "434507e5-fc41-4fad-814d-78d41b71aa16",
+            "previously_received_versions": 2,
+            "raw_items_received": 50,
+            "requested_end": "2026-09-08T16:10:24.225812+00:00",
+            "requested_start": "2026-09-08T16:07:33.219242+00:00",
+            "revision_versions": 0,
+            "source_health": {
+              "issuer_feed:AAPL": {
+                "cache_hits": 1,
+                "coverage_complete": true,
+                "discovery_time_basis": "item_updated_or_published_never_updated_as_publication",
+                "feed_entries_observed": 20,
+                "feed_entries_without_publication_time": 20,
+                "feed_oldest_discovery_time": "2026-06-18T14:59:41.587000+00:00",
+                "feed_received_at": "2026-09-08T16:03:57.017012+00:00",
+                "feed_sha256": "6eace052b20e5eb0ecfde7b5dd0ad5ff2bc3d92d3adb6e76ba5d65a78cb7f86a",
+                "feed_verified_at": "2026-09-08T16:09:33.523384+00:00",
+                "gap": null,
+                "http_attempts": 0,
+                "http_successes": 0,
+                "pages": 0,
+                "publication_timestamp_status": "feed_publication_missing_requires_explicit_document_timestamp",
+                "raw_items_received": 20,
+                "rejected_link_count": 0,
+                "rejected_link_reasons": [],
+                "revision_timestamp_status": "item_revision_times_available",
+                "scope": "current_feed_allowlisted_article_URLs_only_no_archive_pagination",
+                "status": "healthy",
+                "url": "https://www.apple.com/newsroom/rss-feed.rss"
+              },
+              "issuer_feed:MSFT": {
+                "cache_hits": 1,
+                "coverage_complete": true,
+                "discovery_time_basis": "item_updated_or_published_never_updated_as_publication",
+                "feed_entries_observed": 10,
+                "feed_entries_without_publication_time": 0,
+                "feed_oldest_discovery_time": "2026-06-29T16:00:00+00:00",
+                "feed_received_at": "2026-09-08T15:49:48.271760+00:00",
+                "feed_sha256": "9f831d63a8a766df96e4b2f48804ce70e4015386276b3b35fad9f0995ffffc84",
+                "feed_verified_at": "2026-09-08T16:09:33.724420+00:00",
+                "gap": "verified_cloud_blog_feed_only_not_full_IR_or_corporate_news:https://www.microsoft.com/en-us/Investor/rss/investor.rss_returned_404;current_IR_site_links_news.microsoft.com_outside_existing_allowlist",
+                "http_attempts": 0,
+                "http_successes": 0,
+                "pages": 0,
+                "publication_timestamp_status": "feed_publication_times_available",
+                "raw_items_received": 10,
+                "rejected_link_count": 0,
+                "rejected_link_reasons": [],
+                "revision_timestamp_status": "item_revision_times_not_always_provided",
+                "scope": "current_feed_allowlisted_article_URLs_only_no_archive_pagination",
+                "status": "healthy",
+                "url": "https://www.microsoft.com/en-us/microsoft-cloud/blog/feed/"
+              },
+              "issuer_feed:NVDA": {
+                "cache_hits": 1,
+                "coverage_complete": true,
+                "discovery_time_basis": "item_updated_or_published_never_updated_as_publication",
+                "feed_entries_observed": 20,
+                "feed_entries_without_publication_time": 0,
+                "feed_oldest_discovery_time": "2026-08-17T12:35:31+00:00",
+                "feed_received_at": "2026-09-08T16:09:34.391435+00:00",
+                "feed_sha256": "9ca2d9f561b92bf02a98d8fe0b80b0b2e8a21978d5693609f11d4e91c918a8b0",
+                "feed_verified_at": "2026-09-08T16:09:34.391435+00:00",
+                "gap": null,
+                "http_attempts": 0,
+                "http_successes": 0,
+                "pages": 0,
+                "publication_timestamp_status": "feed_publication_times_available",
+                "raw_items_received": 20,
+                "rejected_link_count": 0,
+                "rejected_link_reasons": [],
+                "revision_timestamp_status": "item_revision_times_available",
+                "scope": "current_feed_allowlisted_article_URLs_only_no_archive_pagination",
+                "status": "healthy",
+                "url": "https://nvidianews.nvidia.com/rss.xml"
+              },
+              "news": {
+                "cache_hits": 0,
+                "coverage_complete": true,
+                "http_attempts": 1,
+                "http_successes": 1,
+                "last_http_received_at": "2026-09-08T16:10:24.402319+00:00",
+                "pages": 1,
+                "raw_items_received": 0,
+                "status": "healthy"
+              },
+              "sec:AAPL": {
+                "cache_hits": 1,
+                "coverage_complete": true,
+                "document_errors": [],
+                "eligible_filings": 0,
+                "filing_batch_limit": 2,
+                "http_attempts": 0,
+                "http_successes": 0,
+                "pages": 0,
+                "prior_comparison_error": null,
+                "prior_comparison_status": "collected_current_version_publication_may_be_unknown",
+                "raw_items_received": 0,
+                "status": "healthy",
+                "submission_received_at": "2026-09-08T16:09:33.573527+00:00"
+              },
+              "sec:MSFT": {
+                "cache_hits": 1,
+                "coverage_complete": true,
+                "document_errors": [],
+                "eligible_filings": 0,
+                "filing_batch_limit": 2,
+                "http_attempts": 0,
+                "http_successes": 0,
+                "pages": 0,
+                "prior_comparison_error": "source_document_exceeds_size_bound",
+                "prior_comparison_status": "unavailable_context_request_failed",
+                "raw_items_received": 0,
+                "status": "healthy",
+                "submission_received_at": "2026-09-08T16:09:34.116421+00:00"
+              },
+              "sec:NVDA": {
+                "cache_hits": 1,
+                "coverage_complete": true,
+                "document_errors": [],
+                "eligible_filings": 0,
+                "filing_batch_limit": 2,
+                "http_attempts": 0,
+                "http_successes": 0,
+                "pages": 0,
+                "prior_comparison_error": null,
+                "prior_comparison_status": "collected_current_version_publication_may_be_unknown",
+                "raw_items_received": 0,
+                "status": "healthy",
+                "submission_received_at": "2026-09-08T16:09:34.635187+00:00"
+              }
+            },
+            "supported_company_matches": 2,
+            "symbols": [
+              "AAPL",
+              "MSFT",
+              "NVDA"
+            ],
+            "unique_events": 2,
+            "unique_evidence_versions": 2,
+            "verified_issuer_matches": 2
+          },
+          "max_feed_documents_per_symbol": 5,
+          "max_pages": 5,
+          "max_sec_filings_per_symbol": 2,
+          "news_content_requested": true,
+          "news_entitlement": "observed_available",
+          "news_rate_limit_per_second": 2,
+          "news_retention_enabled": false,
+          "point_in_time_consensus": "missing",
+          "primary_discovery": "configured_urls_verified_SEC_metadata_and_fixed_official_feeds",
+          "primary_publication_timestamp": "explicit_aware_datePublished_or_official_feed_pubDate_Atom_published_only",
+          "primary_rate_limit_per_second": 2,
+          "primary_urls_configured": 0,
+          "provider_receipt_timestamp": "unavailable_Alpaca_created_updated_are_not_receipt",
+          "sec_archive_pagination": "unavailable_older_submissions_not_fetched",
+          "sec_enabled": true,
+          "sec_older_comparison_refresh": "reuse_observed_accession_retry_failures_after_3600s",
+          "sec_older_comparison_scope": "latest_prior_10K_within_550_days_recent_submissions",
+          "sec_scope": "recent_submissions_8K_8KA_and_filing_index_EX99",
+          "supported_symbols": [
+            "AAPL",
+            "MSFT",
+            "NVDA"
+          ]
+        },
+        "state": "collecting",
+        "tick_latency_seconds": 12.295213
+      },
+      "instance_id": "srv-dae4tr7qj5pc73a9e0k0-bd58f9958-742hs",
+      "observed_at": "2026-09-08 16:10:30.882542+00:00",
+      "service_name": "tradeagent-event-worker"
+    },
+    {
+      "details": {
+        "event_runtime": true,
+        "state": "healthy"
+      },
+      "instance_id": "srv-dae4tr7qj5pc73a9e0k0-bd58f9958-742hs",
+      "observed_at": "2026-09-08 16:10:26.379836+00:00",
+      "service_name": "tradeagent-news-worker"
+    },
+    {
+      "details": {
+        "dispatched": false,
+        "state": "running"
+      },
+      "instance_id": "srv-dadnn6mq1p3s73ef7ef0-88f4bf6f6-xz5pb",
+      "observed_at": "2026-09-08 16:10:44.578338+00:00",
+      "service_name": "tradeagent-notifier"
+    }
+  ],
+  "latest_calibration": {
+    "blocking_evidence": {
+      "reason": "no earlier operational observation"
+    },
+    "entry_attempts": 0,
+    "missed_at": "2026-09-08T15:36:27.884527+00:00",
+    "outcome": "MISSED",
+    "state": "missed_window_no_trade"
+  },
+  "latest_event_types": [
+    {
+      "event_type": "event_broker_calendar",
+      "latest_at": "2026-09-08 15:32:41.045683+00:00"
+    },
+    {
+      "event_type": "event_calibration_status",
+      "latest_at": "2026-09-08 15:36:27.884527+00:00"
+    },
+    {
+      "event_type": "event_candidate_state",
+      "latest_at": "2026-09-08 15:59:02.479676+00:00"
+    },
+    {
+      "event_type": "event_decision_observation",
+      "latest_at": "2026-09-08 15:59:02.479676+00:00"
+    },
+    {
+      "event_type": "event_extraction",
+      "latest_at": "2026-09-08 15:59:02.479676+00:00"
+    },
+    {
+      "event_type": "event_official_context",
+      "latest_at": "2026-09-08 16:10:21.062862+00:00"
+    },
+    {
+      "event_type": "event_operational_certificate",
+      "latest_at": "2026-09-08 13:35:48.089994+00:00"
+    },
+    {
+      "event_type": "event_performance",
+      "latest_at": "2026-09-08 16:10:22.882561+00:00"
+    },
+    {
+      "event_type": "event_pre_context",
+      "latest_at": "2026-09-08 15:59:02.283623+00:00"
+    },
+    {
+      "event_type": "event_premarket_brief",
+      "latest_at": "2026-09-08 16:10:26.580895+00:00"
+    },
+    {
+      "event_type": "event_reconciliation",
+      "latest_at": "2026-09-08 16:10:18.587329+00:00"
+    },
+    {
+      "event_type": "event_risk_decision",
+      "latest_at": "2026-09-08 13:59:57.349828+00:00"
+    },
+    {
+      "event_type": "event_session_budget_readiness",
+      "latest_at": "2026-09-07 08:12:26.569965+00:00"
+    },
+    {
+      "event_type": "event_session_report",
+      "latest_at": "2026-09-07 09:01:01.622087+00:00"
+    },
+    {
+      "event_type": "event_source_error",
+      "latest_at": "2026-09-08 15:37:06.878358+00:00"
+    },
+    {
+      "event_type": "event_source_poll",
+      "latest_at": "2026-09-08 16:10:26.580895+00:00"
+    }
+  ],
+  "leases": [
+    {
+      "acquired_at": "2026-09-06 22:53:06.685472+00:00",
+      "lock_name": "tradeagent-news-worker",
+      "owner_id": "srv-dae4tr7qj5pc73a9e0k0-bd6bcd647-sgzwc"
+    },
+    {
+      "acquired_at": "2026-09-08 16:10:42.491193+00:00",
+      "lock_name": "tradeagent-shadow-recorder",
+      "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x"
+    },
+    {
+      "acquired_at": "2026-09-08 16:10:44.377235+00:00",
+      "lock_name": "tradeagent-notifier",
+      "owner_id": "srv-dadnn6mq1p3s73ef7ef0-88f4bf6f6-xz5pb"
+    },
+    {
+      "acquired_at": "2026-09-08 16:10:30.882542+00:00",
+      "lock_name": "tradeagent-event-worker",
+      "owner_id": "srv-dae4tr7qj5pc73a9e0k0-bd58f9958-742hs"
+    }
+  ],
+  "market": {
+    "market_bars": [
+      {
+        "count": 38,
+        "latest_committed_at": "2026-09-08 16:10:22.278394+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:21.795339+00:00",
+        "symbol": "AAPL"
+      },
+      {
+        "count": 37,
+        "latest_committed_at": "2026-09-08 16:10:22.689711+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:22.599655+00:00",
+        "symbol": "MSFT"
+      },
+      {
+        "count": 28,
+        "latest_committed_at": "2026-09-08 16:10:05.418461+00:00",
+        "latest_exchange_at": "2026-09-08 16:09:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:00.222612+00:00",
+        "symbol": "GLD"
+      },
+      {
+        "count": 43,
+        "latest_committed_at": "2026-09-08 16:10:05.418461+00:00",
+        "latest_exchange_at": "2026-09-08 16:09:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:00.208341+00:00",
+        "symbol": "SPY"
+      },
+      {
+        "count": 43,
+        "latest_committed_at": "2026-09-08 16:10:05.418461+00:00",
+        "latest_exchange_at": "2026-09-08 16:09:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:00.222681+00:00",
+        "symbol": "QQQ"
+      },
+      {
+        "count": 31,
+        "latest_committed_at": "2026-09-08 16:10:05.418461+00:00",
+        "latest_exchange_at": "2026-09-08 16:09:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:00.213315+00:00",
+        "symbol": "TLT"
+      },
+      {
+        "count": 43,
+        "latest_committed_at": "2026-09-08 16:10:05.418461+00:00",
+        "latest_exchange_at": "2026-09-08 16:09:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:00.217874+00:00",
+        "symbol": "IWM"
+      },
+      {
+        "count": 35,
+        "latest_committed_at": "2026-09-08 16:10:22.880769+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:00+00:00",
+        "latest_received_at": "2026-09-08 16:10:22.871384+00:00",
+        "symbol": "NVDA"
+      }
+    ],
+    "market_quotes": [
+      {
+        "count": 276,
+        "latest_committed_at": "2026-09-08 16:10:21.878783+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:21.507323+00:00",
+        "latest_received_at": "2026-09-08 16:10:21.795339+00:00",
+        "symbol": "AAPL"
+      },
+      {
+        "count": 70784,
+        "latest_committed_at": "2026-09-08 16:10:45.534456+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:45.493674+00:00",
+        "latest_received_at": "2026-09-08 16:10:45.528454+00:00",
+        "symbol": "GLD"
+      },
+      {
+        "count": 123372,
+        "latest_committed_at": "2026-09-08 16:10:45.534456+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:45.402754+00:00",
+        "latest_received_at": "2026-09-08 16:10:45.439246+00:00",
+        "symbol": "IWM"
+      },
+      {
+        "count": 240,
+        "latest_committed_at": "2026-09-08 16:10:22.678183+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:19.991595+00:00",
+        "latest_received_at": "2026-09-08 16:10:22.599655+00:00",
+        "symbol": "MSFT"
+      },
+      {
+        "count": 242,
+        "latest_committed_at": "2026-09-08 16:10:22.873818+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:22.607788+00:00",
+        "latest_received_at": "2026-09-08 16:10:22.871384+00:00",
+        "symbol": "NVDA"
+      },
+      {
+        "count": 196437,
+        "latest_committed_at": "2026-09-08 16:10:45.534456+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:45.451388+00:00",
+        "latest_received_at": "2026-09-08 16:10:45.491512+00:00",
+        "symbol": "QQQ"
+      },
+      {
+        "count": 136833,
+        "latest_committed_at": "2026-09-08 16:10:45.534456+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:45.498221+00:00",
+        "latest_received_at": "2026-09-08 16:10:45.533809+00:00",
+        "symbol": "SPY"
+      },
+      {
+        "count": 22105,
+        "latest_committed_at": "2026-09-08 16:10:45.534456+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:45.298919+00:00",
+        "latest_received_at": "2026-09-08 16:10:45.333842+00:00",
+        "symbol": "TLT"
+      }
+    ],
+    "market_trades": [
+      {
+        "count": 247,
+        "latest_committed_at": "2026-09-08 16:10:21.978219+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:18.548381+00:00",
+        "latest_received_at": "2026-09-08 16:10:21.795339+00:00",
+        "symbol": "AAPL"
+      },
+      {
+        "count": 241,
+        "latest_committed_at": "2026-09-08 16:10:22.685058+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:04.590876+00:00",
+        "latest_received_at": "2026-09-08 16:10:22.599655+00:00",
+        "symbol": "MSFT"
+      },
+      {
+        "count": 164,
+        "latest_committed_at": "2026-09-08 16:10:48.888624+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:47.078145+00:00",
+        "latest_received_at": "2026-09-08 16:10:47.175306+00:00",
+        "symbol": "GLD"
+      },
+      {
+        "count": 1573,
+        "latest_committed_at": "2026-09-08 16:10:46.847769+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:46.243321+00:00",
+        "latest_received_at": "2026-09-08 16:10:46.279318+00:00",
+        "symbol": "SPY"
+      },
+      {
+        "count": 794,
+        "latest_committed_at": "2026-09-08 16:10:45.534456+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:44.591228+00:00",
+        "latest_received_at": "2026-09-08 16:10:44.624934+00:00",
+        "symbol": "QQQ"
+      },
+      {
+        "count": 145,
+        "latest_committed_at": "2026-09-08 16:09:50.801628+00:00",
+        "latest_exchange_at": "2026-09-08 16:09:45.580817+00:00",
+        "latest_received_at": "2026-09-08 16:09:45.616556+00:00",
+        "symbol": "TLT"
+      },
+      {
+        "count": 989,
+        "latest_committed_at": "2026-09-08 16:10:48.888624+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:48.327711+00:00",
+        "latest_received_at": "2026-09-08 16:10:48.367988+00:00",
+        "symbol": "IWM"
+      },
+      {
+        "count": 241,
+        "latest_committed_at": "2026-09-08 16:10:22.877477+00:00",
+        "latest_exchange_at": "2026-09-08 16:10:17.183009+00:00",
+        "latest_received_at": "2026-09-08 16:10:22.871384+00:00",
+        "symbol": "NVDA"
+      }
+    ]
+  },
+  "migration": "0009_candidate_states",
+  "observed_at": "2026-09-08T16:10:46.767741+00:00",
+  "outbox_counts": [
+    {
+      "count": 2,
+      "status": "sent"
+    }
+  ]
+}

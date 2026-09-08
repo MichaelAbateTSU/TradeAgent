@@ -22,6 +22,7 @@ from tradeagent.alpaca_stream import MarketQuote, ReceivedStreamEvent
 from tradeagent.domain import MarketBar
 from tradeagent.persistence import (
     ProductionRepository,
+    append_reporting_metadata,
     events,
     market_bars,
     market_quotes,
@@ -168,7 +169,22 @@ def persist_shadow_batch(
                 }
             )
         if audit:
-            connection.execute(insert(events).values(audit).on_conflict_do_nothing())
+            # Deduplicate within this input as well as against the database: an
+            # original ID always keeps its first body, including its projection.
+            audit_by_id: dict[str, dict[str, Any]] = {}
+            for row in audit:
+                audit_by_id.setdefault(str(row["event_id"]), row)
+            created_ids = connection.scalars(
+                insert(events)
+                .values(list(audit_by_id.values()))
+                .on_conflict_do_nothing()
+                .returning(events.c.event_id)
+            ).all()
+            for event_id in created_ids:
+                original = audit_by_id[str(event_id)]
+                append_reporting_metadata(
+                    connection, str(event_id), original["event_type"], original["payload"]
+                )
     return BatchWriteResult(inserted=inserted, duplicates=len(receipts) - inserted)
 
 

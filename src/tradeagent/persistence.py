@@ -54,6 +54,47 @@ Index(
     postgresql_ops={"trace_id": "varchar_pattern_ops"},
 )
 
+event_reporting_metadata = Table(
+    "event_reporting_metadata",
+    metadata,
+    Column("event_id", String(36), ForeignKey("events_v2.event_id"), primary_key=True),
+    Column("projection_version", Integer, primary_key=True),
+    Column("payload", JSON, nullable=False),
+)
+
+
+def append_reporting_metadata(
+    connection: Connection, event_id: str, event_type: str, payload: dict[str, Any]
+) -> None:
+    from sqlalchemy.dialects.postgresql import insert as postgresql_insert
+    from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
+    from tradeagent.reporting_reads import (
+        REPORTING_PROJECTION_VERSION,
+        event_reporting_projection,
+    )
+
+    if connection.dialect.name not in {"postgresql", "sqlite"}:
+        raise ValueError("Reporting metadata requires PostgreSQL or SQLite")
+    statement = (
+        postgresql_insert(event_reporting_metadata)
+        if connection.dialect.name == "postgresql"
+        else sqlite_insert(event_reporting_metadata)
+    )
+    connection.execute(
+        statement.values(
+            event_id=event_id,
+            projection_version=REPORTING_PROJECTION_VERSION,
+            payload=event_reporting_projection(event_type, payload),
+        ).on_conflict_do_nothing(
+            index_elements=[
+                event_reporting_metadata.c.event_id,
+                event_reporting_metadata.c.projection_version,
+            ]
+        )
+    )
+
+
 controls = Table(
     "controls_v2",
     metadata,
@@ -337,6 +378,7 @@ class ProductionRepository:
                     payload=payload,
                 )
             )
+            append_reporting_metadata(connection, str(event_id), event_type, payload)
         return event_id
 
     def event_count(self) -> int:

@@ -28,18 +28,22 @@ from tradeagent.event_reporting import (
 from tradeagent.persistence import (
     Database,
     ProductionRepository,
+    append_reporting_metadata,
+    event_reporting_metadata,
     events,
     fills,
     notification_outbox,
     orders,
 )
 from tradeagent.reporting_reads import (
-    POLL_FIELDS,
     READ_BATCH_SIZE,
     SOURCE_FIELDS,
-    compact_poll,
+    compact_report_evidence,
     payload_from_projection,
     projected_row_query,
+    report_payload_size,
+    reporting_metadata_query,
+    reporting_projection_from_row,
     stream_rows,
 )
 
@@ -48,15 +52,6 @@ EASTERN = ZoneInfo("America/New_York")
 TERMINAL = {"filled", "canceled", "cancelled", "rejected", "expired", "risk_rejected"}
 STATE_SNAPSHOTS = ("event_premarket_brief", "event_performance", "event_official_context")
 LOGGER = logging.getLogger(__name__)
-AUDIT_SCOPE_FIELDS = (
-    "planned_session_date",
-    "session_date",
-    "mode",
-    "synthetic",
-    "evidence_kind",
-    "session_id",
-    "account_digest",
-)
 
 
 def _audit_read_model(
@@ -69,7 +64,7 @@ def _audit_read_model(
     session_id: str | None = None,
     account: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Read narrow metadata once, then fetch selected payloads by bounded primary keys."""
+    """Read precomputed scope, then fetch selected payloads by bounded primary keys."""
     started = monotonic()
     LOGGER.info("Session report metadata starting: date=%s since=%s as_of=%s", planned, start, now)
     criteria = (
@@ -82,12 +77,13 @@ def _audit_read_model(
     counts: dict[str, Any] = {}
     latest: dict[str, tuple[datetime, datetime, str]] = {}
     history_ids: list[str] = []
-    poll_ids: list[str] = []
+    rows: list[dict[str, Any]] = []
     for row in stream_rows(
         connection,
-        projected_row_query(connection, events, AUDIT_SCOPE_FIELDS, metadata).where(*criteria),
+        reporting_metadata_query(events, event_reporting_metadata).where(*criteria),
     ):
-        payload = payload_from_projection(row, AUDIT_SCOPE_FIELDS)
+        projection = reporting_projection_from_row(row)
+        payload = projection["scope"]
         if not (
             _belongs(payload, row["occurred_at"], planned)
             or f":{planned}:premarket_brief" in row["trace_id"]
@@ -120,7 +116,12 @@ def _audit_read_model(
             if forward and (kind not in latest or key > latest[kind]):
                 latest[kind] = key
         elif kind == "event_source_poll":
-            poll_ids.append(row["event_id"])
+            poll = {
+                **projection["poll"],
+                "immutable_reference": f"events_v2:{row['event_id']}",
+                "projection": "source_counts_health_coverage; full immutable poll retained",
+            }
+            rows.append({**{column.name: row[column.name] for column in metadata}, "payload": poll})
         else:
             history_ids.append(row["event_id"])
     LOGGER.info(
@@ -130,32 +131,15 @@ def _audit_read_model(
         monotonic() - started,
     )
     history_ids.extend(key[2] for key in latest.values())
-    rows: list[dict[str, Any]] = []
     for offset in range(0, len(history_ids), READ_BATCH_SIZE):
-        rows.extend(
-            stream_rows(
-                connection,
-                select(events).where(
-                    events.c.event_id.in_(history_ids[offset : offset + READ_BATCH_SIZE]),
-                ),
-            )
-        )
-    for offset in range(0, len(poll_ids), READ_BATCH_SIZE):
         for row in stream_rows(
             connection,
-            projected_row_query(
-                connection,
-                events,
-                POLL_FIELDS,
-                metadata,
-            ).where(events.c.event_id.in_(poll_ids[offset : offset + READ_BATCH_SIZE])),
+            select(events).where(
+                events.c.event_id.in_(history_ids[offset : offset + READ_BATCH_SIZE]),
+            ),
         ):
-            payload = compact_poll(payload_from_projection(row, POLL_FIELDS))
-            payload["immutable_reference"] = f"events_v2:{row['event_id']}"
-            payload["projection"] = "source_counts_health_coverage; full immutable poll retained"
-            rows.append(
-                {**{column.name: row[column.name] for column in metadata}, "payload": payload}
-            )
+            row["payload"] = compact_report_evidence(row["payload"], f"events_v2:{row['event_id']}")
+            rows.append(row)
     rows.sort(key=lambda row: (row["occurred_at"], row["recorded_at"], row["event_id"]))
     LOGGER.info(
         "Session report audit read complete: date=%s payload_rows=%s elapsed_seconds=%.3f",
@@ -167,6 +151,9 @@ def _audit_read_model(
         "event_counts": counts,
         "state_snapshots": "latest forward snapshot per kind; all earlier versions retained",
         "polls": "all poll counts/health/coverage projected; original payloads retained",
+        "metadata_projection": (
+            "versioned immutable event_reporting_metadata; complete scoped coverage required"
+        ),
         "immutable_history": (
             "events_v2; scope by cohort trace and planned session; event_id is immutable"
         ),
@@ -721,6 +708,11 @@ def _news_table(
                 ],
                 "original_source_evidence": source,
                 "original_decision": decision,
+                "original_decision_reference": f"event_decisions:{row['decision_id']}",
+                "original_decision_projection": (
+                    "All parsed decision facts retained; raw source bodies are exact immutable "
+                    "references in source_body_references, not duplicate document text."
+                ),
                 "first_eligibility_action": decision.get("action"),
                 "candidate_state": state,
                 "latest_execution_evaluation": review or latest,
@@ -1292,16 +1284,22 @@ def session_report(
         )
         decision_rows = (
             [
-                dict(row)
-                for row in connection.execute(
+                {
+                    **row,
+                    "payload": compact_report_evidence(
+                        row["payload"], f"event_decisions:{row['decision_id']}"
+                    ),
+                }
+                for row in stream_rows(
+                    connection,
                     select(event_decisions)
                     .where(
                         event_decisions.c.cohort_id == cohort_id,
                         event_decisions.c.decided_at <= now,
                         event_decisions.c.decided_at >= start,
                     )
-                    .order_by(event_decisions.c.decided_at)
-                ).mappings()
+                    .order_by(event_decisions.c.decided_at),
+                )
                 if _belongs(row["payload"], row["decided_at"], planned)
             ]
             if cohort_id
@@ -1687,6 +1685,10 @@ def session_report(
             **evidence_labels(purpose),
             "report_version": REPORT_VERSION,
             "history_accounting": history_accounting,
+            "source_body_projection": (
+                "Complete parsed facts, accounting and provenance retained; raw source bodies "
+                "are referenced by immutable table, record ID and JSON pointer, not copied."
+            ),
             "report_id": identity,
             "snapshot_persisted": persist,
             "snapshot_at": now,
@@ -1889,6 +1891,10 @@ def session_report(
         }
     )
     if persist:
+        payload_bytes = report_payload_size(report)
+        LOGGER.info(
+            "Persisting session report: report_id=%s payload_bytes=%s", identity, payload_bytes
+        )
         try:
             with database.begin() as connection:
                 connection.execute(
@@ -1901,6 +1907,7 @@ def session_report(
                         payload=report,
                     )
                 )
+                append_reporting_metadata(connection, identity, "event_session_report", report)
         except IntegrityError:
             with database.begin() as connection:
                 existing = connection.scalar(

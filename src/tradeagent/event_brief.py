@@ -22,14 +22,14 @@ from tradeagent.event_research import (
 )
 from tradeagent.event_sources import verify_primary_url
 from tradeagent.event_store import EventStore, event_decisions, event_evidence
-from tradeagent.persistence import Database, events
+from tradeagent.persistence import Database, event_reporting_metadata, events
 from tradeagent.reporting_reads import (
     DISPLAY_LIMIT,
-    POLL_FIELDS,
     compact_poll,
     payload_from_projection,
     projected_payload,
-    projected_row_query,
+    reporting_metadata_query,
+    reporting_projection_from_row,
     stream_rows,
 )
 
@@ -308,10 +308,10 @@ def persist_premarket_brief(
         if previous and (_time(previous.get("prepared_at")) or now) > now:
             raise ValueError("brief observations cannot be backdated")
         polls = [
-            compact_poll(payload_from_projection(row, POLL_FIELDS))
+            reporting_projection_from_row(row)["poll"]
             for row in stream_rows(
                 connection,
-                projected_row_query(connection, events, POLL_FIELDS).where(
+                reporting_metadata_query(events, event_reporting_metadata).where(
                     events.c.event_type == "event_source_poll",
                     events.c.trace_id.startswith(f"{trace}:poll:", autoescape=True),
                     events.c.occurred_at <= now,

@@ -7,10 +7,11 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import insert, select, update
+from sqlalchemy.engine import Connection
 
 from tradeagent.alpaca_paper import AlpacaOrderStatus, AlpacaPaperOrder
 from tradeagent.domain import OrderRequest
-from tradeagent.persistence import Database, events, orders
+from tradeagent.persistence import Database, append_reporting_metadata, events, orders
 
 
 class OrderLifecycleState(StrEnum):
@@ -271,17 +272,20 @@ class OrderStateMachine:
 
     @staticmethod
     def _append_transition_event(
-        connection: object,
+        connection: Connection,
         transition: OrderTransition,
         trace_id: str,
     ) -> None:
-        connection.execute(  # type: ignore[attr-defined]
+        event_id = str(uuid4())
+        payload = transition.model_dump(mode="json")
+        connection.execute(
             insert(events).values(
-                event_id=str(uuid4()),
+                event_id=event_id,
                 occurred_at=transition.event_at,
                 recorded_at=datetime.now(UTC),
                 event_type="order_transition",
                 trace_id=trace_id,
-                payload=transition.model_dump(mode="json"),
+                payload=payload,
             )
         )
+        append_reporting_metadata(connection, event_id, "order_transition", payload)

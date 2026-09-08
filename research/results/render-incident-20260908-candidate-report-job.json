@@ -10,5 +10,6 @@
     "event_session_report": "6b3e47af5faaecb203003dd291f208d65b4956cb2f2caefcfada0b274f285dfb"
   },
   "startedAt": "2026-09-08T15:46:14Z",
-  "finishedAt": "2026-09-08T15:49:04Z"
+  "finishedAt": "2026-09-08T15:49:04Z",
+  "diagnostic_command_sha256": "240a526e2a64b91a09bf696f5c481209afd8bcfb4f1acc88f5eee26c3c673b0e"
 }

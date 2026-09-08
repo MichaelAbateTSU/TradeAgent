@@ -5,5 +5,6 @@
   "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
   "status": "failed",
   "startedAt": "2026-09-08T15:29:11Z",
-  "finishedAt": "2026-09-08T15:36:58Z"
+  "finishedAt": "2026-09-08T15:36:58Z",
+  "startCommand": "python -u -m infra.render.acceptance_probe --report --email-release 37c262b7419bed8c1ecaf2db561c4f3bc4bce04d"
 }

@@ -30,6 +30,9 @@ from tradeagent.persistence import (
 
 
 def snapshot(database: Database) -> dict[str, Any]:
+    from tradeagent.reporting_metadata import missing_reporting_metadata
+    from tradeagent.reporting_reads import REPORTING_PROJECTION_VERSION
+
     now = datetime.now(UTC)
     repository = ProductionRepository(database)
     with database.begin() as connection:
@@ -55,6 +58,14 @@ def snapshot(database: Database) -> dict[str, Any]:
                     )
                 )
             },
+            "retained_calibration_controls": [
+                dict(row)
+                for row in connection.execute(
+                    select(controls).where(
+                        controls.c.control_key.endswith(":calibration_status", autoescape=True)
+                    )
+                ).mappings()
+            ],
             "market": {},
             "outbox_counts": [
                 dict(row)
@@ -86,6 +97,8 @@ def snapshot(database: Database) -> dict[str, Any]:
                 .group_by(events.c.event_type)
             ).mappings()
         ]
+    result["reporting_projection_version"] = REPORTING_PROJECTION_VERSION
+    result["reporting_metadata_missing"] = missing_reporting_metadata(database)
     result["latest_calibration"] = repository.latest_event_payload("event_calibration_status")
     with AlpacaPaperClient(AlpacaPaperSettings.model_validate({})) as broker:
         account = broker.account()

@@ -4,7 +4,7 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import inspect, text
 
-from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.persistence import Database, ProductionRepository, events
 
 
 def test_audit_lookup_index_preserves_history_and_supports_trace_reads(tmp_path, monkeypatch):
@@ -12,16 +12,18 @@ def test_audit_lookup_index_preserves_history_and_supports_trace_reads(tmp_path,
     monkeypatch.setenv("TRADEAGENT_DATABASE_URL", url)
     config = Config("alembic.ini")
     command.upgrade(config, "0009_candidate_states")
-    with Database(url) as database:
-        repository = ProductionRepository(database)
-        repository.append_event(
-            "event_incident",
-            {"outcome": "MISSED", "loss": "-2.50"},
-            occurred_at=datetime.now(UTC),
-            trace_id="preserved:incident",
+    with Database(url) as database, database.begin() as connection:
+        connection.execute(
+            events.insert().values(
+                event_id="legacy-incident",
+                event_type="event_incident",
+                payload={"outcome": "MISSED", "loss": "-2.50"},
+                occurred_at=datetime.now(UTC),
+                recorded_at=datetime.now(UTC),
+                trace_id="preserved:incident",
+            )
         )
-        with database.begin() as connection:
-            connection.execute(text("DROP INDEX IF EXISTS ix_events_v2_trace_type_time"))
+        connection.execute(text("DROP INDEX IF EXISTS ix_events_v2_trace_type_time"))
     command.upgrade(config, "head")
     with Database(url) as database:
         indexes = inspect(database.engine).get_indexes("events_v2")

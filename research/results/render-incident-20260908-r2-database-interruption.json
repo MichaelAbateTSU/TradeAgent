@@ -1,0 +1,591 @@
+[
+  {
+    "id": "66fd53c9-8982-478b-bd47-33dd7335b326",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6a9b741c.208-17] user=,db=,app=,client=,LOG:  server process (PID 441371) was terminated by signal 9: Killed",
+    "timestamp": "2026-09-08T16:26:13.679626262Z"
+  },
+  {
+    "id": "b5ad1421-9f65-4a25-a53f-095a21897475",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6a9b741c.208-19] user=,db=,app=,client=,LOG:  terminating any other active server processes",
+    "timestamp": "2026-09-08T16:26:13.679670383Z"
+  },
+  {
+    "id": "84d98b35-6db5-4493-9e83-b7331884d2aa",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03726.6bc37-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.28.41.113,FATAL:  the database system is in recovery mode",
+    "timestamp": "2026-09-08T16:26:14.382019311Z"
+  },
+  {
+    "id": "dc9f7c28-5db0-49ab-ad47-7f98ecd9e678",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6a9b741c.208-20] user=,db=,app=,client=,LOG:  all server processes terminated; reinitializing",
+    "timestamp": "2026-09-08T16:26:14.580677296Z"
+  },
+  {
+    "id": "513b7de5-3558-43a1-9bce-94fb05313e8e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03727.6bc40-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,FATAL:  the database system is in recovery mode",
+    "timestamp": "2026-09-08T16:26:15.082784543Z"
+  },
+  {
+    "id": "175fa7df-525d-48fa-a3d1-afc6dfd53a2e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03727.6bc41-2] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,FATAL:  the database system is in recovery mode",
+    "timestamp": "2026-09-08T16:26:15.478985259Z"
+  },
+  {
+    "id": "337ccfd0-8a66-4be8-9359-dad9a7ead44a",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03726.6bc3b-2] user=,db=,app=,client=,LOG:  database system was not properly shut down; automatic recovery in progress",
+    "timestamp": "2026-09-08T16:26:15.683497646Z"
+  },
+  {
+    "id": "9ed9c5ef-1b76-46ac-b1b0-b4d3714f2216",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03728.6bc42-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:16.179576878Z"
+  },
+  {
+    "id": "a42f6238-ebec-4f53-b290-735e211f8de6",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03728.6bc42-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:16.179597088Z"
+  },
+  {
+    "id": "0a8cf1f2-6a80-4861-b9d8-220515850bc8",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03729.6bc43-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:17.676592359Z"
+  },
+  {
+    "id": "3d956f1e-9ac6-44b0-b993-b64358aab613",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03729.6bc43-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:17.676622989Z"
+  },
+  {
+    "id": "3c4f83df-03bd-47d2-86f0-ece1156dfc69",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc44-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:18.27674493Z"
+  },
+  {
+    "id": "d992c358-c717-4ece-bacf-8409c93b85df",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc44-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:18.27676562Z"
+  },
+  {
+    "id": "f67f7f9b-d189-4a24-899b-e9f8ae321c52",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc45-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.26.143.9,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:18.381706369Z"
+  },
+  {
+    "id": "e5f8c78d-1b46-4854-b17a-483bda4e8d68",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc45-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.26.143.9,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:18.381718729Z"
+  },
+  {
+    "id": "00e8032c-20de-428b-9aba-e03cc4bfd3f5",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc46-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.26.143.9,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:18.476533591Z"
+  },
+  {
+    "id": "f5adf869-af4d-4fbc-96a4-d88ffae2e6b9",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc46-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.26.143.9,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:18.476552521Z"
+  },
+  {
+    "id": "66be3c80-e6e7-4c8f-a6f0-b51f78718f9d",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc47-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:18.686426439Z"
+  },
+  {
+    "id": "89b1d5b7-2503-48ac-b92f-fe24e1551812",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc47-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:18.686436519Z"
+  },
+  {
+    "id": "cb34d6c8-46f7-4482-a173-85628ea5770f",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc48-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:18.779311197Z"
+  },
+  {
+    "id": "2639eb48-0dae-43cc-bf71-3cfc7fd0f4d1",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372a.6bc48-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.40.111,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:18.779325107Z"
+  },
+  {
+    "id": "18c02c17-ccc7-4bb8-88f2-22bba4b0f711",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc4a-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:19.67943299Z"
+  },
+  {
+    "id": "66cb1f40-c2d5-407c-9685-a3d86b5768f7",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc4a-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:19.679444171Z"
+  },
+  {
+    "id": "4daaa8d0-1a46-4db9-b77b-4d7c090d3ebb",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc49-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:19.679703767Z"
+  },
+  {
+    "id": "6d1df50d-93b4-487b-8279-07a800f9086a",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc49-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:19.679708157Z"
+  },
+  {
+    "id": "048847c2-88a5-43b1-af2f-afedcf3d6402",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc4b-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:19.778463047Z"
+  },
+  {
+    "id": "8a36c960-8749-432b-b711-f8e401b6c72a",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc4b-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:19.778495348Z"
+  },
+  {
+    "id": "a4772b28-86ad-4a0f-b98b-766cdbb442d1",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "critical"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc4c-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,FATAL:  the database system is not yet accepting connections",
+    "timestamp": "2026-09-08T16:26:19.977838118Z"
+  },
+  {
+    "id": "1ffe1050-e31c-4418-af25-bbb6d0ceb960",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa0372b.6bc4c-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.58,DETAIL:  Consistent recovery state has not been yet reached.",
+    "timestamp": "2026-09-08T16:26:19.977860129Z"
+  },
+  {
+    "id": "822e6894-1888-4d79-9f39-5afd6838a090",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6aa03726.6bc3c-1] user=,db=,app=,client=,LOG:  checkpoint starting: end-of-recovery immediate wait",
+    "timestamp": "2026-09-08T16:26:19.981848468Z"
+  },
+  {
+    "id": "d4e5598d-0c5d-4935-86e4-222ce35e024e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6a9b741c.208-21] user=,db=,app=,client=,LOG:  database system is ready to accept connections",
+    "timestamp": "2026-09-08T16:26:21.184235357Z"
+  }
+]

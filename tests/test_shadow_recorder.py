@@ -5,6 +5,7 @@ import threading
 import time
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from itertools import pairwise
 from pathlib import Path
 from uuid import uuid4
 
@@ -17,13 +18,17 @@ from tradeagent.domain import MarketBar
 from tradeagent.persistence import (
     Database,
     ProductionRepository,
+    event_reporting_metadata,
+    events,
     market_bars,
     market_quotes,
     market_trades,
 )
+from tradeagent.reporting_reads import REPORTING_PROJECTION_VERSION, event_reporting_projection
 from tradeagent.shadow_recorder import (
     ShadowBatchRecorder,
     ShadowRecorderSettings,
+    append_reporting_metadata,
     persist_shadow_batch,
 )
 
@@ -293,6 +298,11 @@ def test_market_sized_burst_uses_bulk_transactions_and_drains(repository, monkey
 def test_lost_commit_ack_retry_reports_actual_insert_progress(repository, monkeypatch) -> None:
     original = persist_shadow_batch
     attempts = 0
+    metadata_calls = []
+
+    def record_metadata(connection, event_id, event_type, payload):
+        metadata_calls.append(event_id)
+        append_reporting_metadata(connection, event_id, event_type, payload)
 
     def ambiguous_commit(*args, **kwargs):
         nonlocal attempts
@@ -303,6 +313,7 @@ def test_lost_commit_ack_retry_reports_actual_insert_progress(repository, monkey
         return result
 
     monkeypatch.setattr("tradeagent.shadow_recorder.persist_shadow_batch", ambiguous_commit)
+    monkeypatch.setattr("tradeagent.shadow_recorder.append_reporting_metadata", record_metadata)
     recorder = ShadowBatchRecorder(
         repository,
         settings=ShadowRecorderSettings(retry_initial_seconds=0.001),
@@ -316,10 +327,15 @@ def test_lost_commit_ack_retry_reports_actual_insert_progress(repository, monkey
 
     asyncio.run(run())
     assert attempts == 2
+    assert len(metadata_calls) == 1
     assert recorder.committed == recorder.inserted == 1
     assert recorder.duplicates == 0
     assert repository.market_data_counts() == (0, 1, 0)
     assert repository.event_count() == 1
+    with repository._database.begin() as connection:
+        metadata = connection.execute(select(event_reporting_metadata)).mappings().one()
+    assert metadata["event_id"] == metadata_calls[0]
+    assert metadata["projection_version"] == REPORTING_PROJECTION_VERSION
 
 
 def test_status_commits_do_not_refresh_market_progress_or_relabel_old_exchange_data(repository):
@@ -378,3 +394,175 @@ def test_minute_bar_does_not_regress_quote_exchange_progress_and_keeps_its_true_
     assert health["receive_lag_seconds"] == 60.1
     assert health["committed_event_age_seconds"] == 0.1
     assert repository.market_data_counts() == (1, 1, 0)
+
+
+def test_sustained_live_sized_frames_progress_with_delayed_database(repository, monkeypatch):
+    original = persist_shadow_batch
+    batch_sizes = []
+
+    def delayed_write(repository, receipts, *args, **kwargs):
+        time.sleep(0.035)
+        batch_sizes.append(len(receipts))
+        return original(repository, receipts, *args, **kwargs)
+
+    monkeypatch.setattr("tradeagent.shadow_recorder.persist_shadow_batch", delayed_write)
+    recorder = ShadowBatchRecorder(
+        repository,
+        settings=ShadowRecorderSettings(
+            queue_capacity=1000,
+            batch_size=200,
+            flush_interval_seconds=0.025,
+        ),
+    )
+
+    async def run():
+        stop = asyncio.Event()
+        writer = asyncio.create_task(recorder.run(stop))
+        progress = []
+        depths = []
+        try:
+            for frame in range(20):
+                received_at = datetime.now(UTC)
+                for item in range(50):
+                    base = _receipt(frame * 50 + item, received_at)
+                    event_at = (
+                        received_at - timedelta(milliseconds=35) + timedelta(microseconds=item)
+                    )
+                    assert recorder.offer(
+                        ReceivedStreamEvent(
+                            base.event.model_copy(update={"timestamp": event_at}),
+                            received_at,
+                        )
+                    )
+                depths.append(recorder.health()["queue_depth"])
+                await asyncio.sleep(0.1)
+                if frame % 4 == 0:
+                    progress.append((await asyncio.to_thread(repository.market_data_counts))[1])
+        finally:
+            stop.set()
+            await asyncio.wait_for(writer, 5)
+        assert all(a < b for a, b in pairwise(progress))
+        assert max(depths) < recorder.settings.queue_capacity
+
+    asyncio.run(run())
+    assert recorder.received == recorder.committed == recorder.inserted == 1000
+    assert recorder.dropped == 0
+    assert repository.market_data_counts() == (0, 1000, 0)
+    assert 1 < len(batch_sizes) <= 40
+    health = recorder.health()
+    assert health["queue_depth"] == health["in_flight"] == 0
+    assert health["batch_write_seconds"] >= 0.035
+    assert health["commit_lag_seconds"] >= 0.035
+
+
+def _notice(event_id: str, payload: dict) -> dict:
+    return {
+        "event_id": event_id,
+        "event_type": "shadow_stream_status",
+        "occurred_at": NOW,
+        "recorded_at": NOW,
+        "trace_id": f"test:{event_id}",
+        "payload": payload,
+    }
+
+
+def test_batch_metadata_projects_only_new_ids_and_preserves_first_original_body(repository):
+    existing_id, new_id, batch_id = (str(uuid4()) for _ in range(3))
+    original = {"session_date": "2026-09-08"}
+    first_new = {"session_date": "2026-09-09"}
+    conflicting_retry = {"session_date": "2026-09-10"}
+    with repository._database.begin() as connection:
+        # Simulate an archived original that has not yet received the required backfill.
+        connection.execute(events.insert().values(_notice(existing_id, original)))
+    persist_shadow_batch(
+        repository,
+        [_receipt(0)],
+        [
+            _notice(existing_id, conflicting_retry),
+            _notice(new_id, first_new),
+            _notice(new_id, conflicting_retry),
+        ],
+        batch_id,
+    )
+    with repository._database.begin() as connection:
+        originals = {
+            row["event_id"]: row["payload"] for row in connection.execute(select(events)).mappings()
+        }
+        projections = {
+            row["event_id"]: row
+            for row in connection.execute(select(event_reporting_metadata)).mappings()
+        }
+    assert originals[existing_id] == original
+    assert originals[new_id] == first_new
+    assert set(projections) == {new_id, batch_id}
+    assert projections[new_id]["projection_version"] == REPORTING_PROJECTION_VERSION
+    assert projections[new_id]["payload"] == event_reporting_projection(
+        "shadow_stream_status", first_new
+    )
+    assert projections[batch_id]["payload"] == event_reporting_projection(
+        "shadow_recorder_batch", originals[batch_id]
+    )
+    assert repository.market_data_counts() == (0, 1, 0)
+
+
+def test_metadata_failure_rolls_back_raw_audit_and_all_sidecars_together(repository, monkeypatch):
+    notice_id, batch_id = str(uuid4()), str(uuid4())
+    calls = []
+
+    def fail_second(connection, event_id, event_type, payload):
+        assert connection.in_transaction()
+        calls.append(connection)
+        append_reporting_metadata(connection, event_id, event_type, payload)
+        if len(calls) == 2:
+            raise RuntimeError("test metadata failure")
+
+    monkeypatch.setattr("tradeagent.shadow_recorder.append_reporting_metadata", fail_second)
+    with pytest.raises(RuntimeError, match="metadata failure"):
+        persist_shadow_batch(
+            repository,
+            [_receipt(0)],
+            [_notice(notice_id, {"session_date": "2026-09-08"})],
+            batch_id,
+        )
+    assert len(calls) == 2
+    assert calls[0] is calls[1]
+    assert repository.market_data_counts() == (0, 0, 0)
+    assert repository.event_count() == 0
+    with repository._database.begin() as connection:
+        assert connection.execute(select(event_reporting_metadata)).all() == []
+    monkeypatch.setattr(
+        "tradeagent.shadow_recorder.append_reporting_metadata", append_reporting_metadata
+    )
+    result = persist_shadow_batch(
+        repository,
+        [_receipt(0)],
+        [_notice(notice_id, {"session_date": "2026-09-08"})],
+        batch_id,
+    )
+    assert result.inserted == 1
+    with repository._database.begin() as connection:
+        assert len(connection.execute(select(event_reporting_metadata)).all()) == 2
+
+
+def test_existing_batch_retry_does_not_backfill_metadata_from_incoming_body(
+    repository, monkeypatch
+):
+    batch_id = str(uuid4())
+    original_payload = {"inserted": 7, "duplicates": 2, "session_date": "2026-09-08"}
+    original_row = _notice(batch_id, original_payload)
+    original_row["event_type"] = "shadow_recorder_batch"
+    with repository._database.begin() as connection:
+        connection.execute(events.insert().values(original_row))
+
+    def forbidden(*args):
+        pytest.fail(
+            "pre-existing batch IDs require original-body backfill, not incoming retry data"
+        )
+
+    monkeypatch.setattr("tradeagent.shadow_recorder.append_reporting_metadata", forbidden)
+    result = persist_shadow_batch(repository, [_receipt(0), _receipt(1)], [], batch_id)
+    assert (result.inserted, result.duplicates) == (7, 2)
+    assert repository.market_data_counts() == (0, 0, 0)
+    with repository._database.begin() as connection:
+        assert connection.scalar(select(events.c.payload)) == original_payload
+        assert connection.execute(select(event_reporting_metadata)).all() == []

@@ -1,0 +1,241 @@
+{
+  "observed_at": "2026-09-08T16:31:05.359423+00:00",
+  "deploys": {
+    "event": {
+      "id": "dep-dag3eblbedkc73fc10dg",
+      "commit": {
+        "id": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+        "message": "fix: bound PostgreSQL reporting and dashboard connections\n\nReplace repeated historical JSON/ranking work with single-pass projections and bounded primary-key reads, share a two-connection dashboard pool, add a concurrent audit lookup index, and strengthen live acceptance after the first production soak exposed database pressure.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+        "createdAt": "2026-09-08T16:08:56Z"
+      },
+      "status": "live",
+      "trigger": "api",
+      "createdAt": "2026-09-08T16:26:22.981354Z",
+      "updatedAt": "2026-09-08T16:28:18.134631Z",
+      "startedAt": "2026-09-08T16:26:22.979215Z",
+      "finishedAt": "2026-09-08T16:28:18.134374Z"
+    },
+    "recorder": {
+      "id": "dep-dag3ebmq1p3s73e69t5g",
+      "commit": {
+        "id": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+        "message": "fix: bound PostgreSQL reporting and dashboard connections\n\nReplace repeated historical JSON/ranking work with single-pass projections and bounded primary-key reads, share a two-connection dashboard pool, add a concurrent audit lookup index, and strengthen live acceptance after the first production soak exposed database pressure.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+        "createdAt": "2026-09-08T16:08:56Z"
+      },
+      "status": "live",
+      "trigger": "api",
+      "createdAt": "2026-09-08T16:26:22.988157Z",
+      "updatedAt": "2026-09-08T16:27:44.515921Z",
+      "startedAt": "2026-09-08T16:26:22.986415Z",
+      "finishedAt": "2026-09-08T16:27:44.515539Z"
+    },
+    "notifier": {
+      "id": "dep-dag3b3uk1f9s73e0v19g",
+      "commit": {
+        "id": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+        "message": "fix: bound PostgreSQL reporting and dashboard connections\n\nReplace repeated historical JSON/ranking work with single-pass projections and bounded primary-key reads, share a two-connection dashboard pool, add a concurrent audit lookup index, and strengthen live acceptance after the first production soak exposed database pressure.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+        "createdAt": "2026-09-08T16:08:56Z"
+      },
+      "status": "live",
+      "trigger": "api",
+      "createdAt": "2026-09-08T16:19:27.766248Z",
+      "updatedAt": "2026-09-08T16:20:56.989294Z",
+      "startedAt": "2026-09-08T16:19:27.764436Z",
+      "finishedAt": "2026-09-08T16:20:56.989035Z"
+    },
+    "dashboard": {
+      "id": "dep-dag3ebn40ujc73e4ojqg",
+      "commit": {
+        "id": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+        "message": "fix: bound PostgreSQL reporting and dashboard connections\n\nReplace repeated historical JSON/ranking work with single-pass projections and bounded primary-key reads, share a two-connection dashboard pool, add a concurrent audit lookup index, and strengthen live acceptance after the first production soak exposed database pressure.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+        "createdAt": "2026-09-08T16:08:56Z"
+      },
+      "status": "live",
+      "trigger": "api",
+      "createdAt": "2026-09-08T16:26:22.964898Z",
+      "updatedAt": "2026-09-08T16:28:04.350041Z",
+      "startedAt": "2026-09-08T16:26:22.927922Z",
+      "finishedAt": "2026-09-08T16:27:32.246892Z"
+    }
+  },
+  "ready_http": 200,
+  "ready": {
+    "ready": true,
+    "database": "reachable",
+    "check": "dashboard_read_dependency",
+    "event_worker_fresh": true,
+    "event_worker_age_seconds": 8.296971,
+    "operational_status": {
+      "as_of": "2026-09-08T16:31:07.479324+00:00",
+      "state_source": "production_database",
+      "database": "reachable",
+      "roles": {
+        "tradeagent-event-worker": {
+          "heartbeat_at": "2026-09-08T16:30:59.182353+00:00",
+          "age_seconds": 8.296971,
+          "fresh": true,
+          "instance_id": "srv-dae4tr7qj5pc73a9e0k0-578859b44c-fxzl6",
+          "reported": {
+            "state": "collecting",
+            "mode": "experimental-paper",
+            "cohort_id": "v20-incident-20260908-r2",
+            "code_sha": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+            "last_successful_source_at": "2026-09-08T16:29:47.788382+00:00",
+            "events_received": 51,
+            "tick_latency_seconds": 89.806718,
+            "source_http_cache": {
+              "entries": 8,
+              "bytes": 1702775,
+              "maximum_entries": 64,
+              "maximum_bytes": 16000000,
+              "evictions": 0,
+              "evidence_history_evicted": false
+            }
+          },
+          "lease": {
+            "lock_name": "tradeagent-event-worker",
+            "present": true,
+            "owner_id": "srv-dae4tr7qj5pc73a9e0k0-578859b44c-fxzl6",
+            "renewed_at": "2026-09-08T16:30:59.182353+00:00",
+            "age_seconds": 8.296971,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-shadow-recorder": {
+          "heartbeat_at": "2026-09-08T16:31:04.488744+00:00",
+          "age_seconds": 2.99058,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-69bc86d9d-ckj69",
+          "reported": {
+            "state": "degraded",
+            "healthy": false,
+            "mode": "shadow",
+            "received": 31019,
+            "committed": 28084,
+            "inserted": 28078,
+            "duplicates": 6,
+            "queue_depth": 2435,
+            "queue_capacity": 20000,
+            "in_flight": 500,
+            "gaps": 1,
+            "dropped_events": 0,
+            "notice_overflow": 0,
+            "decision_errors": 0,
+            "derived": {
+              "state": "awaiting_complete_frame",
+              "healthy": false,
+              "frame_age_seconds": null,
+              "last_usable_frame_at": null,
+              "unusable_frame_events": 0,
+              "last_unusable_frame": null,
+              "pending_minutes": 9,
+              "duplicate_minutes": 0,
+              "ignored_out_of_order_quotes": 0,
+              "evidence_epoch": "30992923-ca57-4abc-bfcc-b9dc4788b874",
+              "cumulative_evidence_complete": true
+            },
+            "last_received_at": "2026-09-08T16:31:04.422304+00:00",
+            "last_received_event_at": "2026-09-08T16:31:04.387643+00:00",
+            "last_event_at": "2026-09-08T16:31:04.387643+00:00",
+            "last_committed_event_at": "2026-09-08T16:30:49.110144+00:00",
+            "last_market_commit_at": "2026-09-08T16:31:04.083116+00:00",
+            "last_commit_at": "2026-09-08T16:31:04.083116+00:00",
+            "last_committed_received_at": "2026-09-08T16:30:49.144502+00:00",
+            "receive_lag_seconds": 0.034661,
+            "commit_lag_seconds": 16.410216,
+            "exchange_to_commit_lag_seconds": 14.972972,
+            "committed_event_age_seconds": 15.37861,
+            "market_commit_age_seconds": 0.405638,
+            "oldest_uncommitted_age_seconds": 15.344252,
+            "batch_write_seconds": 3.892228775890544,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-shadow-recorder",
+            "present": true,
+            "owner_id": "srv-dadn8son74is73apqcc0-69bc86d9d-ckj69",
+            "renewed_at": "2026-09-08T16:31:04.488744+00:00",
+            "age_seconds": 2.99058,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-notifier": {
+          "heartbeat_at": "2026-09-08T16:31:02.577725+00:00",
+          "age_seconds": 4.901599,
+          "fresh": true,
+          "instance_id": "srv-dadnn6mq1p3s73ef7ef0-67657598b6-2tfmd",
+          "reported": {
+            "state": "running",
+            "dispatched": false,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-notifier",
+            "present": true,
+            "owner_id": "srv-dadnn6mq1p3s73ef7ef0-67657598b6-2tfmd",
+            "renewed_at": "2026-09-08T16:31:02.291354+00:00",
+            "age_seconds": 5.18797,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-news-worker": {
+          "heartbeat_at": "2026-09-08T16:29:47.788382+00:00",
+          "age_seconds": 79.690942,
+          "fresh": true,
+          "instance_id": "srv-dae4tr7qj5pc73a9e0k0-578859b44c-fxzl6",
+          "reported": {
+            "state": "healthy",
+            "source_http_cache": null
+          },
+          "lease": null
+        },
+        "tradeagent-shadow-market-feed": {
+          "heartbeat_at": "2026-09-08T16:31:02.880876+00:00",
+          "age_seconds": 4.598448,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-69bc86d9d-ckj69-market-feed",
+          "reported": {
+            "state": "stale",
+            "healthy": false,
+            "last_market_commit_at": "2026-09-08T16:30:57.283049+00:00",
+            "market_commit_age_seconds": 5.597827,
+            "source_http_cache": null
+          },
+          "lease": null
+        }
+      },
+      "controls": {
+        "cohort_id": "v20-incident-20260908-r2",
+        "kill_switch": {
+          "value": "active",
+          "updated_at": "2026-09-08T16:10:45.282465+00:00"
+        },
+        "cohort_pause": {
+          "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-08T16:30:52.096260+00:00"
+        },
+        "missing_means": "not_recorded_not_inferred_inactive"
+      },
+      "latest_committed_recorder_batch": {
+        "event_id": "fee8db3a-b473-46f2-b19f-4c06c37a91e3",
+        "at": "2026-09-08T16:31:05.487042+00:00",
+        "received": 500,
+        "inserted": 500,
+        "duplicates": 0,
+        "first_event_at": "2026-09-08T16:30:50.950582+00:00",
+        "last_event_at": "2026-09-08T16:30:53.533724+00:00",
+        "first_received_at": "2026-09-08T16:30:50.983338+00:00",
+        "last_received_at": "2026-09-08T16:30:53.580205+00:00",
+        "processing_started_at": "2026-09-08T16:31:05.487042+00:00"
+      },
+      "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+    },
+    "live_trading_available": false
+  }
+}

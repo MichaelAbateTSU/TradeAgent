@@ -1,0 +1,54 @@
+{
+  "observed_at": "2026-09-08T16:31:02.982138+00:00",
+  "largest_context_samples": [
+    {
+      "event_id": "aab665e7-4841-4336-b6fe-402d529bbc2c",
+      "stored_bytes": 106841,
+      "decoded_bytes": 439697,
+      "compression": "pglz"
+    },
+    {
+      "event_id": "8f183301-e5f5-43d4-bb7d-637d798c6b08",
+      "stored_bytes": 106843,
+      "decoded_bytes": 439697,
+      "compression": "pglz"
+    },
+    {
+      "event_id": "edb52e41-f37e-4d85-bd06-edfd25a4deb8",
+      "stored_bytes": 106842,
+      "decoded_bytes": 439697,
+      "compression": "pglz"
+    }
+  ],
+  "migration": "0010_event_audit_lookup",
+  "index_valid": true,
+  "original_missed": {
+    "blocking_evidence": {
+      "observed": {
+        "ask": "316.85",
+        "bid": "316.23",
+        "certificate_permits_paper": true,
+        "evaluated_at": "2026-09-08T13:59:57.349828+00:00",
+        "limit_price": "316.85",
+        "market_phase": "entry",
+        "maximum_limit_price": null,
+        "maximum_notional": "25",
+        "median_daily_dollar_volume": "12974063332.15",
+        "notional": "24.99978185",
+        "quote_at": "2026-09-08T13:59:56.297677+00:00",
+        "source_valid": true
+      },
+      "purpose": "operator_calibration",
+      "qualification_eligible": false,
+      "reasons": [
+        "INVALID_PRICE_OR_SPREAD",
+        "GLOBAL_KILL_SWITCH"
+      ],
+      "state": "risk_rejected"
+    },
+    "entry_attempts": 0,
+    "missed_at": "2026-09-08T14:00:34.987478+00:00",
+    "outcome": "MISSED",
+    "state": "missed_window_no_trade"
+  }
+}
