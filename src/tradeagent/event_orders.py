@@ -790,12 +790,30 @@ class ExperimentalOrderManager:
             now,
             self.settings.cohort_id,
         )
-        paused = self.repo.get_control("kill_switch") == "active" or self.repo.get_control(
-            f"{self.settings.cohort_id}:pause"
-        )
         digest = sha256(self.broker.account().id.encode()).hexdigest()
         if self.repo.get_control(f"{self.settings.cohort_id}:broker-account") != digest:
             raise ValueError("account changed before dispatch")
+        unauthorized_demo = (
+            request.side is Side.BUY
+            and self.settings.entry_policy == "equipment-only-demo"
+            and (
+                self.owner_id is None
+                or link.get("entry_kind") != "calibration"
+                or request.symbol != "AAPL"
+                or not demo_authorized(
+                    self.repo,
+                    self.settings,
+                    self.config_hash,
+                    self.code_sha,
+                    digest,
+                    now,
+                    self.calendar,
+                )
+            )
+        )
+        paused = self.repo.get_control("kill_switch") == "active" or self.repo.get_control(
+            f"{self.settings.cohort_id}:pause"
+        )
         self.assert_owner(now)
         if request.side is Side.BUY:
             clock = self.broker.clock()
@@ -811,12 +829,6 @@ class ExperimentalOrderManager:
                 <= clock.timestamp
                 < gate.session_open
                 + timedelta(minutes=self.settings.calibration_window_minutes[1])
-            )
-            unauthorized_demo = self.settings.entry_policy == "equipment-only-demo" and (
-                self.owner_id is None
-                or link.get("entry_kind") != "calibration"
-                or request.symbol != "AAPL"
-                or not self.demo_authorized(clock.timestamp)
             )
             insufficient_news_horizon = link.get("entry_kind") == "strategy" and (
                 gate.session_close is None

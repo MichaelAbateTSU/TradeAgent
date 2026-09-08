@@ -250,6 +250,52 @@ def test_demo_activation_does_not_clear_concurrently_changed_pause(make_runtime)
     assert runtime.repo.get_control(f"{runtime.settings.cohort_id}:demo-authorization") is None
 
 
+@pytest.mark.parametrize("boundary", ["window_end", "quote_age"])
+def test_slow_demo_authority_is_rechecked_by_final_broker_clock(
+    make_runtime, monkeypatch, boundary
+):
+    from tradeagent import event_orders
+
+    runtime = prepare(make_runtime)
+    at = DEMO_AT if boundary == "quote_age" else DEMO_AT.replace(minute=29, second=59)
+    runtime.broker.now = at
+    args = entry_args(runtime, at)
+    if boundary == "quote_age":
+        quote_at = at - timedelta(seconds=4)
+        args.update(
+            eligible_at=quote_at - timedelta(seconds=1),
+            quote_at=quote_at,
+            execution_quote=args["execution_quote"].model_copy(
+                update={"timestamp": quote_at, "received_at": quote_at}
+            ),
+        )
+    else:
+        args["expires_at"] = at + timedelta(seconds=1)
+    original = event_orders.demo_authorized
+    calls = 0
+
+    def slow_authority(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            runtime.broker.now += timedelta(seconds=2)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(event_orders, "demo_authorized", slow_authority)
+    result = runtime.oms.submit_entry(**args)
+    assert calls == 2
+    assert result["state"] == "expired"
+    assert result["reasons"] == ["SUBMISSION_REVALIDATION_FAILED"]
+    assert runtime.broker.submissions == 0
+    row = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
+    assert row["status"] == "expired"
+    assert row["link"]["definitively_unsent_at"]
+    assert row["link"].get("submission_attempted_at") is None
+    budget = runtime.oms.session_budget()
+    assert budget["total_entries_reserved"] == 0
+    assert budget["equipment_client_order_id"] == row["client_order_id"]
+
+
 @pytest.mark.parametrize("confirmed", [True, False])
 def test_demo_cli_requires_separate_post_acceptance_confirmation(
     make_runtime, monkeypatch, capsys, confirmed
