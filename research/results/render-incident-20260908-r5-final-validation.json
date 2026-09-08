@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-09-08T21:31:34.568023+00:00",
+  "passed": 908,
+  "skipped": 2,
+  "coverage_percent": 87.25,
+  "coverage_required_percent": 85,
+  "ruff_files": 190,
+  "mypy_sources": 84,
+  "inputs_unchanged_during_full_run": true,
+  "source_git_blobs": {
+    "src\\tradeagent\\persistence.py": "f0b8ca5243ef84b714698370b72b8d3468f7ad7a",
+    "tests\\prepared_cache_pg_fixture.py": "d63b9569f7883ca18433f512532ded7203e79b0c",
+    "tests\\test_prepared_cache.py": "285f087c66cc8b13ed5c9c59e499451a99b9bb54"
+  },
+  "actual_postgresql_fixture": "render-incident-20260908-r5-final-pg-fixtures.json",
+  "health_correction_reviewed_sha": "70c78f63084cb29daec92500d037a2028a001d1b",
+  "deployment_acceptance": "not yet deployed or accepted"
+}

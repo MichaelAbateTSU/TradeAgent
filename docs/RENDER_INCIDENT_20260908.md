@@ -284,6 +284,37 @@ The victim statements were COMMIT and a multirow quote INSERT. Those last
 statements alone do not identify the allocation source. These failures are
 preserved and remain part of the unresolved database acceptance gate.
 
+#### Defensive prepared-statement retention bound
+
+Read-only inspection identified another plausible memory contributor, not a proven
+SIG9 cause: variable-size recorder INSERTs produce distinct prepared-statement
+keys, and psycopg normally retains 100 per pooled connection across COMMIT/idle
+periods. A 500-quote shape has 6,000 parameters and approximately 104 KB of wire SQL,
+plus server parse/plan structures. Bound values are not 100 retained payload batches.
+
+The candidate adds only a PostgreSQL/psycopg connection hook, preserving SQL,
+transactions, pool settings, SQLite behavior, and preparation threshold 5.
+Actual testing caught a difference from the initial assumption: Render runs
+psycopg **3.3.5**, and configuration 8 retained nine statements even after a second
+diagnostic query. That failed test and both diagnostics are preserved.
+
+Configuration **7** reserves one entry for the observed behavior while keeping the
+original verification budget at **eight**. At **21:25:37 UTC**, the exact final
+candidate passed both the isolated counter rollback fixture and the transaction-
+enforced READ ONLY cache fixture on real PostgreSQL. Sixteen distinct small SELECT
+shapes, seven executions each, retained 1→8 then eight statements, with correct
+parameter results and unchanged threshold 5. This is a measured sequential-query
+workload, not a universal byte-memory guarantee or proof of the SIG9 allocation
+source. Real recorder throughput, RSS, and PostgreSQL headroom remain acceptance
+requirements.
+
+Final local integration: **908 passed, two explicitly optional local PostgreSQL
+tests skipped, 87.25% coverage**; both PostgreSQL paths were separately exercised
+on the real service. Ruff190/mypy84 and whitespace checks pass; source hashes stayed
+identical throughout the full suite. The minute-bar correction at `70c78f6` received
+an explicit clean delta review; the final cache supplement still needs its own
+exact-pin review before deployment.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)

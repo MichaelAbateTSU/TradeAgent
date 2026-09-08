@@ -1,0 +1,196 @@
+{
+  "diagnostic_only": true,
+  "observed_at": "2026-09-08T21:15:40.903079+00:00",
+  "psycopg_version": "3.3.5",
+  "results": [
+    {
+      "counter_fixture": null,
+      "observations": [
+        {
+          "first_count": 1,
+          "second_count": 1,
+          "shape": 0
+        },
+        {
+          "first_count": 2,
+          "second_count": 2,
+          "shape": 1
+        },
+        {
+          "first_count": 3,
+          "second_count": 3,
+          "shape": 2
+        },
+        {
+          "first_count": 4,
+          "second_count": 4,
+          "shape": 3
+        },
+        {
+          "first_count": 5,
+          "second_count": 5,
+          "shape": 4
+        },
+        {
+          "first_count": 6,
+          "second_count": 6,
+          "shape": 5
+        },
+        {
+          "first_count": 7,
+          "second_count": 7,
+          "shape": 6
+        },
+        {
+          "first_count": 8,
+          "second_count": 8,
+          "shape": 7
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 8
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 9
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 10
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 11
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 12
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 13
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 14
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 15
+        }
+      ],
+      "prepare_threshold": 5,
+      "prepared_max": 8,
+      "scenario": "fresh_engine"
+    },
+    {
+      "counter_fixture": {
+        "rolled_back": true,
+        "stages": [
+          "existing_rows_initialized",
+          "multirow_insert_conflicts_and_updates_exact",
+          "insert_delete_rollback_atomic",
+          "multirow_and_empty_delete_exact",
+          "truncate_and_rollback_exact",
+          "missing_and_negative_counters_fail_closed",
+          "nine_statement_level_transition_triggers"
+        ],
+        "verified": true
+      },
+      "observations": [
+        {
+          "first_count": 1,
+          "second_count": 1,
+          "shape": 0
+        },
+        {
+          "first_count": 2,
+          "second_count": 2,
+          "shape": 1
+        },
+        {
+          "first_count": 3,
+          "second_count": 3,
+          "shape": 2
+        },
+        {
+          "first_count": 4,
+          "second_count": 4,
+          "shape": 3
+        },
+        {
+          "first_count": 5,
+          "second_count": 5,
+          "shape": 4
+        },
+        {
+          "first_count": 6,
+          "second_count": 6,
+          "shape": 5
+        },
+        {
+          "first_count": 7,
+          "second_count": 7,
+          "shape": 6
+        },
+        {
+          "first_count": 8,
+          "second_count": 8,
+          "shape": 7
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 8
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 9
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 10
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 11
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 12
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 13
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 14
+        },
+        {
+          "first_count": 9,
+          "second_count": 9,
+          "shape": 15
+        }
+      ],
+      "prepare_threshold": 5,
+      "prepared_max": 8,
+      "scenario": "after_counter_fixture"
+    }
+  ],
+  "sqlalchemy_version": "2.0.52"
+}

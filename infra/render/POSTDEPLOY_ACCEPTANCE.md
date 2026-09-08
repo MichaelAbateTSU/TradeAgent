@@ -43,6 +43,17 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    Interrupted pages roll back; reruns safely skip completed projections.
    Historical PostgreSQL reports intentionally return unavailable until their
    metadata is complete, rather than silently omitting rows or reparsing gigabytes.
+   Migration `0012_market_data_totals` must finish before deploying its readers.
+   It initializes three exact totals while briefly excluding raw-table writers,
+   then maintains them through nine statement-level triggers. Verify the three
+   totals and enabled triggers; do not reintroduce full-history polling scans.
+   Run the isolated, rollback-only counter fixture before migration and the
+   standalone `tests\prepared_cache_pg_fixture.py` against the candidate/deployed
+   `Database.engine`. Its small-query test enforces READ ONLY and does not send
+   orders. Configuration 7 preserves the tested eight-statement server budget
+   on psycopg3.3.5; do not assume a configured value equals the observed retained
+   count. Record the actual library version and counts. This fixture does not
+   replace live throughput, memory, or dependency verification.
 2. Run the combined probe as a Render job on the broker-equipped event service
    using the deployed environment:
 

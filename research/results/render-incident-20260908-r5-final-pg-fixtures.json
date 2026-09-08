@@ -1,0 +1,53 @@
+{
+  "counter_fixture": {
+    "rolled_back": true,
+    "stages": [
+      "existing_rows_initialized",
+      "multirow_insert_conflicts_and_updates_exact",
+      "insert_delete_rollback_atomic",
+      "multirow_and_empty_delete_exact",
+      "truncate_and_rollback_exact",
+      "missing_and_negative_counters_fail_closed",
+      "nine_statement_level_transition_triggers"
+    ],
+    "verified": true
+  },
+  "observed_at": "2026-09-08T21:25:37.588461+00:00",
+  "prepared_cache_fixture": {
+    "executions_per_shape": 7,
+    "observed_prepared_counts": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8,
+      8
+    ],
+    "prepare_threshold": 5,
+    "prepared_max": 7,
+    "read_only": true,
+    "rolled_back": true,
+    "server_budget": 8,
+    "shapes": 16,
+    "verification_scope": "sequential small SELECT workload; not a universal cache bound",
+    "verified": true
+  },
+  "psycopg_version": "3.3.5",
+  "source_sha256": {
+    "cache_fixture": "20bfa148120dedb2f88d344185b701da5371fa107cf8baab4cdf4440da62e6de",
+    "counter_fixture": "fb0ca22637285a3b917e94fd647310eae502e119b6de9f275028b16ad7796da6",
+    "migration": "dad2fc5fc0aa4435af57ce0c5965ecc925da8619ced02888ae37c7a12e372fc1",
+    "persistence": "d69ec1a573d70be5478a9fdd99ef795623c1d8f833ac41507c454b61029ddf64"
+  },
+  "sqlalchemy_version": "2.0.52"
+}

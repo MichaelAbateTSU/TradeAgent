@@ -1,0 +1,89 @@
+{
+  "configured_prepared_max": 7,
+  "experimental_only": true,
+  "observations": [
+    {
+      "client_names_count": 1,
+      "server_count": 1,
+      "shape": 0
+    },
+    {
+      "client_names_count": 2,
+      "server_count": 2,
+      "shape": 1
+    },
+    {
+      "client_names_count": 3,
+      "server_count": 3,
+      "shape": 2
+    },
+    {
+      "client_names_count": 4,
+      "server_count": 4,
+      "shape": 3
+    },
+    {
+      "client_names_count": 5,
+      "server_count": 5,
+      "shape": 4
+    },
+    {
+      "client_names_count": 6,
+      "server_count": 6,
+      "shape": 5
+    },
+    {
+      "client_names_count": 7,
+      "server_count": 7,
+      "shape": 6
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 7
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 8
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 9
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 10
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 11
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 12
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 13
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 14
+    },
+    {
+      "client_names_count": 8,
+      "server_count": 8,
+      "shape": 15
+    }
+  ],
+  "observed_at": "2026-09-08T21:20:10.814866+00:00",
+  "prepare_threshold": 5,
+  "psycopg_version": "3.3.5"
+}

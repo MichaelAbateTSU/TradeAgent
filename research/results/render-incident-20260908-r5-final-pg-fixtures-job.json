@@ -1,0 +1,17 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T21:25:23.25487826Z",
+    "id": "job-dag7qgp5efls73fff1jg",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+    "status": "pending"
+  },
+  "submitted_at": "2026-09-08T21:25:23.516379+00:00",
+  "source_sha256": {
+    "persistence": "d69ec1a573d70be5478a9fdd99ef795623c1d8f833ac41507c454b61029ddf64",
+    "migration": "dad2fc5fc0aa4435af57ce0c5965ecc925da8619ced02888ae37c7a12e372fc1",
+    "counter_fixture": "fb0ca22637285a3b917e94fd647310eae502e119b6de9f275028b16ad7796da6",
+    "cache_fixture": "20bfa148120dedb2f88d344185b701da5371fa107cf8baab4cdf4440da62e6de"
+  },
+  "purpose": "Exact final configured7/serverbudget8 candidate; isolated counter rollback plus enforced READ ONLY small-query cache verification"
+}

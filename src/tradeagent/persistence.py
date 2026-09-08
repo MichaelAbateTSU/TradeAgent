@@ -24,6 +24,7 @@ from sqlalchemy import (
     UniqueConstraint,
     create_engine,
     delete,
+    event,
     func,
     insert,
     select,
@@ -35,6 +36,13 @@ from sqlalchemy.pool import QueuePool
 
 metadata = MetaData()
 MARKET_DATA_TABLE_NAMES = ("market_bars", "market_quotes", "market_trades")
+POSTGRES_PREPARED_MAX = 7
+
+
+def _bound_prepared_statements(dbapi_connection: Any, connection_record: Any) -> None:
+    # Reserve one slot for observed sequential-query high-water; this is an LRU target.
+    dbapi_connection.prepared_max = POSTGRES_PREPARED_MAX
+
 
 market_data_totals = Table(
     "market_data_totals",
@@ -354,6 +362,8 @@ class Database:
             )
         else:
             self.engine = create_engine(url, future=True, pool_pre_ping=True)
+        if self.engine.dialect.name == "postgresql" and self.engine.dialect.driver == "psycopg":
+            event.listen(self.engine, "connect", _bound_prepared_statements)
 
     def initialize(self) -> None:
         metadata.create_all(self.engine)
