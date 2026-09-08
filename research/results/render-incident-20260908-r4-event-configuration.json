@@ -1,0 +1,40 @@
+{
+  "data": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T17:18:37.334019Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-08 --cohort-id v20-incident-20260908-r4"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-news-worker",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-08T18:56:27.646294Z",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "projectId": "prj-daf34jn40ujc739c852g"
+  }
+}

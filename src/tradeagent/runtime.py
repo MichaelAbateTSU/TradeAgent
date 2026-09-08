@@ -4,7 +4,7 @@ import asyncio
 import signal
 from collections.abc import Callable
 from contextlib import suppress
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 from uuid import uuid4
 
@@ -27,6 +27,11 @@ from tradeagent.domain import MarketBar
 from tradeagent.intraday import NyseSessionCalendar, SessionPhase
 from tradeagent.persistence import ProductionRepository
 from tradeagent.scheduler import ReconciliationScheduler
+from tradeagent.shadow_health import (
+    payload_timestamp,
+    read_shadow_recorder_snapshot,
+    stored_timestamp,
+)
 from tradeagent.shadow_recorder import persist_shadow_batch, raw_already_recorded
 from tradeagent.worker import AutonomousPaperWorker, WorkerMode
 
@@ -129,43 +134,117 @@ class MarketFeedStatusMonitor:
         self._clock = clock
 
     def check(self) -> str:
+        snapshot = read_shadow_recorder_snapshot(
+            self._repository,
+            batch_since=self._clock() - timedelta(seconds=self._maximum_event_age_seconds),
+        )
+        # A heartbeat/batch can advance during the read. Never compare that new
+        # observation to a request-start clock, or rewrite its own timestamp.
         now = self._clock()
         phase = self._calendar.gate(now).phase
-        worker = self._repository.latest_heartbeat("tradeagent-shadow-recorder")
-        details = worker[2] if worker is not None else {}
-        last_event_at = details.get("last_committed_event_at")
-
-        def age_of(field: str) -> float | None:
-            value = details.get(field)
-            try:
-                return (
-                    (now - datetime.fromisoformat(value)).total_seconds()
-                    if isinstance(value, str)
-                    else None
-                )
-            except (ValueError, TypeError):
-                return None
-
-        event_age = age_of("last_committed_event_at")
-        received_event_age = age_of("last_event_at")
-        market_commit_age = age_of("last_market_commit_at")
-        heartbeat_age = (now - worker[1]).total_seconds() if worker else None
+        worker, lease, batch = snapshot.heartbeat, snapshot.lease, snapshot.batch
+        details = worker["details"] if worker and isinstance(worker["details"], dict) else {}
+        heartbeat_at = stored_timestamp(worker["observed_at"]) if worker else None
+        lease_at = stored_timestamp(lease["acquired_at"]) if lease else None
+        heartbeat_age = (now - heartbeat_at).total_seconds() if heartbeat_at else None
+        lease_age = (now - lease_at).total_seconds() if lease_at else None
+        commit_at = payload_timestamp(details.get("last_market_commit_at"))
+        owner_matches = bool(worker and lease and worker["instance_id"] == lease["owner_id"])
         market_open = phase is not SessionPhase.CLOSED
         alive = (
             heartbeat_age is not None
             and 0 <= heartbeat_age <= self._maximum_age_seconds
             and details.get("state") in {"healthy", "degraded"}
+            and owner_matches
+            and lease_age is not None
+            and 0 <= lease_age <= self._maximum_age_seconds * 2
         )
-        healthy = (
+        recorder_ready = (
             alive
+            and details.get("state") == "healthy"
             and details.get("healthy") is True
+            and commit_at is not None
+            and commit_at <= now
+            and details.get("persistence_error") is None
+            and all(
+                details.get(key, 0) == 0
+                for key in (
+                    "dropped_events",
+                    "notice_overflow",
+                    "decision_errors",
+                )
+            )
+        )
+        payload = batch["payload"] if batch and isinstance(batch["payload"], dict) else {}
+        event_at = payload_timestamp(payload.get("last_event_at"))
+        received_at = payload_timestamp(payload.get("last_received_at"))
+        processing_at = payload_timestamp(payload.get("processing_started_at"))
+        row_at = stored_timestamp(batch["occurred_at"]) if batch else None
+        batch_owner_matches = bool(
+            owner_matches and worker and payload.get("instance_id") == worker["instance_id"]
+        )
+        received_count = payload.get("received")
+        inserted_count = payload.get("inserted")
+        duplicate_count = payload.get("duplicates")
+        valid_counts = (
+            isinstance(received_count, int)
+            and not isinstance(received_count, bool)
+            and isinstance(inserted_count, int)
+            and not isinstance(inserted_count, bool)
+            and isinstance(duplicate_count, int)
+            and not isinstance(duplicate_count, bool)
+            and received_count > 0
+            and inserted_count >= 0
+            and duplicate_count >= 0
+            and received_count == inserted_count + duplicate_count
+        )
+        event_age = (now - event_at).total_seconds() if event_at else None
+        valid_times = bool(
+            event_at
+            and received_at
+            and processing_at
+            and row_at
+            and event_at <= received_at <= processing_at == row_at <= now
+        )
+        # Ordered exchange/receipt/processing times inside the unchanged freshness
+        # window, plus row visibility, prove a recent completed market commit.
+        # Processing start is only a lower bound on COMMIT time, never a substitute timestamp.
+        durable_fresh = (
+            valid_times
             and event_age is not None
             and 0 <= event_age <= self._maximum_event_age_seconds
-            and received_event_age is not None
-            and 0 <= received_event_age <= self._maximum_event_age_seconds
-            and market_commit_age is not None
-            and 0 <= market_commit_age <= self._maximum_event_age_seconds
         )
+        healthy = bool(recorder_ready and batch_owner_matches and valid_counts and durable_fresh)
+        reason = (
+            "recorder_not_current_and_healthy"
+            if not recorder_ready
+            else "durable_market_batch_missing"
+            if not batch
+            else "durable_batch_owner_mismatch"
+            if not batch_owner_matches
+            else "durable_batch_has_no_valid_market_count"
+            if not valid_counts
+            else "durable_batch_timestamp_invalid_or_future"
+            if not valid_times
+            else "durable_exchange_progress_stale"
+            if not durable_fresh
+            else "fresh_durable_market_batch"
+        )
+        proof = {
+            "event_id": str(batch["event_id"]) if batch else None,
+            "instance_id": payload.get("instance_id") if batch_owner_matches else None,
+            "owner_matches": batch_owner_matches,
+            "market_events": received_count if valid_counts else None,
+            "last_event_at": event_at.isoformat() if event_at else None,
+            "last_received_at": received_at.isoformat() if received_at else None,
+            "processing_started_at": processing_at.isoformat() if processing_at else None,
+            "event_age_seconds": event_age,
+            "received_age_seconds": ((now - received_at).total_seconds() if received_at else None),
+            "processing_age_seconds": (
+                (now - processing_at).total_seconds() if processing_at else None
+            ),
+            "visible_in_database": batch is not None,
+        }
         state = "market_closed" if not market_open else "healthy" if healthy else "stale"
         self._repository.heartbeat(
             "tradeagent-shadow-market-feed",
@@ -175,14 +254,19 @@ class MarketFeedStatusMonitor:
                 "session_phase": phase.value,
                 "healthy": healthy,
                 "recorder_alive": alive,
-                "last_market_event_at": last_event_at,
+                "freshness_basis": "durable_market_batch",
+                "freshness_reason": reason,
+                "durable_batch": proof,
+                "recorder_heartbeat_at": heartbeat_at.isoformat() if heartbeat_at else None,
+                "recorder_lease_age_seconds": lease_age,
+                "last_market_event_at": event_at.isoformat() if event_at else None,
                 "last_received_market_event_at": details.get("last_received_event_at"),
                 "last_market_commit_at": details.get("last_market_commit_at"),
                 "heartbeat_age_seconds": heartbeat_age,
                 "event_age_seconds": event_age,
-                "received_event_age_seconds": age_of("last_received_event_at"),
-                "received_progress_age_seconds": received_event_age,
-                "market_commit_age_seconds": market_commit_age,
+                "market_commit_age_seconds": (now - commit_at).total_seconds()
+                if commit_at
+                else None,
                 "recorder": details,
                 "stale_after_seconds": self._maximum_event_age_seconds,
                 "liveness_max_age_seconds": self._maximum_age_seconds,

@@ -186,6 +186,81 @@ reusing an old completion result. Regression tests cover busy and storage failur
 restart retry, no duplicate successful snapshot, changed exposure and unchanged
 kill/pause controls. **833 tests passed, 87.17% coverage** after this correction.
 
+### Fourth deployed release: no HTTP failures, acceptance still blocked
+
+The corrected EOD retry was independently reviewed clean at
+`3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f`; all four applications deployed that
+pin around 18:56–18:58 UTC. Entries stayed paused after the news cutoff.
+
+- Actual cross-process PostgreSQL report admission held the slot for 45 seconds.
+  The overlapping API request returned 429 in 0.441 seconds while health, ready,
+  and status remained HTTP 200. After release, the archived report returned HTTP
+  200 in 23.21 seconds, preserving the original morning MISSED evidence.
+- The notifier persisted a **3,984,810-byte report** in 15.22 seconds. Its job RSS
+  was 205,918,208 bytes. The release email was sent in one attempt at
+  `19:08:24.871302 UTC`, provider ID `b75744f6-c1b3-4e94-a6ed-dea5d2a170c1`.
+  The sending-only key still cannot confirm inbox delivery; no resend or expanded
+  permission was used.
+- Indexed physical-data snapshots from 19:05:54 to 19:08:13 UTC, with a fixed
+  19:04:54 cutoff, increased quotes 11,991→39,652, trades 88→380, and bars 4→14.
+  Missing reporting projections were zero. The actual paper account was ACTIVE,
+  unblocked, flat, and had zero open orders at 19:08:19 UTC.
+- The **662.24-second soak had zero HTTP errors**, stable recorder ownership,
+  healthy recorder observations, and no dropped packets. Nevertheless it failed:
+  one PostgreSQL memory sample was **249.51 MiB**, above the unchanged 230 MiB
+  acceptance bound, and feed-monitor snapshots were intermittently stale.
+  Subsequent PostgreSQL samples were 184.80–225.82 MiB; this does not establish
+  the cause of the first peak. Hot requests still reached 23.07 seconds.
+
+The feed monitor was aging an earlier heartbeat's exchange watermark while a
+newer durable recorder batch already existed, and sampled its clock before its
+database read. Its repair must retain the ten-second market freshness bound,
+live-owner checks, and original timestamp meanings. Recurring all-history market
+counts also require removal from the dashboard request path. Neither corrective
+work nor this failed soak is final production acceptance.
+
+### Fifth correction: validation and remaining live gate
+
+The candidate replaces repeated PostgreSQL market-history counts with three
+transactionally maintained exact totals. Migration `0012_market_data_totals`
+initializes under write-compatible maintenance locks and installs nine
+statement-level transition-table triggers. Inserts count only genuinely inserted
+rows; deletes, truncation, conflicts, and rollback retain exact accounting. Missing
+or invalid totals fail explicitly with HTTP 503, never a fabricated zero or fallback
+history scan. Existing and new Python writers are both covered by the database.
+
+At **19:52:20 UTC**, the exact candidate migration, table model, and standalone
+fixture passed on real PostgreSQL in a uniquely isolated schema. All seven test
+stages passed, including 1,000-row insertion, conflict/update semantics, rollback,
+deletion, truncation, missing/negative-counter rejection, and all nine actual
+statement triggers. The outer transaction was rolled back and schema removal
+verified. This fixture did **not** migrate or modify the production market tables.
+Source hashes and the job command are retained in the r5 counter-fixture evidence.
+
+The final local suite reached **869 passed, one optional local PostgreSQL test
+skipped, 87.22% coverage**; the real PostgreSQL proof above is separate from that
+skip. Ruff checks 188 files; mypy checks 84 source files. Final scoped ownership,
+including 87 recorder-focused checks, is released. Exact-pin review, migration,
+deployment, and post-deployment acceptance are still required before calling this
+correction accepted.
+
+The recorder fix uses a bounded, single-connection heartbeat/lease/batch read and
+evaluates time only after that read. Future batches carry the immutable recorder
+owner; old or foreign batches cannot rescue freshness. Positive health requires
+the same live healthy owner, no reported loss/fault, genuine nonzero market counts,
+ordered exchange/receipt/processing timestamps, and the unchanged ten-second
+exchange-age bound. Database visibility proves durability, but processing start
+is never relabeled as COMMIT time. Original sampled heartbeat/commit timestamps
+remain visible alongside the explicit durable proof. Both observed double-sampling
+failures have regression tests.
+
+The regular session has closed; a new eleven-minute regular-session flow test
+cannot now be completed for September 8. A same-session continuation is scheduled
+for **18:10 Eastern** to inspect the normal daily notifier run, with explicit
+instructions to schedule the remaining read-only market-open verification for
+**September 9 at 09:35 Eastern**. This is not permission to rearm entries, replay
+the MISSED window, or relax freshness or memory checks.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)

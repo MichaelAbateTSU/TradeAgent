@@ -1,0 +1,40 @@
+{
+  "observed_at": "2026-09-08T19:06:20.967471+00:00",
+  "status": 200,
+  "seconds": 23.214819199987687,
+  "bytes": 2928690,
+  "body_sha256": "31f53cc56cf82478fbe7a853bc30f8a6c23d636639b0d2841f1933b619088374",
+  "equipment_status": {
+    "state": "missed_window_no_trade",
+    "entry_attempts": 0,
+    "outcome": "MISSED",
+    "missed_at": "2026-09-08T14:00:34.987478+00:00",
+    "blocking_evidence": {
+      "observed": {
+        "ask": "316.85",
+        "bid": "316.23",
+        "certificate_permits_paper": true,
+        "evaluated_at": "2026-09-08T13:59:57.349828+00:00",
+        "limit_price": "316.85",
+        "market_phase": "entry",
+        "maximum_limit_price": null,
+        "maximum_notional": "25",
+        "median_daily_dollar_volume": "12974063332.15",
+        "notional": "24.99978185",
+        "quote_at": "2026-09-08T13:59:56.297677+00:00",
+        "source_valid": true
+      },
+      "purpose": "operator_calibration",
+      "qualification_eligible": false,
+      "reasons": [
+        "INVALID_PRICE_OR_SPREAD",
+        "GLOBAL_KILL_SWITCH"
+      ],
+      "state": "risk_rejected"
+    }
+  },
+  "stable_test_id": "56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d",
+  "session_id": "f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+  "submission_count": 0,
+  "news_decisions": 44
+}

@@ -1,0 +1,14 @@
+{
+  "id": "dep-dag5kn5bedkc73flgteg",
+  "commit": {
+    "id": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+    "message": "fix: retry deferred end-of-day report persistence\n\nKeep broker completion facts independent from report persistence acknowledgement. Retry a missing snapshot after contention or failure, including across restarts, without turning report admission contention into an execution-worker fault.\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+    "createdAt": "2026-09-08T18:53:55Z"
+  },
+  "status": "live",
+  "trigger": "api",
+  "createdAt": "2026-09-08T18:56:28.724201Z",
+  "updatedAt": "2026-09-08T18:58:05.409943Z",
+  "startedAt": "2026-09-08T18:56:28.695426Z",
+  "finishedAt": "2026-09-08T18:57:33.578845Z"
+}

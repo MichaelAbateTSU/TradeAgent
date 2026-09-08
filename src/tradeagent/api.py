@@ -39,6 +39,7 @@ from tradeagent.experimental_policy import ExperimentalSettings
 from tradeagent.ledger import SQLiteLedger
 from tradeagent.persistence import (
     Database,
+    MarketDataTotalsUnavailableError,
     ProductionRepository,
     controls,
     heartbeats,
@@ -128,6 +129,13 @@ ROLE_HEARTBEAT_FIELDS = (
     "exchange_to_commit_lag_seconds",
     "committed_event_age_seconds",
     "market_commit_age_seconds",
+    "freshness_basis",
+    "freshness_reason",
+    "durable_batch",
+    "recorder_heartbeat_at",
+    "recorder_lease_age_seconds",
+    "last_market_event_at",
+    "event_age_seconds",
     "oldest_uncommitted_age_seconds",
     "batch_write_seconds",
     "dispatched",
@@ -188,6 +196,7 @@ def _operational_status(database: Database, now: datetime | None = None) -> dict
             )
         }
         batch_fields = (
+            "instance_id",
             "received",
             "inserted",
             "duplicates",
@@ -645,7 +654,7 @@ def create_app(
                     "statistics_cache_seconds": statistics_cache_seconds,
                     "statistics_basis": "exact counts at the recorded observation, not live health",
                 }
-            except SQLAlchemyError as error:
+            except (SQLAlchemyError, MarketDataTotalsUnavailableError) as error:
                 cached_statistics = None
                 statistics_failed = True
                 statistics_expires = monotonic() + 5.0

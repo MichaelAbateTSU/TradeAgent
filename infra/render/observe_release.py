@@ -92,7 +92,8 @@ def acceptance_failures(evidence: dict[str, Any]) -> list[str]:
         failures.append("database_unavailable_or_public_allowlist_changed")
     for role, service_id in SERVICES.items():
         deploy = evidence["final_deploys"][role][0]["deploy"]
-        if deploy["status"] != "live" or deploy["commit"]["id"] != evidence["expected_commit"]:
+        expected = evidence.get("expected_commits", {}).get(role, evidence["expected_commit"])
+        if deploy["status"] != "live" or deploy["commit"]["id"] != expected:
             failures.append(f"{role}:deployment_changed")
         for row in evidence["events"][role]:
             event = row["event"]
@@ -162,10 +163,9 @@ def dependency_failures(evidence: dict[str, Any]) -> list[str]:
                 or not lease.get("recent_within_120_seconds")
             ):
                 failures.append(f"{name}:invalid_lease_observation")
-            if (
-                name == "tradeagent-event-worker"
-                and reported.get("code_sha") != evidence["expected_commit"]
-            ):
+            if name == "tradeagent-event-worker" and reported.get("code_sha") != evidence.get(
+                "expected_commits", {}
+            ).get("event", evidence["expected_commit"]):
                 failures.append("event:heartbeat_code_mismatch")
             if name == "tradeagent-shadow-recorder":
                 recorder.append(reported)
@@ -204,17 +204,30 @@ def dependency_failures(evidence: dict[str, Any]) -> list[str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--commit", required=True)
+    parser.add_argument(
+        "--role-commit",
+        action="append",
+        default=[],
+        help="Exact ROLE=SHA override for a scoped rollout",
+    )
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--seconds", type=int, default=660)
     parser.add_argument("--interval", type=int, default=10)
     args = parser.parse_args()
     if args.seconds < 600 or args.interval < 1:
         parser.error("acceptance requires at least 600 seconds and a positive interval")
+    expected_commits = {role: args.commit for role in SERVICES}
+    for override in args.role_commit:
+        role, separator, commit = override.partition("=")
+        if not separator or role not in SERVICES or not re.fullmatch(r"[0-9a-fA-F]{40}", commit):
+            parser.error("--role-commit requires a known role and full 40-character SHA")
+        expected_commits[role] = commit
     args.output.parent.mkdir(parents=True, exist_ok=True)
     start = datetime.now(UTC)
     evidence: dict[str, Any] = {
         "started_at": start.isoformat(),
         "expected_commit": args.commit,
+        "expected_commits": expected_commits,
         "requests": [],
         "services": {},
         "limitation": (
@@ -231,7 +244,7 @@ def main() -> None:
             deploys = api_get(render, f"services/{service_id}/deploys", params={"limit": 1})
             evidence["services"][role] = {"service": service, "deploys": deploys}
             deploy = deploys[0]["deploy"]
-            if deploy["status"] != "live" or deploy["commit"]["id"] != args.commit:
+            if deploy["status"] != "live" or deploy["commit"]["id"] != expected_commits[role]:
                 raise RuntimeError(f"{role}: expected pinned live deploy before acceptance")
         evidence["database"] = api_get(render, "postgres/" + DATABASE)
         deadline = time.monotonic() + args.seconds

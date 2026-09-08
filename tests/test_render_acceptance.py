@@ -183,6 +183,19 @@ def test_acceptance_rejects_oom_restarts_changed_code_and_high_memory() -> None:
     assert "event:memory_above_400_mib_acceptance_bound" in acceptance_failures(bad)
 
 
+def test_scoped_release_still_checks_every_role_and_actual_event_code() -> None:
+    data = evidence()
+    data["expected_commits"] = {"recorder": "new-recorder"}
+    data["final_deploys"]["recorder"][0]["deploy"]["commit"]["id"] = "new-recorder"
+    assert acceptance_failures(data) == []
+    data["final_deploys"]["notifier"][0]["deploy"]["commit"]["id"] = "unexpected"
+    assert "notifier:deployment_changed" in acceptance_failures(data)
+    data["final_deploys"]["notifier"][0]["deploy"]["commit"]["id"] = "abc123"
+    data["expected_commits"]["event"] = "new-event"
+    data["final_deploys"]["event"][0]["deploy"]["commit"]["id"] = "new-event"
+    assert "event:heartbeat_code_mismatch" in acceptance_failures(data)
+
+
 def test_failed_dashboard_body_is_not_stored() -> None:
     transport = httpx.MockTransport(lambda _: httpx.Response(502, text="<html>" * 30_000))
     with httpx.Client(transport=transport) as client:

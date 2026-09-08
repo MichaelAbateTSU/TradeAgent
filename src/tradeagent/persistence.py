@@ -8,7 +8,9 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -32,6 +34,21 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.pool import QueuePool
 
 metadata = MetaData()
+MARKET_DATA_TABLE_NAMES = ("market_bars", "market_quotes", "market_trades")
+
+market_data_totals = Table(
+    "market_data_totals",
+    metadata,
+    Column("table_name", String(32), primary_key=True),
+    Column("row_count", BigInteger, nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    CheckConstraint("row_count >= 0", name="ck_market_data_totals_nonnegative"),
+)
+
+
+class MarketDataTotalsUnavailableError(RuntimeError):
+    """Exact PostgreSQL counters are not initialized; never replace them with a scan or zero."""
+
 
 # Table definitions are kept in code so local SQLite and production PostgreSQL share
 # identical repository contracts. Alembic owns production upgrades.
@@ -601,6 +618,23 @@ class ProductionRepository:
 
     def market_data_counts(self) -> tuple[int, int, int]:
         with self._database.begin() as connection:
+            if connection.dialect.name == "postgresql":
+                counts: dict[str, int] = {
+                    name: count
+                    for name, count in connection.execute(
+                        select(
+                            market_data_totals.c.table_name, market_data_totals.c.row_count
+                        ).where(market_data_totals.c.table_name.in_(MARKET_DATA_TABLE_NAMES))
+                    )
+                }
+                if set(counts) != set(MARKET_DATA_TABLE_NAMES) or any(
+                    not isinstance(value, int) or value < 0 for value in counts.values()
+                ):
+                    raise MarketDataTotalsUnavailableError(
+                        "Exact market-data counters are unavailable; finish migration "
+                        "0012_market_data_totals before reading production totals."
+                    )
+                return counts["market_bars"], counts["market_quotes"], counts["market_trades"]
             bars_count = connection.scalar(select(func.count()).select_from(market_bars))
             quotes_count = connection.scalar(select(func.count()).select_from(market_quotes))
             trades_count = connection.scalar(select(func.count()).select_from(market_trades))

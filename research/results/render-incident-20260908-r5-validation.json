@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-09-08T20:14:01.283942+00:00",
+  "passed": 869,
+  "skipped": 1,
+  "coverage_percent": 87.22,
+  "coverage_required_percent": 85,
+  "ruff_files": 188,
+  "mypy_sources": 84,
+  "javascript_syntax": "passed",
+  "diff_check": "passed",
+  "real_postgresql_fixture": "render-incident-20260908-r5-counter-fixture.json",
+  "source_git_blobs": {
+    "src\\tradeagent\\api.py": "5c16d82fb8b89525ebf4a82261e1a8b6fe8a470b",
+    "src\\tradeagent\\persistence.py": "9e89c548c58765a08a2ba43863f5347f539d6bd3",
+    "src\\tradeagent\\runtime.py": "0435757d28ab932177fccaed7a51fca7d49460b1",
+    "src\\tradeagent\\shadow_health.py": "989c3c153b30cc055625dedfc2de9fb53e0b937e",
+    "src\\tradeagent\\shadow_recorder.py": "d2ed54ae7b8d0110209812b61ca44ea53c0debc8",
+    "src\\tradeagent\\worker.py": "a7eb31b81c3c0ba99659f11e312b7af0e0fe3cbd",
+    "migrations\\versions\\0012_market_data_totals.py": "210b446e28b017901aa6c48a9775d908f4ce9b27",
+    "tests\\test_api.py": "85aea9be70e7737879853348bdcdf713ba110eca",
+    "tests\\test_runtime.py": "09bd0a7df51c3346e262a7fe8b7f6143748bb636",
+    "tests\\test_shadow_recorder.py": "c8af12ad93968121fce4bf6f4146353062007dfb",
+    "tests\\test_market_data_totals.py": "d31ba0e2065129baa4f51e38666bfda05f45fadc",
+    "tests\\market_data_totals_pg_fixture.py": "19c6a95c025cebb2e01c114e45437595dd8736ea",
+    "tests\\test_render_acceptance.py": "fde4e6560cbf5a3ad881f62e44b437b6ac88602c",
+    "infra\\render\\observe_release.py": "ec8a5ea4d56ac0f7fea4fb4ae67373f69446a98f"
+  }
+}

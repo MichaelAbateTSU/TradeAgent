@@ -111,6 +111,9 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    control, not a completed report; it must not be counted as report success.
    For a single-role revision, explicitly verify each role's own expected SHA rather
    than pretending the unchanged roles received that revision.
+   Keep `--commit` as the unchanged base pin and supply `--role-commit recorder=FULL_SHA`
+   and/or `--role-commit dashboard=FULL_SHA` for deliberately scoped deployments.
+   All roles, including the unchanged event heartbeat, remain strictly checked.
 5. Inspect **all** recorded evidence, including any failure. Require:
    - Stable current worker owners and advancing heartbeats throughout the window.
    - Actual increasing committed IEX quotes, trades and bars, with fresh exchange

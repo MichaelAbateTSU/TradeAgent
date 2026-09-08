@@ -566,3 +566,12 @@ def test_existing_batch_retry_does_not_backfill_metadata_from_incoming_body(
     with repository._database.begin() as connection:
         assert connection.scalar(select(events.c.payload)) == original_payload
         assert connection.execute(select(event_reporting_metadata)).all() == []
+
+
+def test_batch_owner_is_immutable_on_retry(repository):
+    batch_id = str(uuid4())
+    persist_shadow_batch(repository, [_receipt(0)], [], batch_id, instance_id="first-recorder")
+    persist_shadow_batch(repository, [_receipt(0)], [], batch_id, instance_id="new-recorder")
+    original = repository.latest_event_payload("shadow_recorder_batch")
+    assert original["instance_id"] == "first-recorder"
+    assert repository.market_data_counts() == (0, 1, 0)

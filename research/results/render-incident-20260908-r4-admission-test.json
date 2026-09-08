@@ -1,0 +1,34 @@
+{
+  "holder": {
+    "code_sha": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+    "at": "2026-09-08T19:02:21.080692+00:00",
+    "hold_seconds": 45,
+    "table_writes": 0
+  },
+  "requests": [
+    {
+      "path": "/api/event-session-report?cohort_id=v20-tuesday-20260908-r3",
+      "status": 429,
+      "seconds": 0.44114969996735454,
+      "retry_after": "5",
+      "detail": {
+        "detail": "Another full session report is running; retry after it completes. No partial report or delivery was created."
+      }
+    },
+    {
+      "path": "/health",
+      "status": 200,
+      "seconds": 0.247255900001619
+    },
+    {
+      "path": "/ready",
+      "status": 200,
+      "seconds": 0.5567051999969408
+    },
+    {
+      "path": "/api/status",
+      "status": 200,
+      "seconds": 0.09911319997627288
+    }
+  ]
+}

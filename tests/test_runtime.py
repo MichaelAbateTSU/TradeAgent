@@ -5,6 +5,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from pydantic import SecretStr
@@ -16,7 +17,12 @@ from tradeagent.alpaca_paper import (
     AlpacaPaperOrder,
     AlpacaPaperPosition,
 )
-from tradeagent.alpaca_stream import AlpacaMarketStream, AlpacaStreamSettings, MarketQuote
+from tradeagent.alpaca_stream import (
+    AlpacaMarketStream,
+    AlpacaStreamSettings,
+    MarketQuote,
+    ReceivedStreamEvent,
+)
 from tradeagent.config import AppConfig, IntradayConfig
 from tradeagent.data import synthetic_bars
 from tradeagent.persistence import Database, ProductionRepository
@@ -26,7 +32,7 @@ from tradeagent.runtime import (
     ShadowAuditProcessor,
     run_shadow_runtime,
 )
-from tradeagent.shadow_recorder import ShadowRecorderSettings
+from tradeagent.shadow_recorder import ShadowRecorderSettings, persist_shadow_batch
 from tradeagent.worker import AutonomousPaperWorker, WorkerMode
 
 
@@ -49,6 +55,47 @@ class FakePaperClient:
 
     def open_orders(self) -> tuple[AlpacaPaperOrder, ...]:
         return ()
+
+
+def _running_recorder(repository, now, *, owner="worker-1", details=None):
+    repository.acquire_worker_lock("tradeagent-shadow-recorder", owner)
+    repository.refresh_worker_lock("tradeagent-shadow-recorder", owner, observed_at=now)
+    repository.heartbeat(
+        "tradeagent-shadow-recorder",
+        owner,
+        {
+            "state": "healthy",
+            "healthy": True,
+            "last_event_at": now.isoformat(),
+            "last_committed_event_at": now.isoformat(),
+            "last_market_commit_at": now.isoformat(),
+            **(details or {}),
+        },
+        observed_at=now,
+    )
+
+
+def _durable_batch(repository, event_at, *, received_at=None, processing_at=None, owner="worker-1"):
+    received_at = received_at or event_at + timedelta(milliseconds=30)
+    processing_at = processing_at or received_at + timedelta(milliseconds=100)
+    quote = MarketQuote(
+        symbol="SPY",
+        timestamp=event_at,
+        bid_price=Decimal(100),
+        ask_price=Decimal(101),
+        bid_size=Decimal(10),
+        ask_size=Decimal(20),
+    )
+    batch_id = str(uuid4())
+    persist_shadow_batch(
+        repository,
+        [ReceivedStreamEvent(quote, received_at)],
+        [],
+        batch_id,
+        clock=lambda: processing_at,
+        instance_id=owner,
+    )
+    return batch_id
 
 
 def test_production_reconciler_and_shadow_audit(tmp_path: Path) -> None:
@@ -95,31 +142,11 @@ def test_market_feed_monitor_marks_open_session_stale_and_closed_session_safe(
 
     assert monitor.check() == "stale"
     assert repository.get_control("kill_switch") is None
-    repository.heartbeat(
-        "tradeagent-shadow-recorder",
-        "worker-1",
-        {
-            "state": "healthy",
-            "healthy": True,
-            "last_event_at": now.isoformat(),
-            "last_committed_event_at": now.isoformat(),
-            "last_market_commit_at": now.isoformat(),
-        },
-        observed_at=now,
-    )
+    _running_recorder(repository, now)
+    _durable_batch(repository, now - timedelta(seconds=1))
     assert monitor.check() == "healthy"
-    repository.heartbeat(
-        "tradeagent-shadow-recorder",
-        "worker-1",
-        {
-            "state": "healthy",
-            "healthy": True,
-            "last_event_at": (now - timedelta(seconds=11)).isoformat(),
-            "last_committed_event_at": now.isoformat(),
-            "last_market_commit_at": now.isoformat(),
-        },
-        observed_at=now,
-    )
+    now += timedelta(seconds=11)
+    _running_recorder(repository, now)
     assert monitor.check() == "stale"
     assert repository.get_control("kill_switch") is None
 
@@ -139,12 +166,15 @@ def test_market_feed_monitor_marks_open_session_stale_and_closed_session_safe(
         {"state": "stopped"},
         {"state": "failed"},
         {"state": "starting"},
-        {"last_committed_event_at": "2026-09-08T14:29:11+00:00"},
-        {"last_committed_event_at": None},
-        {"last_market_commit_at": "2026-09-08T14:29:00+00:00"},
+        {"persistence_error": "OperationalError"},
+        {"dropped_events": 1},
+        {"decision_errors": 1},
+        {"notice_overflow": 1},
+        {"last_market_commit_at": "2026-09-08T14:34:01+00:00"},
+        {"last_market_commit_at": "not-a-date"},
     ],
 )
-def test_recent_heartbeat_and_receipts_cannot_mask_stopped_or_stalled_commit_progress(
+def test_fresh_batch_cannot_mask_stopped_or_faulted_recorder(
     tmp_path: Path,
     unhealthy,
 ) -> None:
@@ -153,21 +183,8 @@ def test_recent_heartbeat_and_receipts_cannot_mask_stopped_or_stalled_commit_pro
     repository = ProductionRepository(database)
     repository.set_control("kill_switch", "inactive")
     now = datetime(2026, 9, 8, 14, 34, tzinfo=UTC)
-    repository.heartbeat(
-        "tradeagent-shadow-recorder",
-        "shadow",
-        {
-            "state": "healthy",
-            "healthy": True,
-            "last_event_at": now.isoformat(),
-            "last_received_at": now.isoformat(),
-            "last_commit_at": now.isoformat(),
-            "last_committed_event_at": now.isoformat(),
-            "last_market_commit_at": now.isoformat(),
-            **unhealthy,
-        },
-        observed_at=now,
-    )
+    _running_recorder(repository, now, details=unhealthy)
+    _durable_batch(repository, now - timedelta(seconds=1))
     repository.heartbeat(
         "tradeagent-market-feed",
         "legacy",
@@ -186,6 +203,239 @@ def test_recent_heartbeat_and_receipts_cannot_mask_stopped_or_stalled_commit_pro
     assert repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]["healthy"] is False
     assert repository.get_control("kill_switch") == "inactive"
     database.dispose()
+
+
+@pytest.mark.parametrize(
+    ("checked_at", "event_at", "received_at", "processing_at", "old_commit"),
+    [
+        (
+            "2026-09-08T19:08:18.479512+00:00",
+            "2026-09-08T19:08:09.067089+00:00",
+            "2026-09-08T19:08:09.102519+00:00",
+            "2026-09-08T19:08:13.191731+00:00",
+            "2026-09-08T19:08:10.082895+00:00",
+        ),
+        (
+            "2026-09-08T19:10:56.879044+00:00",
+            "2026-09-08T19:10:53.995884+00:00",
+            "2026-09-08T19:10:54.034377+00:00",
+            "2026-09-08T19:10:54.916659+00:00",
+            "2026-09-08T19:10:50.579280+00:00",
+        ),
+    ],
+)
+def test_durable_progress_resolves_live_double_sampling_without_freshening_heartbeat(
+    tmp_path,
+    checked_at,
+    event_at,
+    received_at,
+    processing_at,
+    old_commit,
+):
+    with Database(f"sqlite:///{tmp_path / 'sample-race.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime.fromisoformat(checked_at)
+        heartbeat_at = now - timedelta(seconds=5)
+        _running_recorder(
+            repository,
+            heartbeat_at,
+            details={
+                "last_committed_event_at": (now - timedelta(seconds=12)).isoformat(),
+                "last_event_at": (now - timedelta(seconds=12)).isoformat(),
+                "last_market_commit_at": old_commit,
+            },
+        )
+        original_heartbeat = repository.latest_heartbeat("tradeagent-shadow-recorder")
+        batch_id = _durable_batch(
+            repository,
+            datetime.fromisoformat(event_at),
+            received_at=datetime.fromisoformat(received_at),
+            processing_at=datetime.fromisoformat(processing_at),
+        )
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            IntradayConfig(),
+            instance_id="monitor",
+            clock=lambda: now,
+        )
+        assert monitor.check() == "healthy"
+        details = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]
+        assert details["freshness_basis"] == "durable_market_batch"
+        assert details["freshness_reason"] == "fresh_durable_market_batch"
+        assert details["durable_batch"]["event_id"] == batch_id
+        assert details["durable_batch"]["last_event_at"] == event_at
+        assert details["durable_batch"]["processing_started_at"] == processing_at
+        assert details["durable_batch"]["visible_in_database"] is True
+        assert details["last_market_commit_at"] == old_commit
+        assert details["recorder_heartbeat_at"] == heartbeat_at.isoformat()
+        assert repository.latest_heartbeat("tradeagent-shadow-recorder") == original_heartbeat
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "missing_lease",
+        "foreign_lease",
+        "expired_lease",
+        "future_lease",
+        "expired_heartbeat",
+        "future_heartbeat",
+    ],
+)
+def test_durable_progress_never_rescues_invalid_owner_or_liveness(tmp_path, fault):
+    with Database(f"sqlite:///{tmp_path / 'ownership.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 19, 10, 56, tzinfo=UTC)
+        config = IntradayConfig()
+        heartbeat_at = now
+        if fault == "expired_heartbeat":
+            heartbeat_at -= timedelta(seconds=config.heartbeat_max_age_seconds + 1)
+        if fault == "future_heartbeat":
+            heartbeat_at += timedelta(seconds=1)
+        _running_recorder(repository, heartbeat_at)
+        _durable_batch(repository, now - timedelta(seconds=1))
+        if fault in {"missing_lease", "foreign_lease"}:
+            repository.release_worker_lock("tradeagent-shadow-recorder", "worker-1")
+        if fault == "foreign_lease":
+            repository.acquire_worker_lock("tradeagent-shadow-recorder", "other")
+            repository.refresh_worker_lock("tradeagent-shadow-recorder", "other", observed_at=now)
+        if fault in {"expired_lease", "future_lease"}:
+            lease_at = (
+                now - timedelta(seconds=config.heartbeat_max_age_seconds * 2 + 1)
+                if fault == "expired_lease"
+                else now + timedelta(seconds=1)
+            )
+            repository.refresh_worker_lock(
+                "tradeagent-shadow-recorder",
+                "worker-1",
+                observed_at=lease_at,
+            )
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            config,
+            instance_id="monitor",
+            clock=lambda: now,
+        )
+        assert monitor.check() == "stale"
+        assert repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]["healthy"] is False
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "old_exchange",
+        "future_exchange",
+        "future_processing",
+        "missing_timestamp",
+        "naive_timestamp",
+        "zero_market_count",
+        "invalid_count",
+        "foreign_batch",
+        "untagged_batch",
+        "status_only",
+        "expired_batch",
+    ],
+)
+def test_recent_status_or_invalid_batch_never_becomes_durable_market_proof(tmp_path, fault):
+    with Database(f"sqlite:///{tmp_path / 'invalid-proof.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 19, 10, 56, tzinfo=UTC)
+        _running_recorder(repository, now)
+        payload = {
+            "instance_id": "worker-1",
+            "received": 1,
+            "inserted": 1,
+            "duplicates": 0,
+            "last_event_at": (now - timedelta(seconds=2)).isoformat(),
+            "last_received_at": (now - timedelta(seconds=1)).isoformat(),
+            "processing_started_at": now.isoformat(),
+        }
+        row_at = now
+        kind = "shadow_recorder_batch"
+        if fault == "old_exchange":
+            payload["last_event_at"] = (now - timedelta(seconds=10.001)).isoformat()
+        if fault == "future_exchange":
+            payload["last_event_at"] = (now + timedelta(seconds=1)).isoformat()
+        if fault == "future_processing":
+            row_at = now + timedelta(seconds=1)
+            payload["processing_started_at"] = row_at.isoformat()
+        if fault == "missing_timestamp":
+            del payload["last_event_at"]
+        if fault == "naive_timestamp":
+            payload["last_event_at"] = "2026-09-08T19:10:55"
+        if fault == "zero_market_count":
+            payload.update(received=0, inserted=0)
+        if fault == "invalid_count":
+            payload["received"] = True
+        if fault == "foreign_batch":
+            payload["instance_id"] = "previous-recorder"
+        if fault == "untagged_batch":
+            del payload["instance_id"]
+        if fault == "status_only":
+            kind = "shadow_stream_status"
+        if fault == "expired_batch":
+            row_at = now - timedelta(seconds=11)
+            payload["processing_started_at"] = row_at.isoformat()
+        repository.append_event(kind, payload, occurred_at=row_at, trace_id="proof-test")
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            IntradayConfig(),
+            instance_id="monitor",
+            clock=lambda: now,
+        )
+        assert monitor.check() == "stale"
+        assert repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]["healthy"] is False
+
+
+def test_monitor_evaluates_clock_after_snapshot_read(tmp_path, monkeypatch):
+    from tradeagent.shadow_health import read_shadow_recorder_snapshot
+
+    with Database(f"sqlite:///{tmp_path / 'read-clock.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 19, 10, 56, tzinfo=UTC)
+        clock = [now]
+        _running_recorder(repository, now + timedelta(milliseconds=500))
+        _durable_batch(repository, now - timedelta(seconds=1))
+
+        def delayed_snapshot(*args, **kwargs):
+            result = read_shadow_recorder_snapshot(*args, **kwargs)
+            clock[0] = now + timedelta(seconds=1)
+            return result
+
+        monkeypatch.setattr("tradeagent.runtime.read_shadow_recorder_snapshot", delayed_snapshot)
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            IntradayConfig(),
+            instance_id="monitor",
+            clock=lambda: clock[0],
+        )
+        assert monitor.check() == "healthy"
+        details = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]
+        assert details["heartbeat_age_seconds"] == 0.5
+
+
+def test_foreign_latest_batch_does_not_mask_current_owner_durable_progress(tmp_path):
+    with Database(f"sqlite:///{tmp_path / 'other-owner.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 19, 10, 56, tzinfo=UTC)
+        _running_recorder(repository, now)
+        own_batch = _durable_batch(repository, now - timedelta(seconds=2))
+        _durable_batch(repository, now - timedelta(seconds=1), owner="previous-recorder")
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            IntradayConfig(),
+            instance_id="monitor",
+            clock=lambda: now,
+        )
+        assert monitor.check() == "healthy"
+        details = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]
+        assert details["durable_batch"]["event_id"] == own_batch
+        assert details["durable_batch"]["instance_id"] == "worker-1"
 
 
 def test_shadow_runtime_records_stale_packets_and_never_runs_broker_scheduler(

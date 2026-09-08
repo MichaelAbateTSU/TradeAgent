@@ -1,0 +1,22 @@
+{
+  "started_at": "2026-09-08T19:05:43.891496+00:00",
+  "finished_at": "2026-09-08T19:16:46.132970+00:00",
+  "duration_seconds": 662.241474,
+  "http_failures": 0,
+  "acceptance_failures": [
+    "database:missing_memory_or_above_230_mib_acceptance_bound",
+    "tradeagent-shadow-market-feed:stale_or_unhealthy"
+  ],
+  "request_count": 658,
+  "maximum_request_seconds": 23.067,
+  "raw_sha256": "8e92b441fd3361804c7fa88fb50cf43e0876d3c30d3663ca68b0168bf3fb4b1c",
+  "archive": "render-incident-20260908-r4-soak.json.gz",
+  "accepted": false,
+  "memory_peaks_mib": {
+    "srv-dadnn6mq1p3s73ef7ef0": 126.38280868530273,
+    "srv-dadn8son74is73apqcc0": 153.95312309265137,
+    "dpg-dadn7nht0dsc73f9jja0-a": 249.51171875,
+    "srv-dae4tr7qj5pc73a9e0k0": 262.39452362060547,
+    "srv-dadoa3740ujc73cb09c0": 203.64843368530273
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-09-08T19:52:20.480137+00:00",
+  "rolled_back": true,
+  "source_sha256": {
+    "fixture": "fb0ca22637285a3b917e94fd647310eae502e119b6de9f275028b16ad7796da6",
+    "migration": "dad2fc5fc0aa4435af57ce0c5965ecc925da8619ced02888ae37c7a12e372fc1",
+    "persistence": "e4756bb8ee3322d7769904202375e33d4af8aec35dd128d2e6575f766a3bd3d0"
+  },
+  "stages": [
+    "existing_rows_initialized",
+    "multirow_insert_conflicts_and_updates_exact",
+    "insert_delete_rollback_atomic",
+    "multirow_and_empty_delete_exact",
+    "truncate_and_rollback_exact",
+    "missing_and_negative_counters_fail_closed",
+    "nine_statement_level_transition_triggers"
+  ],
+  "verified": true
+}

@@ -1,0 +1,13 @@
+{
+  "attempts": 1,
+  "delivery_verification": "unavailable; sent is not inbox confirmation",
+  "notification_id": "8be12cea-67a1-5c75-9fe7-399bee645b94",
+  "provider_error": {
+    "message": "This API key is restricted to only send emails",
+    "name": "restricted_api_key"
+  },
+  "provider_message_id": "b75744f6-c1b3-4e94-a6ed-dea5d2a170c1",
+  "provider_status_http": 401,
+  "sent_at": "2026-09-08 19:08:24.871302+00:00",
+  "status": "sent"
+}

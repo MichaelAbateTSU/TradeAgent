@@ -211,6 +211,7 @@ class AutonomousPaperWorker:
             self._repository,
             settings=self._recorder_settings,
             clock=self._clock,
+            instance_id=self._instance_id,
         )
         self._recorder = recorder
 

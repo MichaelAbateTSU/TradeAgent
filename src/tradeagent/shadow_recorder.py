@@ -66,6 +66,7 @@ def persist_shadow_batch(
     batch_id: str,
     *,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+    instance_id: str | None = None,
 ) -> BatchWriteResult:
     """Append raw rows and one batch audit atomically; retries never rewrite receipt times."""
     processed_at = clock()
@@ -165,6 +166,7 @@ def persist_shadow_batch(
                         "last_received_at": receipts[-1].received_at.isoformat(),
                         "processing_started_at": processed_at.isoformat(),
                         "execution_enabled": False,
+                        "instance_id": instance_id,
                     },
                 }
             )
@@ -196,11 +198,13 @@ class ShadowBatchRecorder:
         settings: ShadowRecorderSettings | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         after_commit: Callable[[Sequence[ReceivedStreamEvent]], Awaitable[None]] | None = None,
+        instance_id: str | None = None,
     ) -> None:
         self.repository = repository
         self.settings = settings or ShadowRecorderSettings()
         self.clock = clock
         self.after_commit = after_commit
+        self.instance_id = instance_id
         self.queue: deque[ReceivedStreamEvent] = deque()
         self._notices: deque[dict[str, Any]] = deque()
         self._overflow: dict[str, Any] | None = None
@@ -396,6 +400,7 @@ class ShadowBatchRecorder:
                         notices,
                         batch_id,
                         clock=self.clock,
+                        instance_id=self.instance_id,
                     )
                     break
                 except SQLAlchemyError as exc:

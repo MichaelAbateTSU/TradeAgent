@@ -205,12 +205,14 @@ def test_production_statistics_are_singleflight_but_controls_and_roles_are_live(
             assert calls == 2
 
 
+@pytest.mark.parametrize("missing_totals", [False, True])
 def test_statistics_failure_is_not_cached_as_healthy_or_retried_by_every_request(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, missing_totals: bool
 ) -> None:
     from sqlalchemy.exc import OperationalError
 
     import tradeagent.api as api
+    from tradeagent.persistence import MarketDataTotalsUnavailableError
 
     url = f"sqlite:///{tmp_path / 'failed-counts.db'}"
     with Database(url) as database:
@@ -222,6 +224,8 @@ def test_statistics_failure_is_not_cached_as_healthy_or_retried_by_every_request
     def fail(_: ProductionRepository) -> tuple[int, int, int]:
         nonlocal attempts
         attempts += 1
+        if missing_totals:
+            raise MarketDataTotalsUnavailableError("Required exact totals are missing")
         raise OperationalError("count", {}, RuntimeError("database unavailable"))
 
     monkeypatch.setattr(ProductionRepository, "market_data_counts", fail)
@@ -290,7 +294,17 @@ def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path)
             observed_at=now,
         )
         repository.heartbeat(
-            "tradeagent-shadow-market-feed", "monitor", {"state": "stale"}, observed_at=now
+            "tradeagent-shadow-market-feed",
+            "monitor",
+            {
+                "state": "stale",
+                "freshness_basis": "durable_market_batch",
+                "freshness_reason": "durable_batch_owner_mismatch",
+                "durable_batch": {"event_id": "actual-batch", "owner_matches": False},
+                "recorder_heartbeat_at": now.isoformat(),
+                "recorder_lease_age_seconds": 2.0,
+            },
+            observed_at=now,
         )
     client = TestClient(create_app(production_database_url=production_url))
     runtime = client.get("/api/runtime").json()
@@ -298,6 +312,16 @@ def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path)
     assert runtime["worker_status"]["reported"]["healthy"] is False
     assert runtime["worker_status"]["reported"]["derived"]["healthy"] is False
     assert runtime["market_feed_status"]["reported"]["state"] == "stale"
+    assert runtime["market_feed_status"]["reported"]["freshness_basis"] == "durable_market_batch"
+    assert runtime["market_feed_status"]["reported"]["freshness_reason"] == (
+        "durable_batch_owner_mismatch"
+    )
+    assert runtime["market_feed_status"]["reported"]["recorder_heartbeat_at"] == now.isoformat()
+    assert runtime["market_feed_status"]["reported"]["recorder_lease_age_seconds"] == 2.0
+    assert runtime["market_feed_status"]["reported"]["durable_batch"] == {
+        "event_id": "actual-batch",
+        "owner_matches": False,
+    }
     ready = client.get("/ready").json()["operational_status"]["roles"]
     assert "tradeagent-shadow-market-feed" in ready
     assert "tradeagent-market-feed" not in ready
