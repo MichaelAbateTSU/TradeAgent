@@ -1,0 +1,214 @@
+[
+  {
+    "at": "2026-09-08T15:35:28.377096+00:00",
+    "rows": [
+      {
+        "pid": 431793,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:05:57.167766",
+        "query": "FETCH FORWARD 32 FROM \"c_774c466b9e10_2\""
+      },
+      {
+        "pid": 431809,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:05:46.701629",
+        "query": "FETCH FORWARD 32 FROM \"c_7daf15192250_2f\""
+      },
+      {
+        "pid": 431738,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:00.300363",
+        "query": "INSERT INTO market_quotes (quote_id, symbol, feed_source, event_at, received_at, processed_at, bid_price, bid_exchange, ask_price, ask_exchange, bid_size, ask_size) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITH TIME ZONE, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE, $7, $8::VARCHAR, $9, $10::VARCHAR, $11, $12), ($13::VARCHAR, $14::VARCHAR, $15::VARCHAR, $16::TIMESTAMP WITH TIME ZONE, $17::TIMESTAMP WITH TIME ZONE, $18::TIMESTAMP WITH TIME ZONE, $19, $20::VARCHAR, $21, $22::VARCHAR, $23, $24), ($25::VARCHAR, $26::VARCHAR, $27::VARCHAR, $28::TIMESTAMP WITH TIME ZONE, $29::TIMESTAMP WITH TIME ZONE, $30::TIMESTAMP WITH TIME ZONE, $31, $32::VARCHAR, $33, $34::VARCHAR, $35, $36), ($37::VARCHAR, $38::VARCHAR, $39::VARCHAR, $40::TIMESTAMP WITH TIME ZONE, $41::TIMESTAMP WITH TIME ZONE, $42::TIMESTAMP WITH TIME ZONE, $43, $44::VARCHAR, $45, $46::VARCHAR, $47, $48), ($49::VARCHAR, $50::VARCHAR, $51::VARCHAR, $52::TIMESTAMP WITH TIME ZONE, $53::TIMESTAMP WITH TIME ZONE, $54::TIMESTAMP "
+      },
+      {
+        "pid": 432636,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:00.299478",
+        "query": "FETCH FORWARD 32 FROM \"c_7daf0cfdad50_cf\""
+      },
+      {
+        "pid": 432226,
+        "state": "active",
+        "wait_event_type": "IO",
+        "wait_event": "WalSync",
+        "duration": "-1 day, 23:59:59.898986",
+        "query": "COMMIT"
+      }
+    ]
+  },
+  {
+    "at": "2026-09-08T15:35:32.777749+00:00",
+    "rows": [
+      {
+        "pid": 431793,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:06:01.567872",
+        "query": "FETCH FORWARD 32 FROM \"c_774c466b9e10_2\""
+      },
+      {
+        "pid": 431809,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:05:51.101735",
+        "query": "FETCH FORWARD 32 FROM \"c_7daf15192250_2f\""
+      },
+      {
+        "pid": 432636,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:03.800940",
+        "query": "FETCH FORWARD 1 FROM \"c_7daf0d713e50_d2\""
+      },
+      {
+        "pid": 432649,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:00.301712",
+        "query": "SELECT count(*) AS count_1 \nFROM market_quotes"
+      },
+      {
+        "pid": 432226,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:00.301045",
+        "query": "SELECT event_evidence.payload \nFROM event_evidence"
+      },
+      {
+        "pid": 431726,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "-1 day, 23:59:59.801713",
+        "query": "INSERT INTO market_quotes (quote_id, symbol, feed_source, event_at, received_at, processed_at, bid_price, bid_exchange, ask_price, ask_exchange, bid_size, ask_size) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITH TIME ZONE, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE, $7, $8::VARCHAR, $9, $10::VARCHAR, $11, $12), ($13::VARCHAR, $14::VARCHAR, $15::VARCHAR, $16::TIMESTAMP WITH TIME ZONE, $17::TIMESTAMP WITH TIME ZONE, $18::TIMESTAMP WITH TIME ZONE, $19, $20::VARCHAR, $21, $22::VARCHAR, $23, $24), ($25::VARCHAR, $26::VARCHAR, $27::VARCHAR, $28::TIMESTAMP WITH TIME ZONE, $29::TIMESTAMP WITH TIME ZONE, $30::TIMESTAMP WITH TIME ZONE, $31, $32::VARCHAR, $33, $34::VARCHAR, $35, $36), ($37::VARCHAR, $38::VARCHAR, $39::VARCHAR, $40::TIMESTAMP WITH TIME ZONE, $41::TIMESTAMP WITH TIME ZONE, $42::TIMESTAMP WITH TIME ZONE, $43, $44::VARCHAR, $45, $46::VARCHAR, $47, $48), ($49::VARCHAR, $50::VARCHAR, $51::VARCHAR, $52::TIMESTAMP WITH TIME ZONE, $53::TIMESTAMP WITH TIME ZONE, $54::TIMESTAMP "
+      }
+    ]
+  },
+  {
+    "at": "2026-09-08T15:35:37.375949+00:00",
+    "rows": [
+      {
+        "pid": 431793,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:06:05.966155",
+        "query": "FETCH FORWARD 32 FROM \"c_774c466b9e10_2\""
+      },
+      {
+        "pid": 431809,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:05:55.500018",
+        "query": "FETCH FORWARD 32 FROM \"c_7daf15192250_2f\""
+      },
+      {
+        "pid": 432636,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:08.199223",
+        "query": "FETCH FORWARD 1 FROM \"c_7daf0d713e50_d2\""
+      },
+      {
+        "pid": 432226,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "-1 day, 23:59:59.995516",
+        "query": "SELECT event_evidence.payload \nFROM event_evidence"
+      },
+      {
+        "pid": 431725,
+        "state": "idle in transaction",
+        "wait_event_type": "Client",
+        "wait_event": "ClientRead",
+        "duration": "-1 day, 23:59:59.983257",
+        "query": "SELECT events_v2.payload \nFROM events_v2 \nWHERE events_v2.event_id = $1::VARCHAR"
+      }
+    ]
+  },
+  {
+    "at": "2026-09-08T15:35:41.575878+00:00",
+    "rows": [
+      {
+        "pid": 431793,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:06:10.468861",
+        "query": "FETCH FORWARD 32 FROM \"c_774c466b9e10_2\""
+      },
+      {
+        "pid": 431809,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:06:00.002724",
+        "query": "FETCH FORWARD 32 FROM \"c_7daf15192250_2f\""
+      },
+      {
+        "pid": 432636,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:12.701929",
+        "query": "FETCH FORWARD 1 FROM \"c_7daf0d713e50_d2\""
+      },
+      {
+        "pid": 432226,
+        "state": "active",
+        "wait_event_type": null,
+        "wait_event": null,
+        "duration": "0:00:00.802243",
+        "query": "SELECT event_evidence.payload \nFROM event_evidence"
+      },
+      {
+        "pid": 431725,
+        "state": "idle in transaction",
+        "wait_event_type": "Client",
+        "wait_event": "ClientRead",
+        "duration": "0:00:00.002625",
+        "query": "UPDATE heartbeats SET instance_id=$1::VARCHAR, observed_at=$2::TIMESTAMP WITH TIME ZONE, details=$3::JSON WHERE heartbeats.service_name = $4::VARCHAR"
+      },
+      {
+        "pid": 432665,
+        "state": "idle in transaction",
+        "wait_event_type": "Client",
+        "wait_event": "ClientRead",
+        "duration": "0:00:00.002270",
+        "query": "select current_schema()"
+      },
+      {
+        "pid": 431738,
+        "state": "idle in transaction",
+        "wait_event_type": "Client",
+        "wait_event": "ClientRead",
+        "duration": "-1 day, 23:59:59.999013",
+        "query": "BEGIN"
+      },
+      {
+        "pid": 432664,
+        "state": "idle in transaction",
+        "wait_event_type": "Client",
+        "wait_event": "ClientRead",
+        "duration": "-1 day, 23:59:59.998860",
+        "query": "BEGIN"
+      }
+    ]
+  }
+]

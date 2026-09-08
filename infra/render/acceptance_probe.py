@@ -38,6 +38,12 @@ def snapshot(database: Database) -> dict[str, Any]:
             "code_sha": os.environ.get("RENDER_GIT_COMMIT"),
             "database_select_one": connection.scalar(text("SELECT 1")),
             "migration": connection.scalar(text("SELECT version_num FROM alembic_version")),
+            "audit_lookup_index_valid": connection.scalar(
+                text(
+                    "SELECT indisvalid FROM pg_index "
+                    "WHERE indexrelid=to_regclass('ix_events_v2_trace_type_time')"
+                )
+            ),
             "heartbeats": [dict(row) for row in connection.execute(select(heartbeats)).mappings()],
             "leases": [dict(row) for row in connection.execute(select(worker_locks)).mappings()],
             "controls": {

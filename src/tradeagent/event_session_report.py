@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections import Counter
 from datetime import UTC, date, datetime, time, timedelta
 from decimal import Decimal
+from time import monotonic
 from typing import Any
 from urllib.parse import urlencode
 from uuid import NAMESPACE_URL, uuid5
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_, case, func, insert, inspect, or_, select, true
+from sqlalchemy import insert, inspect, or_, select
 from sqlalchemy.engine import Connection
 from sqlalchemy.exc import IntegrityError
 
@@ -33,11 +35,11 @@ from tradeagent.persistence import (
 )
 from tradeagent.reporting_reads import (
     POLL_FIELDS,
+    READ_BATCH_SIZE,
     SOURCE_FIELDS,
     compact_poll,
-    forward_clause,
     payload_from_projection,
-    projected_payload,
+    projected_row_query,
     stream_rows,
 )
 
@@ -45,99 +47,122 @@ REPORT_VERSION = "v20-session-evidence-v2"
 EASTERN = ZoneInfo("America/New_York")
 TERMINAL = {"filled", "canceled", "cancelled", "rejected", "expired", "risk_rejected"}
 STATE_SNAPSHOTS = ("event_premarket_brief", "event_performance", "event_official_context")
+LOGGER = logging.getLogger(__name__)
+AUDIT_SCOPE_FIELDS = (
+    "planned_session_date",
+    "session_date",
+    "mode",
+    "synthetic",
+    "evidence_kind",
+    "session_id",
+    "account_digest",
+)
 
 
 def _audit_read_model(
-    connection: Connection, scope: Any, planned: date, start: datetime, now: datetime
+    connection: Connection,
+    scope: Any,
+    planned: date,
+    start: datetime,
+    now: datetime,
+    *,
+    session_id: str | None = None,
+    account: str | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Select latest state in SQL, and stream genuine history with compact poll fields."""
-    day_start = datetime.combine(planned, time.min, EASTERN).astimezone(UTC)
-    day_end = datetime.combine(planned + timedelta(days=1), time.min, EASTERN).astimezone(UTC)
-    declared = func.coalesce(
-        events.c.payload["planned_session_date"].as_string(),
-        events.c.payload["session_date"].as_string(),
-    )
-    belongs = or_(
-        func.substr(declared, 1, 10) == planned.isoformat(),
-        and_(declared.is_(None), events.c.occurred_at >= day_start, events.c.occurred_at < day_end),
-        events.c.trace_id.contains(f":{planned}:premarket_brief", autoescape=True),
-    )
+    """Read narrow metadata once, then fetch selected payloads by bounded primary keys."""
+    started = monotonic()
+    LOGGER.info("Session report metadata starting: date=%s since=%s as_of=%s", planned, start, now)
     criteria = (
         scope,
         events.c.occurred_at >= start,
         events.c.occurred_at <= now,
-        belongs,
         events.c.event_type != "event_session_report",
     )
-    counts = {
-        row["event_type"]: {
-            "count": row["count"],
-            "forward_count": row["forward_count"],
-            "synthetic_or_replay_count": row["count"] - row["forward_count"],
-            "first_at": _json(row["first_at"]),
-            "last_at": _json(row["last_at"]),
-        }
-        for row in stream_rows(
-            connection,
-            select(
-                events.c.event_type,
-                func.count().label("count"),
-                func.sum(case((forward_clause(events.c.payload), 1), else_=0)).label(
-                    "forward_count"
-                ),
-                func.min(events.c.occurred_at).label("first_at"),
-                func.max(events.c.occurred_at).label("last_at"),
-            )
-            .where(*criteria)
-            .group_by(events.c.event_type),
-        )
-    }
-    ranked = (
-        select(
-            events.c.event_id,
-            func.row_number()
-            .over(
-                partition_by=events.c.event_type,
-                order_by=(
-                    events.c.occurred_at.desc(),
-                    events.c.recorded_at.desc(),
-                    events.c.event_id.desc(),
-                ),
-            )
-            .label("rank"),
-        )
-        .where(
-            *criteria, events.c.event_type.in_(STATE_SNAPSHOTS), forward_clause(events.c.payload)
-        )
-        .subquery()
-    )
-    latest_ids = select(ranked.c.event_id).where(ranked.c.rank == 1)
-    rows = list(
-        stream_rows(
-            connection,
-            select(events)
-            .where(
-                *criteria,
-                or_(
-                    events.c.event_type.not_in((*STATE_SNAPSHOTS, "event_source_poll")),
-                    events.c.event_id.in_(latest_ids),
-                ),
-            )
-            .order_by(events.c.occurred_at, events.c.recorded_at, events.c.event_id),
-        )
-    )
     metadata = [column for column in events.c if column.name != "payload"]
+    counts: dict[str, Any] = {}
+    latest: dict[str, tuple[datetime, datetime, str]] = {}
+    history_ids: list[str] = []
+    poll_ids: list[str] = []
     for row in stream_rows(
         connection,
-        select(*metadata, *projected_payload(events.c.payload, POLL_FIELDS))
-        .where(*criteria, events.c.event_type == "event_source_poll")
-        .order_by(events.c.occurred_at, events.c.recorded_at, events.c.event_id),
+        projected_row_query(connection, events, AUDIT_SCOPE_FIELDS, metadata).where(*criteria),
     ):
-        payload = compact_poll(payload_from_projection(row, POLL_FIELDS))
-        payload["immutable_reference"] = f"events_v2:{row['event_id']}"
-        payload["projection"] = "source_counts_health_coverage; full immutable poll retained"
-        rows.append({**{column.name: row[column.name] for column in metadata}, "payload": payload})
+        payload = payload_from_projection(row, AUDIT_SCOPE_FIELDS)
+        if not (
+            _belongs(payload, row["occurred_at"], planned)
+            or f":{planned}:premarket_brief" in row["trace_id"]
+        ):
+            continue
+        if session_id and payload.get("session_id", session_id) != session_id:
+            continue
+        if account and payload.get("account_digest", account) != account:
+            continue
+        kind = row["event_type"]
+        forward = _forward(payload)
+        at = _utc(row["occurred_at"]).isoformat()
+        count = counts.setdefault(
+            kind,
+            {
+                "count": 0,
+                "forward_count": 0,
+                "synthetic_or_replay_count": 0,
+                "first_at": at,
+                "last_at": at,
+            },
+        )
+        count["count"] += 1
+        count["forward_count"] += forward
+        count["synthetic_or_replay_count"] += not forward
+        count["first_at"] = min(count["first_at"], at)
+        count["last_at"] = max(count["last_at"], at)
+        if kind in STATE_SNAPSHOTS:
+            key = (row["occurred_at"], row["recorded_at"], row["event_id"])
+            if forward and (kind not in latest or key > latest[kind]):
+                latest[kind] = key
+        elif kind == "event_source_poll":
+            poll_ids.append(row["event_id"])
+        else:
+            history_ids.append(row["event_id"])
+    LOGGER.info(
+        "Session report metadata complete: date=%s records=%s elapsed_seconds=%.3f",
+        planned,
+        sum(value["count"] for value in counts.values()),
+        monotonic() - started,
+    )
+    history_ids.extend(key[2] for key in latest.values())
+    rows: list[dict[str, Any]] = []
+    for offset in range(0, len(history_ids), READ_BATCH_SIZE):
+        rows.extend(
+            stream_rows(
+                connection,
+                select(events).where(
+                    events.c.event_id.in_(history_ids[offset : offset + READ_BATCH_SIZE]),
+                ),
+            )
+        )
+    for offset in range(0, len(poll_ids), READ_BATCH_SIZE):
+        for row in stream_rows(
+            connection,
+            projected_row_query(
+                connection,
+                events,
+                POLL_FIELDS,
+                metadata,
+            ).where(events.c.event_id.in_(poll_ids[offset : offset + READ_BATCH_SIZE])),
+        ):
+            payload = compact_poll(payload_from_projection(row, POLL_FIELDS))
+            payload["immutable_reference"] = f"events_v2:{row['event_id']}"
+            payload["projection"] = "source_counts_health_coverage; full immutable poll retained"
+            rows.append(
+                {**{column.name: row[column.name] for column in metadata}, "payload": payload}
+            )
     rows.sort(key=lambda row: (row["occurred_at"], row["recorded_at"], row["event_id"]))
+    LOGGER.info(
+        "Session report audit read complete: date=%s payload_rows=%s elapsed_seconds=%.3f",
+        planned,
+        len(rows),
+        monotonic() - started,
+    )
     return rows, {
         "event_counts": counts,
         "state_snapshots": "latest forward snapshot per kind; all earlier versions retained",
@@ -1096,23 +1121,15 @@ def _prior_session_activity(
         for owner in sorted(owners):
             owner_audit, audit_history = _audit_read_model(
                 connection,
-                and_(
-                    or_(
-                        events.c.trace_id == owner,
-                        events.c.trace_id.startswith(f"{owner}:", autoescape=True),
-                    ),
-                    func.coalesce(events.c.payload["session_id"].as_string(), session_id)
-                    == session_id,
-                    or_(
-                        events.c.payload["account_digest"].as_string().is_(None),
-                        events.c.payload["account_digest"].as_string() == account,
-                    )
-                    if account
-                    else true(),
+                or_(
+                    events.c.trace_id == owner,
+                    events.c.trace_id.startswith(f"{owner}:", autoescape=True),
                 ),
                 planned,
                 datetime.combine(planned, time.min, EASTERN),
                 now,
+                session_id=session_id,
+                account=account,
             )
             prior_audit.extend(row for row in owner_audit if _forward(row["payload"]))
             result.setdefault("history_accounting", {})[owner] = audit_history
@@ -1220,6 +1237,13 @@ def session_report(
     if now.tzinfo is None:
         raise ValueError("session report clock must be timezone-aware")
     now = now.astimezone(UTC)
+    LOGGER.info(
+        "Session report starting: cohort=%s requested_date=%s as_of=%s persist=%s",
+        cohort_id,
+        session_date,
+        now,
+        persist,
+    )
     repository = ProductionRepository(database)
     worker = repository.latest_heartbeat("tradeagent-event-worker")
     with database.begin() as connection:
@@ -1285,7 +1309,7 @@ def session_report(
         )
         evidence_ids = {row["evidence_id"] for row in decision_rows}
         candidate_states: dict[str, dict[str, Any]] = {}
-        if cohort_id and inspect(database.engine).has_table("event_candidate_states"):
+        if cohort_id and inspect(connection).has_table("event_candidate_states"):
             candidate_states = {
                 row["decision_id"]: dict(row)
                 for row in connection.execute(
@@ -1309,9 +1333,11 @@ def session_report(
             }
             for row in stream_rows(
                 connection,
-                select(
-                    event_evidence.c.evidence_id,
-                    *projected_payload(event_evidence.c.payload, SOURCE_FIELDS),
+                projected_row_query(
+                    connection,
+                    event_evidence,
+                    SOURCE_FIELDS,
+                    (event_evidence.c.evidence_id,),
                 ).where(event_evidence.c.evidence_id.in_(evidence_ids)),
             )
         }

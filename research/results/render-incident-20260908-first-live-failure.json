@@ -1,0 +1,1722 @@
+{
+  "observed_at": "2026-09-08T15:32:18.338321+00:00",
+  "/ready": {
+    "status": 200,
+    "payload": {
+      "ready": true,
+      "database": "reachable",
+      "check": "dashboard_read_dependency",
+      "event_worker_fresh": false,
+      "event_worker_age_seconds": 169.044062,
+      "operational_status": {
+        "as_of": "2026-09-08T15:32:13.279169+00:00",
+        "state_source": "production_database",
+        "database": "reachable",
+        "roles": {
+          "tradeagent-event-worker": {
+            "heartbeat_at": "2026-09-08T15:29:24.235107+00:00",
+            "age_seconds": 169.044062,
+            "fresh": false,
+            "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+            "reported": {
+              "state": "collecting",
+              "mode": "experimental-paper",
+              "cohort_id": "v20-tuesday-20260908-r3",
+              "code_sha": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+              "last_successful_source_at": "2026-09-08T15:29:20.977458+00:00",
+              "events_received": 2,
+              "tick_latency_seconds": 10.861391,
+              "source_http_cache": null
+            },
+            "lease": {
+              "lock_name": "tradeagent-event-worker",
+              "present": true,
+              "owner_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+              "renewed_at": "2026-09-08T15:29:24.235107+00:00",
+              "age_seconds": 169.044062,
+              "owner_matches_heartbeat": true,
+              "recent_within_120_seconds": false,
+              "basis": "observation only; actual takeover thresholds are role-configured"
+            }
+          },
+          "tradeagent-shadow-recorder": {
+            "heartbeat_at": "2026-09-08T15:32:10.583610+00:00",
+            "age_seconds": 2.695559,
+            "fresh": true,
+            "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+            "reported": {
+              "state": "healthy",
+              "healthy": true,
+              "mode": "shadow",
+              "received": 56590,
+              "committed": 55738,
+              "inserted": 55732,
+              "duplicates": 6,
+              "queue_depth": 352,
+              "queue_capacity": 20000,
+              "in_flight": 500,
+              "gaps": 0,
+              "dropped_events": 0,
+              "notice_overflow": 0,
+              "decision_errors": 0,
+              "last_received_at": "2026-09-08T15:32:10.581412+00:00",
+              "last_received_event_at": "2026-09-08T15:32:10.545135+00:00",
+              "last_event_at": "2026-09-08T15:32:10.545135+00:00",
+              "last_committed_event_at": "2026-09-08T15:32:08.504293+00:00",
+              "last_market_commit_at": "2026-09-08T15:32:09.287783+00:00",
+              "last_commit_at": "2026-09-08T15:32:09.287783+00:00",
+              "last_committed_received_at": "2026-09-08T15:32:08.543144+00:00",
+              "receive_lag_seconds": 0.036277,
+              "commit_lag_seconds": 1.840972,
+              "exchange_to_commit_lag_seconds": 0.78349,
+              "committed_event_age_seconds": 2.079319,
+              "market_commit_age_seconds": 1.295829,
+              "oldest_uncommitted_age_seconds": 2.036715,
+              "batch_write_seconds": 0.7441073004156351,
+              "source_http_cache": null
+            },
+            "lease": {
+              "lock_name": "tradeagent-shadow-recorder",
+              "present": true,
+              "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+              "renewed_at": "2026-09-08T15:32:10.583610+00:00",
+              "age_seconds": 2.695559,
+              "owner_matches_heartbeat": true,
+              "recent_within_120_seconds": true,
+              "basis": "observation only; actual takeover thresholds are role-configured"
+            }
+          },
+          "tradeagent-notifier": {
+            "heartbeat_at": "2026-09-08T15:29:27.921828+00:00",
+            "age_seconds": 165.357341,
+            "fresh": false,
+            "instance_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+            "reported": {
+              "state": "running",
+              "dispatched": false,
+              "source_http_cache": null
+            },
+            "lease": {
+              "lock_name": "tradeagent-notifier",
+              "present": true,
+              "owner_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+              "renewed_at": "2026-09-08T15:29:27.917088+00:00",
+              "age_seconds": 165.362081,
+              "owner_matches_heartbeat": true,
+              "recent_within_120_seconds": false,
+              "basis": "observation only; actual takeover thresholds are role-configured"
+            }
+          },
+          "tradeagent-news-worker": {
+            "heartbeat_at": "2026-09-08T15:29:20.977458+00:00",
+            "age_seconds": 172.301711,
+            "fresh": false,
+            "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+            "reported": {
+              "state": "healthy",
+              "source_http_cache": null
+            },
+            "lease": null
+          },
+          "tradeagent-shadow-market-feed": {
+            "heartbeat_at": "2026-09-08T15:32:08.583648+00:00",
+            "age_seconds": 4.695521,
+            "fresh": true,
+            "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+            "reported": {
+              "state": "healthy",
+              "healthy": true,
+              "last_market_commit_at": "2026-09-08T15:32:04.778511+00:00",
+              "market_commit_age_seconds": 3.805137,
+              "source_http_cache": null
+            },
+            "lease": null
+          }
+        },
+        "controls": {
+          "cohort_id": "v20-tuesday-20260908-r3",
+          "kill_switch": {
+            "value": "active",
+            "updated_at": "2026-09-08T15:25:28.587540+00:00"
+          },
+          "cohort_pause": {
+            "value": "OPERATOR_INCIDENT_REPAIR",
+            "updated_at": "2026-09-08T14:34:14.338876+00:00"
+          },
+          "missing_means": "not_recorded_not_inferred_inactive"
+        },
+        "latest_committed_recorder_batch": {
+          "event_id": "fdef78c4-bb5a-4acc-92e3-e4138f2535b7",
+          "at": "2026-09-08T15:32:12.794000+00:00",
+          "received": 500,
+          "inserted": 499,
+          "duplicates": 1,
+          "first_event_at": "2026-09-08T15:32:11.069216+00:00",
+          "last_event_at": "2026-09-08T15:32:12.318354+00:00",
+          "first_received_at": "2026-09-08T15:32:11.103804+00:00",
+          "last_received_at": "2026-09-08T15:32:12.355913+00:00",
+          "processing_started_at": "2026-09-08T15:32:12.794000+00:00"
+        },
+        "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+      },
+      "live_trading_available": false
+    }
+  },
+  "/api/event-product": {
+    "status": 200,
+    "payload": {
+      "purpose": "iex-practice",
+      "qualification_eligible": false,
+      "evidence_use": "operational_practice_only",
+      "performance_label": "IEX paper practice only; not validated strategy economics",
+      "version": "20.0.0",
+      "code_sha": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+      "mode": "experimental-paper",
+      "state": "worker_stale",
+      "qualified": false,
+      "live_execution_available": false,
+      "blockers": [
+        "GLOBAL_KILL_SWITCH"
+      ],
+      "as_of": "2026-09-08T15:31:49.712255+00:00",
+      "operational_status": {
+        "as_of": "2026-09-08T15:31:49.712255+00:00",
+        "state_source": "production_database",
+        "database": "reachable",
+        "roles": {
+          "tradeagent-event-worker": {
+            "heartbeat_at": "2026-09-08T15:29:24.235107+00:00",
+            "age_seconds": 145.477148,
+            "fresh": false,
+            "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+            "reported": {
+              "state": "collecting",
+              "mode": "experimental-paper",
+              "cohort_id": "v20-tuesday-20260908-r3",
+              "code_sha": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+              "last_successful_source_at": "2026-09-08T15:29:20.977458+00:00",
+              "events_received": 2,
+              "tick_latency_seconds": 10.861391,
+              "source_http_cache": null
+            },
+            "lease": {
+              "lock_name": "tradeagent-event-worker",
+              "present": true,
+              "owner_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+              "renewed_at": "2026-09-08T15:29:24.235107+00:00",
+              "age_seconds": 145.477148,
+              "owner_matches_heartbeat": true,
+              "recent_within_120_seconds": false,
+              "basis": "observation only; actual takeover thresholds are role-configured"
+            }
+          },
+          "tradeagent-shadow-recorder": {
+            "heartbeat_at": "2026-09-08T15:31:49.085621+00:00",
+            "age_seconds": 0.626634,
+            "fresh": true,
+            "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+            "reported": {
+              "state": "healthy",
+              "healthy": true,
+              "mode": "shadow",
+              "received": 50741,
+              "committed": 49997,
+              "inserted": 49992,
+              "duplicates": 5,
+              "queue_depth": 744,
+              "queue_capacity": 20000,
+              "in_flight": 0,
+              "gaps": 0,
+              "dropped_events": 0,
+              "notice_overflow": 0,
+              "decision_errors": 0,
+              "last_received_at": "2026-09-08T15:31:49.078613+00:00",
+              "last_received_event_at": "2026-09-08T15:31:49.042116+00:00",
+              "last_event_at": "2026-09-08T15:31:49.042116+00:00",
+              "last_committed_event_at": "2026-09-08T15:31:46.749383+00:00",
+              "last_market_commit_at": "2026-09-08T15:31:49.078393+00:00",
+              "last_commit_at": "2026-09-08T15:31:49.078393+00:00",
+              "last_committed_received_at": "2026-09-08T15:31:46.790033+00:00",
+              "receive_lag_seconds": 0.036497,
+              "commit_lag_seconds": 4.133321,
+              "exchange_to_commit_lag_seconds": 2.32901,
+              "committed_event_age_seconds": 2.336241,
+              "market_commit_age_seconds": 0.007231,
+              "oldest_uncommitted_age_seconds": 2.295591,
+              "batch_write_seconds": 1.0912064164876938,
+              "source_http_cache": null
+            },
+            "lease": {
+              "lock_name": "tradeagent-shadow-recorder",
+              "present": true,
+              "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+              "renewed_at": "2026-09-08T15:31:49.085621+00:00",
+              "age_seconds": 0.626634,
+              "owner_matches_heartbeat": true,
+              "recent_within_120_seconds": true,
+              "basis": "observation only; actual takeover thresholds are role-configured"
+            }
+          },
+          "tradeagent-notifier": {
+            "heartbeat_at": "2026-09-08T15:29:27.921828+00:00",
+            "age_seconds": 141.790427,
+            "fresh": false,
+            "instance_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+            "reported": {
+              "state": "running",
+              "dispatched": false,
+              "source_http_cache": null
+            },
+            "lease": {
+              "lock_name": "tradeagent-notifier",
+              "present": true,
+              "owner_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+              "renewed_at": "2026-09-08T15:29:27.917088+00:00",
+              "age_seconds": 141.795167,
+              "owner_matches_heartbeat": true,
+              "recent_within_120_seconds": false,
+              "basis": "observation only; actual takeover thresholds are role-configured"
+            }
+          },
+          "tradeagent-news-worker": {
+            "heartbeat_at": "2026-09-08T15:29:20.977458+00:00",
+            "age_seconds": 148.734797,
+            "fresh": false,
+            "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+            "reported": {
+              "state": "healthy",
+              "source_http_cache": null
+            },
+            "lease": null
+          },
+          "tradeagent-shadow-market-feed": {
+            "heartbeat_at": "2026-09-08T15:31:47.884301+00:00",
+            "age_seconds": 1.827954,
+            "fresh": true,
+            "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+            "reported": {
+              "state": "stale",
+              "healthy": false,
+              "last_market_commit_at": "2026-09-08T15:31:42.480411+00:00",
+              "market_commit_age_seconds": 5.40389,
+              "source_http_cache": null
+            },
+            "lease": null
+          }
+        },
+        "controls": {
+          "cohort_id": "v20-tuesday-20260908-r3",
+          "kill_switch": {
+            "value": "active",
+            "updated_at": "2026-09-08T15:25:28.587540+00:00"
+          },
+          "cohort_pause": {
+            "value": "OPERATOR_INCIDENT_REPAIR",
+            "updated_at": "2026-09-08T14:34:14.338876+00:00"
+          },
+          "missing_means": "not_recorded_not_inferred_inactive"
+        },
+        "latest_committed_recorder_batch": {
+          "event_id": "c9c7152e-54a5-4047-b83a-a1a5b1edc9ae",
+          "at": "2026-09-08T15:31:49.087312+00:00",
+          "received": 500,
+          "inserted": 500,
+          "duplicates": 0,
+          "first_event_at": "2026-09-08T15:31:46.749473+00:00",
+          "last_event_at": "2026-09-08T15:31:48.445425+00:00",
+          "first_received_at": "2026-09-08T15:31:46.790033+00:00",
+          "last_received_at": "2026-09-08T15:31:48.490643+00:00",
+          "processing_started_at": "2026-09-08T15:31:49.087312+00:00"
+        },
+        "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+      },
+      "execution_feed": "iex",
+      "practice_start_date": "2026-09-08",
+      "cohort_id": "v20-tuesday-20260908-r3",
+      "config_hash": "a7ab993c246d353797a001809e398e09a578e17e96f98d8a41172d9cb5832bd5",
+      "market_phase": "entry",
+      "next_open": "2026-09-09T09:30:00-04:00",
+      "last_successful_source_at": "2026-09-08T15:29:20.977458+00:00",
+      "events_received": 2,
+      "market_errors": [],
+      "tick_latency_seconds": 10.861391,
+      "limitations": [
+        "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY",
+        "IEX_PRACTICE_ONLY_NOT_QUALIFICATION_EVIDENCE"
+      ],
+      "calibration": {
+        "blocking_evidence": {
+          "observed": {
+            "ask": "316.85",
+            "bid": "316.23",
+            "certificate_permits_paper": true,
+            "evaluated_at": "2026-09-08T13:59:57.349828+00:00",
+            "limit_price": "316.85",
+            "market_phase": "entry",
+            "maximum_limit_price": null,
+            "maximum_notional": "25",
+            "median_daily_dollar_volume": "12974063332.15",
+            "notional": "24.99978185",
+            "quote_at": "2026-09-08T13:59:56.297677+00:00",
+            "source_valid": true
+          },
+          "purpose": "operator_calibration",
+          "qualification_eligible": false,
+          "reasons": [
+            "INVALID_PRICE_OR_SPREAD",
+            "GLOBAL_KILL_SWITCH"
+          ],
+          "state": "risk_rejected"
+        },
+        "entry_attempts": 0,
+        "missed_at": "2026-09-08T14:00:34.987478+00:00",
+        "outcome": "MISSED",
+        "state": "missed_window_no_trade"
+      },
+      "session_budget": {
+        "session_id": "f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+        "planned_session_date": "2026-09-08",
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "total_entries_reserved": 0,
+        "news_entries_reserved": 0,
+        "equipment_test_id": "56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d",
+        "equipment_client_order_id": null,
+        "equipment_cohort_id": null
+      },
+      "broker_stream": {
+        "running": true,
+        "connected": true,
+        "authenticated": true,
+        "subscribed": true,
+        "state": "subscribed",
+        "connection_attempts": 1,
+        "connections": 1,
+        "reconnects": 0,
+        "disconnects": 0,
+        "messages_received": 2,
+        "received_updates": 0,
+        "dropped_updates": 0,
+        "invalid_messages": 0,
+        "error_count": 0,
+        "gap_count": 0,
+        "retry_delay_seconds": 0,
+        "started_at": "2026-09-07T09:00:04.969802+00:00",
+        "stopped_at": null,
+        "connected_at": "2026-09-07T09:00:05.241378+00:00",
+        "authenticated_at": "2026-09-07T09:00:05.312710+00:00",
+        "subscribed_at": "2026-09-07T09:00:05.384684+00:00",
+        "last_message_at": "2026-09-07T09:00:05.384643+00:00",
+        "last_update_at": null,
+        "last_error_at": null,
+        "last_error": null,
+        "last_gap_at": null,
+        "last_gap_reason": null,
+        "gap_started_at": null,
+        "endpoint": "wss://paper-api.alpaca.markets/stream",
+        "queue_depth": 0,
+        "queue_capacity": 1024,
+        "has_gaps": false,
+        "observed_at": "2026-09-08T15:29:24.422248+00:00"
+      },
+      "source_capabilities": {
+        "last_errors": [],
+        "http_cache": null,
+        "projection": "errors and cache metrics only; not full source capability evidence"
+      },
+      "premarket_brief": {
+        "funnel": {
+          "raw_items_received": 151395,
+          "raw_count_basis": "provider_items_feed_entries_and_fetched_documents_including_duplicates_repolls_cache",
+          "source_health_checks": 21182,
+          "new_evidence_versions_received": 21,
+          "unique_evidence_versions": 44,
+          "unique_events": 41,
+          "supported_company_matches": 44,
+          "verified_issuer_matches": 1,
+          "valid_quantitative_events": 0,
+          "extractions_pending": 0,
+          "duplicate_versions": 3,
+          "revisions": 3,
+          "older_context_documents": 2,
+          "strategy_candidates": 0,
+          "risk_approved_decisions": null,
+          "attempted_entries": null,
+          "fills": null,
+          "completed_round_trips": null,
+          "execution_count_status": "not_counted_by_news_brief_use_order_ledger",
+          "invalid_evidence_records": 0,
+          "invalid_extraction_records": 0,
+          "synthetic_or_replay_evidence_excluded": 0,
+          "future_publication_timestamp_records": 0,
+          "missing_publication_timestamps": 1
+        },
+        "coverage": {
+          "scope": "configured_sources_only_not_all_company_news",
+          "coverage_start": "2026-09-04T20:00:00+00:00",
+          "coverage_watermark": "2026-09-08T15:28:37.376187+00:00",
+          "required_through": "2026-09-08T13:30:00+00:00",
+          "complete_through_observation": true,
+          "uncovered_start": null,
+          "uncovered_end": null,
+          "incomplete_polls": 0
+        },
+        "preparation_status": "premarket_prepared_updated",
+        "projection": "overview only; full brief remains in immutable audit evidence"
+      },
+      "decisions": [
+        {
+          "decision_id": "96a31f35f2c596a82e88cce8c0bfe549a8134efb8c0a08b9bc8020602d866e2b",
+          "evidence_id": "d5bc2073bf5a40ba73491709f9a32f9ac57fb15f3848be702b77b93eb0e3dfc4",
+          "decided_at": "2026-09-08T14:44:08.389719Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:96a31f35f2c596a82e88cce8c0bfe549a8134efb8c0a08b9bc8020602d866e2b"
+        },
+        {
+          "decision_id": "2e783d2db3209d33b6bd34fc7b6e4405196e55d08845b99c21ff993a4424c250",
+          "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+          "decided_at": "2026-09-08T14:01:14.978176Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "supported_quantitative_event",
+              "publication_time_unknown",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_not_causal_or_fresh",
+              "spread_exceeds_policy",
+              "pre_event_chase_reference_missing",
+              "unsupported_event_hypothesis"
+            ],
+            "symbol": "AAPL"
+          },
+          "immutable_reference": "event_decisions:2e783d2db3209d33b6bd34fc7b6e4405196e55d08845b99c21ff993a4424c250"
+        },
+        {
+          "decision_id": "f7abc8e9012520574ddc641c002d25f96a2ad0da35b4a2c5e42a40c532295c91",
+          "evidence_id": "d953a612290283b5ff997ed73d08f32cc13e8f45df4fc4533839aac60febb377",
+          "decided_at": "2026-09-08T12:33:59.899334Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "correction_requires_review",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "known_correction_or_retraction",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:f7abc8e9012520574ddc641c002d25f96a2ad0da35b4a2c5e42a40c532295c91"
+        },
+        {
+          "decision_id": "2cefb440239759b22c0b31b1ffd27a04ca583a5a8f80a8fab4ed0483b09cd049",
+          "evidence_id": "3d3aad203eb97bdab8bb9e186308ef9b400fc71a62c80bce098d190cae670efe",
+          "decided_at": "2026-09-08T12:11:44.692503Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:2cefb440239759b22c0b31b1ffd27a04ca583a5a8f80a8fab4ed0483b09cd049"
+        },
+        {
+          "decision_id": "88eaee79ebacacd5aa7635ff3f449a3affce3840e24345e43076baff73f0ca94",
+          "evidence_id": "6794b52638046e5895334f8d5bd584c56f6f28b577a9e7ee299e53b87e046465",
+          "decided_at": "2026-09-08T11:11:53.311984Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:88eaee79ebacacd5aa7635ff3f449a3affce3840e24345e43076baff73f0ca94"
+        },
+        {
+          "decision_id": "64ab476bea23899db1c362b252d1187157883857ae6b0fcea340779a720233b1",
+          "evidence_id": "87fe16d54b4b20546d4c4a29d9baffb22a6b800d8d95733204ed6d8b8e1cbb02",
+          "decided_at": "2026-09-08T09:58:31.492625Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:64ab476bea23899db1c362b252d1187157883857ae6b0fcea340779a720233b1"
+        },
+        {
+          "decision_id": "e2c1f6d11df6e557e27bd10f72600bf6ea1e04f32f37df0058c81c34f5ad6f51",
+          "evidence_id": "55db544f13c1875ce1b76a52437f90974acff61763dccb641138314491e095c1",
+          "decided_at": "2026-09-08T09:33:36.401217Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:e2c1f6d11df6e557e27bd10f72600bf6ea1e04f32f37df0058c81c34f5ad6f51"
+        },
+        {
+          "decision_id": "52c8633c439ed7d817a2410a7a5abc4d31dee02286a4fa084f5ebf33f9b8bbf3",
+          "evidence_id": "4991c66ae9e8612c6fed14831b5c5d09165c7eee4414767e4433084c335804d0",
+          "decided_at": "2026-09-08T09:26:56.484940Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:52c8633c439ed7d817a2410a7a5abc4d31dee02286a4fa084f5ebf33f9b8bbf3"
+        },
+        {
+          "decision_id": "63531f9a18ab43b39d4bcb0558b1274a7e51c5a15b7a5014a24f70a2fdf651d0",
+          "evidence_id": "3e5b1eac6e77a0b2953aefbaa772ce94aac038842179ab7cb5f1b6c7d8ea7e6a",
+          "decided_at": "2026-09-08T08:28:23.676067Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:63531f9a18ab43b39d4bcb0558b1274a7e51c5a15b7a5014a24f70a2fdf651d0"
+        },
+        {
+          "decision_id": "7fa25e0a4d33a4c80e4c4e6c390c703d70cd10b9212644a2bd3414512fe1026a",
+          "evidence_id": "8464b00c10059118e7076fdb49d64ce372716dd09b36036f1fd58cc106363eab",
+          "decided_at": "2026-09-08T07:56:27.980808Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:7fa25e0a4d33a4c80e4c4e6c390c703d70cd10b9212644a2bd3414512fe1026a"
+        },
+        {
+          "decision_id": "a2a6e4cfb39d6105b4b5456b82dce46e43622e66d9b3a114abe81e2cbc452dfc",
+          "evidence_id": "045bebea077f9b843c76b80134c55add26a3d4ee4e803f781ac20f5fa461ad5f",
+          "decided_at": "2026-09-08T07:46:35.579524Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:a2a6e4cfb39d6105b4b5456b82dce46e43622e66d9b3a114abe81e2cbc452dfc"
+        },
+        {
+          "decision_id": "074a4ffa5b96bbcc3f0ffcb0aa7119e4e9419e0a93eea34369997d4f5315070d",
+          "evidence_id": "ad61d67219cd8c147477b5002648a6036a54687ad31feb32662baea101c10031",
+          "decided_at": "2026-09-08T04:01:31.095195Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:074a4ffa5b96bbcc3f0ffcb0aa7119e4e9419e0a93eea34369997d4f5315070d"
+        },
+        {
+          "decision_id": "bf06358c09c4da6097099d0ac35239cf736ca59c4405c5a3b738764bc337d241",
+          "evidence_id": "7208846812bf5b8427fc0e97db37259198ee420c97ec378918f7ad89bd0b171d",
+          "decided_at": "2026-09-07T17:36:18.897914Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:bf06358c09c4da6097099d0ac35239cf736ca59c4405c5a3b738764bc337d241"
+        },
+        {
+          "decision_id": "18c87d1ae6b71e982d615f53f9342b2af47f951b4ddea6d9111637c347ce8a4d",
+          "evidence_id": "2a0ec401c98ea819ed6ae90f471dc6b0790d3086c12c357d2033a3fa6e5be869",
+          "decided_at": "2026-09-07T17:01:09.605837Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:18c87d1ae6b71e982d615f53f9342b2af47f951b4ddea6d9111637c347ce8a4d"
+        },
+        {
+          "decision_id": "cd0b2ef8183737c42f0fb2da7645adc07df1336751058b12e6ade4d5ad616d7a",
+          "evidence_id": "6bbaca3b1a2a3ba06cdc5d2b821be697615cc9affcd2f21373ee9fbbef0e12ce",
+          "decided_at": "2026-09-07T16:16:20.195743Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:cd0b2ef8183737c42f0fb2da7645adc07df1336751058b12e6ade4d5ad616d7a"
+        },
+        {
+          "decision_id": "8d14263ea100d5fcc0f3faf78cfe765500daeb7a596b059b93bba2d65a2140e9",
+          "evidence_id": "0cc61e6f810d31dd63d03c7018ff681f5154cbff74049e1ee0a516d695178895",
+          "decided_at": "2026-09-07T15:21:29.609718Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:8d14263ea100d5fcc0f3faf78cfe765500daeb7a596b059b93bba2d65a2140e9"
+        },
+        {
+          "decision_id": "41d7bd85848073bc5717eb650bfabbeab9d05d498d40e1286c63a8e394b5d0a3",
+          "evidence_id": "af80312ed68664d02fe93219d8031264589db98368f09f9a0f87c4e4a78e21e4",
+          "decided_at": "2026-09-07T13:46:23.284032Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:41d7bd85848073bc5717eb650bfabbeab9d05d498d40e1286c63a8e394b5d0a3"
+        },
+        {
+          "decision_id": "8d0b2e1414c991cc404d852c88ae05f69f97a4d2cd87c0863a27d57b4f04a9a3",
+          "evidence_id": "957ad73cca57bfda791b4005f31491801e650817715cbc823241b7e387903dc4",
+          "decided_at": "2026-09-07T10:42:52.881204Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:8d0b2e1414c991cc404d852c88ae05f69f97a4d2cd87c0863a27d57b4f04a9a3"
+        },
+        {
+          "decision_id": "8671fb0ca528a085ec6b66c5bcae04cecb2de8e021b814271a47de59a2059df0",
+          "evidence_id": "a160a834c2d231d1785d73c7e17edd77b72822bde8c70f9d99fcea347edc5976",
+          "decided_at": "2026-09-07T10:00:55.192743Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:8671fb0ca528a085ec6b66c5bcae04cecb2de8e021b814271a47de59a2059df0"
+        },
+        {
+          "decision_id": "1b0c2650d024338af2831d9305b24c8e81a727070ed3263ad4790e0483f2e345",
+          "evidence_id": "3458d9ed6b5143de26821f188cc88be0ecc2a73ca3f400f3bfc637abee18d44e",
+          "decided_at": "2026-09-07T10:00:54.889339Z",
+          "payload": {
+            "action": "abstain",
+            "reasons": [
+              "multiple_or_wrong_issuer_mentioned",
+              "retained_source_content",
+              "verified_primary_issuer",
+              "point_in_time_issuer_mapping",
+              "supported_quantitative_event",
+              "issuer_not_point_in_time_eligible",
+              "missing_or_ineligible_completed_session_liquidity",
+              "market_context_symbol_mismatch",
+              "mapping_not_available_with_source",
+              "halt_status_unknown_or_halted",
+              "feed_health_unknown_or_degraded",
+              "macro_calendar_missing_or_incomplete",
+              "outside_verified_regular_session",
+              "completed_post_availability_observation_missing",
+              "processing_latency_not_elapsed",
+              "quote_missing",
+              "unsupported_event_hypothesis"
+            ]
+          },
+          "immutable_reference": "event_decisions:1b0c2650d024338af2831d9305b24c8e81a727070ed3263ad4790e0483f2e345"
+        }
+      ],
+      "decision_count": 46,
+      "leading_no_trade_reasons": {
+        "retained_source_content": 43,
+        "verified_primary_issuer": 43,
+        "point_in_time_issuer_mapping": 43,
+        "supported_quantitative_event": 44,
+        "issuer_not_point_in_time_eligible": 43,
+        "missing_or_ineligible_completed_session_liquidity": 43,
+        "market_context_symbol_mismatch": 43,
+        "late_or_inconsistent_publication": 21,
+        "source_expired": 23,
+        "mapping_not_available_with_source": 43,
+        "halt_status_unknown_or_halted": 43,
+        "feed_health_unknown_or_degraded": 43,
+        "macro_calendar_missing_or_incomplete": 43,
+        "outside_verified_regular_session": 43,
+        "completed_post_availability_observation_missing": 44,
+        "processing_latency_not_elapsed": 44,
+        "quote_missing": 43,
+        "unsupported_event_hypothesis": 44,
+        "multiple_or_wrong_issuer_mentioned": 17,
+        "known_correction_or_retraction": 5,
+        "correction_requires_review": 3,
+        "OLDER_COMPARISON_CONTEXT_ONLY": 2,
+        "publication_time_unknown": 1,
+        "quote_not_causal_or_fresh": 1,
+        "spread_exceeds_policy": 1,
+        "pre_event_chase_reference_missing": 1
+      },
+      "decisions_display": {
+        "shown": 20,
+        "total": 46,
+        "truncated": true,
+        "projection": "decision summary; full evidence retained in event_decisions by decision_id"
+      },
+      "performance_as_of": "2026-09-08T15:29:16.637056+00:00",
+      "latest_persisted_report": {
+        "report_id": "63a03f9f-78ae-5b04-8705-be1717a3430c",
+        "snapshot_at": "2026-09-07T09:01:01.622087Z",
+        "planned_session_date": "2026-09-08"
+      },
+      "ledgers": {
+        "purpose": "iex-practice",
+        "state": "valued",
+        "broker_paper_pnl": "0",
+        "economic_paper_pnl": "0",
+        "broker_paper_equity": "10000",
+        "economic_paper_equity": "10000",
+        "closed_round_trips": 0,
+        "calibration_round_trips": 0,
+        "qualifying_closed_round_trips": 0,
+        "virtual_equity_anchor": "10000",
+        "qualification_eligible": false,
+        "evidence_use": "operational_practice_only",
+        "performance_label": "IEX paper practice only; not validated strategy economics",
+        "validated_strategy_economics": false,
+        "economic_paper_pnl_label": "Practice P&L after modeled reserves; operational estimate only",
+        "qualification": "excluded_operational_practice",
+        "source_limitations": [
+          "Real-time Alpaca IEX is single-venue data, not consolidated SIP/NBBO. Alpaca paper matching uses NBBO, which can differ from the bot's IEX observations. Paper practice fills and quote paths do not validate strategy economics."
+        ]
+      },
+      "usable_forward_trading_sessions": 0,
+      "calibration_status": {
+        "blocking_evidence": {
+          "observed": {
+            "ask": "316.85",
+            "bid": "316.23",
+            "certificate_permits_paper": true,
+            "evaluated_at": "2026-09-08T13:59:57.349828+00:00",
+            "limit_price": "316.85",
+            "market_phase": "entry",
+            "maximum_limit_price": null,
+            "maximum_notional": "25",
+            "median_daily_dollar_volume": "12974063332.15",
+            "notional": "24.99978185",
+            "quote_at": "2026-09-08T13:59:56.297677+00:00",
+            "source_valid": true
+          },
+          "purpose": "operator_calibration",
+          "qualification_eligible": false,
+          "reasons": [
+            "INVALID_PRICE_OR_SPREAD",
+            "GLOBAL_KILL_SWITCH"
+          ],
+          "state": "risk_rejected"
+        },
+        "entry_attempts": 0,
+        "missed_at": "2026-09-08T14:00:34.987478+00:00",
+        "outcome": "MISSED",
+        "state": "missed_window_no_trade"
+      },
+      "session_report": {
+        "overview_only": true,
+        "cohort_id": "v20-tuesday-20260908-r3",
+        "health": {
+          "worker": {
+            "fresh": false
+          }
+        },
+        "latest_persisted_report": {
+          "report_id": "63a03f9f-78ae-5b04-8705-be1717a3430c",
+          "snapshot_at": "2026-09-07T09:01:01.622087Z",
+          "planned_session_date": "2026-09-08"
+        },
+        "full_report_url": "/api/event-session-report"
+      },
+      "heartbeat_at": "2026-09-08T15:29:24.235107+00:00",
+      "capability_limitations": [
+        "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY"
+      ],
+      "source_limitations": [
+        "IEX_PRACTICE_ONLY_NOT_QUALIFICATION_EVIDENCE",
+        "Real-time Alpaca IEX is single-venue data, not consolidated SIP/NBBO. Alpaca paper matching uses NBBO, which can differ from the bot's IEX observations. Paper practice fills and quote paths do not validate strategy economics."
+      ],
+      "served_at": "2026-09-08T15:32:15.134445+00:00",
+      "cache_ttl_seconds": 15.0,
+      "overview_only": true,
+      "full_report_url": "/api/event-session-report"
+    }
+  },
+  "/api/runtime": {
+    "status": 200,
+    "payload": {
+      "connected": true,
+      "market_bars": 102,
+      "market_quotes": 73974,
+      "market_trades": 1030,
+      "shadow_nav": null,
+      "worker_heartbeat": "2026-09-08T15:32:15.782501+00:00",
+      "worker_status": {
+        "heartbeat_at": "2026-09-08T15:32:15.782501+00:00",
+        "age_seconds": 1.097527,
+        "fresh": true,
+        "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+        "reported": {
+          "state": "healthy",
+          "healthy": true,
+          "mode": "shadow",
+          "received": 58357,
+          "committed": 57738,
+          "inserted": 57729,
+          "duplicates": 9,
+          "queue_depth": 144,
+          "queue_capacity": 20000,
+          "in_flight": 475,
+          "gaps": 0,
+          "dropped_events": 0,
+          "notice_overflow": 0,
+          "decision_errors": 0,
+          "last_received_at": "2026-09-08T15:32:15.722253+00:00",
+          "last_received_event_at": "2026-09-08T15:32:15.669602+00:00",
+          "last_event_at": "2026-09-08T15:32:15.669602+00:00",
+          "last_committed_event_at": "2026-09-08T15:32:13.683789+00:00",
+          "last_market_commit_at": "2026-09-08T15:32:15.192033+00:00",
+          "last_commit_at": "2026-09-08T15:32:15.192033+00:00",
+          "last_committed_received_at": "2026-09-08T15:32:13.719903+00:00",
+          "receive_lag_seconds": 0.052651,
+          "commit_lag_seconds": 2.830877,
+          "exchange_to_commit_lag_seconds": 1.508244,
+          "committed_event_age_seconds": 2.098718,
+          "market_commit_age_seconds": 0.590474,
+          "oldest_uncommitted_age_seconds": 2.062604,
+          "batch_write_seconds": 1.3516242625191808,
+          "source_http_cache": null
+        },
+        "lease": {
+          "lock_name": "tradeagent-shadow-recorder",
+          "present": true,
+          "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+          "renewed_at": "2026-09-08T15:32:15.782501+00:00",
+          "age_seconds": 1.097527,
+          "owner_matches_heartbeat": true,
+          "recent_within_120_seconds": true,
+          "basis": "observation only; actual takeover thresholds are role-configured"
+        }
+      },
+      "market_feed_status": {
+        "heartbeat_at": "2026-09-08T15:32:13.779466+00:00",
+        "age_seconds": 3.100562,
+        "fresh": true,
+        "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+        "reported": {
+          "state": "healthy",
+          "healthy": true,
+          "last_market_commit_at": "2026-09-08T15:32:09.287783+00:00",
+          "market_commit_age_seconds": 4.491683,
+          "source_http_cache": null
+        },
+        "lease": null
+      },
+      "notifier_heartbeat": "2026-09-08T15:29:27.921828+00:00",
+      "news_heartbeat": "2026-09-08T15:29:20.977458+00:00"
+    }
+  },
+  "events": {
+    "event": [
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-742hs",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dag2kgqjnfac73a43cv0",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:31:15.263087Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48QwjhrZ3FqbmZhYzczYTQzY3Yw"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dag2k9ajnfac73a42mpg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:30:45.756471Z",
+          "type": "server_available"
+        },
+        "cursor": "_wbbW48QwjhrOWFqbmZhYzczYTQybXBn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-742hs",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dag2jsajnfac73a424n0",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:29:53.461237Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48Qwjhqc2FqbmZhYzczYTQyNG4w"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag2ik0u01pc73cka0l0",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2j8j53hus738d0f5g",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:28:34.647108Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqOGo1M2h1czczOGQwZjVn"
+      },
+      {
+        "event": {
+          "details": {
+            "deployCommandExecutionId": "",
+            "deployId": "",
+            "preDeployStatus": "succeeded",
+            "reason": {},
+            "status": 1
+          },
+          "id": "evt-dag2j58luo3c738qlpr0",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:28:21.775489Z",
+          "type": "pre_deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqNThsdW8zYzczOHFscHIw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployCommandExecutionId": "dce-dag2ik0u01pc73cka3jg",
+            "deployId": "dep-dag2ik0u01pc73cka0l0"
+          },
+          "id": "evt-dag2j0ace15c73b41k2g",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:28:01.120254Z",
+          "type": "pre_deploy_started"
+        },
+        "cursor": "_wbbW48QwjhqMGFjZTE1YzczYjQxazJn"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ik0u01pc73cka1cg",
+            "buildStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2ivoluo3c738qllkg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:27:59.741284Z",
+          "type": "build_ended"
+        },
+        "cursor": "_wbbW48Qwjhpdm9sdW8zYzczOHFsbGtn"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ik0u01pc73cka1cg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag2ikj53hus738cvt00",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-08T15:27:13.058249Z",
+          "type": "build_started"
+        },
+        "cursor": "_wbbW48Qwjhpa2o1M2h1czczOGN2dDAw"
+      }
+    ],
+    "recorder": [
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag2ike1egvs73a1g7eg",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2jab53hus738d0gtg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:28:41.887752Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqYWI1M2h1czczOGQwZ3Rn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dag2jaesse4s73bfgttg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:28:41.482804Z",
+          "type": "server_available"
+        },
+        "cursor": "_wbbW48QwjhqYWVzc2U0czczYmZndHRn"
+      },
+      {
+        "event": {
+          "details": {
+            "deployCommandExecutionId": "",
+            "deployId": "",
+            "preDeployStatus": "succeeded",
+            "reason": {},
+            "status": 1
+          },
+          "id": "evt-dag2j5ice15c73b41ok0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:28:22.788346Z",
+          "type": "pre_deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqNWljZTE1YzczYjQxb2sw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployCommandExecutionId": "dce-dag2ike1egvs73a1g9h0",
+            "deployId": "dep-dag2ike1egvs73a1g7eg"
+          },
+          "id": "evt-dag2j0qce15c73b41kn0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:28:03.777654Z",
+          "type": "pre_deploy_started"
+        },
+        "cursor": "_wbbW48QwjhqMHFjZTE1YzczYjQxa24w"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ike1egvs73a1g7jg",
+            "buildStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2j0j53hus738d08e0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:28:01.192117Z",
+          "type": "build_ended"
+        },
+        "cursor": "_wbbW48QwjhqMGo1M2h1czczOGQwOGUw"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ike1egvs73a1g7jg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag2il353hus738cvte0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:27:14.146862Z",
+          "type": "build_started"
+        },
+        "cursor": "_wbbW48QwjhpbDM1M2h1czczOGN2dGUw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag2ike1egvs73a1g7eg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag2ikb9rfdc738acmrg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:27:13.746249Z",
+          "type": "deploy_started"
+        },
+        "cursor": "_wbbW48Qwjhpa2I5cmZkYzczOGFjbXJn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadn8son74is73apqcc0-s4w2d",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dag2hrijnfac73a41aqg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-08T15:25:34.776862Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48QwjhocmlqbmZhYzczYTQxYXFn"
+      }
+    ],
+    "notifier": [
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dag2l02jnfac73a43j40",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:32:16.793345Z",
+          "type": "server_available"
+        },
+        "cursor": "_wbbW48QwjhsMDJqbmZhYzczYTQzajQw"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-xz5pb",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dag2kgijnfac73a43cmg",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:31:14.145362Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48QwjhrZ2lqbmZhYzczYTQzY21n"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dag2k8qjnfac73a42mj0",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:30:43.937948Z",
+          "type": "server_available"
+        },
+        "cursor": "_wbbW48QwjhrOHFqbmZhYzczYTQybWow"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-xz5pb",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dag2js2jnfac73a424k0",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:29:52.454615Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48QwjhqczJqbmZhYzczYTQyNGsw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag2ikf40ujc73e0ga70",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2j8j9rfdc738ada7g",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:28:34.578851Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqOGo5cmZkYzczOGFkYTdn"
+      },
+      {
+        "event": {
+          "details": {
+            "deployCommandExecutionId": "",
+            "deployId": "",
+            "preDeployStatus": "succeeded",
+            "reason": {},
+            "status": 1
+          },
+          "id": "evt-dag2j5353hus738d0bo0",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:28:20.530487Z",
+          "type": "pre_deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqNTM1M2h1czczOGQwYm8w"
+      },
+      {
+        "event": {
+          "details": {
+            "deployCommandExecutionId": "dce-dag2ikf40ujc73e0gag0",
+            "deployId": "dep-dag2ikf40ujc73e0ga70"
+          },
+          "id": "evt-dag2j0k60q8c73auegf0",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:28:02.925262Z",
+          "type": "pre_deploy_started"
+        },
+        "cursor": "_wbbW48QwjhqMGs2MHE4YzczYXVlZ2Yw"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ikf40ujc73e0ga90",
+            "buildStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2j0ace15c73b41k80",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-08T15:28:01.596194Z",
+          "type": "build_ended"
+        },
+        "cursor": "_wbbW48QwjhqMGFjZTE1YzczYjQxazgw"
+      }
+    ],
+    "dashboard": [
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag2ikdbedkc73f8d7eg",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2j66sse4s73bfgqd0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:28:24.019207Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "_wbbW48QwjhqNjZzc2U0czczYmZncWQw"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dag2j5q181qs73aelb5g",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:28:23.513658Z",
+          "type": "server_available"
+        },
+        "cursor": "_wbbW48QwjhqNXExODFxczczYWVsYjVn"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ikdbedkc73f8db70",
+            "buildStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag2j0b53hus738d084g",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:28:01.026916Z",
+          "type": "build_ended"
+        },
+        "cursor": "_wbbW48QwjhqMGI1M2h1czczOGQwODRn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+            "reason": {
+              "evicted": false,
+              "oomKilled": {
+                "memoryLimit": "512Mi"
+              }
+            }
+          },
+          "id": "evt-dag2it2jnfac73a41o1g",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:27:48.853671Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48QwjhpdDJqbmZhYzczYTQxbzFn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dag2in2jnfac73a41m90",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:27:24.983385Z",
+          "type": "server_available"
+        },
+        "cursor": "_wbbW48QwjhpbjJqbmZhYzczYTQxbTkw"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag2ikdbedkc73f8db70",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag2ikr53hus738cvtc0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:27:14.27411Z",
+          "type": "build_started"
+        },
+        "cursor": "_wbbW48Qwjhpa3I1M2h1czczOGN2dGMw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag2ikdbedkc73f8d7eg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag2ikhqd4ss738ig790",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:27:14.255081Z",
+          "type": "deploy_started"
+        },
+        "cursor": "_wbbW48Qwjhpa2hxZDRzczczOGlnNzkw"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadoa3740ujc73cb09c0-lcgfm",
+            "reason": {
+              "evicted": false,
+              "oomKilled": {
+                "memoryLimit": "512Mi"
+              }
+            }
+          },
+          "id": "evt-dag2g62jnfac73a40du0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T15:22:00.381183Z",
+          "type": "server_failed"
+        },
+        "cursor": "_wbbW48QwjhnNjJqbmZhYzczYTQwZHUw"
+      }
+    ]
+  }
+}

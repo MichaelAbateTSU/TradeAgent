@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 from collections import Counter
+from collections.abc import AsyncIterator, Iterator
+from contextlib import asynccontextmanager, contextmanager
 
 # ruff: noqa: E501
 from datetime import UTC, date, datetime, timedelta
@@ -109,6 +111,7 @@ ROLE_HEARTBEAT_FIELDS = (
     "dropped_events",
     "notice_overflow",
     "decision_errors",
+    "derived",
     "persistence_error",
     "last_received_at",
     "last_received_event_at",
@@ -139,8 +142,9 @@ def _aware(value: datetime) -> datetime:
     return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
 
 
-def _operational_status(database: Database, now: datetime) -> dict[str, Any]:
+def _operational_status(database: Database, now: datetime | None = None) -> dict[str, Any]:
     """Fixed-size role/control projections and one committed batch, never history scans."""
+    query_at = now or datetime.now(UTC)
     with database.begin() as connection:
         observations = {
             row["service_name"]: row
@@ -199,7 +203,7 @@ def _operational_status(database: Database, now: datetime) -> dict[str, Any]:
                 )
                 .where(
                     stored_events.c.event_type == "shadow_recorder_batch",
-                    stored_events.c.occurred_at <= now,
+                    stored_events.c.occurred_at <= query_at,
                 )
                 .order_by(stored_events.c.occurred_at.desc(), stored_events.c.event_id)
                 .limit(1)
@@ -207,6 +211,9 @@ def _operational_status(database: Database, now: datetime) -> dict[str, Any]:
             .mappings()
             .one_or_none()
         )
+    # A heartbeat may advance while the queries run. Assess against the completed
+    # observation, not an earlier request-start clock that makes it look future-dated.
+    now = now or datetime.now(UTC)
     roles: dict[str, Any] = {}
     for service, lock_name in ROLE_LOCKS.items():
         row = observations.get(service)
@@ -485,7 +492,7 @@ DASHBOARD = """<!doctype html>
             const state = role.fresh ? (observed.state || 'heartbeat only') : 'stale or missing';
             const age = role.age_seconds == null ? 'unknown' : `${role.age_seconds.toFixed(1)}s`;
             const owner = role.lease ? `; lease owner match: ${role.lease.owner_matches_heartbeat ?? 'unknown'}` : '';
-            const progress = observed.last_committed_event_at ? `; committed exchange time: ${observed.last_committed_event_at}; queue: ${observed.queue_depth ?? 'unknown'}; dropped: ${observed.dropped_events ?? 'unknown'}` : '';
+            const progress = observed.last_committed_event_at ? `; committed exchange time: ${observed.last_committed_event_at}; queue: ${observed.queue_depth ?? 'unknown'}; dropped: ${observed.dropped_events ?? 'unknown'}; derived frames: ${observed.derived?.state ?? 'unknown'}` : '';
             return `${name}: ${state}; heartbeat age: ${age}${owner}${progress}`;
           }).join('\\n')
         : 'Production service observations unavailable; not evidence of healthy workers.';
@@ -563,11 +570,32 @@ def create_app(
     production_database_url: str | None = None,
     overview_cache_seconds: float = 15.0,
 ) -> FastAPI:
+    shared_database = (
+        Database(production_database_url, pool_size=2) if production_database_url else None
+    )
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        try:
+            yield
+        finally:
+            if shared_database is not None:
+                shared_database.dispose()
+
+    @contextmanager
+    def production_database() -> Iterator[Database]:
+        if shared_database is None:
+            raise RuntimeError("production database is not configured")
+        # One bounded pool per process, not a fresh pool for every concurrent section.
+        yield shared_database
+
     app = FastAPI(
         title="TradeAgent Paper Console",
         version=__version__,
         description="Read-only process and paper-trading evidence; no trading authority.",
+        lifespan=lifespan,
     )
+    app.state.production_database = shared_database
     overview_lock = Lock()
     report_lock = Lock()
     cached_overview: dict[str, object] | None = None
@@ -599,10 +627,10 @@ def create_app(
                 }
             )
         try:
-            with Database(production_database_url) as database:
+            with production_database() as database:
                 with database.begin() as connection:
                     connection.execute(select(1)).scalar_one()
-                operational = _operational_status(database, datetime.now(UTC))
+                operational = _operational_status(database)
                 event_worker = operational["roles"]["tradeagent-event-worker"]
             return JSONResponse(
                 {
@@ -672,7 +700,7 @@ def create_app(
         }
         if production_database_url is None:
             return base
-        with Database(production_database_url) as database:
+        with production_database() as database:
             with database.begin() as connection:
                 heartbeat_row = (
                     connection.execute(
@@ -700,7 +728,7 @@ def create_app(
                     .one_or_none()
                 )
             heartbeat_at = _aware(heartbeat_row["observed_at"]) if heartbeat_row else None
-            base["operational_status"] = _operational_status(database, now)
+            base["operational_status"] = _operational_status(database)
             if not inspect(database.engine).has_table("event_cohorts"):
                 return base
             details = (
@@ -790,7 +818,7 @@ def create_app(
     ) -> dict[str, object]:
         if production_database_url is None:
             return {"state": "database_not_configured", "session_report": None}
-        with Database(production_database_url) as database:
+        with production_database() as database:
             if report_id is not None:
                 with database.begin() as connection:
                     saved = connection.scalar(
@@ -830,7 +858,7 @@ def create_app(
     def status() -> dict[str, object]:
         if production_database_url is not None:
             try:
-                with Database(production_database_url) as database:
+                with production_database() as database:
                     repository = ProductionRepository(database)
                     heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
                     cohort = heartbeat[2].get("cohort_id") if heartbeat else None
@@ -911,11 +939,11 @@ def create_app(
                 "notifier_heartbeat": None,
                 "news_heartbeat": None,
             }
-        with Database(production_database_url) as database:
+        with production_database() as database:
             repository = ProductionRepository(database)
             bars, quotes, trades = repository.market_data_counts()
             outcome = repository.latest_event_payload("shadow_outcome")
-            operational = _operational_status(database, datetime.now(UTC))
+            operational = _operational_status(database)
             roles = operational["roles"]
             worker = roles["tradeagent-shadow-recorder"]
             notifier = roles["tradeagent-notifier"]
@@ -938,7 +966,7 @@ def create_app(
     def news(limit: int = Query(default=20, ge=1, le=100)) -> dict[str, object]:
         if production_database_url is None:
             return {"items": [], "feed_heartbeat": None}
-        with Database(production_database_url) as database:
+        with production_database() as database:
             repository = ProductionRepository(database)
             heartbeat = repository.latest_heartbeat("tradeagent-news-worker")
             with database.begin() as connection:

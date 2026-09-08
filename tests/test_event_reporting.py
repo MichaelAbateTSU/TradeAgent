@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from contextlib import nullcontext
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from types import SimpleNamespace
@@ -53,7 +52,13 @@ def database(monkeypatch: pytest.MonkeyPatch) -> Iterator[Database]:
         connect_args={"check_same_thread": False},
     )
     database.initialize()
-    monkeypatch.setattr(api, "Database", lambda _: nullcontext(database))
+    monkeypatch.setattr(
+        api,
+        "Database",
+        lambda *args, **kwargs: SimpleNamespace(
+            engine=database.engine, begin=database.begin, dispose=lambda: None
+        ),
+    )
     monkeypatch.setattr(
         api,
         "ExperimentalSettings",

@@ -1,0 +1,237 @@
+{
+  "observed_at": "2026-09-08T15:28:58.557441+00:00",
+  "roles": {
+    "event": {
+      "deploy": {
+        "id": "dep-dag2ik0u01pc73cka0l0",
+        "commit": {
+          "id": "37c262b7419bed8c1ecaf2db561c4f3bc4bce04d",
+          "message": "fix: restore bounded Render recording and reporting\n\nDecouple the read-only IEX recorder from trading controls and synchronous writes; bound report and source memory; expose actual production role health and add mandatory sustained deployment acceptance.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T15:19:39Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T15:27:12.427672Z",
+        "updatedAt": "2026-09-08T15:28:32.490406Z",
+        "startedAt": "2026-09-08T15:27:12.421618Z",
+        "finishedAt": "2026-09-08T15:28:32.490152Z"
+      },
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T17:18:37.334019Z",
+        "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dae4tr7qj5pc73a9e0k0",
+        "name": "tradeagent-news-worker",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "preDeployCommand": "alembic upgrade head",
+            "startCommand": "tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-08 --cohort-id v20-incident-20260908"
+          },
+          "numInstances": 1,
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+        },
+        "slug": "tradeagent-news-worker",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "background_worker",
+        "updatedAt": "2026-09-08T15:28:32.491757Z"
+      }
+    },
+    "recorder": {
+      "deploy": {
+        "id": "dep-dag2ike1egvs73a1g7eg",
+        "commit": {
+          "id": "37c262b7419bed8c1ecaf2db561c4f3bc4bce04d",
+          "message": "fix: restore bounded Render recording and reporting\n\nDecouple the read-only IEX recorder from trading controls and synchronous writes; bound report and source memory; expose actual production role health and add mandatory sustained deployment acceptance.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T15:19:39Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T15:27:13.087914Z",
+        "updatedAt": "2026-09-08T15:28:41.81149Z",
+        "startedAt": "2026-09-08T15:27:13.079765Z",
+        "finishedAt": "2026-09-08T15:28:41.81117Z"
+      },
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T01:46:27.63386Z",
+        "dashboardUrl": "https://dashboard.render.com/worker/srv-dadn8son74is73apqcc0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dadn8son74is73apqcc0",
+        "name": "tradeagent-shadow-worker",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "preDeployCommand": "alembic upgrade head",
+            "startCommand": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD"
+          },
+          "numInstances": 1,
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dadn8son74is73apqcc0@ssh.oregon.render.com"
+        },
+        "slug": "tradeagent-shadow-worker",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "background_worker",
+        "updatedAt": "2026-09-08T15:28:41.813132Z"
+      }
+    },
+    "notifier": {
+      "deploy": {
+        "id": "dep-dag2ikf40ujc73e0ga70",
+        "commit": {
+          "id": "37c262b7419bed8c1ecaf2db561c4f3bc4bce04d",
+          "message": "fix: restore bounded Render recording and reporting\n\nDecouple the read-only IEX recorder from trading controls and synchronous writes; bound report and source memory; expose actual production role health and add mandatory sustained deployment acceptance.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T15:19:39Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T15:27:13.916793Z",
+        "updatedAt": "2026-09-08T15:28:32.32662Z",
+        "startedAt": "2026-09-08T15:27:13.914832Z",
+        "finishedAt": "2026-09-08T15:28:32.326452Z"
+      },
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T02:16:58.892375Z",
+        "dashboardUrl": "https://dashboard.render.com/worker/srv-dadnn6mq1p3s73ef7ef0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dadnn6mq1p3s73ef7ef0",
+        "name": "tradeagent-notifier",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "preDeployCommand": "alembic upgrade head",
+            "startCommand": "tradeagent notifier"
+          },
+          "numInstances": 1,
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+        },
+        "slug": "tradeagent-notifier",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "background_worker",
+        "updatedAt": "2026-09-08T15:28:32.32827Z"
+      }
+    },
+    "dashboard": {
+      "deploy": {
+        "id": "dep-dag2ikdbedkc73f8d7eg",
+        "commit": {
+          "id": "37c262b7419bed8c1ecaf2db561c4f3bc4bce04d",
+          "message": "fix: restore bounded Render recording and reporting\n\nDecouple the read-only IEX recorder from trading controls and synchronous writes; bound report and source memory; expose actual production role health and add mandatory sustained deployment acceptance.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T15:19:39Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T15:27:13.837087Z",
+        "updatedAt": "2026-09-08T15:28:55.082934Z",
+        "startedAt": "2026-09-08T15:27:13.761537Z",
+        "finishedAt": "2026-09-08T15:28:23.801517Z"
+      },
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T02:57:16.739538Z",
+        "dashboardUrl": "https://dashboard.render.com/web/srv-dadoa3740ujc73cb09c0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dadoa3740ujc73cb09c0",
+        "name": "tradeagent-runtime-dashboard",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "cache": {
+            "profile": "no-cache"
+          },
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "startCommand": "tradeagent serve --host 0.0.0.0 --port $PORT --production"
+          },
+          "healthCheckPath": "/health",
+          "ipAllowList": [
+            {
+              "cidrBlock": "0.0.0.0/0",
+              "description": "everywhere"
+            }
+          ],
+          "maintenanceMode": {
+            "enabled": false,
+            "uri": ""
+          },
+          "numInstances": 1,
+          "openPorts": [
+            {
+              "port": 10000,
+              "protocol": "TCP"
+            }
+          ],
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dadoa3740ujc73cb09c0@ssh.oregon.render.com",
+          "url": "https://tradeagent-runtime-dashboard.onrender.com"
+        },
+        "slug": "tradeagent-runtime-dashboard",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "web_service",
+        "updatedAt": "2026-09-08T15:28:23.803796Z"
+      }
+    }
+  }
+}

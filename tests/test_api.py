@@ -145,7 +145,16 @@ def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path)
         repository.heartbeat(
             "tradeagent-shadow-recorder",
             "current",
-            {"state": "degraded", "healthy": False, "last_committed_event_at": now.isoformat()},
+            {
+                "state": "degraded",
+                "healthy": False,
+                "last_committed_event_at": now.isoformat(),
+                "derived": {
+                    "state": "awaiting_complete_frame",
+                    "healthy": False,
+                    "cumulative_evidence_complete": False,
+                },
+            },
             observed_at=now,
         )
         repository.heartbeat(
@@ -155,6 +164,7 @@ def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path)
     runtime = client.get("/api/runtime").json()
     assert runtime["worker_status"]["instance_id"] == "current"
     assert runtime["worker_status"]["reported"]["healthy"] is False
+    assert runtime["worker_status"]["reported"]["derived"]["healthy"] is False
     assert runtime["market_feed_status"]["reported"]["state"] == "stale"
     ready = client.get("/ready").json()["operational_status"]["roles"]
     assert "tradeagent-shadow-market-feed" in ready
@@ -163,3 +173,60 @@ def test_runtime_never_substitutes_legacy_heartbeat_for_recorder(tmp_path: Path)
     page = client.get("/").text
     assert 'id="service-observations"' in page
     assert "Heartbeat freshness is not proof of market-data coverage or entry permission" in page
+
+
+def test_readiness_ages_heartbeats_at_read_completion(tmp_path: Path, monkeypatch) -> None:
+    from datetime import timedelta
+
+    from tradeagent.api import _operational_status
+
+    start = datetime(2026, 9, 8, 15, tzinfo=UTC)
+    clocks = iter((start, start + timedelta(seconds=1)))
+
+    class AdvancingClock(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return next(clocks)
+
+    with Database(f"sqlite:///{tmp_path / 'readiness-clock.db'}") as database:
+        database.initialize()
+        ProductionRepository(database).heartbeat(
+            "tradeagent-notifier",
+            "current",
+            {"state": "running"},
+            observed_at=start + timedelta(seconds=0.5),
+        )
+        monkeypatch.setattr("tradeagent.api.datetime", AdvancingClock)
+        current = _operational_status(database)["roles"]["tradeagent-notifier"]
+        assert current["fresh"] is True
+        assert current["age_seconds"] == 0.5
+        fixed = _operational_status(database, start)["roles"]["tradeagent-notifier"]
+        assert fixed["fresh"] is False
+
+
+def test_concurrent_dashboard_sections_share_bounded_database_pool(tmp_path: Path) -> None:
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Lock
+
+    from sqlalchemy import event
+
+    url = f"sqlite:///{tmp_path / 'bounded-pool.db'}"
+    with Database(url) as database:
+        database.initialize()
+    app = create_app(production_database_url=url)
+    engine = app.state.production_database.engine
+    connections = 0
+    lock = Lock()
+
+    @event.listens_for(engine, "connect")
+    def connected(*_) -> None:
+        nonlocal connections
+        with lock:
+            connections += 1
+
+    with TestClient(app) as client, ThreadPoolExecutor(max_workers=12) as executor:
+        paths = ["/ready", "/api/runtime", "/api/status"] * 12
+        responses = list(executor.map(lambda path: client.get(path), paths))
+        assert all(response.status_code == 200 for response in responses)
+        assert 1 <= connections <= 2
+        assert engine.pool.size() == 2

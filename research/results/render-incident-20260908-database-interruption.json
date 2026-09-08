@@ -1,0 +1,92 @@
+{
+  "observed_at": "2026-09-08T15:50:45.415923+00:00",
+  "database": {
+    "connectionPool": "none",
+    "createdAt": "2026-09-05T01:43:58.415023Z",
+    "dashboardUrl": "https://dashboard.render.com/d/dpg-dadn7nht0dsc73f9jja0-a",
+    "databaseName": "tradeagent",
+    "databaseUser": "tradeagent",
+    "diskAutoscalingEnabled": false,
+    "diskSizeGB": 15,
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "highAvailabilityEnabled": false,
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "ipAllowList": [],
+    "name": "tradeagent-postgres",
+    "owner": {
+      "email": "michaelabate819@gmail.com",
+      "id": "tea-d9dqrkr7uimc73c2e240",
+      "name": "Trade Agent",
+      "type": "team"
+    },
+    "plan": "0.1c-256mb",
+    "readReplicas": [],
+    "region": "oregon",
+    "role": "primary",
+    "status": "available",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "updatedAt": "2026-09-07T03:41:13.796654Z",
+    "version": "17"
+  },
+  "events": {
+    "status": 404
+  },
+  "memory": [
+    {
+      "labels": [
+        {
+          "field": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-08T15:40:45.274Z",
+          "value": 220475400
+        },
+        {
+          "timestamp": "2026-09-08T15:41:45.274Z",
+          "value": 218181630
+        },
+        {
+          "timestamp": "2026-09-08T15:42:45.274Z",
+          "value": 218955780
+        },
+        {
+          "timestamp": "2026-09-08T15:43:45.274Z",
+          "value": 239194110
+        },
+        {
+          "timestamp": "2026-09-08T15:44:45.274Z",
+          "value": 224092160
+        },
+        {
+          "timestamp": "2026-09-08T15:45:45.274Z",
+          "value": 239071230
+        },
+        {
+          "timestamp": "2026-09-08T15:46:45.274Z",
+          "value": 215592960
+        },
+        {
+          "timestamp": "2026-09-08T15:47:45.274Z",
+          "value": 237842430
+        },
+        {
+          "timestamp": "2026-09-08T15:48:45.274Z",
+          "value": 252280830
+        },
+        {
+          "timestamp": "2026-09-08T15:49:45.274Z",
+          "value": 124755970
+        },
+        {
+          "timestamp": "2026-09-08T15:50:45.274Z",
+          "value": 132059140
+        }
+      ]
+    }
+  ]
+}

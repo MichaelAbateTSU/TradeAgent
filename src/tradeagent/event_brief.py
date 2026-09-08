@@ -29,6 +29,7 @@ from tradeagent.reporting_reads import (
     compact_poll,
     payload_from_projection,
     projected_payload,
+    projected_row_query,
     stream_rows,
 )
 
@@ -310,7 +311,7 @@ def persist_premarket_brief(
             compact_poll(payload_from_projection(row, POLL_FIELDS))
             for row in stream_rows(
                 connection,
-                select(*projected_payload(events.c.payload, POLL_FIELDS)).where(
+                projected_row_query(connection, events, POLL_FIELDS).where(
                     events.c.event_type == "event_source_poll",
                     events.c.trace_id.startswith(f"{trace}:poll:", autoescape=True),
                     events.c.occurred_at <= now,

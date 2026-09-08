@@ -1,0 +1,72 @@
+{
+  "at": "2026-09-08T15:32:57.676542+00:00",
+  "activity": [
+    {
+      "pid": 432226,
+      "state": "active",
+      "wait_event_type": null,
+      "wait_event": null,
+      "duration": "0:00:00.195788",
+      "query": "SELECT events_v2.event_id \nFROM events_v2 \nWHERE events_v2.trace_id = $1::VARCHAR"
+    }
+  ],
+  "sizes": [
+    {
+      "relname": "events_v2",
+      "n_live_tup": 52818,
+      "n_dead_tup": 0,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-09-08 14:57:22.083328+00:00"
+    },
+    {
+      "relname": "market_quotes",
+      "n_live_tup": 81530,
+      "n_dead_tup": 0,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-09-08 15:32:27.277391+00:00"
+    },
+    {
+      "relname": "event_cohorts",
+      "n_live_tup": 7,
+      "n_dead_tup": 0,
+      "last_analyze": null,
+      "last_autoanalyze": null
+    },
+    {
+      "relname": "event_evidence",
+      "n_live_tup": 46,
+      "n_dead_tup": 40,
+      "last_analyze": null,
+      "last_autoanalyze": null
+    },
+    {
+      "relname": "event_decisions",
+      "n_live_tup": 98,
+      "n_dead_tup": 0,
+      "last_analyze": null,
+      "last_autoanalyze": "2026-09-07 08:10:20.380804+00:00"
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "event_decisions",
+      "indexname": "event_decisions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX event_decisions_pkey ON public.event_decisions USING btree (decision_id)"
+    },
+    {
+      "tablename": "event_evidence",
+      "indexname": "event_evidence_pkey",
+      "indexdef": "CREATE UNIQUE INDEX event_evidence_pkey ON public.event_evidence USING btree (evidence_id)"
+    },
+    {
+      "tablename": "events_v2",
+      "indexname": "events_v2_pkey",
+      "indexdef": "CREATE UNIQUE INDEX events_v2_pkey ON public.events_v2 USING btree (event_id)"
+    },
+    {
+      "tablename": "events_v2",
+      "indexname": "ix_events_v2_type_time",
+      "indexdef": "CREATE INDEX ix_events_v2_type_time ON public.events_v2 USING btree (event_type, occurred_at)"
+    }
+  ]
+}

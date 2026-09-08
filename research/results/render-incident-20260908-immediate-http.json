@@ -1,0 +1,1440 @@
+{
+  "observed_at": "2026-09-08T15:29:15.750334+00:00",
+  "endpoints": {
+    "/health": {
+      "status": 200,
+      "bytes": 117,
+      "payload": {
+        "status": "ok",
+        "mode": "paper",
+        "live_trading_available": false,
+        "check": "process_liveness_only",
+        "dependencies": "/ready"
+      }
+    },
+    "/ready": {
+      "status": 200,
+      "bytes": 4709,
+      "payload": {
+        "ready": true,
+        "database": "reachable",
+        "check": "dashboard_read_dependency",
+        "event_worker_fresh": true,
+        "event_worker_age_seconds": 29.251855,
+        "operational_status": {
+          "as_of": "2026-09-08T15:29:12.383555+00:00",
+          "state_source": "production_database",
+          "database": "reachable",
+          "roles": {
+            "tradeagent-event-worker": {
+              "heartbeat_at": "2026-09-08T15:28:43.131700+00:00",
+              "age_seconds": 29.251855,
+              "fresh": true,
+              "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+              "reported": {
+                "state": "collecting",
+                "mode": "experimental-paper",
+                "cohort_id": "v20-tuesday-20260908-r3",
+                "code_sha": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+                "last_successful_source_at": "2026-09-08T15:28:39.383868+00:00",
+                "events_received": 2,
+                "tick_latency_seconds": 9.635003,
+                "source_http_cache": null
+              },
+              "lease": {
+                "lock_name": "tradeagent-event-worker",
+                "present": true,
+                "owner_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+                "renewed_at": "2026-09-08T15:28:43.131700+00:00",
+                "age_seconds": 29.251855,
+                "owner_matches_heartbeat": true,
+                "recent_within_120_seconds": true,
+                "basis": "observation only; actual takeover thresholds are role-configured"
+              }
+            },
+            "tradeagent-shadow-recorder": {
+              "heartbeat_at": "2026-09-08T15:29:08.804478+00:00",
+              "age_seconds": 3.579077,
+              "fresh": true,
+              "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+              "reported": {
+                "state": "healthy",
+                "healthy": true,
+                "mode": "shadow",
+                "received": 5202,
+                "committed": 5008,
+                "inserted": 5008,
+                "duplicates": 0,
+                "queue_depth": 194,
+                "queue_capacity": 20000,
+                "in_flight": 0,
+                "gaps": 0,
+                "dropped_events": 0,
+                "notice_overflow": 0,
+                "decision_errors": 0,
+                "last_received_at": "2026-09-08T15:29:08.802309+00:00",
+                "last_received_event_at": "2026-09-08T15:29:08.768615+00:00",
+                "last_event_at": "2026-09-08T15:29:08.768615+00:00",
+                "last_committed_event_at": "2026-09-08T15:29:08.574289+00:00",
+                "last_market_commit_at": "2026-09-08T15:29:08.664578+00:00",
+                "last_commit_at": "2026-09-08T15:29:08.664578+00:00",
+                "last_committed_received_at": "2026-09-08T15:29:08.613330+00:00",
+                "receive_lag_seconds": 0.033694,
+                "commit_lag_seconds": 0.282634,
+                "exchange_to_commit_lag_seconds": 0.090289,
+                "committed_event_age_seconds": 0.230192,
+                "market_commit_age_seconds": 0.139903,
+                "oldest_uncommitted_age_seconds": 0.157571,
+                "batch_write_seconds": 0.04270961321890354,
+                "source_http_cache": null
+              },
+              "lease": {
+                "lock_name": "tradeagent-shadow-recorder",
+                "present": true,
+                "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+                "renewed_at": "2026-09-08T15:29:08.804478+00:00",
+                "age_seconds": 3.579077,
+                "owner_matches_heartbeat": true,
+                "recent_within_120_seconds": true,
+                "basis": "observation only; actual takeover thresholds are role-configured"
+              }
+            },
+            "tradeagent-notifier": {
+              "heartbeat_at": "2026-09-08T15:29:12.282934+00:00",
+              "age_seconds": 0.100621,
+              "fresh": true,
+              "instance_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+              "reported": {
+                "state": "running",
+                "dispatched": false,
+                "source_http_cache": null
+              },
+              "lease": {
+                "lock_name": "tradeagent-notifier",
+                "present": true,
+                "owner_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+                "renewed_at": "2026-09-08T15:29:12.280814+00:00",
+                "age_seconds": 0.102741,
+                "owner_matches_heartbeat": true,
+                "recent_within_120_seconds": true,
+                "basis": "observation only; actual takeover thresholds are role-configured"
+              }
+            },
+            "tradeagent-news-worker": {
+              "heartbeat_at": "2026-09-08T15:28:39.383868+00:00",
+              "age_seconds": 32.999687,
+              "fresh": true,
+              "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+              "reported": {
+                "state": "healthy",
+                "source_http_cache": null
+              },
+              "lease": null
+            },
+            "tradeagent-shadow-market-feed": {
+              "heartbeat_at": "2026-09-08T15:29:08.797582+00:00",
+              "age_seconds": 3.585973,
+              "fresh": true,
+              "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+              "reported": {
+                "state": "healthy",
+                "healthy": true,
+                "last_market_commit_at": "2026-09-08T15:29:03.682894+00:00",
+                "market_commit_age_seconds": 5.114688,
+                "source_http_cache": null
+              },
+              "lease": null
+            }
+          },
+          "controls": {
+            "cohort_id": "v20-tuesday-20260908-r3",
+            "kill_switch": {
+              "value": "active",
+              "updated_at": "2026-09-08T15:25:28.587540+00:00"
+            },
+            "cohort_pause": {
+              "value": "OPERATOR_INCIDENT_REPAIR",
+              "updated_at": "2026-09-08T14:34:14.338876+00:00"
+            },
+            "missing_means": "not_recorded_not_inferred_inactive"
+          },
+          "latest_committed_recorder_batch": {
+            "event_id": "bc6924a1-4da7-4c29-bc22-2d5ca6942f3b",
+            "at": "2026-09-08T15:29:12.240344+00:00",
+            "received": 73,
+            "inserted": 73,
+            "duplicates": 0,
+            "first_event_at": "2026-09-08T15:29:11.813330+00:00",
+            "last_event_at": "2026-09-08T15:29:12.183192+00:00",
+            "first_received_at": "2026-09-08T15:29:11.854681+00:00",
+            "last_received_at": "2026-09-08T15:29:12.216880+00:00",
+            "processing_started_at": "2026-09-08T15:29:12.240344+00:00"
+          },
+          "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+        },
+        "live_trading_available": false
+      }
+    },
+    "/api/event-product": {
+      "status": 200,
+      "bytes": 30746,
+      "payload": {
+        "purpose": "iex-practice",
+        "qualification_eligible": false,
+        "evidence_use": "operational_practice_only",
+        "performance_label": "IEX paper practice only; not validated strategy economics",
+        "version": "20.0.0",
+        "code_sha": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+        "mode": "experimental-paper",
+        "state": "collecting",
+        "qualified": false,
+        "live_execution_available": false,
+        "blockers": [
+          "GLOBAL_KILL_SWITCH"
+        ],
+        "as_of": "2026-09-08T15:29:09.725554+00:00",
+        "operational_status": {
+          "as_of": "2026-09-08T15:29:09.725554+00:00",
+          "state_source": "production_database",
+          "database": "reachable",
+          "roles": {
+            "tradeagent-event-worker": {
+              "heartbeat_at": "2026-09-08T15:28:43.131700+00:00",
+              "age_seconds": 26.593854,
+              "fresh": true,
+              "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+              "reported": {
+                "state": "collecting",
+                "mode": "experimental-paper",
+                "cohort_id": "v20-tuesday-20260908-r3",
+                "code_sha": "40f3ee2a6d2dc103e2eccf8faa71872277a491bd",
+                "last_successful_source_at": "2026-09-08T15:28:39.383868+00:00",
+                "events_received": 2,
+                "tick_latency_seconds": 9.635003,
+                "source_http_cache": null
+              },
+              "lease": {
+                "lock_name": "tradeagent-event-worker",
+                "present": true,
+                "owner_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+                "renewed_at": "2026-09-08T15:28:43.131700+00:00",
+                "age_seconds": 26.593854,
+                "owner_matches_heartbeat": true,
+                "recent_within_120_seconds": true,
+                "basis": "observation only; actual takeover thresholds are role-configured"
+              }
+            },
+            "tradeagent-shadow-recorder": {
+              "heartbeat_at": "2026-09-08T15:29:08.804478+00:00",
+              "age_seconds": 0.921076,
+              "fresh": true,
+              "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+              "reported": {
+                "state": "healthy",
+                "healthy": true,
+                "mode": "shadow",
+                "received": 5202,
+                "committed": 5008,
+                "inserted": 5008,
+                "duplicates": 0,
+                "queue_depth": 194,
+                "queue_capacity": 20000,
+                "in_flight": 0,
+                "gaps": 0,
+                "dropped_events": 0,
+                "notice_overflow": 0,
+                "decision_errors": 0,
+                "last_received_at": "2026-09-08T15:29:08.802309+00:00",
+                "last_received_event_at": "2026-09-08T15:29:08.768615+00:00",
+                "last_event_at": "2026-09-08T15:29:08.768615+00:00",
+                "last_committed_event_at": "2026-09-08T15:29:08.574289+00:00",
+                "last_market_commit_at": "2026-09-08T15:29:08.664578+00:00",
+                "last_commit_at": "2026-09-08T15:29:08.664578+00:00",
+                "last_committed_received_at": "2026-09-08T15:29:08.613330+00:00",
+                "receive_lag_seconds": 0.033694,
+                "commit_lag_seconds": 0.282634,
+                "exchange_to_commit_lag_seconds": 0.090289,
+                "committed_event_age_seconds": 0.230192,
+                "market_commit_age_seconds": 0.139903,
+                "oldest_uncommitted_age_seconds": 0.157571,
+                "batch_write_seconds": 0.04270961321890354,
+                "source_http_cache": null
+              },
+              "lease": {
+                "lock_name": "tradeagent-shadow-recorder",
+                "present": true,
+                "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+                "renewed_at": "2026-09-08T15:29:08.804478+00:00",
+                "age_seconds": 0.921076,
+                "owner_matches_heartbeat": true,
+                "recent_within_120_seconds": true,
+                "basis": "observation only; actual takeover thresholds are role-configured"
+              }
+            },
+            "tradeagent-notifier": {
+              "heartbeat_at": "2026-09-08T15:29:07.198301+00:00",
+              "age_seconds": 2.527253,
+              "fresh": true,
+              "instance_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+              "reported": {
+                "state": "running",
+                "dispatched": false,
+                "source_http_cache": null
+              },
+              "lease": {
+                "lock_name": "tradeagent-notifier",
+                "present": true,
+                "owner_id": "srv-dadnn6mq1p3s73ef7ef0-556bc9b9c5-q48kc",
+                "renewed_at": "2026-09-08T15:29:07.194949+00:00",
+                "age_seconds": 2.530605,
+                "owner_matches_heartbeat": true,
+                "recent_within_120_seconds": true,
+                "basis": "observation only; actual takeover thresholds are role-configured"
+              }
+            },
+            "tradeagent-news-worker": {
+              "heartbeat_at": "2026-09-08T15:28:39.383868+00:00",
+              "age_seconds": 30.341686,
+              "fresh": true,
+              "instance_id": "srv-dae4tr7qj5pc73a9e0k0-597b8489bd-tx5gx",
+              "reported": {
+                "state": "healthy",
+                "source_http_cache": null
+              },
+              "lease": null
+            },
+            "tradeagent-shadow-market-feed": {
+              "heartbeat_at": "2026-09-08T15:29:08.797582+00:00",
+              "age_seconds": 0.927972,
+              "fresh": true,
+              "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+              "reported": {
+                "state": "healthy",
+                "healthy": true,
+                "last_market_commit_at": "2026-09-08T15:29:03.682894+00:00",
+                "market_commit_age_seconds": 5.114688,
+                "source_http_cache": null
+              },
+              "lease": null
+            }
+          },
+          "controls": {
+            "cohort_id": "v20-tuesday-20260908-r3",
+            "kill_switch": {
+              "value": "active",
+              "updated_at": "2026-09-08T15:25:28.587540+00:00"
+            },
+            "cohort_pause": {
+              "value": "OPERATOR_INCIDENT_REPAIR",
+              "updated_at": "2026-09-08T14:34:14.338876+00:00"
+            },
+            "missing_means": "not_recorded_not_inferred_inactive"
+          },
+          "latest_committed_recorder_batch": {
+            "event_id": "222a8b31-3fd1-468b-a834-44df009abffc",
+            "at": "2026-09-08T15:29:09.643304+00:00",
+            "received": 99,
+            "inserted": 99,
+            "duplicates": 0,
+            "first_event_at": "2026-09-08T15:29:09.303129+00:00",
+            "last_event_at": "2026-09-08T15:29:09.608325+00:00",
+            "first_received_at": "2026-09-08T15:29:09.340159+00:00",
+            "last_received_at": "2026-09-08T15:29:09.642932+00:00",
+            "processing_started_at": "2026-09-08T15:29:09.643304+00:00"
+          },
+          "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+        },
+        "execution_feed": "iex",
+        "practice_start_date": "2026-09-08",
+        "cohort_id": "v20-tuesday-20260908-r3",
+        "config_hash": "a7ab993c246d353797a001809e398e09a578e17e96f98d8a41172d9cb5832bd5",
+        "market_phase": "entry",
+        "next_open": "2026-09-09T09:30:00-04:00",
+        "last_successful_source_at": "2026-09-08T15:28:39.383868+00:00",
+        "events_received": 2,
+        "market_errors": [],
+        "tick_latency_seconds": 9.635003,
+        "limitations": [
+          "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY",
+          "IEX_PRACTICE_ONLY_NOT_QUALIFICATION_EVIDENCE"
+        ],
+        "calibration": {
+          "blocking_evidence": {
+            "observed": {
+              "ask": "316.85",
+              "bid": "316.23",
+              "certificate_permits_paper": true,
+              "evaluated_at": "2026-09-08T13:59:57.349828+00:00",
+              "limit_price": "316.85",
+              "market_phase": "entry",
+              "maximum_limit_price": null,
+              "maximum_notional": "25",
+              "median_daily_dollar_volume": "12974063332.15",
+              "notional": "24.99978185",
+              "quote_at": "2026-09-08T13:59:56.297677+00:00",
+              "source_valid": true
+            },
+            "purpose": "operator_calibration",
+            "qualification_eligible": false,
+            "reasons": [
+              "INVALID_PRICE_OR_SPREAD",
+              "GLOBAL_KILL_SWITCH"
+            ],
+            "state": "risk_rejected"
+          },
+          "entry_attempts": 0,
+          "missed_at": "2026-09-08T14:00:34.987478+00:00",
+          "outcome": "MISSED",
+          "state": "missed_window_no_trade"
+        },
+        "session_budget": {
+          "session_id": "f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+          "planned_session_date": "2026-09-08",
+          "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+          "total_entries_reserved": 0,
+          "news_entries_reserved": 0,
+          "equipment_test_id": "56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d",
+          "equipment_client_order_id": null,
+          "equipment_cohort_id": null
+        },
+        "broker_stream": {
+          "running": true,
+          "connected": true,
+          "authenticated": true,
+          "subscribed": true,
+          "state": "subscribed",
+          "connection_attempts": 1,
+          "connections": 1,
+          "reconnects": 0,
+          "disconnects": 0,
+          "messages_received": 2,
+          "received_updates": 0,
+          "dropped_updates": 0,
+          "invalid_messages": 0,
+          "error_count": 0,
+          "gap_count": 0,
+          "retry_delay_seconds": 0,
+          "started_at": "2026-09-07T09:00:04.969802+00:00",
+          "stopped_at": null,
+          "connected_at": "2026-09-07T09:00:05.241378+00:00",
+          "authenticated_at": "2026-09-07T09:00:05.312710+00:00",
+          "subscribed_at": "2026-09-07T09:00:05.384684+00:00",
+          "last_message_at": "2026-09-07T09:00:05.384643+00:00",
+          "last_update_at": null,
+          "last_error_at": null,
+          "last_error": null,
+          "last_gap_at": null,
+          "last_gap_reason": null,
+          "gap_started_at": null,
+          "endpoint": "wss://paper-api.alpaca.markets/stream",
+          "queue_depth": 0,
+          "queue_capacity": 1024,
+          "has_gaps": false,
+          "observed_at": "2026-09-08T15:28:43.354464+00:00"
+        },
+        "source_capabilities": {
+          "last_errors": [],
+          "http_cache": null,
+          "projection": "errors and cache metrics only; not full source capability evidence"
+        },
+        "premarket_brief": {
+          "funnel": {
+            "raw_items_received": 151345,
+            "raw_count_basis": "provider_items_feed_entries_and_fetched_documents_including_duplicates_repolls_cache",
+            "source_health_checks": 21175,
+            "new_evidence_versions_received": 21,
+            "unique_evidence_versions": 44,
+            "unique_events": 41,
+            "supported_company_matches": 44,
+            "verified_issuer_matches": 1,
+            "valid_quantitative_events": 0,
+            "extractions_pending": 0,
+            "duplicate_versions": 3,
+            "revisions": 3,
+            "older_context_documents": 2,
+            "strategy_candidates": 0,
+            "risk_approved_decisions": null,
+            "attempted_entries": null,
+            "fills": null,
+            "completed_round_trips": null,
+            "execution_count_status": "not_counted_by_news_brief_use_order_ledger",
+            "invalid_evidence_records": 0,
+            "invalid_extraction_records": 0,
+            "synthetic_or_replay_evidence_excluded": 0,
+            "future_publication_timestamp_records": 0,
+            "missing_publication_timestamps": 1
+          },
+          "coverage": {
+            "scope": "configured_sources_only_not_all_company_news",
+            "coverage_start": "2026-09-04T20:00:00+00:00",
+            "coverage_watermark": "2026-09-08T15:28:37.077724+00:00",
+            "required_through": "2026-09-08T13:30:00+00:00",
+            "complete_through_observation": true,
+            "uncovered_start": null,
+            "uncovered_end": null,
+            "incomplete_polls": 0
+          },
+          "preparation_status": "premarket_prepared_updated",
+          "projection": "overview only; full brief remains in immutable audit evidence"
+        },
+        "decisions": [
+          {
+            "decision_id": "96a31f35f2c596a82e88cce8c0bfe549a8134efb8c0a08b9bc8020602d866e2b",
+            "evidence_id": "d5bc2073bf5a40ba73491709f9a32f9ac57fb15f3848be702b77b93eb0e3dfc4",
+            "decided_at": "2026-09-08T14:44:08.389719Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:96a31f35f2c596a82e88cce8c0bfe549a8134efb8c0a08b9bc8020602d866e2b"
+          },
+          {
+            "decision_id": "2e783d2db3209d33b6bd34fc7b6e4405196e55d08845b99c21ff993a4424c250",
+            "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+            "decided_at": "2026-09-08T14:01:14.978176Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "supported_quantitative_event",
+                "publication_time_unknown",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_not_causal_or_fresh",
+                "spread_exceeds_policy",
+                "pre_event_chase_reference_missing",
+                "unsupported_event_hypothesis"
+              ],
+              "symbol": "AAPL"
+            },
+            "immutable_reference": "event_decisions:2e783d2db3209d33b6bd34fc7b6e4405196e55d08845b99c21ff993a4424c250"
+          },
+          {
+            "decision_id": "f7abc8e9012520574ddc641c002d25f96a2ad0da35b4a2c5e42a40c532295c91",
+            "evidence_id": "d953a612290283b5ff997ed73d08f32cc13e8f45df4fc4533839aac60febb377",
+            "decided_at": "2026-09-08T12:33:59.899334Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "correction_requires_review",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "known_correction_or_retraction",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:f7abc8e9012520574ddc641c002d25f96a2ad0da35b4a2c5e42a40c532295c91"
+          },
+          {
+            "decision_id": "2cefb440239759b22c0b31b1ffd27a04ca583a5a8f80a8fab4ed0483b09cd049",
+            "evidence_id": "3d3aad203eb97bdab8bb9e186308ef9b400fc71a62c80bce098d190cae670efe",
+            "decided_at": "2026-09-08T12:11:44.692503Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:2cefb440239759b22c0b31b1ffd27a04ca583a5a8f80a8fab4ed0483b09cd049"
+          },
+          {
+            "decision_id": "88eaee79ebacacd5aa7635ff3f449a3affce3840e24345e43076baff73f0ca94",
+            "evidence_id": "6794b52638046e5895334f8d5bd584c56f6f28b577a9e7ee299e53b87e046465",
+            "decided_at": "2026-09-08T11:11:53.311984Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:88eaee79ebacacd5aa7635ff3f449a3affce3840e24345e43076baff73f0ca94"
+          },
+          {
+            "decision_id": "64ab476bea23899db1c362b252d1187157883857ae6b0fcea340779a720233b1",
+            "evidence_id": "87fe16d54b4b20546d4c4a29d9baffb22a6b800d8d95733204ed6d8b8e1cbb02",
+            "decided_at": "2026-09-08T09:58:31.492625Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:64ab476bea23899db1c362b252d1187157883857ae6b0fcea340779a720233b1"
+          },
+          {
+            "decision_id": "e2c1f6d11df6e557e27bd10f72600bf6ea1e04f32f37df0058c81c34f5ad6f51",
+            "evidence_id": "55db544f13c1875ce1b76a52437f90974acff61763dccb641138314491e095c1",
+            "decided_at": "2026-09-08T09:33:36.401217Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:e2c1f6d11df6e557e27bd10f72600bf6ea1e04f32f37df0058c81c34f5ad6f51"
+          },
+          {
+            "decision_id": "52c8633c439ed7d817a2410a7a5abc4d31dee02286a4fa084f5ebf33f9b8bbf3",
+            "evidence_id": "4991c66ae9e8612c6fed14831b5c5d09165c7eee4414767e4433084c335804d0",
+            "decided_at": "2026-09-08T09:26:56.484940Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:52c8633c439ed7d817a2410a7a5abc4d31dee02286a4fa084f5ebf33f9b8bbf3"
+          },
+          {
+            "decision_id": "63531f9a18ab43b39d4bcb0558b1274a7e51c5a15b7a5014a24f70a2fdf651d0",
+            "evidence_id": "3e5b1eac6e77a0b2953aefbaa772ce94aac038842179ab7cb5f1b6c7d8ea7e6a",
+            "decided_at": "2026-09-08T08:28:23.676067Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:63531f9a18ab43b39d4bcb0558b1274a7e51c5a15b7a5014a24f70a2fdf651d0"
+          },
+          {
+            "decision_id": "7fa25e0a4d33a4c80e4c4e6c390c703d70cd10b9212644a2bd3414512fe1026a",
+            "evidence_id": "8464b00c10059118e7076fdb49d64ce372716dd09b36036f1fd58cc106363eab",
+            "decided_at": "2026-09-08T07:56:27.980808Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:7fa25e0a4d33a4c80e4c4e6c390c703d70cd10b9212644a2bd3414512fe1026a"
+          },
+          {
+            "decision_id": "a2a6e4cfb39d6105b4b5456b82dce46e43622e66d9b3a114abe81e2cbc452dfc",
+            "evidence_id": "045bebea077f9b843c76b80134c55add26a3d4ee4e803f781ac20f5fa461ad5f",
+            "decided_at": "2026-09-08T07:46:35.579524Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:a2a6e4cfb39d6105b4b5456b82dce46e43622e66d9b3a114abe81e2cbc452dfc"
+          },
+          {
+            "decision_id": "074a4ffa5b96bbcc3f0ffcb0aa7119e4e9419e0a93eea34369997d4f5315070d",
+            "evidence_id": "ad61d67219cd8c147477b5002648a6036a54687ad31feb32662baea101c10031",
+            "decided_at": "2026-09-08T04:01:31.095195Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:074a4ffa5b96bbcc3f0ffcb0aa7119e4e9419e0a93eea34369997d4f5315070d"
+          },
+          {
+            "decision_id": "bf06358c09c4da6097099d0ac35239cf736ca59c4405c5a3b738764bc337d241",
+            "evidence_id": "7208846812bf5b8427fc0e97db37259198ee420c97ec378918f7ad89bd0b171d",
+            "decided_at": "2026-09-07T17:36:18.897914Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:bf06358c09c4da6097099d0ac35239cf736ca59c4405c5a3b738764bc337d241"
+          },
+          {
+            "decision_id": "18c87d1ae6b71e982d615f53f9342b2af47f951b4ddea6d9111637c347ce8a4d",
+            "evidence_id": "2a0ec401c98ea819ed6ae90f471dc6b0790d3086c12c357d2033a3fa6e5be869",
+            "decided_at": "2026-09-07T17:01:09.605837Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:18c87d1ae6b71e982d615f53f9342b2af47f951b4ddea6d9111637c347ce8a4d"
+          },
+          {
+            "decision_id": "cd0b2ef8183737c42f0fb2da7645adc07df1336751058b12e6ade4d5ad616d7a",
+            "evidence_id": "6bbaca3b1a2a3ba06cdc5d2b821be697615cc9affcd2f21373ee9fbbef0e12ce",
+            "decided_at": "2026-09-07T16:16:20.195743Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:cd0b2ef8183737c42f0fb2da7645adc07df1336751058b12e6ade4d5ad616d7a"
+          },
+          {
+            "decision_id": "8d14263ea100d5fcc0f3faf78cfe765500daeb7a596b059b93bba2d65a2140e9",
+            "evidence_id": "0cc61e6f810d31dd63d03c7018ff681f5154cbff74049e1ee0a516d695178895",
+            "decided_at": "2026-09-07T15:21:29.609718Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:8d14263ea100d5fcc0f3faf78cfe765500daeb7a596b059b93bba2d65a2140e9"
+          },
+          {
+            "decision_id": "41d7bd85848073bc5717eb650bfabbeab9d05d498d40e1286c63a8e394b5d0a3",
+            "evidence_id": "af80312ed68664d02fe93219d8031264589db98368f09f9a0f87c4e4a78e21e4",
+            "decided_at": "2026-09-07T13:46:23.284032Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:41d7bd85848073bc5717eb650bfabbeab9d05d498d40e1286c63a8e394b5d0a3"
+          },
+          {
+            "decision_id": "8d0b2e1414c991cc404d852c88ae05f69f97a4d2cd87c0863a27d57b4f04a9a3",
+            "evidence_id": "957ad73cca57bfda791b4005f31491801e650817715cbc823241b7e387903dc4",
+            "decided_at": "2026-09-07T10:42:52.881204Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:8d0b2e1414c991cc404d852c88ae05f69f97a4d2cd87c0863a27d57b4f04a9a3"
+          },
+          {
+            "decision_id": "8671fb0ca528a085ec6b66c5bcae04cecb2de8e021b814271a47de59a2059df0",
+            "evidence_id": "a160a834c2d231d1785d73c7e17edd77b72822bde8c70f9d99fcea347edc5976",
+            "decided_at": "2026-09-07T10:00:55.192743Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:8671fb0ca528a085ec6b66c5bcae04cecb2de8e021b814271a47de59a2059df0"
+          },
+          {
+            "decision_id": "1b0c2650d024338af2831d9305b24c8e81a727070ed3263ad4790e0483f2e345",
+            "evidence_id": "3458d9ed6b5143de26821f188cc88be0ecc2a73ca3f400f3bfc637abee18d44e",
+            "decided_at": "2026-09-07T10:00:54.889339Z",
+            "payload": {
+              "action": "abstain",
+              "reasons": [
+                "multiple_or_wrong_issuer_mentioned",
+                "retained_source_content",
+                "verified_primary_issuer",
+                "point_in_time_issuer_mapping",
+                "supported_quantitative_event",
+                "issuer_not_point_in_time_eligible",
+                "missing_or_ineligible_completed_session_liquidity",
+                "market_context_symbol_mismatch",
+                "mapping_not_available_with_source",
+                "halt_status_unknown_or_halted",
+                "feed_health_unknown_or_degraded",
+                "macro_calendar_missing_or_incomplete",
+                "outside_verified_regular_session",
+                "completed_post_availability_observation_missing",
+                "processing_latency_not_elapsed",
+                "quote_missing",
+                "unsupported_event_hypothesis"
+              ]
+            },
+            "immutable_reference": "event_decisions:1b0c2650d024338af2831d9305b24c8e81a727070ed3263ad4790e0483f2e345"
+          }
+        ],
+        "decision_count": 46,
+        "leading_no_trade_reasons": {
+          "retained_source_content": 43,
+          "verified_primary_issuer": 43,
+          "point_in_time_issuer_mapping": 43,
+          "supported_quantitative_event": 44,
+          "issuer_not_point_in_time_eligible": 43,
+          "missing_or_ineligible_completed_session_liquidity": 43,
+          "market_context_symbol_mismatch": 43,
+          "late_or_inconsistent_publication": 21,
+          "source_expired": 23,
+          "mapping_not_available_with_source": 43,
+          "halt_status_unknown_or_halted": 43,
+          "feed_health_unknown_or_degraded": 43,
+          "macro_calendar_missing_or_incomplete": 43,
+          "outside_verified_regular_session": 43,
+          "completed_post_availability_observation_missing": 44,
+          "processing_latency_not_elapsed": 44,
+          "quote_missing": 43,
+          "unsupported_event_hypothesis": 44,
+          "multiple_or_wrong_issuer_mentioned": 17,
+          "known_correction_or_retraction": 5,
+          "correction_requires_review": 3,
+          "OLDER_COMPARISON_CONTEXT_ONLY": 2,
+          "publication_time_unknown": 1,
+          "quote_not_causal_or_fresh": 1,
+          "spread_exceeds_policy": 1,
+          "pre_event_chase_reference_missing": 1
+        },
+        "decisions_display": {
+          "shown": 20,
+          "total": 46,
+          "truncated": true,
+          "projection": "decision summary; full evidence retained in event_decisions by decision_id"
+        },
+        "performance_as_of": "2026-09-08T15:28:36.912531+00:00",
+        "latest_persisted_report": {
+          "report_id": "63a03f9f-78ae-5b04-8705-be1717a3430c",
+          "snapshot_at": "2026-09-07T09:01:01.622087Z",
+          "planned_session_date": "2026-09-08"
+        },
+        "ledgers": {
+          "purpose": "iex-practice",
+          "state": "valued",
+          "broker_paper_pnl": "0",
+          "economic_paper_pnl": "0",
+          "broker_paper_equity": "10000",
+          "economic_paper_equity": "10000",
+          "closed_round_trips": 0,
+          "calibration_round_trips": 0,
+          "qualifying_closed_round_trips": 0,
+          "virtual_equity_anchor": "10000",
+          "qualification_eligible": false,
+          "evidence_use": "operational_practice_only",
+          "performance_label": "IEX paper practice only; not validated strategy economics",
+          "validated_strategy_economics": false,
+          "economic_paper_pnl_label": "Practice P&L after modeled reserves; operational estimate only",
+          "qualification": "excluded_operational_practice",
+          "source_limitations": [
+            "Real-time Alpaca IEX is single-venue data, not consolidated SIP/NBBO. Alpaca paper matching uses NBBO, which can differ from the bot's IEX observations. Paper practice fills and quote paths do not validate strategy economics."
+          ]
+        },
+        "usable_forward_trading_sessions": 0,
+        "calibration_status": {
+          "blocking_evidence": {
+            "observed": {
+              "ask": "316.85",
+              "bid": "316.23",
+              "certificate_permits_paper": true,
+              "evaluated_at": "2026-09-08T13:59:57.349828+00:00",
+              "limit_price": "316.85",
+              "market_phase": "entry",
+              "maximum_limit_price": null,
+              "maximum_notional": "25",
+              "median_daily_dollar_volume": "12974063332.15",
+              "notional": "24.99978185",
+              "quote_at": "2026-09-08T13:59:56.297677+00:00",
+              "source_valid": true
+            },
+            "purpose": "operator_calibration",
+            "qualification_eligible": false,
+            "reasons": [
+              "INVALID_PRICE_OR_SPREAD",
+              "GLOBAL_KILL_SWITCH"
+            ],
+            "state": "risk_rejected"
+          },
+          "entry_attempts": 0,
+          "missed_at": "2026-09-08T14:00:34.987478+00:00",
+          "outcome": "MISSED",
+          "state": "missed_window_no_trade"
+        },
+        "session_report": {
+          "overview_only": true,
+          "cohort_id": "v20-tuesday-20260908-r3",
+          "health": {
+            "worker": {
+              "fresh": true
+            }
+          },
+          "latest_persisted_report": {
+            "report_id": "63a03f9f-78ae-5b04-8705-be1717a3430c",
+            "snapshot_at": "2026-09-07T09:01:01.622087Z",
+            "planned_session_date": "2026-09-08"
+          },
+          "full_report_url": "/api/event-session-report"
+        },
+        "heartbeat_at": "2026-09-08T15:28:43.131700+00:00",
+        "capability_limitations": [
+          "NO_CONFIGURED_INFERENCE_PROVIDER_DETERMINISTIC_ONLY"
+        ],
+        "source_limitations": [
+          "IEX_PRACTICE_ONLY_NOT_QUALIFICATION_EVIDENCE",
+          "Real-time Alpaca IEX is single-venue data, not consolidated SIP/NBBO. Alpaca paper matching uses NBBO, which can differ from the bot's IEX observations. Paper practice fills and quote paths do not validate strategy economics."
+        ],
+        "served_at": "2026-09-08T15:29:15.188755+00:00",
+        "cache_ttl_seconds": 15.0,
+        "overview_only": true,
+        "full_report_url": "/api/event-session-report"
+      }
+    },
+    "/api/runtime": {
+      "status": 200,
+      "bytes": 2046,
+      "payload": {
+        "connected": true,
+        "market_bars": 91,
+        "market_quotes": 23252,
+        "market_trades": 762,
+        "shadow_nav": null,
+        "worker_heartbeat": "2026-09-08T15:29:13.813597+00:00",
+        "worker_status": {
+          "heartbeat_at": "2026-09-08T15:29:13.813597+00:00",
+          "age_seconds": 1.578018,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+          "reported": {
+            "state": "healthy",
+            "healthy": true,
+            "mode": "shadow",
+            "received": 6531,
+            "committed": 6356,
+            "inserted": 6356,
+            "duplicates": 0,
+            "queue_depth": 175,
+            "queue_capacity": 20000,
+            "in_flight": 0,
+            "gaps": 0,
+            "dropped_events": 0,
+            "notice_overflow": 0,
+            "decision_errors": 0,
+            "last_received_at": "2026-09-08T15:29:13.813418+00:00",
+            "last_received_event_at": "2026-09-08T15:29:13.777406+00:00",
+            "last_event_at": "2026-09-08T15:29:13.777406+00:00",
+            "last_committed_event_at": "2026-09-08T15:29:13.165869+00:00",
+            "last_market_commit_at": "2026-09-08T15:29:13.684029+00:00",
+            "last_commit_at": "2026-09-08T15:29:13.684029+00:00",
+            "last_committed_received_at": "2026-09-08T15:29:13.200891+00:00",
+            "receive_lag_seconds": 0.036012,
+            "commit_lag_seconds": 1.038442,
+            "exchange_to_commit_lag_seconds": 0.51816,
+            "committed_event_age_seconds": 0.647731,
+            "market_commit_age_seconds": 0.129571,
+            "oldest_uncommitted_age_seconds": 0.569332,
+            "batch_write_seconds": 0.45073056407272816,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-shadow-recorder",
+            "present": true,
+            "owner_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x",
+            "renewed_at": "2026-09-08T15:29:13.813597+00:00",
+            "age_seconds": 1.578018,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "market_feed_status": {
+          "heartbeat_at": "2026-09-08T15:29:13.806192+00:00",
+          "age_seconds": 1.585423,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-665589ffdb-2jm6x-market-feed",
+          "reported": {
+            "state": "healthy",
+            "healthy": true,
+            "last_market_commit_at": "2026-09-08T15:29:08.664578+00:00",
+            "market_commit_age_seconds": 5.141614,
+            "source_http_cache": null
+          },
+          "lease": null
+        },
+        "notifier_heartbeat": "2026-09-08T15:29:12.282934+00:00",
+        "news_heartbeat": "2026-09-08T15:28:39.383868+00:00"
+      }
+    },
+    "/api/news?limit=20": {
+      "status": 200,
+      "bytes": 6219,
+      "payload": {
+        "feed_heartbeat": "2026-09-08T15:28:39.383868+00:00",
+        "items": [
+          {
+            "headline": "Apple's Wednesday Event: Pricier iPhone 18 Pros and a $2,099 Foldable Expected",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/analyst-stock-ratings/price-target/26/09/61661997/apple-iphone-18-launch-bofa-380-target-foldable-pro-prices",
+            "symbols": [
+              "AAPL"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T14:43:04Z",
+            "received_at": "2026-09-08T14:44:07.483316Z"
+          },
+          {
+            "headline": "Stock Market Today: S&P 500, Dow, Nasdaq 100 Futures Fall as Oil Tops $99 Despite Trump\u2019s Price Drop Prediction\u2014 ASML, NVS, CASY in Focus (UPDATED)",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/equities/26/09/61651732/stock-market-today-sp-500-dow-futures-fall-as-oil-tops-99-despite-trumps-price-drop-prediction-asml-nvs-casy-in-focus",
+            "symbols": [
+              "AAPL",
+              "ASML",
+              "BTCUSD",
+              "CASY",
+              "CODX",
+              "ISPC",
+              "NVS",
+              "QQQ",
+              "SPY",
+              "TSM"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T12:32:14Z",
+            "received_at": "2026-09-08T12:33:59.027767Z"
+          },
+          {
+            "headline": "OpenAI, Anthropic Seek Investment-Grade Ratings Post Potential IPOs to Cut AI Borrowing Costs: Report",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/ipos/26/09/61655283/openai-anthropic-seek-investment-grade-ratings-post-potential-ipos-to-cut-ai-borrowing-costs-report",
+            "symbols": [
+              "AVGO",
+              "GOOG",
+              "GOOGL",
+              "NVDA",
+              "SPCX"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T12:10:24Z",
+            "received_at": "2026-09-08T12:11:43.500950Z"
+          },
+          {
+            "headline": "Nvidia, Oracle, KLA And An Industrial Stock: CNBC\u2019s \u2018Final Trades\u2019",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/trading-ideas/long-ideas/26/09/61653579/nvidia-oracle-kla-ftai-avaiation-cnbc-final-trades",
+            "symbols": [
+              "FTAI",
+              "KLAC",
+              "NVDA",
+              "ORCL"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T11:11:15Z",
+            "received_at": "2026-09-08T11:11:51.300024Z"
+          },
+          {
+            "headline": "Competitor Analysis: Evaluating NVIDIA And Competitors In Semiconductors &amp; Semiconductor Equipment Industry",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/news/26/09/61651956/competitor-analysis-evaluating-nvidia-and-competitors-semiconductors-amp-semiconductor-equipment-ind",
+            "symbols": [
+              "NVDA"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T09:58:20Z",
+            "received_at": "2026-09-08T09:58:29.584156Z"
+          },
+          {
+            "headline": "Stock Market Today: S&P 500, Dow Futures Fall as Oil Tops $99 Despite Trump\u2019s Price Drop Prediction \u2014 ASML, NVS, CASY in Focus",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/equities/26/09/61651732/stock-market-today-sp-500-dow-futures-fall-as-oil-tops-99-despite-trumps-price-drop-prediction-asml-nvs-casy-in-focus",
+            "symbols": [
+              "AAPL",
+              "ASML",
+              "BTCUSD",
+              "CASY",
+              "CODX",
+              "ISPC",
+              "NVS",
+              "QQQ",
+              "SPY",
+              "TSM"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T09:32:34Z",
+            "received_at": "2026-09-08T09:33:35.725845Z"
+          },
+          {
+            "headline": "Apple's 'Surprise and Shine' Launch: From iPhone 18 Pro to the First Foldable iPhone and Next-Gen Apple Watch, Here's What to Expect",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/tech/26/09/61651680/apples-surprise-and-shine-launch-from-iphone-18-pro-to-the-first-foldable-iphone-and-next-gen-apple-watch-heres-what-to-expect",
+            "symbols": [
+              "AAPL",
+              "SSNLF"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T09:26:08Z",
+            "received_at": "2026-09-08T09:26:54.617097Z"
+          },
+          {
+            "headline": "Apple\u2019s First Foldable iPhone Could Be Huge\u2014but Should You Be an Early Buyer?",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/tech/26/09/61651228/apples-first-foldable-iphone-could-be-huge-but-should-you-be-an-early-buyer",
+            "symbols": [
+              "AAPL",
+              "SSNLF",
+              "TSM"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T08:27:30Z",
+            "received_at": "2026-09-08T08:28:21.593496Z"
+          },
+          {
+            "headline": "Elon Musk\u2019s Space Data Center Bet Faces a Reality Check \u2014 Experts Says It Could Be a \u2018Next-Decade Event\u2019",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/tech/26/09/61650893/elon-musks-space-data-center-bet-faces-a-reality-check-experts-says-it-could-be-a-next-decade-event",
+            "symbols": [
+              "NVDA",
+              "SPCX"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T07:56:11Z",
+            "received_at": "2026-09-08T07:56:26.057358Z"
+          },
+          {
+            "headline": "Stock Market: Will S&P 500 Open Up or Down Today?",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/prediction-markets/26/09/61650780/stock-market-will-sp-500-open-up-or-down-today-32",
+            "symbols": [
+              "AAPL",
+              "BRZE",
+              "CASY",
+              "DIA",
+              "GME",
+              "POLUSD",
+              "QQQ",
+              "SPY",
+              "TTAN"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T07:44:57Z",
+            "received_at": "2026-09-08T07:46:32.535281Z"
+          },
+          {
+            "headline": "We Can\u2019t Allow a Handful of Greedy People to Play God\u2019: Bernie Sanders Takes Aim at Big Tech Billionaires Over AI Power",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/tech/26/09/61649902/bernie-sanders-big-tech-billionaires-ai-power-greedy-people-play-god",
+            "symbols": [
+              "MSFT",
+              "NVDA"
+            ],
+            "category": "general",
+            "published_at": "2026-09-08T04:00:21Z",
+            "received_at": "2026-09-08T04:01:30.266350Z"
+          },
+          {
+            "headline": "10 Information Technology Stocks Whale Activity In Today\u2019s Session",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/options/26/09/61648801/10-information-technology-stocks-whale-activity-today-s-session",
+            "symbols": [
+              "AAPL",
+              "CBRS",
+              "DELL",
+              "INTC",
+              "IREN",
+              "MU",
+              "NVDA",
+              "ORCL",
+              "SKHY",
+              "SNDK"
+            ],
+            "category": "general",
+            "published_at": "2026-09-07T17:35:15Z",
+            "received_at": "2026-09-07T17:36:17.107747Z"
+          },
+          {
+            "headline": "Why Rising Bond Yields May Be Just 'Noise' For Stocks, Jordi Visser Says",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/markets/bonds/26/09/61648719/jordi-visser-22v-research-bond-yields-noise-ai-crypto",
+            "symbols": [
+              "DELL",
+              "MU",
+              "NVDA",
+              "TLT"
+            ],
+            "category": "general",
+            "published_at": "2026-09-07T17:00:08Z",
+            "received_at": "2026-09-07T17:01:08.816147Z"
+          },
+          {
+            "headline": "Tokenized Nvidia and Tesla Are Becoming Trending Crypto Trades, CoinMarketCap Says",
+            "source": "alpaca:benzinga",
+            "source_url": "https://www.benzinga.com/crypto/cryptocurrency/26/09/61648570/nvidia-tesla-crypto-trades",
+            "symbols": [
+              "BTCUSD",
+              "NVDA",
+              "TSLA"
+            ],
+            "category": "general",
+            "published_at": "2026-09-07T16:15:36Z",
+            "received_at": "2026-09-07T16:16:18.296457Z"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -29,6 +29,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.pool import QueuePool
 
 metadata = MetaData()
 
@@ -45,6 +46,13 @@ events = Table(
     Column("payload", JSON, nullable=False),
 )
 Index("ix_events_v2_type_time", events.c.event_type, events.c.occurred_at)
+Index(
+    "ix_events_v2_trace_type_time",
+    events.c.trace_id,
+    events.c.event_type,
+    events.c.occurred_at,
+    postgresql_ops={"trace_id": "varchar_pattern_ops"},
+)
 
 controls = Table(
     "controls_v2",
@@ -272,9 +280,22 @@ def normalize_database_url(url: str) -> str:
 
 
 class Database:
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, *, pool_size: int | None = None) -> None:
         url = normalize_database_url(url)
-        self.engine: Engine = create_engine(url, future=True)
+        if pool_size is not None:
+            if pool_size < 1:
+                raise ValueError("database pool size must be positive")
+            self.engine: Engine = create_engine(
+                url,
+                future=True,
+                pool_pre_ping=True,
+                poolclass=QueuePool,
+                pool_size=pool_size,
+                max_overflow=0,
+                pool_timeout=20,
+            )
+        else:
+            self.engine = create_engine(url, future=True, pool_pre_ping=True)
 
     def initialize(self) -> None:
         metadata.create_all(self.engine)

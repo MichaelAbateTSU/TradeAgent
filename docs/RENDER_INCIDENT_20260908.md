@@ -65,6 +65,37 @@ syntax passed Node checking. The design detector's existing Inter-font preferenc
 was not restyled during incident recovery. These tests do not replace live PostgreSQL,
 Render RSS, real IEX progress or delivery acceptance.
 
+## First release acceptance caught additional defects
+
+Reviewed commit `37c262b7419bed8c1ecaf2db561c4f3bc4bce04d` reached all four
+application roles at 15:28 UTC. Recorder data began advancing and application
+memory fell substantially, but this candidate was **not accepted**:
+
+- The actual full report exceeded 120 seconds. Two read-only test cursors remained
+  CPU-active for more than six minutes; they were specifically canceled at
+  15:36:55 UTC. No release email had been enqueued.
+- PostgreSQL retained about 570 MB of audit storage, including approximately
+  399 MB of repeated official context. Repeated JSON-text extraction imposed
+  database CPU costs not represented by the SQLite/Python-allocation stress result.
+- The first 663-second concurrent soak captured 12 HTTP failures. Database memory
+  sampled 252,280,830 bytes on the unchanged 256 MiB plan. At 15:49:00 a PostgreSQL
+  backend was killed by signal 9; the database reinitialized and resumed at
+  15:49:07. The notifier restarted after the interrupted connection. No data reset
+  or paid upgrade was performed.
+
+The follow-up repair uses single-pass PostgreSQL JSON read models, the missing
+concurrent audit lookup index, and one bounded dashboard connection pool.
+Readiness timestamps are evaluated after the read, preventing fresh concurrently
+updated heartbeats from being falsely labeled future-dated. Acceptance now checks
+database memory, current role/lease/code identity and actual recorded progress,
+not only successful HTTP responses. These changes require a fresh pinned review,
+deployment and sustained acceptance; the failed first run is retained separately.
+
+Follow-up integrated validation: **786 tests passed, 86.98% coverage**, unchanged
+85% requirement; Ruff check/format passed (179 files) and mypy passed (82 source
+files). Pool concurrency, read-completion freshness, PostgreSQL one-pass SQL shape,
+index-history preservation and real-progress acceptance guards are covered.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)
@@ -72,6 +103,10 @@ Render RSS, real IEX progress or delivery acceptance.
 - [Actual database/broker/MISSED baseline](../research/results/render-incident-20260908-baseline.json)
 - [Prior frozen r3 record](../research/results/v20-tuesday-20260908-r3-deployment.json)
 - [Mandatory repeatable post-deploy acceptance](../infra/render/POSTDEPLOY_ACCEPTANCE.md)
+- [Failed first 663-second soak](../research/results/render-incident-20260908-first-soak-summary.json)
+- [Complete compressed first-soak observations](../research/results/render-incident-20260908-first-soak.json.gz)
+- [Actual PostgreSQL audit sizes](../research/results/render-incident-20260908-distribution.json)
+- [Database interruption and memory](../research/results/render-incident-20260908-database-interruption.json)
 
 The historical r3 record and user-owned Tuesday-readiness edits are not rewritten.
 Incident recovery acceptance is recorded separately after actual sustained tests.

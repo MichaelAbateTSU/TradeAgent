@@ -31,6 +31,13 @@ PATHS = (
     "/api/experiments?limit=10",
     "/api/event-product",
 )
+ROLE_STATES = {
+    "tradeagent-event-worker": {"collecting", "market_closed"},
+    "tradeagent-shadow-recorder": {"healthy"},
+    "tradeagent-notifier": {"running"},
+    "tradeagent-news-worker": {"healthy"},
+    "tradeagent-shadow-market-feed": {"healthy"},
+}
 
 
 def render_token() -> str:
@@ -109,6 +116,88 @@ def acceptance_failures(evidence: dict[str, Any]) -> list[str]:
             failures.append(f"{role}:unexpected_memory_unit")
         if values and max(values) >= 400 * 1024 * 1024:
             failures.append(f"{role}:memory_above_400_mib_acceptance_bound")
+    database_memory = [
+        point["value"]
+        for item in evidence["memory"]
+        if any(
+            label["field"] == "resource" and label["value"] == DATABASE for label in item["labels"]
+        )
+        for point in item["values"]
+    ]
+    if len(database_memory) < 9 or max(database_memory, default=0) >= 230 * 1024 * 1024:
+        failures.append("database:missing_memory_or_above_230_mib_acceptance_bound")
+    failures.extend(dependency_failures(evidence))
+    return sorted(set(failures))
+
+
+def dependency_failures(evidence: dict[str, Any]) -> list[str]:
+    failures = []
+    snapshots = [
+        row.get("payload", {}).get("operational_status", {})
+        for row in evidence["requests"]
+        if row.get("path") == "/ready" and row.get("status") == 200
+    ]
+    if len(snapshots) < 2:
+        failures.append("missing_sustained_dependency_snapshots")
+    owners: dict[str, set[str]] = {name: set() for name in ROLE_STATES}
+    recorder = []
+    for snapshot in snapshots:
+        for name, allowed in ROLE_STATES.items():
+            role = snapshot.get("roles", {}).get(name, {})
+            reported = role.get("reported", {})
+            if not role.get("fresh") or reported.get("state") not in allowed:
+                failures.append(f"{name}:stale_or_unhealthy")
+            if role.get("instance_id"):
+                owners[name].add(role["instance_id"])
+            lease = role.get("lease")
+            requires_lease = name in {
+                "tradeagent-event-worker",
+                "tradeagent-shadow-recorder",
+                "tradeagent-notifier",
+            }
+            if requires_lease and (
+                not lease
+                or not lease.get("present")
+                or not lease.get("owner_matches_heartbeat")
+                or not lease.get("recent_within_120_seconds")
+            ):
+                failures.append(f"{name}:invalid_lease_observation")
+            if (
+                name == "tradeagent-event-worker"
+                and reported.get("code_sha") != evidence["expected_commit"]
+            ):
+                failures.append("event:heartbeat_code_mismatch")
+            if name == "tradeagent-shadow-recorder":
+                recorder.append(reported)
+                if reported.get("healthy") is not True or reported.get("dropped_events", 0):
+                    failures.append("recorder:unhealthy_or_dropped_packets")
+    for name, observed in owners.items():
+        if len(observed) != 1:
+            failures.append(f"{name}:owner_missing_or_changed")
+    if recorder and recorder[-1].get("gaps", 0) != recorder[0].get("gaps", 0):
+        failures.append("recorder:new_coverage_gap")
+    try:
+        committed_times = [
+            datetime.fromisoformat(row["last_committed_event_at"]) for row in recorder
+        ]
+        advanced = len(committed_times) >= 2 and committed_times[-1] > committed_times[0]
+    except (KeyError, TypeError, ValueError):
+        advanced = False
+    if not advanced:
+        failures.append("recorder:committed_exchange_time_not_advancing")
+    runtime = [
+        row["payload"]
+        for row in evidence["requests"]
+        if row.get("path") == "/api/runtime" and row.get("status") == 200 and "payload" in row
+    ]
+    for field in ("market_quotes", "market_trades", "market_bars"):
+        values = [row.get(field) for row in runtime]
+        if (
+            len(values) < 2
+            or not all(isinstance(value, int) for value in values)
+            or values[-1] <= values[0]
+        ):
+            failures.append(f"recorder:{field}_not_advancing")
     return failures
 
 
@@ -172,6 +261,7 @@ def main() -> None:
             "metrics/memory",
             params=[
                 *(("resource", service_id) for service_id in SERVICES.values()),
+                ("resource", DATABASE),
                 ("startTime", start.isoformat().replace("+00:00", "Z")),
                 ("endTime", end.isoformat().replace("+00:00", "Z")),
                 ("resolutionSeconds", "60"),

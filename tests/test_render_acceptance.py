@@ -9,6 +9,8 @@ import pytest
 
 from infra.render.acceptance_probe import email_status, report_test
 from infra.render.observe_release import (
+    DATABASE,
+    ROLE_STATES,
     SERVICES,
     acceptance_failures,
     dashboard_request,
@@ -20,11 +22,56 @@ from tradeagent.persistence import Database
 
 
 def evidence() -> dict[str, Any]:
+    roles = {
+        name: {
+            "fresh": True,
+            "instance_id": name,
+            "reported": {
+                "state": sorted(states)[0],
+                "code_sha": "abc123",
+                "healthy": True,
+                "gaps": 0,
+                "dropped_events": 0,
+                "last_committed_event_at": "2026-09-08T15:00:00+00:00",
+            },
+            "lease": {
+                "present": True,
+                "owner_matches_heartbeat": True,
+                "recent_within_120_seconds": True,
+            },
+        }
+        for name, states in ROLE_STATES.items()
+    }
+    later = deepcopy(roles)
+    later["tradeagent-shadow-recorder"]["reported"]["last_committed_event_at"] = (
+        "2026-09-08T15:10:00+00:00"
+    )
     return {
         "started_at": "2026-09-08T15:00:00+00:00",
         "duration_seconds": 660,
         "expected_commit": "abc123",
-        "requests": [{"status": 200}],
+        "requests": [
+            {
+                "status": 200,
+                "path": "/ready",
+                "payload": {"operational_status": {"roles": deepcopy(roles)}},
+            },
+            {
+                "status": 200,
+                "path": "/api/runtime",
+                "payload": {"market_quotes": 10, "market_trades": 10, "market_bars": 10},
+            },
+            {
+                "status": 200,
+                "path": "/ready",
+                "payload": {"operational_status": {"roles": deepcopy(later)}},
+            },
+            {
+                "status": 200,
+                "path": "/api/runtime",
+                "payload": {"market_quotes": 20, "market_trades": 20, "market_bars": 20},
+            },
+        ],
         "database": {"status": "available", "ipAllowList": []},
         "final_deploys": {
             role: [{"deploy": {"status": "live", "commit": {"id": "abc123"}}}] for role in SERVICES
@@ -36,7 +83,7 @@ def evidence() -> dict[str, Any]:
                 "unit": "bytes",
                 "values": [{"value": 200_000_000} for _ in range(11)],
             }
-            for service_id in SERVICES.values()
+            for service_id in [*SERVICES.values(), DATABASE]
         ],
     }
 
@@ -77,6 +124,18 @@ def test_failed_dashboard_body_is_not_stored() -> None:
     assert result["status"] == 502
     assert "payload" not in result
     assert "html" not in str(result)
+
+
+def test_http_200_with_stale_worker_or_no_progress_is_not_acceptance() -> None:
+    bad = evidence()
+    role = bad["requests"][2]["payload"]["operational_status"]["roles"]["tradeagent-event-worker"]
+    role["fresh"] = False
+    role["reported"]["code_sha"] = "old"
+    bad["requests"][-1]["payload"]["market_quotes"] = 10
+    failed = acceptance_failures(bad)
+    assert "tradeagent-event-worker:stale_or_unhealthy" in failed
+    assert "event:heartbeat_code_mismatch" in failed
+    assert "recorder:market_quotes_not_advancing" in failed
 
 
 def test_render_token_override_never_reads_disk(monkeypatch: pytest.MonkeyPatch) -> None:

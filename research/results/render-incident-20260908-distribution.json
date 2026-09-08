@@ -1,0 +1,125 @@
+{
+  "table_total_bytes": 570310656,
+  "types": [
+    {
+      "event_type": "event_official_context",
+      "rows": 4123,
+      "stored_payload_bytes": 399489325,
+      "largest_stored_payload": 106843
+    },
+    {
+      "event_type": "event_premarket_brief",
+      "rows": 3126,
+      "stored_payload_bytes": 81884811,
+      "largest_stored_payload": 41990
+    },
+    {
+      "event_type": "event_performance",
+      "rows": 4157,
+      "stored_payload_bytes": 31585073,
+      "largest_stored_payload": 9646
+    },
+    {
+      "event_type": "event_source_poll",
+      "rows": 3126,
+      "stored_payload_bytes": 5926471,
+      "largest_stored_payload": 1926
+    },
+    {
+      "event_type": "shadow_market_quote",
+      "rows": 15969,
+      "stored_payload_bytes": 3886630,
+      "largest_stored_payload": 246
+    },
+    {
+      "event_type": "event_reconciliation",
+      "rows": 11389,
+      "stored_payload_bytes": 3214897,
+      "largest_stored_payload": 293
+    },
+    {
+      "event_type": "event_session_report",
+      "rows": 7,
+      "stored_payload_bytes": 665547,
+      "largest_stored_payload": 164096
+    },
+    {
+      "event_type": "broker_reconciliation",
+      "rows": 5080,
+      "stored_payload_bytes": 406400,
+      "largest_stored_payload": 80
+    },
+    {
+      "event_type": "shadow_recorder_batch",
+      "rows": 1066,
+      "stored_payload_bytes": 386759,
+      "largest_stored_payload": 364
+    },
+    {
+      "event_type": "event_decision_observation",
+      "rows": 147,
+      "stored_payload_bytes": 272038,
+      "largest_stored_payload": 3736
+    },
+    {
+      "event_type": "event_extraction",
+      "rows": 155,
+      "stored_payload_bytes": 224637,
+      "largest_stored_payload": 1552
+    },
+    {
+      "event_type": "event_candidate_state",
+      "rows": 145,
+      "stored_payload_bytes": 117914,
+      "largest_stored_payload": 900
+    },
+    {
+      "event_type": "scheduled_reconciliation",
+      "rows": 5028,
+      "stored_payload_bytes": 90504,
+      "largest_stored_payload": 18
+    },
+    {
+      "event_type": "shadow_market_trade",
+      "rows": 114,
+      "stored_payload_bytes": 26303,
+      "largest_stored_payload": 238
+    },
+    {
+      "event_type": "event_calibration_status",
+      "rows": 48,
+      "stored_payload_bytes": 21484,
+      "largest_stored_payload": 694
+    },
+    {
+      "event_type": "event_risk_decision",
+      "rows": 34,
+      "stored_payload_bytes": 15770,
+      "largest_stored_payload": 503
+    },
+    {
+      "event_type": "event_operational_certificate",
+      "rows": 6,
+      "stored_payload_bytes": 6798,
+      "largest_stored_payload": 1176
+    },
+    {
+      "event_type": "event_pre_context",
+      "rows": 141,
+      "stored_payload_bytes": 3838,
+      "largest_stored_payload": 875
+    },
+    {
+      "event_type": "shadow_frame_unusable",
+      "rows": 3,
+      "stored_payload_bytes": 1840,
+      "largest_stored_payload": 880
+    },
+    {
+      "event_type": "event_broker_calendar",
+      "rows": 4,
+      "stored_payload_bytes": 1112,
+      "largest_stored_payload": 278
+    }
+  ]
+}

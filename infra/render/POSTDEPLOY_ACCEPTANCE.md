@@ -62,7 +62,13 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    experiments and the bounded event overview using two simultaneous page-equivalent
    clients. It records Render memory and service events, and fails on HTTP errors,
    restarts, changed commits, missing metrics, changed public database access or
-   any application sample at/above 400 MiB on the unchanged 512 MiB plans.
+   any application sample at/above 400 MiB on the unchanged 512 MiB plans, or
+   PostgreSQL at/above 230 MiB on its unchanged 256 MiB plan. It also rejects stale
+   or replaced role owners, missing/mismatched leases, old event code, recorder
+   drops/new gaps, and non-advancing committed exchange timestamps or raw data counts.
+   Inspect database logs for backend termination/recovery too; memory sampling can
+   miss a peak. The dashboard uses one bounded two-connection pool, not one pool
+   per request. Migration `0010_event_audit_lookup` must be valid before acceptance.
    Also load the full session report on demand; it is not a hot polling endpoint.
    For a single-role revision, explicitly verify each role's own expected SHA rather
    than pretending the unchanged roles received that revision.

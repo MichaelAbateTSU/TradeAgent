@@ -1,0 +1,14 @@
+{
+  "createdAt": "2026-09-08T15:46:14.711757Z",
+  "id": "job-dag2rhm7bikc73ct6rhg",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+  "status": "failed",
+  "candidate_hashes": {
+    "reporting_reads": "0e8faf46541e89b0adae45e1afc5864a0489be990a90277118e7f50f507842cb",
+    "event_brief": "c2a82eb3b0412864b0174f4b841d7a8a3722f4505e50a4261f583cff4ea226e0",
+    "event_session_report": "6b3e47af5faaecb203003dd291f208d65b4956cb2f2caefcfada0b274f285dfb"
+  },
+  "startedAt": "2026-09-08T15:46:14Z",
+  "finishedAt": "2026-09-08T15:49:04Z"
+}

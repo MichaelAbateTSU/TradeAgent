@@ -4,22 +4,23 @@ import json
 import tracemalloc
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import nullcontext
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event, func, insert, select
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import OperationalError
 
 from tradeagent import api
 from tradeagent.daily_status import DailyStatusScheduler, DailyStatusSettings
 from tradeagent.event_brief import persist_premarket_brief
 from tradeagent.event_research import SourceEvent, supported_issuer_mappings, text_hash
-from tradeagent.event_session_report import session_report
+from tradeagent.event_session_report import _audit_read_model, session_report
 from tradeagent.event_store import EventStore, event_evidence, event_order_links
 from tradeagent.persistence import (
     Database,
@@ -28,7 +29,7 @@ from tradeagent.persistence import (
     notification_outbox,
     orders,
 )
-from tradeagent.reporting_reads import READ_BATCH_SIZE
+from tradeagent.reporting_reads import POLL_FIELDS, READ_BATCH_SIZE, projected_row_query
 
 DAY = date(2026, 9, 8)
 NOW = datetime(2026, 9, 8, 22, tzinfo=UTC)
@@ -223,7 +224,7 @@ def test_production_sized_snapshots_do_not_materialize_historical_bodies(
                 == body
             )
 
-        monkeypatch.setattr(api, "Database", lambda _: nullcontext(database))
+        monkeypatch.setattr(api, "Database", lambda *args, **kwargs: database)
         monkeypatch.setattr(
             api,
             "session_report",
@@ -365,7 +366,7 @@ def test_production_controls_and_dependency_failure_never_fall_back_to_local(
         calls += 1
         raise OperationalError("connect", {}, RuntimeError("offline"))
 
-    monkeypatch.setattr(api, "Database", unavailable)
+    monkeypatch.setattr(Database, "begin", unavailable)
     assert client.get("/health").status_code == 200
     assert client.get("/ready").status_code == 503
     assert client.get("/api/status").status_code == 503
@@ -477,3 +478,107 @@ def test_ready_projects_roles_leases_controls_and_durable_progress(
         assert overview["premarket_brief"]["funnel"]["raw_items_received"] == 90
         assert overview["premarket_brief"]["preparation_status"] == "missed_premarket_deadline"
         assert body[:100] not in response.text + product.text
+
+
+def test_postgresql_poll_projection_parses_json_once_instead_of_per_field() -> None:
+    connection = SimpleNamespace(dialect=postgresql.dialect())
+    query = projected_row_query(
+        connection,
+        events,
+        POLL_FIELDS,
+        (events.c.event_id,),
+    ).where(events.c.event_id.in_(["verified-poll-id"]))
+    sql = str(query.compile(dialect=connection.dialect))
+    assert sql.count("json_to_record(") == 1
+    assert "JOIN LATERAL json_to_record(events_v2.payload)" in sql
+    assert " -> " not in sql and " ->> " not in sql
+    assert all(f"{field} JSON" in sql for field in POLL_FIELDS)
+    assert "events_v2.event_id IN (" in sql
+    assert "events_v2.payload" not in sql.split("FROM")[0]
+
+
+def test_audit_reads_metadata_once_then_bounded_verified_primary_keys() -> None:
+    with Database("sqlite:///:memory:") as database:
+        database.initialize()
+        store = EventStore(database)
+        for index in range(70):
+            store.audit(
+                "source_poll",
+                {"poll_id": str(index), "raw_items_received": 1},
+                NOW,
+                COHORT,
+            )
+            store.audit("official_context", {"version": index}, NOW, COHORT)
+        store.audit(
+            "official_context",
+            {"synthetic": True, "version": "excluded-newer"},
+            NOW,
+            COHORT,
+        )
+        store.audit("incident", {"planned_session_date": "invalid-date"}, NOW, COHORT)
+        queries: list[Any] = []
+
+        def observe_query(
+            connection: Any,
+            clause: Any,
+            multiparams: Any,
+            params: Any,
+            options: Any,
+        ) -> None:
+            queries.append(clause)
+
+        event.listen(database.engine, "before_execute", observe_query)
+        with database.begin() as connection:
+            rows, history = _audit_read_model(
+                connection,
+                events.c.trace_id == COHORT,
+                DAY,
+                OPEN,
+                NOW,
+            )
+        # One narrow metadata query, one latest-state/incident page, and three poll pages.
+        assert len(queries) == 5
+        for query in queries[1:]:
+            identities = query.compile().params["event_id_1"]
+            assert 0 < len(identities) <= READ_BATCH_SIZE
+        assert all("row_number" not in str(query).lower() for query in queries)
+        assert not any(column is events.c.payload for column in queries[0].selected_columns)
+        assert history["event_counts"]["event_official_context"]["count"] == 71
+        assert history["event_counts"]["event_official_context"]["forward_count"] == 70
+        assert history["event_counts"]["event_source_poll"]["count"] == 70
+        assert sum(row["event_type"] == "event_official_context" for row in rows) == 1
+        assert (
+            next(row for row in rows if row["event_type"] == "event_official_context")["payload"][
+                "version"
+            ]
+            == 69
+        )
+        # Malformed optional session dates still use actual occurrence time, not silent exclusion.
+        assert any(row["event_type"] == "event_incident" for row in rows)
+
+
+def test_full_report_never_requires_a_second_pool_connection(tmp_path: Path) -> None:
+    url = f"sqlite:///{tmp_path / 'single-connection.db'}"
+    with Database(url) as database:
+        database.dispose()
+        database.engine = create_engine(url, pool_size=1, max_overflow=0, pool_timeout=0.1)
+        database.initialize()
+        seed_cohort(database)
+        seed_loss(database)
+        checked_out = peak = 0
+
+        def checkout(connection: Any, record: Any, proxy: Any) -> None:
+            nonlocal checked_out, peak
+            checked_out += 1
+            peak = max(peak, checked_out)
+
+        def checkin(connection: Any, record: Any) -> None:
+            nonlocal checked_out
+            checked_out -= 1
+
+        event.listen(database.engine, "checkout", checkout)
+        event.listen(database.engine, "checkin", checkin)
+        report = session_report(database, COHORT, DAY, observed_at=NOW, persist=True)
+        assert Decimal(report["news_strategy"]["broker_paper_pnl"]) == Decimal("-2.50")
+        assert report["snapshot_persisted"] is True
+        assert peak == 1 and checked_out == 0

@@ -69,8 +69,9 @@ def memory_database(monkeypatch: pytest.MonkeyPatch) -> Iterator[Database]:
         connect_args={"check_same_thread": False},
     )
     database.initialize()
-    for module in (event_cli, event_runtime, api):
+    for module in (event_cli, event_runtime):
         monkeypatch.setattr(module, "Database", lambda _: nullcontext(database))
+    monkeypatch.setattr(api, "Database", lambda *args, **kwargs: database)
     try:
         yield database
     finally:

@@ -1,0 +1,220 @@
+[
+  {
+    "labels": [
+      {
+        "field": "instance",
+        "value": "srv-dae4tr7qj5pc73a9e0k0-tx5gx"
+      },
+      {
+        "field": "service",
+        "value": "srv-dae4tr7qj5pc73a9e0k0"
+      },
+      {
+        "field": "resource",
+        "value": "srv-dae4tr7qj5pc73a9e0k0"
+      }
+    ],
+    "unit": "bytes",
+    "values": [
+      {
+        "timestamp": "2026-09-08T15:28:27.465Z",
+        "value": 390918140
+      },
+      {
+        "timestamp": "2026-09-08T15:29:27.465Z",
+        "value": 392859650
+      }
+    ]
+  },
+  {
+    "labels": [
+      {
+        "field": "instance",
+        "value": "srv-dadoa3740ujc73cb09c0-6cb5n"
+      },
+      {
+        "field": "service",
+        "value": "srv-dadoa3740ujc73cb09c0"
+      },
+      {
+        "field": "resource",
+        "value": "srv-dadoa3740ujc73cb09c0"
+      }
+    ],
+    "unit": "bytes",
+    "values": [
+      {
+        "timestamp": "2026-09-08T15:28:27.465Z",
+        "value": 2584576
+      },
+      {
+        "timestamp": "2026-09-08T15:29:27.465Z",
+        "value": 139571200
+      },
+      {
+        "timestamp": "2026-09-08T15:30:27.465Z",
+        "value": 142565380
+      },
+      {
+        "timestamp": "2026-09-08T15:31:27.465Z",
+        "value": 144490500
+      },
+      {
+        "timestamp": "2026-09-08T15:32:27.465Z",
+        "value": 145526780
+      },
+      {
+        "timestamp": "2026-09-08T15:33:27.465Z",
+        "value": 147374080
+      },
+      {
+        "timestamp": "2026-09-08T15:34:27.465Z",
+        "value": 148504580
+      },
+      {
+        "timestamp": "2026-09-08T15:35:27.465Z",
+        "value": 148967420
+      }
+    ]
+  },
+  {
+    "labels": [
+      {
+        "field": "service",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "field": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "field": "instance",
+        "value": "srv-dadn8son74is73apqcc0-2jm6x"
+      }
+    ],
+    "unit": "bytes",
+    "values": [
+      {
+        "timestamp": "2026-09-08T15:29:27.465Z",
+        "value": 134914050
+      },
+      {
+        "timestamp": "2026-09-08T15:30:27.465Z",
+        "value": 147820540
+      },
+      {
+        "timestamp": "2026-09-08T15:31:27.465Z",
+        "value": 159907840
+      },
+      {
+        "timestamp": "2026-09-08T15:32:27.465Z",
+        "value": 159150080
+      },
+      {
+        "timestamp": "2026-09-08T15:33:27.465Z",
+        "value": 161009660
+      },
+      {
+        "timestamp": "2026-09-08T15:34:27.465Z",
+        "value": 163237890
+      },
+      {
+        "timestamp": "2026-09-08T15:35:27.465Z",
+        "value": 165007360
+      }
+    ]
+  },
+  {
+    "labels": [
+      {
+        "field": "instance",
+        "value": "srv-dadnn6mq1p3s73ef7ef0-q48kc"
+      },
+      {
+        "field": "service",
+        "value": "srv-dadnn6mq1p3s73ef7ef0"
+      },
+      {
+        "field": "resource",
+        "value": "srv-dadnn6mq1p3s73ef7ef0"
+      }
+    ],
+    "unit": "bytes",
+    "values": [
+      {
+        "timestamp": "2026-09-08T15:28:27.465Z",
+        "value": 166334460
+      },
+      {
+        "timestamp": "2026-09-08T15:29:27.465Z",
+        "value": 166268930
+      }
+    ]
+  },
+  {
+    "labels": [
+      {
+        "field": "service",
+        "value": "srv-dadnn6mq1p3s73ef7ef0"
+      },
+      {
+        "field": "resource",
+        "value": "srv-dadnn6mq1p3s73ef7ef0"
+      },
+      {
+        "field": "instance",
+        "value": "srv-dadnn6mq1p3s73ef7ef0-xz5pb"
+      }
+    ],
+    "unit": "bytes",
+    "values": [
+      {
+        "timestamp": "2026-09-08T15:32:27.465Z",
+        "value": 3739648
+      },
+      {
+        "timestamp": "2026-09-08T15:33:27.465Z",
+        "value": 115142660
+      },
+      {
+        "timestamp": "2026-09-08T15:34:27.465Z",
+        "value": 115109890
+      },
+      {
+        "timestamp": "2026-09-08T15:35:27.465Z",
+        "value": 115113980
+      }
+    ]
+  },
+  {
+    "labels": [
+      {
+        "field": "service",
+        "value": "srv-dae4tr7qj5pc73a9e0k0"
+      },
+      {
+        "field": "resource",
+        "value": "srv-dae4tr7qj5pc73a9e0k0"
+      },
+      {
+        "field": "instance",
+        "value": "srv-dae4tr7qj5pc73a9e0k0-742hs"
+      }
+    ],
+    "unit": "bytes",
+    "values": [
+      {
+        "timestamp": "2026-09-08T15:33:27.465Z",
+        "value": 145686530
+      },
+      {
+        "timestamp": "2026-09-08T15:34:27.465Z",
+        "value": 156565500
+      },
+      {
+        "timestamp": "2026-09-08T15:35:27.465Z",
+        "value": 156315650
+      }
+    ]
+  }
+]

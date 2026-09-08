@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator, Sequence
 from typing import Any
 
-from sqlalchemy import Select
+from sqlalchemy import JSON, Select, Table, column, func, select, true
 from sqlalchemy.engine import Connection
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -83,6 +83,30 @@ def projected_payload(column: Any, fields: Sequence[str]) -> list[Any]:
     return [
         (column[key].as_boolean() if key in booleans else column[key]).label(key) for key in fields
     ]
+
+
+def projected_row_query(
+    connection: Connection,
+    table: Table,
+    fields: Sequence[str],
+    metadata_columns: Sequence[ColumnElement[Any]] = (),
+) -> Select[Any]:
+    """Parse a PostgreSQL JSON document once, not once per projected field.
+
+    The audit payload column is JSON, not JSONB: repeated ``payload -> key``
+    operators repeatedly detoast and parse large retained documents. A lateral
+    json_to_record call extracts all requested fields in one pass and returns
+    only those fields to the client.
+    """
+    if connection.dialect.name == "postgresql":
+        document = (
+            func.json_to_record(table.c.payload)
+            .table_valued(*(column(key, JSON) for key in fields))
+            .render_derived(with_types=True)
+            .lateral("report_fields")
+        )
+        return select(*metadata_columns, *document.c).select_from(table.join(document, true()))
+    return select(*metadata_columns, *projected_payload(table.c.payload, fields))
 
 
 def stream_rows(connection: Connection, query: Select[Any]) -> Iterator[dict[str, Any]]:
