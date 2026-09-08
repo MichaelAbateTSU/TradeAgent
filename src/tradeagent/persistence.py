@@ -36,11 +36,11 @@ from sqlalchemy.pool import QueuePool
 
 metadata = MetaData()
 MARKET_DATA_TABLE_NAMES = ("market_bars", "market_quotes", "market_trades")
-POSTGRES_PREPARED_MAX = 7
+POSTGRES_PREPARED_MAX = 4
 
 
 def _bound_prepared_statements(dbapi_connection: Any, connection_record: Any) -> None:
-    # Reserve one slot for observed sequential-query high-water; this is an LRU target.
+    # Leave headroom for psycopg 3.3.4/5's warmed-key promotions; this is an LRU target.
     dbapi_connection.prepared_max = POSTGRES_PREPARED_MAX
 
 

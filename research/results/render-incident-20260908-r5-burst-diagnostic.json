@@ -1,0 +1,36 @@
+{
+  "experimental_only": true,
+  "observed_at": "2026-09-08T21:44:19.287006+00:00",
+  "psycopg_version": "3.3.5",
+  "results": [
+    {
+      "after_known_key_warmup": 7,
+      "after_new_key_rotation": 7,
+      "configured": 7,
+      "prepare_threshold": 5,
+      "prepared_primer": 7,
+      "promotion_counts": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ]
+    },
+    {
+      "after_known_key_warmup": 4,
+      "after_new_key_rotation": 4,
+      "configured": 4,
+      "prepare_threshold": 5,
+      "prepared_primer": 4,
+      "promotion_counts": [
+        4,
+        4,
+        4,
+        4
+      ]
+    }
+  ]
+}

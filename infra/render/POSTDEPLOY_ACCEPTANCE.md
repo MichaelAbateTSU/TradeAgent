@@ -50,9 +50,11 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    Run the isolated, rollback-only counter fixture before migration and the
    standalone `tests\prepared_cache_pg_fixture.py` against the candidate/deployed
    `Database.engine`. Its small-query test enforces READ ONLY and does not send
-   orders. Configuration 7 preserves the tested eight-statement server budget
-   on psycopg3.3.5; do not assume a configured value equals the observed retained
-   count. Record the actual library version and counts. This fixture does not
+   orders. Configuration 4 preserves the tested eight-statement server budget
+   on psycopg3.3.5, including warmed-key burst promotion; a sequential-only
+   test missed that configuration 7 can retain 14. Do not insert inspection SQL
+   between burst warmup and promotion or assume a configured value equals
+   retained count. Record the actual library version and counts. This fixture does not
    replace live throughput, memory, or dependency verification.
 2. Run the combined probe as a Render job on the broker-equipped event service
    using the deployed environment:

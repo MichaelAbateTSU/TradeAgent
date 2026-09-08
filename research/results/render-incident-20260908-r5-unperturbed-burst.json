@@ -1,0 +1,49 @@
+{
+  "experimental_only": true,
+  "observed_at": "2026-09-08T21:51:58.389405+00:00",
+  "psycopg_version": "3.3.5",
+  "results": [
+    {
+      "configured": 7,
+      "prepare_threshold": 5,
+      "server_count_after_all_promotions": 14,
+      "unperturbed_promotion_client_counts": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "warmed_client_names": 7,
+      "warmed_count_values": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "configured": 4,
+      "prepare_threshold": 5,
+      "server_count_after_all_promotions": 8,
+      "unperturbed_promotion_client_counts": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "warmed_client_names": 4,
+      "warmed_count_values": [
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  ]
+}

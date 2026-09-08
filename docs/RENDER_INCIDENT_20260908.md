@@ -315,6 +315,26 @@ identical throughout the full suite. The minute-bar correction at `70c78f6` rece
 an explicit clean delta review; the final cache supplement still needs its own
 exact-pin review before deployment.
 
+The deeper promotion path supersedes that sequential-only candidate: already-known
+query keys can be promoted without rotation. An independent **non-perturbing**
+PostgreSQL experiment at 21:51:58 UTC reproduced configuration 7 growing to
+**14** retained statements; configuration 4 peaked at **eight**. An earlier
+diagnostic queried between warmup/promotions and disturbed that cache state; it
+is retained as an experiment, not acceptance. `66b11fc` was never deployed.
+
+The stronger candidate therefore configures **4**, without changing threshold 5,
+SQL, transactions, pools, permissions, or the eight-statement verification budget.
+Its exact real-PostgreSQL fixtures passed at **21:54:29 UTC**: sequential traffic
+peaked at five; four prepared plus four warmed known-key promotions peaked at
+eight, then explicit new-key traffic reduced retained counts to four. No inspection
+SQL is inserted between warmup and promotion. The isolated counter fixture again
+passed all seven stages and rolled back. This still does not establish the SIG9
+allocation source or replace actual throughput/RSS verification.
+
+Final strengthened integration: **909 passed, two optional local PostgreSQL skips,
+87.25% coverage**, identical input hashes throughout the full run, Ruff190/mypy84
+and whitespace checks clean. Final exact-pin review and rollout remain pending.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)

@@ -1,0 +1,10 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T21:51:40.010716974Z",
+    "id": "job-dag86r1t0dsc73eaq3jg",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+    "status": "pending"
+  },
+  "purpose": "READ ONLY burst experiment without extra SQL between warmup/promotions; prior probing may perturb the known-key LRU"
+}
