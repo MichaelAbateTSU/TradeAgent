@@ -175,6 +175,17 @@ database acceptance bounds are unchanged. Current validation: **831 tests passed
 87.16% coverage**; Ruff passes for 184 files and mypy for 83 source files. The
 corrective release still requires pinned review, deployment and sustained tests.
 
+Pinned review of `eb112dd` found an EOD integration defect before deployment:
+broker completion was recorded before a busy report attempt, so later ticks could
+skip that report permanently. The correction preserves the broker completion fact
+but records successful report completion independently. Busy reporting defers
+without triggering an execution-worker fault; a later tick or restart retries
+until persistence succeeds. Other reporting failures still propagate and retain
+retry eligibility. Changed exposure summaries produce new evidence instead of
+reusing an old completion result. Regression tests cover busy and storage failure,
+restart retry, no duplicate successful snapshot, changed exposure and unchanged
+kill/pause controls. **833 tests passed, 87.17% coverage** after this correction.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)

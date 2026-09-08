@@ -20,6 +20,89 @@ from tradeagent.persistence import Database, ProductionRepository
 NOW = datetime(2026, 9, 8, 15, tzinfo=UTC)
 
 
+@pytest.mark.parametrize("busy", [True, False])
+def test_eod_report_retries_independently_of_broker_completion_after_failure(monkeypatch, busy):
+    import json
+    from types import SimpleNamespace
+
+    from sqlalchemy import func, select
+
+    from tradeagent.persistence import events
+    from tradeagent.reporting_reads import ReportBusyError
+
+    close = NOW.replace(hour=20)
+    calls = []
+    with Database("sqlite:///:memory:") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        repository.set_control("kill_switch", "active")
+        repository.set_control("eod-retry:pause", "OPERATOR_PAUSE")
+        broker_result = {
+            "healthy": True,
+            "positions": {},
+            "open_orders": 0,
+            "mismatches": [],
+            "recovery_cohorts": [],
+        }
+
+        def runtime():
+            instance = object.__new__(EventRuntime)
+            instance.repo = repository
+            instance.store = EventStore(database)
+            instance.settings = SimpleNamespace(cohort_id="eod-retry")
+            instance.session_plan = SimpleNamespace(session_close=close, session_date=close.date())
+            instance.oms = SimpleNamespace(
+                reconcile=lambda now: dict(broker_result), scoped_orders=lambda: []
+            )
+            return instance
+
+        def report(db, cohort, day, **kwargs):
+            assert db is database and cohort == "eod-retry" and day == close.date()
+            assert kwargs["persist"] is True
+            calls.append(kwargs["observed_at"])
+            if len(calls) == 1:
+                error = ReportBusyError if busy else RuntimeError
+                raise error("report initially unavailable")
+            repository.append_event(
+                "event_session_report",
+                {"snapshot_persisted": True},
+                occurred_at=kwargs["observed_at"],
+                trace_id=cohort,
+            )
+
+        monkeypatch.setattr("tradeagent.event_session_report.session_report", report)
+        if busy:
+            runtime()._record_session_completion(close)
+        else:
+            with pytest.raises(RuntimeError, match="initially unavailable"):
+                runtime()._record_session_completion(close)
+        completion = repository.get_control("eod-retry:session-completion")
+        assert json.loads(completion)["state"] == "complete"
+        assert repository.get_control("eod-retry:session-completion-report") is None
+        restarted = runtime()
+        restarted._record_session_completion(close + timedelta(seconds=15))
+        assert repository.get_control("eod-retry:session-completion-report") == completion
+        restarted._record_session_completion(close + timedelta(seconds=30))
+        assert len(calls) == 2
+        with database.begin() as connection:
+            assert (
+                connection.scalar(
+                    select(func.count())
+                    .select_from(events)
+                    .where(events.c.event_type == "event_session_report")
+                )
+                == 1
+            )
+        broker_result.update(healthy=False, positions={"AAPL": "1"}, open_orders=1)
+        restarted._record_session_completion(close + timedelta(seconds=45))
+        assert len(calls) == 3
+        assert json.loads(repository.get_control("eod-retry:session-completion"))["state"] == (
+            "incident_unresolved_exposure"
+        )
+        assert repository.get_control("kill_switch") == "active"
+        assert repository.get_control("eod-retry:pause") == "OPERATOR_PAUSE"
+
+
 class Clock(datetime):
     @classmethod
     def now(cls, tz=None):

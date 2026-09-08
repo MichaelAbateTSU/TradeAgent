@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
@@ -1247,8 +1248,13 @@ class EventRuntime:
                 now,
                 self.settings.cohort_id,
             )
-            from tradeagent.event_session_report import session_report
+        report_key = f"{self.settings.cohort_id}:session-completion-report"
+        if self.repo.get_control(report_key) == value:
+            return
+        from tradeagent.event_session_report import session_report
+        from tradeagent.reporting_reads import ReportBusyError
 
+        try:
             session_report(
                 self.store.database,
                 self.settings.cohort_id,
@@ -1256,6 +1262,13 @@ class EventRuntime:
                 observed_at=now,
                 persist=True,
             )
+        except ReportBusyError:
+            logging.getLogger(__name__).warning(
+                "End-of-day report deferred while another report is running: cohort=%s",
+                self.settings.cohort_id,
+            )
+            return
+        self.repo.set_control(report_key, value)
 
     def _refresh_quote(self, symbol: str) -> EventMarketState:
         state = self.market.refresh_quote(self.market_states[symbol])
