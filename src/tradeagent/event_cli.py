@@ -3,13 +3,16 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-from datetime import UTC, date, datetime
+import re
+from datetime import UTC, date, datetime, timedelta
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
 from tradeagent.config import AppConfig
 from tradeagent.event_context import OfficialContextClient
+from tradeagent.event_demo import activate_demo, demo_control_state
 from tradeagent.event_doctor import code_identity, source_capabilities
 from tradeagent.event_outcomes import outcome_summary
 from tradeagent.event_replay import evaluate_extraction_fixture, replay_event_pipeline
@@ -44,6 +47,10 @@ def register_event_commands(subparsers: Any) -> None:
         parser.add_argument("--cohort-id")
         parser.add_argument("--purpose", choices=["research", "iex-practice"])
         parser.add_argument("--practice-start-date", type=date.fromisoformat)
+        parser.add_argument("--entry-policy", choices=["event-strategy", "equipment-only-demo"])
+        parser.add_argument("--demo-account-digest")
+        parser.add_argument("--max-entries-per-session", type=int)
+        parser.add_argument("--symbols")
         if name == "run":
             parser.add_argument(
                 "--mode", choices=["shadow", "experimental-paper"], default="shadow"
@@ -59,6 +66,9 @@ def register_event_commands(subparsers: Any) -> None:
             )
         elif name == "paper-preflight":
             parser.add_argument("--confirm-experimental-paper", action="store_true")
+            parser.add_argument("--confirm-equipment-only-demo", action="store_true")
+            parser.add_argument("--demo-acceptance-sha256")
+            parser.add_argument("--demo-reviewed-code-sha")
 
 
 def handle_event_command(args: argparse.Namespace) -> bool:
@@ -66,7 +76,15 @@ def handle_event_command(args: argparse.Namespace) -> bool:
         return False
     overrides = {
         key: value
-        for key in ("cohort_id", "purpose", "practice_start_date")
+        for key in (
+            "cohort_id",
+            "purpose",
+            "practice_start_date",
+            "entry_policy",
+            "demo_account_digest",
+            "max_entries_per_session",
+            "symbols",
+        )
         if (value := getattr(args, key, None)) is not None
     }
     settings = ExperimentalSettings.model_validate(overrides)
@@ -155,6 +173,71 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                     )
                 except ValueError as error:
                     calendar_error = str(error)
+        demo_checks: dict[str, bool] = {}
+        demo_controls: dict[str, tuple[Any, Any]] = {}
+        if experimental.entry_policy == "equipment-only-demo":
+            with (
+                Database(AppConfig().database_url.get_secret_value()) as database,
+                AlpacaPaperClient(AlpacaPaperSettings.model_validate({})) as demo_broker,
+            ):
+                from tradeagent.event_orders import ExperimentalOrderManager
+
+                repository = ProductionRepository(database)
+                demo_controls = demo_control_state(EventStore(database), settings.cohort_id)
+                heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
+                budget = ExperimentalOrderManager(
+                    EventStore(database), demo_broker, experimental, AppConfig(), digest, sha
+                ).session_budget()
+                clock = demo_broker.clock()
+                current_account = demo_broker.account()
+                demo_checks = {
+                    "explicit_equipment_only_confirmation": bool(
+                        getattr(args, "confirm_equipment_only_demo", False)
+                        and re.fullmatch(
+                            r"[0-9a-f]{64}", getattr(args, "demo_acceptance_sha256", None) or ""
+                        )
+                        and getattr(args, "demo_reviewed_code_sha", None) == sha
+                    ),
+                    "pinned_demo_account": sha256(account.id.encode()).hexdigest()
+                    == experimental.demo_account_digest,
+                    "demo_broker_currently_ready": (
+                        demo_broker.broker_host == "https://paper-api.alpaca.markets"
+                        and current_account.id == account.id
+                        and current_account.status == "ACTIVE"
+                        and not current_account.trading_blocked
+                        and not current_account.account_blocked
+                        and not demo_broker.positions()
+                        and not demo_broker.open_orders()
+                        and clock.is_open
+                        and abs((clock.timestamp - now).total_seconds()) <= 60
+                    ),
+                    "demo_post_acceptance_authorization_interval": bool(
+                        plan
+                        and plan.session_open + timedelta(minutes=35) <= now
+                        < plan.session_open + timedelta(minutes=60)
+                    ),
+                    "demo_paused_and_unused": (
+                        repository.get_control("kill_switch") == "active"
+                        and repository.get_control(f"{settings.cohort_id}:pause")
+                        == "OPERATOR_PAUSE"
+                        and repository.get_control(f"{settings.cohort_id}:demo-terminal") is None
+                        and repository.get_control(f"{settings.cohort_id}:demo-authorization")
+                        is None
+                        and bool(
+                            budget
+                            and budget["total_entries_reserved"] == 0
+                            and budget["equipment_client_order_id"] is None
+                        )
+                    ),
+                    "deployed_demo_worker_matches": bool(
+                        heartbeat
+                        and timedelta(0) <= now - heartbeat[1] <= timedelta(seconds=120)
+                        and heartbeat[2].get("code_sha") == sha
+                        and heartbeat[2].get("config_hash") == digest
+                        and heartbeat[2].get("cohort_id") == settings.cohort_id
+                        and heartbeat[2].get("entry_policy") == "equipment-only-demo"
+                    ),
+                }
         proof = certificate(
             experimental,
             config_hash=digest,
@@ -199,6 +282,7 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                     a["fractionable"] and a["tradable"] for a in diagnostics["assets"]
                 ),
                 "operator_confirmation": args.confirm_experimental_paper,
+                **demo_checks,
             },
             limitations=(
                 "synthetic mechanics are not live exchange execution evidence",
@@ -230,11 +314,21 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                         store.audit(
                             "broker_calendar", plan.model_dump(mode="json"), now, settings.cohort_id
                         )
-                    repository.set_control(
-                        f"{settings.cohort_id}:certificate", proof.model_dump_json()
-                    )
-                    repository.set_control("v20:mechanics_attestation", sha)
-                    repository.set_control("kill_switch", "inactive")
+                    if experimental.entry_policy == "equipment-only-demo":
+                        activate_demo(
+                            store,
+                            experimental,
+                            proof,
+                            args.demo_acceptance_sha256,
+                            demo_controls,
+                            now,
+                        )
+                    else:
+                        repository.set_control(
+                            f"{settings.cohort_id}:certificate", proof.model_dump_json()
+                        )
+                        repository.set_control("v20:mechanics_attestation", sha)
+                        repository.set_control("kill_switch", "inactive")
         result = {
             "broker": diagnostics,
             "synthetic_lifecycle_reconciled": replay["reconciled"],

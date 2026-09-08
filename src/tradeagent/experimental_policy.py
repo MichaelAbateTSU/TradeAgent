@@ -39,6 +39,8 @@ class ExperimentalSettings(BaseSettings):
     )
     mode: ExperimentMode = "shadow"
     purpose: Literal["research", "iex-practice"] = "research"
+    entry_policy: Literal["event-strategy", "equipment-only-demo"] = "event-strategy"
+    demo_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     practice_start_date: date | None = None
     # Evidence traces reserve 77 of the 128 characters for the hash and suffix.
     cohort_id: str = Field(default="v20-event-cohort-001", min_length=1, max_length=51)
@@ -73,11 +75,27 @@ class ExperimentalSettings(BaseSettings):
                 raise ValueError("IEX practice requires AAPL for its declared calibration")
         elif self.practice_start_date is not None:
             raise ValueError("a practice start date cannot alter a research cohort")
+        if self.entry_policy == "equipment-only-demo":
+            if (
+                self.purpose != "iex-practice"
+                or self.symbols != "AAPL"
+                or self.max_entries_per_session != 1
+                or self.demo_account_digest is None
+            ):
+                raise ValueError(
+                    "equipment-only demo requires IEX, AAPL, one entry and account pin"
+                )
+        elif self.demo_account_digest is not None:
+            raise ValueError("demo account pin requires the equipment-only policy")
         return self
 
     @property
     def execution_feed(self) -> Literal["iex", "sip"]:
         return "iex" if self.purpose == "iex-practice" else "sip"
+
+    @property
+    def calibration_window_minutes(self) -> tuple[int, int]:
+        return (40, 60) if self.entry_policy == "equipment-only-demo" else (0, 30)
 
     def effective_notional(self, app: AppConfig) -> Decimal:
         return min(

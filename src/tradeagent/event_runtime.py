@@ -202,7 +202,8 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
                     "session_date": str(settings.practice_start_date),
                     "symbol": "AAPL",
                     "maximum_entry_attempts": 1,
-                    "window_minutes_after_open": 30,
+                    "window_minutes_after_open": settings.calibration_window_minutes[1],
+                    "start_minutes_after_open": settings.calibration_window_minutes[0],
                     "existing_entry_warmup_preserved": True,
                     "entry_expiry_seconds": 30,
                     "exit_after_seconds": 60,
@@ -219,6 +220,16 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
                 "news_age_is_independent_of_collection_window": True,
                 "formal_forward_evaluation_started": False,
             }
+        )
+    if settings.entry_policy == "equipment-only-demo":
+        manifest.update(
+            policy_change="One explicitly authorized paper equipment demo; no strategy entries",
+            session_protocol_version="manual-paper-demo-v1",
+            maximum_news_entries_per_session=0,
+            hypotheses=[],
+            entry_policy=settings.entry_policy,
+            demo_account_digest=settings.demo_account_digest,
+            authority="separate post-incident-acceptance approval; startup never arms entries",
         )
     return digest, manifest
 
@@ -614,6 +625,7 @@ class EventRuntime:
             "state": "market_closed" if not clock.is_open else "collecting",
             "mode": self.settings.mode,
             "purpose": self.settings.purpose,
+            "entry_policy": self.settings.entry_policy,
             "qualification_eligible": self.settings.purpose != "iex-practice",
             "execution_feed": self.settings.execution_feed,
             "practice_start_date": str(self.settings.practice_start_date)
@@ -829,6 +841,8 @@ class EventRuntime:
         ticket: dict[str, Any] | None = None,
         stored_decision_id: str | None = None,
     ) -> dict[str, Any]:
+        if self.settings.entry_policy == "equipment-only-demo":
+            return {"state": "risk_rejected", "reasons": ["DEMO_NO_STRATEGY_ENTRIES"]}
         if self.cert is None or decision.symbol is None:
             return {"state": "risk_rejected", "reasons": ["OPERATIONAL_CERTIFICATE_REQUIRED"]}
         if self._calibration_waiting(now):
@@ -977,7 +991,9 @@ class EventRuntime:
         ]
         budget = self.oms.session_budget()
         terminal_reason = (
-            "NEWS_ENTRY_LIMIT"
+            "DEMO_NO_STRATEGY_ENTRIES"
+            if self.settings.entry_policy == "equipment-only-demo"
+            else "NEWS_ENTRY_LIMIT"
             if budget is not None and budget["news_entries_reserved"] >= 1
             else "PRACTICE_SESSION_ENDED"
             if self.session_plan is not None and now >= self.session_plan.session_close
@@ -1295,7 +1311,8 @@ class EventRuntime:
         return (
             local_date == self.settings.practice_start_date
             and gate.session_open is not None
-            and now < gate.session_open + timedelta(minutes=30)
+            and now
+            < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
             and not (self.oms.session_budget() or {}).get("equipment_client_order_id")
         )
 
@@ -1373,17 +1390,32 @@ class EventRuntime:
             }
         if self.settings.mode != "experimental-paper":
             return {"state": "shadow_no_orders"}
+        if self.settings.entry_policy == "equipment-only-demo" and self.repo.get_control(
+            f"{self.settings.cohort_id}:demo-terminal"
+        ):
+            return {"state": "demo_terminal_no_trade", "entry_attempts": 0}
         local_date = now.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
         start = self.settings.practice_start_date
         if start is None or local_date < start:
             return {"state": "scheduled", "session_date": str(start)}
         gate = self.calendar.gate(now)
         if local_date > start or (
-            gate.session_open and now >= gate.session_open + timedelta(minutes=30)
+            gate.session_open
+            and now
+            >= gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
         ):
             return {"state": "missed_window_no_trade", "entry_attempts": 0}
         if not gate.can_enter or not self.broker.clock().is_open:
             return {"state": "waiting_for_regular_entry_window"}
+        if gate.session_open and now < gate.session_open + timedelta(
+            minutes=self.settings.calibration_window_minutes[0]
+        ):
+            return {"state": "waiting_for_declared_demo_window"}
+        if (
+            self.settings.entry_policy == "equipment-only-demo"
+            and not self.oms.demo_authorized(now)
+        ):
+            return {"state": "blocked", "reasons": ["DEMO_AUTHORIZATION_REQUIRED"]}
         if self.context is None:
             return {"state": "blocked", "reasons": ["OFFICIAL_CONTEXT_REQUIRED"]}
         reasons = [*self.context.errors, *self.context.blocking_reasons(now=now)]
@@ -1450,7 +1482,13 @@ class EventRuntime:
             cluster_key=f"opening-calibration:{local_date}:AAPL",
             decision_id=f"opening-calibration:{self.settings.cohort_id}",
             eligible_at=eligible_at,
-            expires_at=evaluated_at + timedelta(seconds=30),
+            expires_at=min(
+                evaluated_at + timedelta(seconds=30),
+                gate.session_open
+                + timedelta(minutes=self.settings.calibration_window_minutes[1]),
+            )
+            if gate.session_open
+            else evaluated_at + timedelta(seconds=30),
             bid=quote_state.bid,
             ask=quote_state.ask,
             quote_at=quote_state.quote_at,

@@ -21,6 +21,7 @@ from tradeagent.alpaca_paper import (
 )
 from tradeagent.config import AppConfig
 from tradeagent.domain import OrderRequest, OrderType, Side
+from tradeagent.event_demo import demo_authorized, terminate_demo
 from tradeagent.event_performance import allocation_ledgers
 from tradeagent.event_research import DEFAULT_EVENT_POLICY, EventQuote
 from tradeagent.event_session import (
@@ -322,6 +323,22 @@ class ExperimentalOrderManager:
         self.repo.set_control(f"{self.settings.cohort_id}:pause", reason)
         self.store.audit("pause", {"reason": reason}, now, self.settings.cohort_id)
 
+    def finish_demo(self, reason: str, now: datetime) -> None:
+        if self.settings.entry_policy != "equipment-only-demo":
+            return
+        terminate_demo(self.store, self.settings.cohort_id, reason, now)
+
+    def demo_authorized(self, now: datetime) -> bool:
+        return demo_authorized(
+            self.repo,
+            self.settings,
+            self.config_hash,
+            self.code_sha,
+            sha256(self.broker.account().id.encode()).hexdigest(),
+            now,
+            self.calendar,
+        )
+
     def session_budget(self) -> dict[str, Any] | None:
         if self.settings.purpose != "iex-practice" or self.settings.practice_start_date is None:
             return None
@@ -388,6 +405,11 @@ class ExperimentalOrderManager:
         errors: list[str] = []
         if self.recovery_only:
             errors.append("RECOVERY_ONLY_NO_ENTRIES")
+        if self.settings.entry_policy == "equipment-only-demo":
+            if entry_kind != "calibration":
+                return {"state": "risk_rejected", "reasons": ["DEMO_NO_STRATEGY_ENTRIES"]}
+            if self.owner_id is None or not self.demo_authorized(now):
+                return {"state": "risk_rejected", "reasons": ["DEMO_AUTHORIZATION_REQUIRED"]}
         reconciliation = self.reconcile(now)
         if not reconciliation["healthy"]:
             errors.append("ACCOUNT_SESSION_RECONCILIATION_REQUIRED")
@@ -430,7 +452,10 @@ class ExperimentalOrderManager:
             or symbol != "AAPL"
             or cluster_key != f"opening-calibration:{local_date}:AAPL"
             or gate.session_open is None
-            or not gate.session_open <= now < gate.session_open + timedelta(minutes=30)
+            or not gate.session_open
+            + timedelta(minutes=self.settings.calibration_window_minutes[0])
+            <= now
+            < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
         ):
             errors.append("CALIBRATION_NOT_AUTHORIZED")
         if not eligible_at <= now <= expires_at:
@@ -522,6 +547,7 @@ class ExperimentalOrderManager:
             self.store.audit(
                 "risk_decision", result, now, self.settings.cohort_id + ":" + decision_id
             )
+            self.finish_demo("ENTRY_RISK_REJECTED", now)
             return result
 
         account_digest = sha256(account.id.encode()).hexdigest()
@@ -781,8 +807,16 @@ class ExperimentalOrderManager:
                 != self.settings.practice_start_date
                 or gate.session_open is None
                 or not gate.session_open
+                + timedelta(minutes=self.settings.calibration_window_minutes[0])
                 <= clock.timestamp
-                < gate.session_open + timedelta(minutes=30)
+                < gate.session_open
+                + timedelta(minutes=self.settings.calibration_window_minutes[1])
+            )
+            unauthorized_demo = self.settings.entry_policy == "equipment-only-demo" and (
+                self.owner_id is None
+                or link.get("entry_kind") != "calibration"
+                or request.symbol != "AAPL"
+                or not self.demo_authorized(clock.timestamp)
             )
             insufficient_news_horizon = link.get("entry_kind") == "strategy" and (
                 gate.session_close is None
@@ -802,6 +836,7 @@ class ExperimentalOrderManager:
                 or not timedelta(0) <= clock.timestamp - quote_at <= timedelta(seconds=5)
                 or clock.timestamp > datetime.fromisoformat(link["expires_at"])
                 or expired_calibration
+                or unauthorized_demo
                 or insufficient_news_horizon
                 or paused
             ):
@@ -1164,6 +1199,25 @@ class ExperimentalOrderManager:
         """Always called before event ingestion, including outages and operational pauses."""
         self.assert_owner(now)
         self.reconcile(now)
+        if self.settings.entry_policy == "equipment-only-demo":
+            bounds = (
+                self.calendar.session_bounds(self.settings.practice_start_date)
+                if self.settings.practice_start_date
+                else None
+            )
+            rows = self.store.linked_orders(self.settings.cohort_id)
+            if bounds and now >= bounds[0] + timedelta(
+                minutes=self.settings.calibration_window_minutes[1]
+            ):
+                self.finish_demo("WINDOW_ENDED_RECOVERY_REMAINS_ACTIVE", now)
+            elif (
+                rows
+                and all(row["status"] in FINAL for row in rows)
+                and not self.inventory(rows)
+                and not self.broker.positions()
+                and not self.broker.open_orders()
+            ):
+                self.finish_demo("ATTEMPT_FINISHED_BROKER_FLAT", now)
         if not self.recovery_only:
             for manager in tuple(self._recoveries.values()):
                 if manager.settings.cohort_id not in self._unverified_cohorts:
