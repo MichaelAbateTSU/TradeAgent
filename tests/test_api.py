@@ -235,18 +235,24 @@ def test_statistics_failure_is_not_cached_as_healthy_or_retried_by_every_request
         assert attempts == 2
 
 
-@pytest.mark.parametrize("error_kind", ["incomplete", "oversized"])
+@pytest.mark.parametrize("error_kind", ["incomplete", "oversized", "busy"])
 def test_incomplete_production_report_is_explicitly_unavailable_and_releases_singleflight(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, error_kind: str
 ) -> None:
     import tradeagent.api as api
-    from tradeagent.reporting_reads import ReportingReadModelIncomplete, ReportPayloadTooLargeError
+    from tradeagent.reporting_reads import (
+        ReportBusyError,
+        ReportingReadModelIncomplete,
+        ReportPayloadTooLargeError,
+    )
 
     url = f"sqlite:///{tmp_path / 'incomplete-report.db'}"
     with Database(url) as database:
         database.initialize()
 
     def incomplete(*args, **kwargs):
+        if error_kind == "busy":
+            raise ReportBusyError("missing-original")
         if error_kind == "oversized":
             raise ReportPayloadTooLargeError("missing-original")
         raise ReportingReadModelIncomplete("missing-original")
@@ -255,8 +261,8 @@ def test_incomplete_production_report_is_explicitly_unavailable_and_releases_sin
     with TestClient(create_app(production_database_url=url)) as client:
         for _ in range(2):
             response = client.get("/api/event-session-report?cohort_id=fixture")
-            assert response.status_code == 503
-            assert response.headers["Retry-After"] == "60"
+            assert response.status_code == (429 if error_kind == "busy" else 503)
+            assert response.headers["Retry-After"] == ("5" if error_kind == "busy" else "60")
             assert "missing-original" in response.json()["detail"]
 
 

@@ -3,17 +3,25 @@
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
+from time import monotonic, sleep
 from typing import Any
 
-from sqlalchemy import JSON, Select, Table, column, func, select, true
-from sqlalchemy.engine import Connection
+from sqlalchemy import JSON, Select, Table, column, create_engine, func, select, true
+from sqlalchemy.engine import Connection, Engine
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql.elements import ColumnElement
 
 READ_BATCH_SIZE = 32
 DISPLAY_LIMIT = 100
 REPORTING_PROJECTION_VERSION = 1
 REPORT_PAYLOAD_MAX_BYTES = 8 * 1024 * 1024
+REPORT_ADMISSION_LOCK_KEY = 0x5452414452455054
+REPORT_ADMISSION_WAIT_SECONDS = 10.0
+LOGGER = logging.getLogger(__name__)
 AUDIT_SCOPE_FIELDS = (
     "planned_session_date",
     "session_date",
@@ -257,6 +265,61 @@ def report_payload_size(report: dict[str, Any]) -> int:
                 "Original evidence and complete accounting are retained, not truncated."
             )
     return total
+
+
+class ReportBusyError(RuntimeError):
+    """Another process owns the database-wide full-report admission slot."""
+
+
+@contextmanager
+def report_admission(engine: Engine, *, wait_seconds: float = 0) -> Iterator[None]:
+    if not 0 <= wait_seconds <= 60:
+        raise ValueError("report admission wait must be between zero and 60 seconds")
+    if engine.dialect.name != "postgresql":
+        yield
+        return
+    deadline = monotonic() + wait_seconds
+    coordination = create_engine(
+        engine.url,
+        poolclass=NullPool,
+        isolation_level="AUTOCOMMIT",
+        connect_args={"connect_timeout": 5},
+    )
+    try:
+        with coordination.connect() as connection:
+            acquired = False
+            try:
+                while True:
+                    acquired = (
+                        connection.scalar(
+                            select(func.pg_try_advisory_lock(REPORT_ADMISSION_LOCK_KEY))
+                        )
+                        is True
+                    )
+                    if acquired:
+                        break
+                    remaining = deadline - monotonic()
+                    if remaining <= 0:
+                        raise ReportBusyError(
+                            "Another full session report is running; retry after it completes. "
+                            "No partial report or delivery was created."
+                        )
+                    sleep(min(0.25, remaining))
+                yield
+            finally:
+                if acquired:
+                    try:
+                        connection.scalar(
+                            select(func.pg_advisory_unlock(REPORT_ADMISSION_LOCK_KEY))
+                        )
+                    except SQLAlchemyError:
+                        LOGGER.warning(
+                            "Report advisory unlock failed; closing its dedicated connection",
+                            exc_info=True,
+                        )
+    finally:
+        # NullPool physically closes the session, releasing its lock even after an error.
+        coordination.dispose()
 
 
 def forward_clause(payload: Any) -> ColumnElement[bool]:

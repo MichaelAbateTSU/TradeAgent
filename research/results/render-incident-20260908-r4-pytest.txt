@@ -1,0 +1,125 @@
+........................................................................ [  8%]
+........................................................................ [ 17%]
+........................................................................ [ 25%]
+........................................................................ [ 34%]
+........................................................................ [ 43%]
+........................................................................ [ 51%]
+........................................................................ [ 60%]
+........................................................................ [ 69%]
+........................................................................ [ 77%]
+........................................................................ [ 86%]
+........................................................................ [ 95%]
+.......................................                                  [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\git\TradeAgent\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_candidate_state_migration.py: 4 warnings
+tests/test_control_value_migration.py: 4 warnings
+tests/test_daily_status_migration.py: 4 warnings
+tests/test_event_audit_lookup_migration.py: 3 warnings
+tests/test_reporting_metadata.py: 3 warnings
+  C:\git\TradeAgent\.venv\Lib\site-packages\alembic\config.py:604: DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces, commas, and colons for prepend_sys_path.  Consider adding path_separator=os to Alembic config.
+    util.warn_deprecated(
+
+tests/test_live_shadow.py::test_gaps_reset_derived_outcomes_decay_and_feature_history
+  C:\Users\michaelabate\AppData\Local\Programs\Python\Python313\Lib\weakref.py:415: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x0000016AA401A2F0>
+    return self.data[ref(key)]
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_live_shadow.py::test_recorded_batch_contract_preserves_raw_timestamps_and_does_not_duplicate_audits
+  C:\git\TradeAgent\.venv\Lib\site-packages\sqlalchemy\sql\elements.py:5322: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x0000016AA401B4C0>
+    self = super().__new__(cls, value)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.13.15-final-0 _______________
+
+Name                                         Stmts   Miss Branch BrPart  Cover   Missing
+----------------------------------------------------------------------------------------
+src\tradeagent\__main__.py                       3      3      2      0     0%   1-4
+src\tradeagent\advanced_strategy.py            161     22     42     11    82%   83, 89, 93, 95, 141-142, 144-147, 149, 196-197, 206-209, 214-217, 219
+src\tradeagent\alpaca.py                       228     27     78     19    84%   190->exit, 191->190, 244, 274, 281, 301, 306-310, 323-328, 332, 358, 369, 381, 402, 414, 422, 429, 437, 444-445, 448
+src\tradeagent\alpaca_news.py                   60     12     22      4    73%   81, 86-87, 90, 93, 99, 106, 109-113
+src\tradeagent\alpaca_paper.py                 179     14     34     13    87%   127, 147, 153, 158, 165, 170, 176, 192, 197, 235, 245, 254, 263, 293
+src\tradeagent\alpaca_stream.py                214     19     48      7    89%   142-143, 178, 197-205, 232-233, 244-245, 257, 273, 290, 300, 341-342, 349-350, 359, 391
+src\tradeagent\api.py                          269     12     46     11    93%   582, 592->exit, 598, 676, 756, 787, 858, 884, 906-909, 913, 994, 1034
+src\tradeagent\baselines.py                     36      2     12      1    94%   43-44
+src\tradeagent\broker.py                       106      4     18      4    94%   109, 114, 131, 138
+src\tradeagent\candle_strategy.py               54      1     14      1    97%   49
+src\tradeagent\cli.py                          690    315    146     36    52%   179, 181, 187, 713-714, 722, 753-765, 768-788, 791-822, 825-854, 857-871, 874-886, 889-920, 923-961, 964-990, 993-1057, 1060-1078, 1081-1102, 1105-1126, 1129-1156, 1159-1183, 1186-1210, 1213-1226, 1229-1243, 1246-1284, 1287-1318, 1321-1368, 1371-1391, 1394-1431, 1434-1484, 1487-1592, 1595-1628, 1631-1643, 1646-1683, 1686-1729, 1808, 1849, 1879
+src\tradeagent\config.py                       111      4     24      4    94%   32, 110, 138, 142
+src\tradeagent\daily_status.py                 139      1     36      2    98%   97->112, 246
+src\tradeagent\diagnostics.py                   91      1      6      1    98%   125
+src\tradeagent\domain.py                       198      2      6      1    99%   56, 117
+src\tradeagent\economic_ml.py                  201      5     44      7    95%   96, 124, 171, 222->224, 224->226, 229, 230->232, 417
+src\tradeagent\event_brief.py                  229     20    104     13    90%   48-49, 128, 148->132, 185, 199-200, 212, 272, 274, 344-346, 368-370, 371->355, 417, 517->519, 531, 542, 549, 551
+src\tradeagent\event_cli.py                    120      9     42      3    93%   116-125, 152, 254-255
+src\tradeagent\event_context.py                341     40    126     28    85%   59, 115, 151, 168, 176, 185, 194, 198, 209, 216, 218-219, 221, 234, 251, 258, 261-265, 274, 279, 283-284, 295, 310, 325, 332, 341, 410, 445-446, 454-455, 457-458, 495, 538->exit, 542, 545
+src\tradeagent\event_doctor.py                  45      5      6      1    84%   19-24, 52
+src\tradeagent\event_market.py                  75      4     16      5    90%   57, 62, 106->119, 178, 184
+src\tradeagent\event_order_stream.py           324      1     64      1    99%   361
+src\tradeagent\event_orders.py                 497     53    226     37    87%   108, 110, 129, 145->164, 182-183, 203-206, 222, 225, 266-267, 330, 420, 443, 496, 546, 554, 594, 733, 737-738, 772, 856->863, 859-860, 861->863, 863->868, 866-867, 958, 962, 1016, 1053, 1082, 1090-1097, 1111, 1124-1140, 1169->1168, 1173, 1182->1176, 1184->1176, 1207, 1224-1225, 1237-1238, 1270
+src\tradeagent\event_outcomes.py                60      1     22      1    98%   58
+src\tradeagent\event_performance.py            119      0     32      1    99%   105->96
+src\tradeagent\event_replay.py                  79      2      6      1    96%   121, 197
+src\tradeagent\event_reporting.py               56      1     26      2    96%   75, 93->95
+src\tradeagent\event_research.py               532     35    206     27    92%   115, 147, 149, 369-370, 407, 411-412, 450, 454, 474, 477-478, 483, 488-490, 496-497, 503, 542, 552, 718, 750, 819, 823, 831, 883->888, 910, 945, 959, 972, 974, 983, 986, 988
+src\tradeagent\event_runtime.py                458     29    152     29    90%   332-333, 418->436, 455->457, 488-502, 506, 532-535, 752->755, 832, 834-840, 842, 876, 885, 1021->exit, 1037-1055, 1061, 1110, 1112, 1242->exit, 1305->1308, 1332, 1334, 1375, 1426->1428, 1433, 1470, 1548, 1588-1589, 1592, 1617->1619, 1623
+src\tradeagent\event_session.py                 61      4     10      4    89%   48, 96, 100, 109
+src\tradeagent\event_session_report.py         622     28    250     19    94%   204-205, 356, 358, 377->380, 385, 473, 483->505, 509, 522, 563, 575->567, 602->597, 741-743, 906-907, 909, 940-941, 945, 962, 1020-1021, 1248, 1681->1687, 1929-1936
+src\tradeagent\event_sources.py                646     39    268     35    92%   83, 109, 114, 157->exit, 211, 255, 289, 291, 293, 295, 297, 316, 318, 440, 465-466, 472-473, 514, 636-642, 718->721, 813, 833->863, 874->879, 914, 930, 939, 968-969, 1012, 1077, 1084, 1092->1099, 1147-1148, 1161->1173, 1198, 1205, 1219->1200, 1221->1225, 1241
+src\tradeagent\event_store.py                  103      2     18      2    97%   143, 185
+src\tradeagent\execution_calibration.py        182     38     30      6    74%   103-114, 144-146, 161-186, 268->293, 325, 364, 372, 412-429, 457, 472, 479-491
+src\tradeagent\execution_evidence.py           106     23     22      2    74%   78-83, 100-117, 137, 170-173, 217, 230-233
+src\tradeagent\execution_reference.py          417     25    108     24    91%   54, 100, 102, 129, 132, 134, 176, 190, 276, 278, 283, 302, 318, 349, 438, 482, 494, 528, 1012, 1028, 1057, 1075-1076, 1079-1080, 1104->1124
+src\tradeagent\experimental_policy.py           74      1     12      1    98%   68
+src\tradeagent\external_dataset.py              69      8     14      4    86%   60->78, 74-75, 89, 129, 140-143
+src\tradeagent\external_validation.py          133     79     50      1    30%   98-213, 227-231, 235-264, 271-273, 284-287
+src\tradeagent\features.py                      93      2     18      2    96%   108, 112
+src\tradeagent\frozen_candidate.py              65      6     12      4    84%   58, 94, 111-116, 118
+src\tradeagent\holdout.py                       68      4     22      4    91%   51, 82, 100, 125
+src\tradeagent\intraday.py                     111      5     34      5    93%   71, 132, 134, 140, 152
+src\tradeagent\intraday_strategy.py            169      7     40      8    92%   39, 121->exit, 155, 174, 175->184, 246-252, 255, 256->267
+src\tradeagent\ledger.py                        60      4     10      1    90%   14-16, 76
+src\tradeagent\live_shadow.py                  218     14     56      7    92%   30, 42, 55, 82-84, 148->exit, 253, 307, 327-330, 348-349
+src\tradeagent\lower_calibration.py            119     58     38      3    41%   123->122, 134-235, 262-264, 271-273, 284-286, 290-293
+src\tradeagent\lower_execution_evidence.py     162      8     44      7    93%   116, 136, 155, 186, 209, 215, 247, 281
+src\tradeagent\lower_turnover.py               144      4     32      6    93%   210->243, 263->288, 315-321, 326->310, 331->336, 367
+src\tradeagent\lower_turnover_research.py      167     86     28      0    42%   115-293, 313-318, 334-364, 379, 383-387, 391, 395-406, 417-419, 423-426
+src\tradeagent\meta_label.py                   140     37     32      4    68%   129-179, 205, 265, 267, 269, 297-299
+src\tradeagent\metrics.py                       47      1     12      1    97%   22
+src\tradeagent\monitor.py                       51      1     14      2    95%   79, 111->116
+src\tradeagent\news.py                         101      0     18      1    99%   155->148
+src\tradeagent\news_worker.py                   73     19      8      0    69%   127-155
+src\tradeagent\notifications.py                182     13     22      5    90%   120-121, 127-128, 133, 140-141, 144, 147, 201, 290, 369, 407
+src\tradeagent\notifier.py                      67     16     12      2    75%   62-72, 88-91, 100
+src\tradeagent\observed_execution.py            99     10     14      5    85%   88, 90, 120, 161-164, 171-177, 195
+src\tradeagent\oms.py                           90      4     26      4    93%   149, 154, 165, 204
+src\tradeagent\order_state.py                   97      3     12      3    94%   205, 220, 222
+src\tradeagent\persistence.py                  162      4     28      4    96%   78, 328, 465->467, 631->633, 647-648
+src\tradeagent\portfolio.py                    147      4     32      3    96%   121, 222, 269-270
+src\tradeagent\portfolio_research.py           171      3     42      5    95%   165, 282->284, 284->286, 286->288, 322-323
+src\tradeagent\portfolio_strategy.py            78      2     22      2    96%   134, 140
+src\tradeagent\reporting_metadata.py            32      3     10      2    88%   46, 49-50
+src\tradeagent\reporting_reads.py              116      2     34      0    99%   326-328
+src\tradeagent\research.py                     182      3     44      5    96%   128, 130, 328->330, 330->332, 410
+src\tradeagent\research_dataset.py             116      8     26      7    89%   107, 110, 129, 144-145, 160, 234, 255
+src\tradeagent\risk.py                          70      5     34      4    91%   21, 70, 72, 77, 87
+src\tradeagent\runtime.py                      124     13     22      7    85%   66, 69-71, 85, 100, 146-147, 195->exit, 203, 219->224, 222, 238, 244-245
+src\tradeagent\scheduler.py                     54      7     12      3    85%   39, 68-75, 87
+src\tradeagent\shadow_recorder.py              194      4     46      4    97%   171->188, 271-273, 390->412, 409
+src\tradeagent\squeeze_external.py             116     28     14      0    75%   84-105, 126, 137-184, 247, 251
+src\tradeagent\statistical_validation.py       112      7     32      7    90%   21, 50, 99, 166, 169, 182, 193
+src\tradeagent\universe.py                      67      3     20      3    93%   26, 34, 75
+src\tradeagent\worker.py                       260     30     82     17    86%   112->exit, 131, 146->152, 148, 156, 163-165, 170-175, 207, 220-221, 229, 248->exit, 301, 341-342, 389->398, 392-393, 398->402, 408-411, 432-433, 459-460, 497-498
+----------------------------------------------------------------------------------------
+TOTAL                                        12835   1319   3464    516    87%
+
+7 files skipped due to complete coverage.
+Required test coverage of 85.0% reached. Total coverage: 87.16%
+831 passed, 21 warnings in 156.99s (0:02:36)

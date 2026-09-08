@@ -1,0 +1,18 @@
+{
+  "commit": "b9e6d146a3ac85914ad6aaa7b50b3c9e41545636",
+  "started_at": "2026-09-08T17:55:22.580808+00:00",
+  "finished_at": "2026-09-08T18:06:25.041531+00:00",
+  "duration_seconds": 662.460723,
+  "requests": 700,
+  "failures": [
+    "dashboard_request_failed",
+    "database:missing_memory_or_above_230_mib_acceptance_bound",
+    "recorder:unhealthy_or_dropped_packets",
+    "tradeagent-shadow-market-feed:stale_or_unhealthy",
+    "tradeagent-shadow-recorder:stale_or_unhealthy"
+  ],
+  "raw_sha256": "f56f17890c701af276bb9651c6247f3e4e71b8ee5068d84d6aa58e0cdac6f231",
+  "raw_bytes": 6665673,
+  "raw_archive": "render-incident-20260908-r3-soak.json.gz",
+  "analysis": "HTTP500 and recorderlag were confined to overlapping notifier+API full reports; PG235MiB sample coincided with an unnecessarily full-history verification scan. Bounds are unchanged for corrective acceptance."
+}

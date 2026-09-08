@@ -43,7 +43,8 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    Interrupted pages roll back; reruns safely skip completed projections.
    Historical PostgreSQL reports intentionally return unavailable until their
    metadata is complete, rather than silently omitting rows or reparsing gigabytes.
-2. Run the same-service probe as a Render job using the deployed environment:
+2. Run the combined probe as a Render job on the broker-equipped event service
+   using the deployed environment:
 
    ```text
    python -u -m infra.render.acceptance_probe --report --samples 12 --interval 60
@@ -53,6 +54,14 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    `ACCEPTANCE_SNAPSHOT` JSON lines from the job's logs. Use `--resources JOB_ID`,
    not `--instance`, when retrieving those logs. A transient log-read failure
    is not permission to repeat the job.
+   The least-privilege notifier intentionally has no Alpaca keys; do not copy
+   broker credentials into it just to run the combined probe. Its own report
+   and delivery helpers can be exercised without the broker snapshot, below.
+   Raw-market verification uses the five configured recorder symbols and one
+   fixed recent exchange-time cutoff across all samples, using the existing
+   `(symbol,event_at)` indexes. These are exact window counts, not all-history
+   totals. Full-history `GROUP BY` scans over millions of quotes are not a polling
+   health check: the September 8 validation itself caused unnecessary database load.
 3. For a notifier release, explicitly exercise production report generation and
    the existing approved recipient once:
 
@@ -64,6 +73,14 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    running notifier, not a competing dispatcher, sends it. Verify `sent_at`,
    provider ID, attempts and Resend acceptance. Do not claim inbox delivery without
    actual delivery evidence. Do not change the daily 18:00 Eastern schedule.
+   A sending-only Resend key can confirm send acceptance but cannot read delivery
+   state (`401 restricted_api_key`). Record that limitation; do not resend the
+   message or widen permissions merely to obtain an inbox claim.
+   The combined command above runs on the event service. To exercise the notifier
+   environment itself, call `report_test(database, release, email=False)` from
+   `infra.render.acceptance_probe` in a notifier job; call
+   `email_status(database, release)` there for provider verification. These helpers
+   deliberately separate the report/provider checks from the broker-only snapshot.
 4. After initial handoff, exercise concurrent dashboard sections continuously for
    at least eleven minutes (longer than the prior approximately five-minute crash
    cycle). For a coordinated release with all four roles at the same SHA:
@@ -87,6 +104,11 @@ feed heartbeat, and a notifier failure that appeared only while generating a rep
    required. Hosted totals are timestamped, singleflight snapshots cached for
    60 seconds; `/ready`, role progress, and trading controls are not that cache.
    Also load the full session report on demand; it is not a hot polling endpoint.
+   Full generation is serialized across API/notifier processes by a dedicated
+   PostgreSQL advisory-lock connection. Verify an overlapping API request returns
+   prompt, explicit 429 while ordinary dashboard sections remain available, and
+   verify the full report succeeds after the slot is released. A 429 is admission
+   control, not a completed report; it must not be counted as report success.
    For a single-role revision, explicitly verify each role's own expected SHA rather
    than pretending the unchanged roles received that revision.
 5. Inspect **all** recorded evidence, including any failure. Require:

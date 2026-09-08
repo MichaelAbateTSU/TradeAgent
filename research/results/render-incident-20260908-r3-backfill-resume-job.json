@@ -1,0 +1,9 @@
+{
+  "createdAt": "2026-09-08T17:48:57.614331591Z",
+  "id": "job-dag4l2e7bikc73d3n32g",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+  "status": "pending",
+  "resumed_from": "d97ce252-107f-42d5-b7cf-1aaaaf911691",
+  "paging_helper_commit": "b9e6d146a3ac85914ad6aaa7b50b3c9e41545636"
+}

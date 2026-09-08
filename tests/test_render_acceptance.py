@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
 import pytest
 
-from infra.render.acceptance_probe import email_status, report_test
+from infra.render.acceptance_probe import email_status, market_window_counts, report_test
 from infra.render.observe_release import (
     DATABASE,
     ROLE_STATES,
@@ -101,6 +101,72 @@ def test_acceptance_needs_more_than_process_health() -> None:
     ):
         changed = {**deepcopy(good), key: value}
         assert acceptance_failures(changed)
+
+
+def test_market_progress_probe_uses_fixed_indexed_window_without_history_scans() -> None:
+    from uuid import uuid4
+
+    from sqlalchemy import event, func, select
+
+    from tradeagent.persistence import market_bars, market_quotes, market_trades
+
+    since = datetime(2026, 9, 8, 18, tzinfo=UTC)
+    tables = (market_bars, market_quotes, market_trades)
+    queries = []
+
+    def insert_row(connection, table, symbol, at):
+        row = {
+            next(iter(table.primary_key)).name: str(uuid4()),
+            "symbol": symbol,
+            "feed_source": "iex",
+            "event_at": at,
+            "received_at": at + timedelta(milliseconds=20),
+            "processed_at": at + timedelta(milliseconds=50),
+        }
+        if table is market_bars:
+            row.update(timeframe="1Min", open=1, high=1, low=1, close=1, volume=1)
+        elif table is market_quotes:
+            row.update(
+                bid_price=1, ask_price=2, bid_exchange="V", ask_exchange="V", bid_size=1, ask_size=1
+            )
+        else:
+            row.update(provider_trade_id=str(uuid4()), exchange="V", price=1, size=1, conditions=[])
+        connection.execute(table.insert().values(**row))
+
+    with Database("sqlite:///:memory:") as database:
+        database.initialize()
+        with database.begin() as connection:
+            for table in tables:
+                insert_row(connection, table, "SPY", since - timedelta(days=5))
+                insert_row(connection, table, "AAPL", since + timedelta(seconds=1))
+                insert_row(connection, table, "SPY", since + timedelta(seconds=1))
+                insert_row(connection, table, "SPY", since + timedelta(days=1))
+
+        @event.listens_for(database.engine, "before_cursor_execute")
+        def record(connection, cursor, statement, parameters, context, executemany):
+            if statement.startswith("SELECT") and "GROUP BY" in statement:
+                queries.append((statement, parameters))
+
+        first = market_window_counts(database, since=since, until=since + timedelta(minutes=1))
+        with database.begin() as connection:
+            for table in tables:
+                insert_row(connection, table, "SPY", since + timedelta(seconds=2))
+        later = market_window_counts(database, since=since, until=since + timedelta(minutes=1))
+        for table in tables:
+            assert first[table.name][0]["count"] == 1
+            assert later[table.name][0]["count"] == 2
+            assert later[table.name][0]["latest_exchange_at"].replace(tzinfo=UTC) == (
+                since + timedelta(seconds=2)
+            )
+        with database.begin() as connection:
+            for statement, parameters in queries:
+                plan = str(
+                    connection.exec_driver_sql("EXPLAIN QUERY PLAN " + statement, parameters).all()
+                )
+                assert "SEARCH" in plan and "symbol=?" in plan and "event_at>?" in plan
+            assert all(
+                connection.scalar(select(func.count()).select_from(table)) == 5 for table in tables
+            )
 
 
 def test_acceptance_rejects_oom_restarts_changed_code_and_high_memory() -> None:

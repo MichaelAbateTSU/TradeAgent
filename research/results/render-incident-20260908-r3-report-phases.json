@@ -1,0 +1,116 @@
+[
+  {
+    "id": "0f78e17f-82e0-4625-83d0-49233b33b3ec",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag4o0h594qs73frkon0"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "Session report starting: cohort=v20-incident-20260908-r3 requested_date=None as_of=2026-09-08 17:55:32.562844+00:00 persist=True",
+    "timestamp": "2026-09-08T17:55:34.286088421Z"
+  },
+  {
+    "id": "99159046-c210-4ca7-9d7a-4ab9fb88efa2",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag4o0h594qs73frkon0"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "Session report metadata starting: date=2026-09-08 since=2026-09-01 04:00:00+00:00 as_of=2026-09-08 17:55:32.562844+00:00",
+    "timestamp": "2026-09-08T17:55:34.292975235Z"
+  },
+  {
+    "id": "4b8a8c9e-c858-42af-82d3-92c979e1f418",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag4o0h594qs73frkon0"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "Session report metadata complete: date=2026-09-08 records=392 elapsed_seconds=1.091",
+    "timestamp": "2026-09-08T17:55:35.383814075Z"
+  },
+  {
+    "id": "6ab60861-1724-4ba6-a785-1d01f6a70324",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag4o0h594qs73frkon0"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "Session report audit read complete: date=2026-09-08 payload_rows=339 elapsed_seconds=2.187",
+    "timestamp": "2026-09-08T17:55:36.479926743Z"
+  },
+  {
+    "id": "397762f2-a223-4e34-9e12-991fca54c41b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag4o0h594qs73frkon0"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "Persisting session report: report_id=ad9ef7b3-ec18-5b9b-acc9-91d2de00154a payload_bytes=3708920",
+    "timestamp": "2026-09-08T17:55:47.441288226Z"
+  },
+  {
+    "id": "b36b4701-c5fe-4f40-8837-da4b9de16404",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag4o0h594qs73frkon0"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "ACCEPTANCE_REPORT {\"code_sha\": \"b9e6d146a3ac85914ad6aaa7b50b3c9e41545636\", \"cohort_id\": \"v20-incident-20260908-r3\", \"daily_schedule_changed\": false, \"duration_seconds\": 16.926345655694604, \"job_peak_rss_bytes\": 202924032, \"newly_enqueued\": true, \"notification_id\": \"f6439f1b-45be-5e18-92da-0427b010b3e2\", \"serialized_bytes\": 912943}",
+    "timestamp": "2026-09-08T17:55:49.980016368Z"
+  }
+]

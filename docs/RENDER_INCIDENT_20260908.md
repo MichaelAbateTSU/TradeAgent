@@ -141,6 +141,40 @@ exact review, deployment, backfill, and repeated actual acceptance before rearm.
 Original r3 MISSED evidence was re-read unchanged:
 14:00:34.987478 UTC, with the original spread and global-kill blocking reasons.
 
+## Third candidate: report recovery verified; concurrency still rejected
+
+`b9e6d146a3ac85914ad6aaa7b50b3c9e41545636` was independently reviewed and deployed
+to all four applications. Schema `0011` and its audit index were verified in
+PostgreSQL. The metadata job stopped safely at its deadline after 56,512 committed
+projections; a checkpointed continuation completed the remainder, with zero
+missing projections at 17:52:18 UTC. Originals and trading controls were not rewritten.
+
+- The deployed notifier **persisted a 3,708,920-byte report** in 16.93 seconds.
+  Its job peaked at 202,924,032 bytes RSS. One explicitly labeled release-test email
+  was sent in one attempt, provider ID `17b63f74-0750-400a-a28e-581823f6f7cb`.
+  Resend's existing key is sending-only: delivery lookup returned
+  `401 restricted_api_key`. Provider acceptance is verified, not recipient inbox
+  delivery. No key permissions or recipients were changed.
+- The previously failing original-cohort report returned HTTP 200 in 42.53 seconds
+  under concurrent load, preserving all 44 decisions, original MISSED evidence,
+  zero actual submissions, and unknown stale broker confirmation rather than
+  relabeling it as fresh.
+- The 662.46-second, 700-request stress run still failed: concurrent notifier and
+  API full-report generation produced one HTTP 500 and brief recorder lag up to
+  14.48 seconds. PostgreSQL's 235.00 MiB peak coincided with an extra full-history
+  validation scan over 1.6 million quotes. There were no dropped packets in those
+  recorder observations. This result is retained, not accepted.
+
+The fourth correction coordinates full-report admission across processes using a
+dedicated PostgreSQL advisory-lock session; it does not hold a normal data-pool
+slot or mutate trading leases/controls. Busy API generation returns explicit 429;
+scheduled reporting can defer and retry safely. Verification now counts actual
+stored rows in a fixed, indexed recent window, excluding old and future data,
+instead of repeatedly scanning all retained market history. Application and
+database acceptance bounds are unchanged. Current validation: **831 tests passed,
+87.16% coverage**; Ruff passes for 184 files and mypy for 83 source files. The
+corrective release still requires pinned review, deployment and sustained tests.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)
@@ -157,6 +191,9 @@ Original r3 MISSED evidence was re-read unchanged:
 - [Measured report expansion](../research/results/render-incident-20260908-report-size.json)
 - [Second database interruption](../research/results/render-incident-20260908-r2-database-interruption.json)
 - [Decoded storage sizes and original MISSED preservation](../research/results/render-incident-20260908-storage-samples.json)
+- [Third stress run and failure analysis](../research/results/render-incident-20260908-r3-soak-summary.json)
+- [Actual report persistence and email enqueue](../research/results/render-incident-20260908-r3-report-email.json)
+- [Preserved original report truth](../research/results/render-incident-20260908-r3-archive-truth.json)
 
 The historical r3 record and user-owned Tuesday-readiness edits are not rewritten.
 Incident recovery acceptance is recorded separately after actual sustained tests.

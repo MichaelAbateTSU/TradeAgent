@@ -1,0 +1,45 @@
+{
+  "observed_at": "2026-09-08T17:23:54.158252+00:00",
+  "applications": {
+    "event": {
+      "id": "srv-dae4tr7qj5pc73a9e0k0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "instances": 1,
+      "start_command": "tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-08 --cohort-id v20-incident-20260908-r2",
+      "pre_deploy_command": "alembic upgrade head"
+    },
+    "recorder": {
+      "id": "srv-dadn8son74is73apqcc0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "instances": 1,
+      "start_command": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD",
+      "pre_deploy_command": "alembic upgrade head"
+    },
+    "notifier": {
+      "id": "srv-dadnn6mq1p3s73ef7ef0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "instances": 1,
+      "start_command": "tradeagent notifier",
+      "pre_deploy_command": "alembic upgrade head"
+    },
+    "dashboard": {
+      "id": "srv-dadoa3740ujc73cb09c0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "instances": 1,
+      "start_command": "tradeagent serve --host 0.0.0.0 --port $PORT --production",
+      "pre_deploy_command": null
+    }
+  },
+  "database": {
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "status": "available",
+    "plan": "0.1c-256mb",
+    "storageSizeGB": null,
+    "version": "17",
+    "ipAllowList": []
+  }
+}

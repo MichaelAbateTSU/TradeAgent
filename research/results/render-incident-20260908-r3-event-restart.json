@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-09-08T17:37:54.715554+00:00",
+  "service": "srv-dae4tr7qj5pc73a9e0k0",
+  "action": "targeted service restart",
+  "reason": "Resolve event startup allocation conflicts during the paused rollout; no lease mutation",
+  "subsequent_evidence": {
+    "last_observed_prior_heartbeat": "2026-09-08T17:32:00.304295+00:00",
+    "intermediate_lease_owner": "srv-dae4tr7qj5pc73a9e0k0-66574ccc7b-pdqkq",
+    "intermediate_lease_renewed_at": "2026-09-08T17:37:53.202046+00:00",
+    "interpretation_correction": "The old heartbeat alone did not prove its process was still renewing. A replacement had acquired the lease before the targeted restart; the subsequent replacement waited for normal expiry.",
+    "configured_lease_expiry_seconds": 180,
+    "confirmed_new_owner": "srv-dae4tr7qj5pc73a9e0k0-c4bf45b67-ptt6t",
+    "confirmed_new_owner_by": "2026-09-08T17:42:59.843910+00:00",
+    "lease_rows_deleted_or_stolen": 0
+  },
+  "http_status": 200,
+  "response": null
+}

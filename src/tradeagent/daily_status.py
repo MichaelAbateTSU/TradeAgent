@@ -21,7 +21,12 @@ from tradeagent.event_session_report import render_session_report, session_repor
 from tradeagent.event_store import event_cohorts, event_decisions, event_order_links
 from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.persistence import Database, ProductionRepository, events, orders
-from tradeagent.reporting_reads import payload_from_projection, projected_payload, stream_rows
+from tradeagent.reporting_reads import (
+    ReportBusyError,
+    payload_from_projection,
+    projected_payload,
+    stream_rows,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -82,7 +87,11 @@ class DailyStatusScheduler:
         if self.outbox.contains(notification_id):
             self._last_enqueued_day = day
             return False
-        payload = build_daily_status(self.database, observed_at, self.settings.timezone)
+        try:
+            payload = build_daily_status(self.database, observed_at, self.settings.timezone)
+        except ReportBusyError:
+            LOGGER.warning("Daily session report deferred: another full report is running")
+            return False
         created = self.outbox.enqueue_status(notification_id, payload, created_at=observed_at)
         self._last_enqueued_day = day
         if created:

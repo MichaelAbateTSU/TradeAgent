@@ -37,10 +37,12 @@ from tradeagent.persistence import (
 )
 from tradeagent.reporting_reads import (
     READ_BATCH_SIZE,
+    REPORT_ADMISSION_WAIT_SECONDS,
     SOURCE_FIELDS,
     compact_report_evidence,
     payload_from_projection,
     projected_row_query,
+    report_admission,
     report_payload_size,
     reporting_metadata_query,
     reporting_projection_from_row,
@@ -1207,6 +1209,22 @@ def _prior_session_activity(
 
 
 def session_report(
+    database: Database,
+    cohort_id: str | None,
+    session_date: date | None = None,
+    *,
+    observed_at: datetime | None = None,
+    persist: bool = False,
+) -> dict[str, Any]:
+    with report_admission(
+        database.engine, wait_seconds=REPORT_ADMISSION_WAIT_SECONDS if persist else 0
+    ):
+        return _session_report(
+            database, cohort_id, session_date, observed_at=observed_at, persist=persist
+        )
+
+
+def _session_report(
     database: Database,
     cohort_id: str | None,
     session_date: date | None = None,

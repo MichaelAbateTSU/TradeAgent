@@ -1,0 +1,1313 @@
+{
+  "id": "783327ad-d8be-4415-a1b3-ef7c6a8feab6",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/event_cli.py\", line 90, in handle_event_command",
+  "timestamp": "2026-09-08T17:32:18.316009928Z"
+}{
+  "id": "0b8986eb-65bf-4c6d-907e-c23dc846f8e2",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    result = asyncio.run(run_event_service(settings, once=args.once))",
+  "timestamp": "2026-09-08T17:32:18.316011857Z"
+}{
+  "id": "76727426-9998-4e11-85c9-ddbd280ab8ac",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 195, in run",
+  "timestamp": "2026-09-08T17:32:18.316016028Z"
+}{
+  "id": "9130a078-091d-4620-ac53-8793ea571099",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return runner.run(main)",
+  "timestamp": "2026-09-08T17:32:18.316018198Z"
+}{
+  "id": "5e9c0343-e6eb-4af5-810f-f14b79477a7f",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:32:18.316020018Z"
+}{
+  "id": "1a28ad75-d90b-47de-a844-5e791d7f6acf",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 118, in run",
+  "timestamp": "2026-09-08T17:32:18.316021858Z"
+}{
+  "id": "6b653896-13fd-4552-932e-c1b50cdf811c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return self._loop.run_until_complete(task)",
+  "timestamp": "2026-09-08T17:32:18.316023758Z"
+}{
+  "id": "59d173c6-8637-4189-9e23-0625ccb5803b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:32:18.316026358Z"
+}{
+  "id": "66b31050-fad1-46f4-af7e-c6d4e07f4612",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/base_events.py\", line 725, in run_until_complete",
+  "timestamp": "2026-09-08T17:32:18.316029658Z"
+}{
+  "id": "9675fd90-234c-4b5e-9559-5203d5da9701",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return future.result()",
+  "timestamp": "2026-09-08T17:32:18.316032768Z"
+}{
+  "id": "ecfbd71b-01e3-4d0d-8034-acf1c3cbffbd",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~~~~^^",
+  "timestamp": "2026-09-08T17:32:18.316037448Z"
+}{
+  "id": "a6afcb77-19d5-4ce6-bdc7-e9b6a2a7868c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/event_runtime.py\", line 1548, in run_event_service",
+  "timestamp": "2026-09-08T17:32:18.316040638Z"
+}{
+  "id": "5daabbb8-3870-4999-9733-02b83084e9e5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    raise RuntimeError(\"another event worker owns the allocation\")",
+  "timestamp": "2026-09-08T17:32:18.316043698Z"
+}{
+  "id": "60a6443d-9f45-40d8-983a-0a1727da5f90",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "RuntimeError: another event worker owns the allocation",
+  "timestamp": "2026-09-08T17:32:18.316047349Z"
+}{
+  "id": "dag4f0e7bikc73d31j6g",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "\u001b[0;33m\u001b[1m==\u003e \u001b[0m\u001b[1mInstance srv-dae4tr7qj5pc73a9e0k0-pdqkq restarted\u001b[0m",
+  "timestamp": "2026-09-08T17:33:14.469963195Z"
+}{
+  "id": "9dce2337-41b1-4ff5-bea9-e3c53b5e298f",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "\u001b[32m\u001b[1m==\u003e\u001b(B\u001b[m \u001b[1mRunning 'tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-08 --cohort-id v20-incident-20260908-r3'\u001b(B\u001b[m",
+  "timestamp": "2026-09-08T17:33:15.49636235Z"
+}{
+  "id": "bc6b93ab-e157-4d03-9792-c4a9e7d97064",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "Traceback (most recent call last):",
+  "timestamp": "2026-09-08T17:33:19.984479017Z"
+}{
+  "id": "c8f7a707-2dcb-4d8a-83a0-9fb1f0cdaa09",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/bin/tradeagent\", line 7, in \u003cmodule\u003e",
+  "timestamp": "2026-09-08T17:33:19.985209238Z"
+}{
+  "id": "e05d6c34-894b-4666-910d-5dbe7d76e9ac",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    sys.exit(main())",
+  "timestamp": "2026-09-08T17:33:19.985216188Z"
+}{
+  "id": "30b948d5-5ddb-4f41-919a-6664563da0f4",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "             ~~~~^^",
+  "timestamp": "2026-09-08T17:33:19.985219748Z"
+}{
+  "id": "25879cdd-e48b-46ac-a89b-19512afcc041",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/cli.py\", line 721, in main",
+  "timestamp": "2026-09-08T17:33:19.985223128Z"
+}{
+  "id": "1b6eb4e2-5fa1-43ce-b123-56397226dcef",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    if handle_event_command(args):",
+  "timestamp": "2026-09-08T17:33:19.985226528Z"
+}{
+  "id": "4e3c9760-1661-4f02-9632-19a7eb65b3c9",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "       ~~~~~~~~~~~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:33:19.985229429Z"
+}{
+  "id": "64e958d8-91e8-4896-bdda-4029e3f4afa7",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/event_cli.py\", line 90, in handle_event_command",
+  "timestamp": "2026-09-08T17:33:19.985233009Z"
+}{
+  "id": "dd09645d-4d9e-428f-a7b6-bb53a2773c88",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    result = asyncio.run(run_event_service(settings, once=args.once))",
+  "timestamp": "2026-09-08T17:33:19.985235769Z"
+}{
+  "id": "d1db804e-3e74-414f-8cfd-3f8e6d7b7891",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 195, in run",
+  "timestamp": "2026-09-08T17:33:19.985238329Z"
+}{
+  "id": "bc883d0e-0c54-4a5b-aeb3-9f7a739c86e0",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return runner.run(main)",
+  "timestamp": "2026-09-08T17:33:19.985241029Z"
+}{
+  "id": "5cb10ab0-65b9-4964-ab59-8fb8343084d1",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:33:19.985243659Z"
+}{
+  "id": "1ce7fae2-5399-4b90-b509-2d0da941c64e",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 118, in run",
+  "timestamp": "2026-09-08T17:33:19.985246419Z"
+}{
+  "id": "04ccd51b-7f4d-4d54-a4c5-a56c62b2691b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return self._loop.run_until_complete(task)",
+  "timestamp": "2026-09-08T17:33:19.985249429Z"
+}{
+  "id": "f041f312-802f-4a68-8bea-d771b6de84a3",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:33:19.985252199Z"
+}{
+  "id": "f92de74a-751c-4c05-8635-3ccd887742f5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/base_events.py\", line 725, in run_until_complete",
+  "timestamp": "2026-09-08T17:33:19.985255089Z"
+}{
+  "id": "53a663ea-c5b5-4326-bdd8-2482b5dc9cee",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return future.result()",
+  "timestamp": "2026-09-08T17:33:19.985257939Z"
+}{
+  "id": "e9dd450f-a9b0-4206-ac71-3402028ac9ca",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~~~~^^",
+  "timestamp": "2026-09-08T17:33:19.985260959Z"
+}{
+  "id": "c516d103-c8e5-42f6-ad50-bb0341f8a4f4",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/event_runtime.py\", line 1548, in run_event_service",
+  "timestamp": "2026-09-08T17:33:19.985263919Z"
+}{
+  "id": "bc014133-77d3-44c4-9a3e-336e652d6999",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    raise RuntimeError(\"another event worker owns the allocation\")",
+  "timestamp": "2026-09-08T17:33:19.985266919Z"
+}{
+  "id": "04748882-6230-405b-86b1-7269a0d69ba9",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "RuntimeError: another event worker owns the allocation",
+  "timestamp": "2026-09-08T17:33:19.985270199Z"
+}{
+  "id": "dag4f0e7bikc73d31j60",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "\u001b[0;33m\u001b[1m==\u003e \u001b[0m\u001b[1mInstance srv-dae4tr7qj5pc73a9e0k0-pdqkq restarted\u001b[0m",
+  "timestamp": "2026-09-08T17:34:45.927685175Z"
+}{
+  "id": "fae8460b-3fd3-4d3e-9ce6-146b305cccde",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "\u001b[32m\u001b[1m==\u003e\u001b(B\u001b[m \u001b[1mRunning 'tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-08 --cohort-id v20-incident-20260908-r3'\u001b(B\u001b[m",
+  "timestamp": "2026-09-08T17:34:47.559180162Z"
+}{
+  "id": "5a3c39de-8809-4b50-a603-e826093424ef",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "Traceback (most recent call last):",
+  "timestamp": "2026-09-08T17:34:52.084441754Z"
+}{
+  "id": "2d060572-3aed-4916-892f-49776046ded6",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/bin/tradeagent\", line 7, in \u003cmodule\u003e",
+  "timestamp": "2026-09-08T17:34:52.085412551Z"
+}{
+  "id": "6a733538-2f19-4c1b-9eb3-815a84e47d49",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    sys.exit(main())",
+  "timestamp": "2026-09-08T17:34:52.085422691Z"
+}{
+  "id": "b8d99dfd-81cf-488f-88ff-5c676280e5cc",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "             ~~~~^^",
+  "timestamp": "2026-09-08T17:34:52.085426241Z"
+}{
+  "id": "578969b0-77ec-4cd7-8cd1-f8247d7be511",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/cli.py\", line 721, in main",
+  "timestamp": "2026-09-08T17:34:52.085429301Z"
+}{
+  "id": "d7ce4ee5-8f77-481a-a030-1a04ace31d15",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    if handle_event_command(args):",
+  "timestamp": "2026-09-08T17:34:52.085432512Z"
+}{
+  "id": "5256749c-d251-49d5-81d3-431d2d0d9221",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "       ~~~~~~~~~~~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:34:52.085435181Z"
+}{
+  "id": "c2ac815d-47e5-4615-8215-cae493359e62",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/event_cli.py\", line 90, in handle_event_command",
+  "timestamp": "2026-09-08T17:34:52.085438292Z"
+}{
+  "id": "7d63df44-d299-477b-a730-9fab78dc08eb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    result = asyncio.run(run_event_service(settings, once=args.once))",
+  "timestamp": "2026-09-08T17:34:52.085441172Z"
+}{
+  "id": "95123f0d-dec1-4ddc-b8a5-9ffd72b67477",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 195, in run",
+  "timestamp": "2026-09-08T17:34:52.085443912Z"
+}{
+  "id": "bdf0e2ad-1d62-44e8-ba50-974ac0abe325",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return runner.run(main)",
+  "timestamp": "2026-09-08T17:34:52.085446872Z"
+}{
+  "id": "460d787d-ab7c-45af-a7a9-81568db829e5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:34:52.085449602Z"
+}{
+  "id": "2318e1bf-1b63-4bf9-b7e4-f4df9a0bab63",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 118, in run",
+  "timestamp": "2026-09-08T17:34:52.085452262Z"
+}{
+  "id": "c04c19e3-4fb2-43d6-8811-b90ca11076eb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return self._loop.run_until_complete(task)",
+  "timestamp": "2026-09-08T17:34:52.085454922Z"
+}{
+  "id": "5731f252-f923-4f61-a030-355f59c94fe3",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^",
+  "timestamp": "2026-09-08T17:34:52.085457592Z"
+}{
+  "id": "fbcf2997-b9d0-441b-83ce-4f2a4c787744",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/base_events.py\", line 725, in run_until_complete",
+  "timestamp": "2026-09-08T17:34:52.085460292Z"
+}{
+  "id": "b4258317-64e9-4676-a03f-bbac23a918d8",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    return future.result()",
+  "timestamp": "2026-09-08T17:34:52.085462852Z"
+}{
+  "id": "21a8b116-deb6-44e5-99be-69459345b317",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "           ~~~~~~~~~~~~~^^",
+  "timestamp": "2026-09-08T17:34:52.085465233Z"
+}{
+  "id": "741b1b61-14c9-4601-b0fc-a46e2a3ee903",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/event_runtime.py\", line 1548, in run_event_service",
+  "timestamp": "2026-09-08T17:34:52.085467913Z"
+}{
+  "id": "d73a4e53-714a-4691-a74d-b12c3ab9a465",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "    raise RuntimeError(\"another event worker owns the allocation\")",
+  "timestamp": "2026-09-08T17:34:52.085470433Z"
+}{
+  "id": "b9d02f89-3f0b-461a-9657-9686c8213dd5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "srv-dae4tr7qj5pc73a9e0k0"
+    },
+    {
+      "name": "instance",
+      "value": "srv-dae4tr7qj5pc73a9e0k0-pdqkq"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "RuntimeError: another event worker owns the allocation",
+  "timestamp": "2026-09-08T17:34:52.085478763Z"
+}

@@ -1,0 +1,9 @@
+{
+  "createdAt": "2026-09-08T17:29:35.534085983Z",
+  "id": "job-dag4bvtbedkc73fg4ui0",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+  "startCommand": "python -u -m infra.render.acceptance_probe",
+  "status": "pending",
+  "diagnostic_limitation": "Combined broker snapshot was attempted on least-privilege notifier, which intentionally has no Alpaca keys. Verified instead on broker-equipped event service; no credentials copied."
+}

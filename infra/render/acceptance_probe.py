@@ -7,7 +7,7 @@ import hashlib
 import json
 import os
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
@@ -28,12 +28,52 @@ from tradeagent.persistence import (
     worker_locks,
 )
 
+RECORDER_SYMBOLS = ("SPY", "QQQ", "IWM", "TLT", "GLD")
 
-def snapshot(database: Database) -> dict[str, Any]:
+
+def market_window_counts(
+    database: Database,
+    *,
+    since: datetime,
+    until: datetime,
+    symbols: tuple[str, ...] = RECORDER_SYMBOLS,
+) -> dict[str, Any]:
+    if since.tzinfo is None or until.tzinfo is None or since > until or not symbols:
+        raise ValueError("An ordered aware window and explicit recorder symbols are required")
+    result = {}
+    with database.begin() as connection:
+        for table in (market_quotes, market_trades, market_bars):
+            result[table.name] = [
+                dict(row)
+                for row in connection.execute(
+                    select(
+                        table.c.symbol,
+                        func.count().label("count"),
+                        func.max(table.c.event_at).label("latest_exchange_at"),
+                        func.max(table.c.received_at).label("latest_received_at"),
+                        func.max(table.c.processed_at).label("latest_committed_at"),
+                    )
+                    .where(
+                        table.c.symbol.in_(symbols),
+                        table.c.event_at >= since,
+                        table.c.event_at <= until,
+                    )
+                    .group_by(table.c.symbol)
+                ).mappings()
+            ]
+    return result
+
+
+def snapshot(database: Database, *, market_since: datetime | None = None) -> dict[str, Any]:
     from tradeagent.reporting_metadata import missing_reporting_metadata
     from tradeagent.reporting_reads import REPORTING_PROJECTION_VERSION
 
     now = datetime.now(UTC)
+    market_since = market_since or now - timedelta(minutes=1)
+    if market_since.tzinfo is None or not timedelta(0) <= now - market_since <= timedelta(
+        minutes=30
+    ):
+        raise ValueError("The verification window must begin within the previous 30 minutes")
     repository = ProductionRepository(database)
     with database.begin() as connection:
         result: dict[str, Any] = {
@@ -66,7 +106,12 @@ def snapshot(database: Database) -> dict[str, Any]:
                     )
                 ).mappings()
             ],
-            "market": {},
+            "market_count_scope": {
+                "since_exchange_at": market_since.isoformat(),
+                "until_exchange_at": now.isoformat(),
+                "symbols": list(RECORDER_SYMBOLS),
+                "basis": "Exact persisted rows in a fixed indexed window; not full-history totals",
+            },
             "outbox_counts": [
                 dict(row)
                 for row in connection.execute(
@@ -76,19 +121,6 @@ def snapshot(database: Database) -> dict[str, Any]:
                 ).mappings()
             ],
         }
-        for table in (market_quotes, market_trades, market_bars):
-            result["market"][table.name] = [
-                dict(row)
-                for row in connection.execute(
-                    select(
-                        table.c.symbol,
-                        func.count().label("count"),
-                        func.max(table.c.event_at).label("latest_exchange_at"),
-                        func.max(table.c.received_at).label("latest_received_at"),
-                        func.max(table.c.processed_at).label("latest_committed_at"),
-                    ).group_by(table.c.symbol)
-                ).mappings()
-            ]
         result["latest_event_types"] = [
             dict(row)
             for row in connection.execute(
@@ -97,6 +129,7 @@ def snapshot(database: Database) -> dict[str, Any]:
                 .group_by(events.c.event_type)
             ).mappings()
         ]
+    result["market"] = market_window_counts(database, since=market_since, until=now)
     result["reporting_projection_version"] = REPORTING_PROJECTION_VERSION
     result["reporting_metadata_missing"] = missing_reporting_metadata(database)
     result["latest_calibration"] = repository.latest_event_payload("event_calibration_status")
@@ -185,6 +218,13 @@ def email_status(database: Database, release: str) -> dict[str, Any]:
                 result["provider"] = {
                     key: payload.get(key) for key in ("id", "created_at", "last_event")
                 }
+            else:
+                try:
+                    error = response.json()
+                    result["provider_error"] = {key: error.get(key) for key in ("name", "message")}
+                except ValueError:
+                    result["provider_error"] = {"name": "non_json_provider_response"}
+                result["delivery_verification"] = "unavailable; sent is not inbox confirmation"
     return result
 
 
@@ -197,9 +237,11 @@ def main() -> None:
     parser.add_argument("--email-status", help="Read the outbox/provider state for a release test")
     parser.add_argument("--samples", type=int, default=1)
     parser.add_argument("--interval", type=float, default=60)
+    parser.add_argument("--market-since", type=datetime.fromisoformat)
     args = parser.parse_args()
     if args.samples < 1 or args.interval < 1:
         parser.error("samples and interval must be positive")
+    market_since = args.market_since or datetime.now(UTC) - timedelta(minutes=1)
     with Database(AppConfig().database_url.get_secret_value()) as database:
         if args.email_status:
             print(
@@ -222,7 +264,9 @@ def main() -> None:
         for index in range(args.samples):
             print(
                 "ACCEPTANCE_SNAPSHOT "
-                + json.dumps(snapshot(database), default=str, sort_keys=True),
+                + json.dumps(
+                    snapshot(database, market_since=market_since), default=str, sort_keys=True
+                ),
                 flush=True,
             )
             if index + 1 < args.samples:

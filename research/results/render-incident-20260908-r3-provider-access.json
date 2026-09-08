@@ -1,0 +1,11 @@
+{
+  "status": 401,
+  "details": {
+    "name": "restricted_api_key",
+    "message": "This API key is restricted to only send emails",
+    "statusCode": 401,
+    "id": null,
+    "created_at": null,
+    "last_event": null
+  }
+}

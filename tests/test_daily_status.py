@@ -26,6 +26,7 @@ from tradeagent.notifications import (
 )
 from tradeagent.notifier import NotifierService
 from tradeagent.persistence import Database, ProductionRepository, notification_outbox
+from tradeagent.reporting_reads import ReportBusyError
 
 SUNDAY = datetime(2026, 9, 6, 22, tzinfo=UTC)  # 18:00 Eastern, even on weekends.
 
@@ -179,6 +180,35 @@ class Provider:
     def send(self, message):
         self.messages.append(message)
         return "provider-accepted-id"
+
+
+def test_busy_report_defers_daily_email_without_crashing_or_marking_day_complete(
+    database: Database, monkeypatch: pytest.MonkeyPatch
+):
+    provider = Provider()
+    outbox = RoundTripNotificationRepository(database)
+    scheduler = DailyStatusScheduler(database, DailyStatusSettings(_env_file=None))
+    service = NotifierService(
+        NotificationDispatcher(outbox, provider),
+        ProductionRepository(database),
+        instance_id="busy-report-notifier",
+        clock=lambda: SUNDAY,
+        daily_scheduler=scheduler,
+    )
+
+    def busy(*args, **kwargs):
+        raise ReportBusyError("another report owns the global admission slot")
+
+    monkeypatch.setattr("tradeagent.daily_status.build_daily_status", busy)
+    assert service.run_once() is False
+    assert outbox.count() == 0
+    assert provider.messages == []
+    monkeypatch.setattr("tradeagent.daily_status.build_daily_status", build_daily_status)
+    assert service.run_once() is True
+    assert outbox.count() == 1
+    assert len(provider.messages) == 1
+    assert service.run_once() is False
+    assert len(provider.messages) == 1
 
 
 def test_render_notifier_enqueues_daily_and_reuses_existing_provider(database: Database):

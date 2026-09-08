@@ -1,0 +1,8 @@
+{
+  "createdAt": "2026-09-08T17:32:17.766358792Z",
+  "id": "job-dag4d8942hec7393gtmg",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+  "startCommand": "python -u -m infra.render.acceptance_probe",
+  "status": "pending"
+}

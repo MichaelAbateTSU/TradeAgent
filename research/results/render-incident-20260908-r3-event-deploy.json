@@ -1,0 +1,14 @@
+{
+  "id": "dep-dag4bvifngtc73dhe46g",
+  "commit": {
+    "id": "b9e6d146a3ac85914ad6aaa7b50b3c9e41545636",
+    "message": "fix: persist compact immutable reporting projections\n\nRemove repeated historical JSON parsing and embedded source-body report duplication, add versioned atomic reporting metadata with bounded resumable backfill, and singleflight timestamped counters while preserving uncached safety controls. Retain both failed live release tests.\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+    "createdAt": "2026-09-08T17:15:58Z"
+  },
+  "status": "live",
+  "trigger": "api",
+  "createdAt": "2026-09-08T17:29:34.906092Z",
+  "updatedAt": "2026-09-08T17:31:08.52053Z",
+  "startedAt": "2026-09-08T17:29:34.904398Z",
+  "finishedAt": "2026-09-08T17:31:08.520113Z"
+}

@@ -47,6 +47,7 @@ from tradeagent.persistence import (
 )
 from tradeagent.persistence import events as stored_events
 from tradeagent.reporting_reads import (
+    ReportBusyError,
     ReportingReadModelIncomplete,
     ReportPayloadTooLargeError,
     payload_from_projection,
@@ -861,6 +862,10 @@ def create_app(
             )
         try:
             return read_event_session_report(cohort_id, session_date, report_id)
+        except ReportBusyError as error:
+            raise HTTPException(
+                status_code=429, detail=str(error), headers={"Retry-After": "5"}
+            ) from error
         except (ReportingReadModelIncomplete, ReportPayloadTooLargeError) as error:
             raise HTTPException(
                 status_code=503,

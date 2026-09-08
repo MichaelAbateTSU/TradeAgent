@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-09-08T17:52:18.883624+00:00",
+  "projection_version": 1,
+  "inserted": 10000,
+  "pages": 314,
+  "remaining": 0,
+  "seconds": 193.93733245809563,
+  "originals_modified": 0,
+  "controls_modified": 0,
+  "orders_submitted": 0,
+  "resumed_from": "d97ce252-107f-42d5-b7cf-1aaaaf911691"
+}

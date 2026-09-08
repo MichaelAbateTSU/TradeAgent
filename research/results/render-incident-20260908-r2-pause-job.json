@@ -1,0 +1,8 @@
+{
+  "createdAt": "2026-09-08T17:16:20.535868484Z",
+  "id": "job-dag45p0hchos73fq6ae0",
+  "planId": "plan-srv-006",
+  "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+  "startCommand": "tradeagent risk-pause --cohort-id v20-incident-20260908-r2 && python -u -m infra.render.acceptance_probe",
+  "status": "pending"
+}

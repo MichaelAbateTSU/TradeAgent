@@ -1,0 +1,36 @@
+{
+  "observed_at": "2026-09-08T17:39:18.448969+00:00",
+  "event": {
+    "heartbeat_at": "2026-09-08T17:32:00.304295+00:00",
+    "age_seconds": 438.085328,
+    "fresh": false,
+    "instance_id": "srv-dae4tr7qj5pc73a9e0k0-578859b44c-fxzl6",
+    "reported": {
+      "state": "collecting",
+      "mode": "experimental-paper",
+      "cohort_id": "v20-incident-20260908-r2",
+      "code_sha": "eb566718b89e4cd6f4dc9ead9266842d2933b056",
+      "last_successful_source_at": "2026-09-08T17:31:58.591263+00:00",
+      "events_received": 2,
+      "tick_latency_seconds": 28.397941,
+      "source_http_cache": {
+        "entries": 45,
+        "bytes": 1112214,
+        "maximum_entries": 64,
+        "maximum_bytes": 16000000,
+        "evictions": 0,
+        "evidence_history_evicted": false
+      }
+    },
+    "lease": {
+      "lock_name": "tradeagent-event-worker",
+      "present": true,
+      "owner_id": "srv-dae4tr7qj5pc73a9e0k0-66574ccc7b-pdqkq",
+      "renewed_at": "2026-09-08T17:37:53.202046+00:00",
+      "age_seconds": 85.187577,
+      "owner_matches_heartbeat": false,
+      "recent_within_120_seconds": true,
+      "basis": "observation only; actual takeover thresholds are role-configured"
+    }
+  }
+}

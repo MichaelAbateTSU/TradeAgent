@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-09-08T17:18:08.627842+00:00",
+  "candidate": "b9e6d146a3ac85914ad6aaa7b50b3c9e41545636",
+  "test": "candidate pure compactor applied to current deployed report; not full candidate acceptance",
+  "read_only": true,
+  "persist": false,
+  "cohort": "v20-incident-20260908",
+  "original_bytes": 27495763,
+  "projected_bytes": 3182860,
+  "decisions": 58,
+  "duration_seconds": 11.910765895154327,
+  "peak_rss_bytes": 264888320
+}
