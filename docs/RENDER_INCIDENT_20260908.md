@@ -1,5 +1,24 @@
 # Render incident — September 8, 2026
 
+## Current deployment and remaining gate
+
+The final reviewed release `5e728c5b29fb9330df61d8f3bae95ca8a34ca53b` is deployed
+to **recorder and dashboard**. Event/news and notifier deliberately remain at
+`3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f`; their immutable execution cohort is not
+rewritten. PostgreSQL migration `0012_market_data_totals` and all nine enabled
+statement-level triggers are verified. Plans and the database's empty public
+allowlist are unchanged.
+
+**Full acceptance remains open.** The post-deployment after-hours observation
+completed 840 requests over 662.66 seconds with zero HTTP failures, stable owners,
+no new gaps/losses/restarts, and sampled memory below every unchanged bound.
+The unmodified full gate still fails on absent market progress and truthful
+closed-market/degraded recorder states; this is **not** regular-session acceptance.
+A direct same-session
+continuation is scheduled for **September 9 at 09:35 Eastern**, for a thirty-minute
+read-only market-load test with unchanged freshness, ownership, loss and memory
+gates. All entries remain paused; no MISSED reset or account reset occurred.
+
 ## Observed failure and preserved evidence
 
 The 09:35–10:00 Eastern equipment window was missed. Its durable status is
@@ -333,7 +352,92 @@ allocation source or replace actual throughput/RSS verification.
 
 Final strengthened integration: **909 passed, two optional local PostgreSQL skips,
 87.25% coverage**, identical input hashes throughout the full run, Ruff190/mypy84
-and whitespace checks clean. Final exact-pin review and rollout remain pending.
+and whitespace checks clean. Independent final review explicitly approved
+`5e728c5` with no significant issues; earlier findings remain closed.
+
+### Actual final rollout and immediate tests
+
+- Recorder deployment `dep-dag8ecm7bikc7394cfgg` finished at 22:09:31 UTC.
+  Its pre-deploy step applied migration0012 once. The actual deployed image then
+  passed both PostgreSQL fixtures, including the unperturbed eight-statement
+  burst gate. The O(1) totals read took **0.035 seconds**, returning 1,442 bars,
+  2,930,890 quotes and 28,814 trades.
+- The new recorder briefly exited during rolling overlap because the old owner
+  still held its lease. Those startup failures are preserved. The old owner stopped
+  and released naturally; no operator lease deletion/stealing or manual restart was issued.
+  The replacement `srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b` then held the matching
+  fresh lease and authenticated/subscribed successfully. The first fixture's
+  ownership snapshot caught the old stopped heartbeat and no lease; this was not
+  misrepresented as a completed handoff.
+- Only after schema and actual recorder handoff verification was the dashboard
+  deployed: `dep-dag8gd6k1f9s738f7hpg`, finished 22:13:10 UTC. All fourteen immediate
+  hot requests returned HTTP200 in **0.095–0.411 seconds**.
+- Cross-process report admission returned expected HTTP429 in **1.24 seconds**
+  while health/ready/status remained HTTP200. After release, the original-cohort
+  full report returned HTTP200 in **7.51 seconds**, preserving the exact MISSED
+  status, timestamp, blockers, stable test/session identities, zero submissions
+  and all 44 decisions.
+- During sustained hot traffic, the notifier environment persisted another real
+  report in **8.02 seconds**, without enqueueing or sending another email. Its
+  report-email wrapper was 984,688 bytes and job RSS was 213,864,448 bytes; wrapper
+  serialization is not mislabeled as the stored report's size.
+- The actual broker at 22:12:50 UTC was ACTIVE/unblocked, flat, with zero open
+  orders; the exchange clock reported closed. Global kill and operator pauses
+  remained active. Missing reporting projections were zero.
+
+### Actual normal 18:00 notification
+
+The ordinary scheduler—not a manual test—persisted report
+`171fe7d5-e6a9-5778-b4e8-b40fbffbb962` (4,438,083 bytes) and its metadata projection.
+Notification `c13027db-13b7-5242-9f8f-f52489841f7a` was sent in **one attempt** at
+22:00:20 UTC, provider ID `9277329c-97ee-4e86-a1c6-70db3509fc26`. There was no
+manual enqueue/resend. Provider acceptance is verified; the sending-only key still
+cannot prove inbox delivery.
+
+Across the observed normal-report window, sampled notifier and PostgreSQL peaks
+were **192.43 and 204.51 MiB**, respectively, with no matching PG termination,
+interruption or out-of-memory log entries. This completes the planned 18:10 check;
+its automation was advanced directly to the September9 market-open continuation.
+It does not replace final deployment or regular-market acceptance.
+
+### Completed after-hours sustained observation
+
+From **22:15:20 to 22:26:23 UTC**, two page-equivalent clients issued **840 requests**
+over **662.66 seconds**. There were **zero HTTP errors**, no deployment/owner
+changes or service restarts during the observation, all role heartbeats were fresh,
+and actual leases matched. Recorder drop/notice/persistence/decision fault
+observations were zero; its initially recorded gap count of one stayed unchanged.
+
+Median request time was **0.168 seconds**, p95 **0.889 seconds**, maximum
+**9.551 seconds**. The maximum and all individual requests are retained rather
+than reporting only the fastest initial probes.
+
+| Resource | Sampled peak MiB |
+|---|---:|
+| Event/news | 272.94 |
+| Recorder | 112.02 |
+| Notifier | 192.94 |
+| Dashboard | 205.25 |
+| PostgreSQL | 192.40 |
+
+All samples stayed below the existing 400 MiB application and 230 MiB PostgreSQL
+bounds. A separate database log check from rollout start through the final check
+found no SIG9/other termination, interruption, or out-of-memory messages; the
+database remained available with its empty public allowlist.
+
+The unchanged acceptance script exited nonzero because committed exchange time
+and raw quotes/trades/bars did not advance, the recorder correctly reported
+`degraded` without a first market batch, and the feed reported `market_closed`.
+These failures are preserved verbatim with `accepted: false`. An authenticated
+subscription is not substituted for market data or entry authority. The thirty-
+minute September9 regular-session test must pass before full acceptance.
+
+The final 22:28:24 UTC same-service snapshot confirmed migration0012, zero missing
+projections, unchanged pauses/global kill, ACTIVE/unblocked/flat broker and zero
+open orders. The recorder remained authenticated/subscribed with no reconnects
+or drops. Actual report `52222c2b-53f4-5513-b1c3-403f7e06756c` was present, recorded
+at 22:16:42 UTC during the load test. One Render log retrieval transiently failed
+with Loki504/HTTP503; only the log read was retried, not the job or email.
 
 ## Evidence files
 
@@ -354,6 +458,14 @@ and whitespace checks clean. Final exact-pin review and rollout remain pending.
 - [Third stress run and failure analysis](../research/results/render-incident-20260908-r3-soak-summary.json)
 - [Actual report persistence and email enqueue](../research/results/render-incident-20260908-r3-report-email.json)
 - [Preserved original report truth](../research/results/render-incident-20260908-r3-archive-truth.json)
+- [Actual final per-role deployment pins](../research/results/render-incident-20260908-r5-deployed.json)
+- [Final after-hours observation and remaining failures](../research/results/render-incident-20260908-r5-afterhours-soak-summary.json)
+- [Complete compressed after-hours observations](../research/results/render-incident-20260908-r5-afterhours-soak.json.gz)
+- [Actual deployed recorder/schema/cache tests](../research/results/render-incident-20260908-r5-recorder-postdeploy.json)
+- [Actual deployed dashboard/pool/cache tests](../research/results/render-incident-20260908-r5-dashboard-postdeploy.json)
+- [Actual normal 18:00 report and send](../research/results/render-incident-20260908-normal-daily-verification.json)
+- [Final broker, pauses, stream, report and schema snapshot](../research/results/render-incident-20260908-r5-final-snapshot.json)
+- [Post-rollout database recovery-log check](../research/results/render-incident-20260908-r5-pg-final-check.json)
 
 The historical r3 record and user-owned Tuesday-readiness edits are not rewritten.
 Incident recovery acceptance is recorded separately after actual sustained tests.

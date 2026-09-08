@@ -1,0 +1,186 @@
+{
+  "code_sha": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+  "counter_fixture": {
+    "rolled_back": true,
+    "stages": [
+      "existing_rows_initialized",
+      "multirow_insert_conflicts_and_updates_exact",
+      "insert_delete_rollback_atomic",
+      "multirow_and_empty_delete_exact",
+      "truncate_and_rollback_exact",
+      "missing_and_negative_counters_fail_closed",
+      "nine_statement_level_transition_triggers"
+    ],
+    "verified": true
+  },
+  "market_note": "After-hours diagnostics; no claim of regular-session flow",
+  "market_totals": [
+    1442,
+    2930890,
+    28814
+  ],
+  "migration": "0012_market_data_totals",
+  "observed_at": "2026-09-08T22:10:33.203871+00:00",
+  "orders_submitted": 0,
+  "prepared_cache": {
+    "burst_first_count": 8,
+    "burst_prepared_baseline": 4,
+    "burst_second_count": 7,
+    "burst_warmed_shapes": 4,
+    "executions_per_shape": 7,
+    "inspection_semantics": "A new inspection-query key may schedule eviction after its count snapshot; first, second and explicit new-key cleanup observations are recorded separately.",
+    "new_key_cleanup_counts": [
+      6,
+      5,
+      4,
+      4
+    ],
+    "observed_peak": 8,
+    "observed_prepared_counts": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "prepare_threshold": 5,
+    "prepared_max": 4,
+    "read_only": true,
+    "rolled_back": true,
+    "server_budget": 8,
+    "shapes": 16,
+    "verification_scope": "sequential and warmed-key promotion workloads; not a universal cache or RSS bound",
+    "verified": true
+  },
+  "recorder_snapshot": {
+    "batch": null,
+    "heartbeat": {
+      "details": {
+        "bars": 6,
+        "batch_write_seconds": 0.025947175978217274,
+        "closed": 19082,
+        "commit_lag_seconds": 0.330955,
+        "committed": 39700,
+        "committed_event_age_seconds": 4285.281854,
+        "decision_errors": 0,
+        "derived": {
+          "cumulative_evidence_complete": false,
+          "duplicate_minutes": 0,
+          "evidence_epoch": "2f35132a-e82e-478a-afd2-a567463690a7",
+          "frame_age_seconds": null,
+          "healthy": false,
+          "ignored_out_of_order_quotes": 0,
+          "last_unusable_frame": {
+            "bucket_start": "2026-09-08T20:00:00+00:00",
+            "discovered_event_at": "2026-09-08T20:00:00+00:00",
+            "frame_at": "2026-09-08T20:05:00+00:00",
+            "missing_minutes": {
+              "GLD": [
+                "2026-09-08T20:00:00+00:00",
+                "2026-09-08T20:01:00+00:00",
+                "2026-09-08T20:02:00+00:00",
+                "2026-09-08T20:03:00+00:00",
+                "2026-09-08T20:04:00+00:00"
+              ],
+              "IWM": [
+                "2026-09-08T20:00:00+00:00",
+                "2026-09-08T20:01:00+00:00",
+                "2026-09-08T20:02:00+00:00",
+                "2026-09-08T20:03:00+00:00",
+                "2026-09-08T20:04:00+00:00"
+              ],
+              "QQQ": [
+                "2026-09-08T20:01:00+00:00",
+                "2026-09-08T20:02:00+00:00",
+                "2026-09-08T20:03:00+00:00",
+                "2026-09-08T20:04:00+00:00"
+              ],
+              "SPY": [
+                "2026-09-08T20:00:00+00:00",
+                "2026-09-08T20:01:00+00:00",
+                "2026-09-08T20:02:00+00:00",
+                "2026-09-08T20:03:00+00:00",
+                "2026-09-08T20:04:00+00:00"
+              ],
+              "TLT": [
+                "2026-09-08T20:00:00+00:00",
+                "2026-09-08T20:01:00+00:00",
+                "2026-09-08T20:02:00+00:00",
+                "2026-09-08T20:03:00+00:00",
+                "2026-09-08T20:04:00+00:00"
+              ]
+            },
+            "reason": "incomplete_bucket_at_stop",
+            "stopped_at": "2026-09-08T22:10:31.194153+00:00",
+            "usable": false
+          },
+          "last_usable_frame_at": null,
+          "pending_minutes": 0,
+          "state": "awaiting_complete_frame",
+          "unusable_frame_events": 2
+        },
+        "dropped_events": 0,
+        "duplicates": 3,
+        "event_age_seconds": 4285.281854,
+        "events": 39700,
+        "exchange_to_commit_lag_seconds": 0.364061,
+        "execution_enabled": false,
+        "future_events": 0,
+        "gaps": 1,
+        "healthy": false,
+        "in_flight": 0,
+        "inserted": 39697,
+        "last_commit_at": "2026-09-08T22:10:31.194010+00:00",
+        "last_committed_event_at": "2026-09-08T20:59:05.922588+00:00",
+        "last_committed_received_at": "2026-09-08T20:59:05.955694+00:00",
+        "last_event_at": "2026-09-08T20:59:05.922588+00:00",
+        "last_market_commit_at": "2026-09-08T20:59:06.286649+00:00",
+        "last_received_at": "2026-09-08T20:59:05.955694+00:00",
+        "last_received_event_at": "2026-09-08T20:59:05.922588+00:00",
+        "late_events": 0,
+        "market_commit_age_seconds": 4284.917793,
+        "max_receive_lag_seconds": 60.49737,
+        "mode": "shadow",
+        "notice_overflow": 0,
+        "oldest_uncommitted_age_seconds": 0.0,
+        "persistence_error": null,
+        "queue_capacity": 20000,
+        "queue_depth": 0,
+        "quotes": 6671,
+        "receive_age_seconds": 4285.248748,
+        "receive_lag_seconds": 0.033106,
+        "received": 39700,
+        "state": "stopped",
+        "stream": {
+          "authenticated": false,
+          "code": null,
+          "error": null,
+          "gap": false,
+          "last_event_at": "2026-09-08T20:59:05.922588+00:00",
+          "last_received_at": "2026-09-08T20:59:05.955694+00:00",
+          "observed_at": "2026-09-08T22:10:30.917675+00:00",
+          "reconnects": 0,
+          "retry_in_seconds": null,
+          "state": "stopped",
+          "subscribed": false
+        },
+        "trades": 451
+      },
+      "instance_id": "srv-dadn8son74is73apqcc0-695c54cfb5-26dwp",
+      "observed_at": "2026-09-08 22:10:31.204437+00:00"
+    },
+    "lease": null
+  },
+  "totals_read_seconds": 0.03512115101329982
+}

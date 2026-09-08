@@ -1,0 +1,54 @@
+[
+  {
+    "observed_at": "2026-09-08T22:12:03.857392+00:00",
+    "recorder": {
+      "heartbeat_at": "2026-09-08T22:11:58.877590+00:00",
+      "age_seconds": 4.920106,
+      "fresh": true,
+      "instance_id": "srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b",
+      "reported": {
+        "state": "degraded",
+        "healthy": false,
+        "mode": "shadow",
+        "received": 0,
+        "committed": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "queue_depth": 0,
+        "queue_capacity": 20000,
+        "in_flight": 0,
+        "gaps": 1,
+        "dropped_events": 0,
+        "notice_overflow": 0,
+        "decision_errors": 0,
+        "derived": {
+          "state": "awaiting_complete_frame",
+          "healthy": false,
+          "frame_age_seconds": null,
+          "last_usable_frame_at": null,
+          "unusable_frame_events": 0,
+          "last_unusable_frame": null,
+          "pending_minutes": 0,
+          "duplicate_minutes": 0,
+          "ignored_out_of_order_quotes": 0,
+          "evidence_epoch": "38d22cd2-f070-4918-b59f-2dac9d1abceb",
+          "cumulative_evidence_complete": true
+        },
+        "last_commit_at": "2026-09-08T22:10:43.827762+00:00",
+        "oldest_uncommitted_age_seconds": 0.0,
+        "batch_write_seconds": 0.01012895701569505,
+        "source_http_cache": null
+      },
+      "lease": {
+        "lock_name": "tradeagent-shadow-recorder",
+        "present": true,
+        "owner_id": "srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b",
+        "renewed_at": "2026-09-08T22:11:58.877590+00:00",
+        "age_seconds": 4.920106,
+        "owner_matches_heartbeat": true,
+        "recent_within_120_seconds": true,
+        "basis": "observation only; actual takeover thresholds are role-configured"
+      }
+    }
+  }
+]

@@ -1,0 +1,106 @@
+{
+  "observed_at": "2026-09-08T22:05:19.325603+00:00",
+  "since": "2026-09-08T21:58:00Z",
+  "memory": [
+    {
+      "labels": [
+        {
+          "field": "instance",
+          "value": "srv-dadnn6mq1p3s73ef7ef0-tnb26"
+        },
+        {
+          "field": "service",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-08T21:58:00Z",
+          "value": 114475010
+        },
+        {
+          "timestamp": "2026-09-08T21:59:00Z",
+          "value": 114483200
+        },
+        {
+          "timestamp": "2026-09-08T22:00:00Z",
+          "value": 114483200
+        },
+        {
+          "timestamp": "2026-09-08T22:01:00Z",
+          "value": 201781250
+        },
+        {
+          "timestamp": "2026-09-08T22:02:00Z",
+          "value": 201781250
+        },
+        {
+          "timestamp": "2026-09-08T22:03:00Z",
+          "value": 201781250
+        },
+        {
+          "timestamp": "2026-09-08T22:04:00Z",
+          "value": 201781250
+        },
+        {
+          "timestamp": "2026-09-08T22:05:00Z",
+          "value": 201781250
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-08T21:58:00Z",
+          "value": 214441980
+        },
+        {
+          "timestamp": "2026-09-08T21:59:00Z",
+          "value": 205402110
+        },
+        {
+          "timestamp": "2026-09-08T22:00:00Z",
+          "value": 210563070
+        },
+        {
+          "timestamp": "2026-09-08T22:01:00Z",
+          "value": 209367040
+        },
+        {
+          "timestamp": "2026-09-08T22:02:00Z",
+          "value": 209371140
+        },
+        {
+          "timestamp": "2026-09-08T22:03:00Z",
+          "value": 211431420
+        },
+        {
+          "timestamp": "2026-09-08T22:04:00Z",
+          "value": 209440770
+        },
+        {
+          "timestamp": "2026-09-08T22:05:00Z",
+          "value": 210378750
+        }
+      ]
+    }
+  ],
+  "database_critical_logs": {
+    "terminated by signal": [],
+    "database system was interrupted": [],
+    "out of memory": []
+  },
+  "scope": "Normal daily report window; not a replacement for final postdeploy or regular-session acceptance"
+}

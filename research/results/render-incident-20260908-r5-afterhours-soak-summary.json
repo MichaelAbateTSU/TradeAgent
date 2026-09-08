@@ -1,0 +1,58 @@
+{
+  "started_at": "2026-09-08T22:15:20.967795+00:00",
+  "finished_at": "2026-09-08T22:26:23.629453+00:00",
+  "duration_seconds": 662.661658,
+  "request_count": 840,
+  "http_failures": 0,
+  "maximum_request_seconds": 9.551,
+  "median_request_seconds": 0.1675,
+  "p95_request_seconds": 0.889,
+  "memory_peaks_mib": {
+    "srv-dadn8son74is73apqcc0": 112.01952934265137,
+    "srv-dadnn6mq1p3s73ef7ef0": 192.93749809265137,
+    "srv-dadoa3740ujc73cb09c0": 205.25390625,
+    "dpg-dadn7nht0dsc73f9jja0-a": 192.39843368530273,
+    "srv-dae4tr7qj5pc73a9e0k0": 272.94139862060547
+  },
+  "acceptance_failures": [
+    "recorder:committed_exchange_time_not_advancing",
+    "recorder:market_bars_not_advancing",
+    "recorder:market_quotes_not_advancing",
+    "recorder:market_trades_not_advancing",
+    "recorder:unhealthy_or_dropped_packets",
+    "tradeagent-shadow-market-feed:stale_or_unhealthy",
+    "tradeagent-shadow-recorder:stale_or_unhealthy"
+  ],
+  "accepted": false,
+  "scope": "After-hours infrastructure diagnostic; unchanged regular-session acceptance gates remain unsatisfied",
+  "recorder_fault_observations": 0,
+  "recorder_gaps": [
+    1
+  ],
+  "recorder_states": [
+    "degraded"
+  ],
+  "feed_states": [
+    "market_closed"
+  ],
+  "stable_owners": {
+    "tradeagent-event-worker": [
+      "srv-dae4tr7qj5pc73a9e0k0-6895cdff84-2c6fx"
+    ],
+    "tradeagent-shadow-recorder": [
+      "srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b"
+    ],
+    "tradeagent-notifier": [
+      "srv-dadnn6mq1p3s73ef7ef0-c7fd8dd89-tnb26"
+    ],
+    "tradeagent-news-worker": [
+      "srv-dae4tr7qj5pc73a9e0k0-6895cdff84-2c6fx"
+    ],
+    "tradeagent-shadow-market-feed": [
+      "srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b-market-feed"
+    ]
+  },
+  "all_observed_roles_fresh": true,
+  "archive": "render-incident-20260908-r5-afterhours-soak.json.gz",
+  "raw_sha256": "77528d035bd0779b9b2781035307f9c7bc1cf90be1d3726f03cb8f8f78cc883b"
+}

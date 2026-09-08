@@ -1,0 +1,12 @@
+{
+  "since": "2026-09-08T22:07:46Z",
+  "until": "2026-09-08T22:29:12.676248+00:00",
+  "critical_logs": {
+    "terminated by signal": [],
+    "database system was interrupted": [],
+    "out of memory": []
+  },
+  "database_status": "available",
+  "public_allowlist": [],
+  "plan": "0.1c-256mb"
+}

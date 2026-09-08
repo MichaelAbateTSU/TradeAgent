@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "createdAt": "2026-09-08T21:58:20Z",
+    "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+    "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+  },
+  "createdAt": "2026-09-08T22:12:04.554904Z",
+  "id": "dep-dag8gd6k1f9s738f7hpg",
+  "startedAt": "2026-09-08T22:12:04.527277Z",
+  "status": "build_in_progress",
+  "trigger": "api",
+  "updatedAt": "2026-09-08T22:12:04.554904Z"
+}

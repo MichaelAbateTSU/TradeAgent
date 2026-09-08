@@ -1,0 +1,10 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T22:12:29.194223706Z",
+    "id": "job-dag8gjdbedkc73fto0lg",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+    "status": "pending"
+  },
+  "purpose": "Freshactualbroker/pauses/schema/physicalwindow/RAWheartbeatandstream handoff proof; no orders, reports or resends"
+}

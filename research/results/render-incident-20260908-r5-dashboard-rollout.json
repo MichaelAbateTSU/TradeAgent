@@ -1,0 +1,33 @@
+{
+  "role": "dashboard",
+  "expected_commit": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+  "deploy_id": "dep-dag8gd6k1f9s738f7hpg",
+  "history": [
+    {
+      "observed_at": "2026-09-08T22:12:29.332681+00:00",
+      "status": "build_in_progress"
+    },
+    {
+      "observed_at": "2026-09-08T22:12:59.668896+00:00",
+      "status": "update_in_progress"
+    },
+    {
+      "observed_at": "2026-09-08T22:13:14.898529+00:00",
+      "status": "live"
+    }
+  ],
+  "latest": {
+    "id": "dep-dag8gd6k1f9s738f7hpg",
+    "commit": {
+      "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+      "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+      "createdAt": "2026-09-08T21:58:20Z"
+    },
+    "status": "live",
+    "trigger": "api",
+    "createdAt": "2026-09-08T22:12:04.554904Z",
+    "updatedAt": "2026-09-08T22:13:10.397117Z",
+    "startedAt": "2026-09-08T22:12:04.527277Z",
+    "finishedAt": "2026-09-08T22:13:10.396813Z"
+  }
+}

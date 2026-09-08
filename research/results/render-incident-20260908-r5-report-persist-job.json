@@ -1,0 +1,10 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T22:16:17.114302362Z",
+    "id": "job-dag8icdg1s2s73bh6e4g",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+    "status": "pending"
+  },
+  "purpose": "Actual notifier-environment report persistence underpostdeployhotload; no newemail/enqueue/dispatch/orders"
+}

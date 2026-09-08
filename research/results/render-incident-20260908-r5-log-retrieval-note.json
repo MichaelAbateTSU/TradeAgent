@@ -1,0 +1,6 @@
+{
+  "initial_failure": "Renderlog503 causedbyLoki504; not an applicationHTTPfailure",
+  "bounded_retry_errors": [],
+  "job_repeated": false,
+  "result_retrieved": true
+}

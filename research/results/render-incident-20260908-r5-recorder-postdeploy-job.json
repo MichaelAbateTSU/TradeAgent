@@ -1,0 +1,10 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T22:10:11.508033324Z",
+    "id": "job-dag8fgtbedkc73fti8kg",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadn8son74is73apqcc0",
+    "status": "pending"
+  },
+  "purpose": "Actual deployed image/migration/9triggers/O(1)totals/cache+counterfixtures/owner snapshot; no orders or stream"
+}

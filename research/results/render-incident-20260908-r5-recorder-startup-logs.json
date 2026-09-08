@@ -1,0 +1,1834 @@
+[
+  {
+    "id": "dfda0cc5-91b8-4ef2-aa6c-1344e7d8294b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/taskgroups.py\", line 71, in __aexit__",
+    "timestamp": "2026-09-08T22:09:48.394361104Z"
+  },
+  {
+    "id": "ae4b00c6-728d-47fb-aff9-3b584fa753e5",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     return await self._aexit(et, exc)",
+    "timestamp": "2026-09-08T22:09:48.394363455Z"
+  },
+  {
+    "id": "d731cffa-834a-4c93-8f96-f1aaa35595e5",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:09:48.394365875Z"
+  },
+  {
+    "id": "54789774-c115-43f9-a51f-f9210c11b6e3",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/taskgroups.py\", line 173, in _aexit",
+    "timestamp": "2026-09-08T22:09:48.394368295Z"
+  },
+  {
+    "id": "4a57eac5-fd94-43e7-88d0-c608b9c2298e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     raise BaseExceptionGroup(",
+    "timestamp": "2026-09-08T22:09:48.394370645Z"
+  },
+  {
+    "id": "eeb23cc5-6afa-4753-9993-0707e34d372b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ...<2 lines>...",
+    "timestamp": "2026-09-08T22:09:48.394373035Z"
+  },
+  {
+    "id": "42e7597b-81ac-4490-b5eb-c7369c5628f4",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ) from None",
+    "timestamp": "2026-09-08T22:09:48.394375255Z"
+  },
+  {
+    "id": "7275040a-9e33-45fb-a7a0-2e3621b68629",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)",
+    "timestamp": "2026-09-08T22:09:48.394377885Z"
+  },
+  {
+    "id": "2de3202d-e870-46c8-ba73-054624a65bf0",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  +-+---------------- 1 ----------------",
+    "timestamp": "2026-09-08T22:09:48.394380205Z"
+  },
+  {
+    "id": "15b04f9a-fe9d-4de3-bc47-a0c63bd33060",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    | Traceback (most recent call last):",
+    "timestamp": "2026-09-08T22:09:48.394382595Z"
+  },
+  {
+    "id": "b5000e11-1c90-4833-be05-ef77411188f5",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/runtime.py\", line 311, in run_worker",
+    "timestamp": "2026-09-08T22:09:48.394384905Z"
+  },
+  {
+    "id": "acc021b2-5f54-44cb-8d95-ce8200de0b63",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     await worker.run(",
+    "timestamp": "2026-09-08T22:09:48.394387165Z"
+  },
+  {
+    "id": "d201520e-fdbb-4c16-995e-2b8f4af69359",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |         stream.received_events(symbols), stop_event=stop_event, stream_health=stream.health",
+    "timestamp": "2026-09-08T22:09:48.394389525Z"
+  },
+  {
+    "id": "90797d64-bdd4-4928-9852-35ca68c42c86",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     )",
+    "timestamp": "2026-09-08T22:09:48.394392075Z"
+  },
+  {
+    "id": "15c21d35-a978-465f-a542-f71029773ca6",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/worker.py\", line 123, in run",
+    "timestamp": "2026-09-08T22:09:48.394394295Z"
+  },
+  {
+    "id": "97ee7a60-9390-40d3-9a32-158d81c694d1",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     return await self._run_shadow(",
+    "timestamp": "2026-09-08T22:09:48.394396565Z"
+  },
+  {
+    "id": "990b9419-7a89-45c0-ab02-95c5c2792da6",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |            ^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:09:48.394399065Z"
+  },
+  {
+    "id": "ecd7bae1-8d2b-4114-9e8a-725d005ff37c",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |         events, stop_event=stop_event, stream_health=stream_health",
+    "timestamp": "2026-09-08T22:09:48.394412346Z"
+  },
+  {
+    "id": "9d560ef2-66de-4084-8e5b-d7453d4f41c0",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:09:48.394415386Z"
+  },
+  {
+    "id": "00f4add1-888c-4918-ad71-66bea6496aae",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     )",
+    "timestamp": "2026-09-08T22:09:48.394417886Z"
+  },
+  {
+    "id": "7482c90c-1a4e-408d-873b-fa863c199f2a",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     ^",
+    "timestamp": "2026-09-08T22:09:48.394420266Z"
+  },
+  {
+    "id": "3bbd586b-4396-42ed-9780-3dda77a73dc7",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/worker.py\", line 207, in _run_shadow",
+    "timestamp": "2026-09-08T22:09:48.394422626Z"
+  },
+  {
+    "id": "bad583e0-4095-4ff8-b47e-ea8b1c0eb3c2",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     raise WorkerStartupError(\"another shadow recorder owns the recording lock\")",
+    "timestamp": "2026-09-08T22:09:48.394426336Z"
+  },
+  {
+    "id": "6f63e385-1ef1-4360-88f4-26612fff11bf",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    | tradeagent.worker.WorkerStartupError: another shadow recorder owns the recording lock",
+    "timestamp": "2026-09-08T22:09:48.394429056Z"
+  },
+  {
+    "id": "eea870cb-24db-4881-8ffb-db8e7ec01535",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    +------------------------------------",
+    "timestamp": "2026-09-08T22:09:48.394431606Z"
+  },
+  {
+    "id": "dag8g26k1f9s738f69kg",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "\u001b[0;33m\u001b[1m==> \u001b[0m\u001b[1mInstance srv-dadn8son74is73apqcc0-l5w9b restarted\u001b[0m",
+    "timestamp": "2026-09-08T22:10:04.87421176Z"
+  },
+  {
+    "id": "2489d5e4-ceb0-46a5-a768-077ccb0e6a37",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "\u001b[32m\u001b[1m==>\u001b(B\u001b[m \u001b[1mRunning 'tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD'\u001b(B\u001b[m",
+    "timestamp": "2026-09-08T22:10:05.945024128Z"
+  },
+  {
+    "id": "c28c42f3-7823-4ea4-a30d-748e751d0d5e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  + Exception Group Traceback (most recent call last):",
+    "timestamp": "2026-09-08T22:10:11.60149072Z"
+  },
+  {
+    "id": "5be12d09-94b3-498e-9c86-03819fa752ed",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/src/.venv/bin/tradeagent\", line 7, in <module>",
+    "timestamp": "2026-09-08T22:10:11.60151645Z"
+  },
+  {
+    "id": "81900091-573e-4ace-a142-c270aa19e44b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     sys.exit(main())",
+    "timestamp": "2026-09-08T22:10:11.60152063Z"
+  },
+  {
+    "id": "6352c50a-cd9a-4095-9e41-30b6f14a5c6c",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |              ~~~~^^",
+    "timestamp": "2026-09-08T22:10:11.6015238Z"
+  },
+  {
+    "id": "525db14f-88f8-4da7-872c-39f5d3939805",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/cli.py\", line 1048, in main",
+    "timestamp": "2026-09-08T22:10:11.601527241Z"
+  },
+  {
+    "id": "1de98ac2-b08b-40bc-974c-e7bd7425c17a",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     asyncio.run(",
+    "timestamp": "2026-09-08T22:10:11.601531361Z"
+  },
+  {
+    "id": "12878f55-2e33-49d0-a849-3b0a44389cbd",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ~~~~~~~~~~~^",
+    "timestamp": "2026-09-08T22:10:11.601534291Z"
+  },
+  {
+    "id": "5d0510b3-8b3d-40d4-b96a-66771ef2c31f",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |         run_shadow_runtime(",
+    "timestamp": "2026-09-08T22:10:11.601538101Z"
+  },
+  {
+    "id": "875a95f4-bc4c-4837-91a7-e0ceb67714ab",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |         ^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:10:11.601541121Z"
+  },
+  {
+    "id": "15dee6e8-8f7f-43d5-81ed-7616c86332f2",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ...<5 lines>...",
+    "timestamp": "2026-09-08T22:10:11.601544051Z"
+  },
+  {
+    "id": "96457acf-5660-4bd8-acac-6e3781fac128",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |         )",
+    "timestamp": "2026-09-08T22:10:11.601547041Z"
+  },
+  {
+    "id": "6ce686e2-c7ca-432a-a89b-499a23811b30",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |         ^",
+    "timestamp": "2026-09-08T22:10:11.601550001Z"
+  },
+  {
+    "id": "0fc0fbf7-5753-4657-8d12-6797398a70a5",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     )",
+    "timestamp": "2026-09-08T22:10:11.601552751Z"
+  },
+  {
+    "id": "258610fa-6cf6-4c79-9f88-f38489de12bb",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ^",
+    "timestamp": "2026-09-08T22:10:11.601555451Z"
+  },
+  {
+    "id": "f002e062-522e-4de4-a6df-d7de7e207dbd",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 195, in run",
+    "timestamp": "2026-09-08T22:10:11.601558301Z"
+  },
+  {
+    "id": "1d677bec-8887-47d6-abe0-9a77a27b6f1c",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     return runner.run(main)",
+    "timestamp": "2026-09-08T22:10:11.601561571Z"
+  },
+  {
+    "id": "23c1a309-ea20-4a7e-9f7f-4dda3073ccfe",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |            ~~~~~~~~~~^^^^^^",
+    "timestamp": "2026-09-08T22:10:11.601564521Z"
+  },
+  {
+    "id": "5ee88fc5-f004-4143-a27b-ef9f86c18434",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/runners.py\", line 118, in run",
+    "timestamp": "2026-09-08T22:10:11.601567511Z"
+  },
+  {
+    "id": "13f117da-f5e4-4935-b98c-837c615e6ecd",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     return self._loop.run_until_complete(task)",
+    "timestamp": "2026-09-08T22:10:11.601571022Z"
+  },
+  {
+    "id": "1f575593-0dc4-4d1f-b622-53e1d6dc0c99",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^",
+    "timestamp": "2026-09-08T22:10:11.601573982Z"
+  },
+  {
+    "id": "ad486646-12cd-4c2b-b211-7af9cef2b699",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/base_events.py\", line 725, in run_until_complete",
+    "timestamp": "2026-09-08T22:10:11.601577402Z"
+  },
+  {
+    "id": "0d36a381-d2ff-4adc-8da8-6027ac08b734",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     return future.result()",
+    "timestamp": "2026-09-08T22:10:11.601580162Z"
+  },
+  {
+    "id": "3d20ca40-3282-44b6-bc34-f7da2a47b147",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |            ~~~~~~~~~~~~~^^",
+    "timestamp": "2026-09-08T22:10:11.601582962Z"
+  },
+  {
+    "id": "ada02973-5e28-4cb6-9ced-cf5cdce578e8",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/runtime.py\", line 318, in run_shadow_runtime",
+    "timestamp": "2026-09-08T22:10:11.601599722Z"
+  },
+  {
+    "id": "d422c929-dd9e-4c7f-9fb2-b7f4b22c670b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     async with asyncio.TaskGroup() as tasks:",
+    "timestamp": "2026-09-08T22:10:11.601604002Z"
+  },
+  {
+    "id": "4601d8c9-285d-40a7-b76f-196dbd742d0e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |                ~~~~~~~~~~~~~~~~~^^",
+    "timestamp": "2026-09-08T22:10:11.601607123Z"
+  },
+  {
+    "id": "42a455de-537e-4340-88e9-51bf63dbdc79",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/taskgroups.py\", line 71, in __aexit__",
+    "timestamp": "2026-09-08T22:10:11.601610232Z"
+  },
+  {
+    "id": "f95e743c-d708-4bc7-bf46-3490d099dc94",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     return await self._aexit(et, exc)",
+    "timestamp": "2026-09-08T22:10:11.601613103Z"
+  },
+  {
+    "id": "b01134bd-c1d5-4d06-9df8-686940102e30",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:10:11.601616143Z"
+  },
+  {
+    "id": "57df7a7a-5899-4262-80d7-4e538d186707",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |   File \"/opt/render/project/python/Python-3.13.7/lib/python3.13/asyncio/taskgroups.py\", line 173, in _aexit",
+    "timestamp": "2026-09-08T22:10:11.601619203Z"
+  },
+  {
+    "id": "0c84a9f0-cfa2-479b-9221-574731b07338",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     raise BaseExceptionGroup(",
+    "timestamp": "2026-09-08T22:10:11.601622253Z"
+  },
+  {
+    "id": "50fc2916-ed4e-4367-97e3-42658944cd80",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ...<2 lines>...",
+    "timestamp": "2026-09-08T22:10:11.601625153Z"
+  },
+  {
+    "id": "abffd47b-2b6a-422a-9212-c06ed0f52975",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  |     ) from None",
+    "timestamp": "2026-09-08T22:10:11.601627893Z"
+  },
+  {
+    "id": "c4c102eb-aac8-464a-9e2e-87381a61783b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)",
+    "timestamp": "2026-09-08T22:10:11.601646013Z"
+  },
+  {
+    "id": "44c89124-cf4d-49e2-8956-7b76bdad7fb6",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "  +-+---------------- 1 ----------------",
+    "timestamp": "2026-09-08T22:10:11.601649384Z"
+  },
+  {
+    "id": "07a93509-8835-41be-904e-b42750cfdebc",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    | Traceback (most recent call last):",
+    "timestamp": "2026-09-08T22:10:11.601652374Z"
+  },
+  {
+    "id": "edb9f8ad-adea-420c-b399-d03a56de5d78",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/runtime.py\", line 311, in run_worker",
+    "timestamp": "2026-09-08T22:10:11.602001673Z"
+  },
+  {
+    "id": "f8d967d4-8167-49c5-a913-ef4885bbb5c7",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     await worker.run(",
+    "timestamp": "2026-09-08T22:10:11.602015393Z"
+  },
+  {
+    "id": "cc336405-b5b8-4ef0-9168-41e708560f21",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |         stream.received_events(symbols), stop_event=stop_event, stream_health=stream.health",
+    "timestamp": "2026-09-08T22:10:11.602050414Z"
+  },
+  {
+    "id": "9e8a54ba-55a6-4af8-86cc-a6dcb596105b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     )",
+    "timestamp": "2026-09-08T22:10:11.602054564Z"
+  },
+  {
+    "id": "0aec77f2-acbf-415b-86d7-2d642585bd08",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/worker.py\", line 123, in run",
+    "timestamp": "2026-09-08T22:10:11.602057754Z"
+  },
+  {
+    "id": "32a46aa6-0264-4f42-b70b-2d2a14f539d1",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     return await self._run_shadow(",
+    "timestamp": "2026-09-08T22:10:11.602061404Z"
+  },
+  {
+    "id": "41f6e286-e259-40cb-957a-a5f1694b82a2",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |            ^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:10:11.602063994Z"
+  },
+  {
+    "id": "fff281b6-5548-4771-bbde-8ef2e06f4a09",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |         events, stop_event=stop_event, stream_health=stream_health",
+    "timestamp": "2026-09-08T22:10:11.602070924Z"
+  },
+  {
+    "id": "0a752e91-bb21-4ee2-b22b-86ad2381f6e3",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "timestamp": "2026-09-08T22:10:11.602085555Z"
+  },
+  {
+    "id": "da2cd434-69d2-491b-8384-29096695c66c",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     )",
+    "timestamp": "2026-09-08T22:10:11.602088505Z"
+  },
+  {
+    "id": "3fe68568-55be-4ac7-83e8-f4acce345949",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     ^",
+    "timestamp": "2026-09-08T22:10:11.602091185Z"
+  },
+  {
+    "id": "e0ed7fde-93c9-4955-a33a-a8bac50e6ddd",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |   File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/worker.py\", line 207, in _run_shadow",
+    "timestamp": "2026-09-08T22:10:11.602094285Z"
+  },
+  {
+    "id": "73cef325-20bd-4631-981a-478a03e66a04",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    |     raise WorkerStartupError(\"another shadow recorder owns the recording lock\")",
+    "timestamp": "2026-09-08T22:10:11.602097695Z"
+  },
+  {
+    "id": "e147aba0-764a-4c90-bb19-baaf8343a85d",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    | tradeagent.worker.WorkerStartupError: another shadow recorder owns the recording lock",
+    "timestamp": "2026-09-08T22:10:11.602100715Z"
+  },
+  {
+    "id": "3403df1b-a4ac-4e3f-b473-40c2a8d2d59a",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "    +------------------------------------",
+    "timestamp": "2026-09-08T22:10:11.602103695Z"
+  },
+  {
+    "id": "dag8g26k1f9s738f69k0",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "\u001b[0;33m\u001b[1m==> \u001b[0m\u001b[1mInstance srv-dadn8son74is73apqcc0-l5w9b restarted\u001b[0m",
+    "timestamp": "2026-09-08T22:10:36.996955916Z"
+  },
+  {
+    "id": "a8f2efef-24d3-4ecc-8b49-54a2f8908a7e",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "srv-dadn8son74is73apqcc0"
+      },
+      {
+        "name": "instance",
+        "value": "srv-dadn8son74is73apqcc0-l5w9b"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "\u001b[32m\u001b[1m==>\u001b(B\u001b[m \u001b[1mRunning 'tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD'\u001b(B\u001b[m",
+    "timestamp": "2026-09-08T22:10:37.943541822Z"
+  }
+]

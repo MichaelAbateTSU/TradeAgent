@@ -1,0 +1,10 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T22:02:04.994942238Z",
+    "id": "job-dag8bn6k1f9s738ekk4g",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+    "status": "pending"
+  },
+  "purpose": "Read-only verify actual normal18:00report andsend; does not build/enqueue/dispatch"
+}

@@ -1,0 +1,53 @@
+{
+  "observed_at": "2026-09-08T22:17:16.992663+00:00",
+  "reviewed_release": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+  "roles": {
+    "event": {
+      "service_id": "srv-dae4tr7qj5pc73a9e0k0",
+      "deploy_id": "dep-dag5kn6q1p3s73eern40",
+      "commit": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+      "status": "live",
+      "finished_at": "2026-09-08T18:57:48.215723Z"
+    },
+    "recorder": {
+      "service_id": "srv-dadn8son74is73apqcc0",
+      "deploy_id": "dep-dag8ecm7bikc7394cfgg",
+      "commit": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+      "status": "live",
+      "finished_at": "2026-09-08T22:09:31.359283Z"
+    },
+    "notifier": {
+      "service_id": "srv-dadnn6mq1p3s73ef7ef0",
+      "deploy_id": "dep-dag5kn740ujc73edg0og",
+      "commit": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+      "status": "live",
+      "finished_at": "2026-09-08T18:57:39.651395Z"
+    },
+    "dashboard": {
+      "service_id": "srv-dadoa3740ujc73cb09c0",
+      "deploy_id": "dep-dag8gd6k1f9s738f7hpg",
+      "commit": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+      "status": "live",
+      "finished_at": "2026-09-08T22:13:10.396813Z"
+    }
+  },
+  "database": {
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "status": "available",
+    "plan": "0.1c-256mb",
+    "public_allowlist": [],
+    "verified_migration": "0012_market_data_totals",
+    "enabled_statement_triggers": 9
+  },
+  "recorder_fixture": "render-incident-20260908-r5-recorder-postdeploy.json",
+  "handoff": "render-incident-20260908-r5-recorder-handoff.json",
+  "immediate_http": "render-incident-20260908-r5-immediate-http.json",
+  "broker": "render-incident-20260908-r5-postdeploy-broker.json",
+  "status": "after_hours_infrastructure_verified; regular_session_acceptance_pending",
+  "entry_permission": "PAUSED; no rearm; Sep8MISSEDretained",
+  "scheduled_next_open_verification": "2026-09-09T13:35:00Z;30minutes;unchangedgates",
+  "full_acceptance": false,
+  "after_hours_summary": "render-incident-20260908-r5-afterhours-soak-summary.json",
+  "final_database_check": "render-incident-20260908-r5-pg-final-check.json",
+  "final_snapshot": "render-incident-20260908-r5-final-snapshot.json"
+}

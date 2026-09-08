@@ -1,0 +1,121 @@
+{
+  "observed_at": "2026-09-08T22:00:50.014232+00:00",
+  "logs": [
+    {
+      "id": "50a1192f-20ed-4699-b9ff-9e6ef82ffe61",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        },
+        {
+          "name": "instance",
+          "value": "srv-dadnn6mq1p3s73ef7ef0-tnb26"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "INFO:tradeagent.event_session_report:Session report starting: cohort=v20-incident-20260908-r4 requested_date=None as_of=2026-09-08 22:00:02.387913+00:00 persist=True",
+      "timestamp": "2026-09-08T22:00:06.688620429Z"
+    },
+    {
+      "id": "f62b0eb2-fafb-48e3-ae36-dc89a3722fb0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        },
+        {
+          "name": "instance",
+          "value": "srv-dadnn6mq1p3s73ef7ef0-tnb26"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "INFO:tradeagent.event_session_report:Session report metadata starting: date=2026-09-08 since=2026-09-01 04:00:00+00:00 as_of=2026-09-08 22:00:02.387913+00:00",
+      "timestamp": "2026-09-08T22:00:06.880643729Z"
+    },
+    {
+      "id": "d1ad9326-5efe-46b3-a18e-b31ea42914d7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        },
+        {
+          "name": "instance",
+          "value": "srv-dadnn6mq1p3s73ef7ef0-tnb26"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "INFO:tradeagent.event_session_report:Session report metadata complete: date=2026-09-08 records=2287 elapsed_seconds=3.513",
+      "timestamp": "2026-09-08T22:00:10.393556309Z"
+    },
+    {
+      "id": "cb02a9df-7728-4bc8-9874-1bc73ce958de",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        },
+        {
+          "name": "instance",
+          "value": "srv-dadnn6mq1p3s73ef7ef0-tnb26"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "INFO:tradeagent.event_session_report:Session report audit read complete: date=2026-09-08 payload_rows=1510 elapsed_seconds=5.603",
+      "timestamp": "2026-09-08T22:00:12.483360177Z"
+    },
+    {
+      "id": "0bcd688f-41dc-4285-918b-c4f04352131f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "srv-dadnn6mq1p3s73ef7ef0"
+        },
+        {
+          "name": "instance",
+          "value": "srv-dadnn6mq1p3s73ef7ef0-tnb26"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "INFO:tradeagent.event_session_report:Persisting session report: report_id=171fe7d5-e6a9-5778-b4e8-b40fbffbb962 payload_bytes=4438083",
+      "timestamp": "2026-09-08T22:00:17.543208315Z"
+    }
+  ],
+  "purpose": "Observe the normal18:00scheduler; no manualreport/enqueue/resend"
+}

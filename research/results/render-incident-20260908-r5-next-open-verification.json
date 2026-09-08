@@ -1,0 +1,30 @@
+{
+  "session_id": "d889264f-50d4-4da4-be00-be99b5089546",
+  "run_at": "2026-09-09T13:35:00Z",
+  "duration_seconds": 1800,
+  "purpose": "Remaining read-only regular-session acceptance; no entries/rearm",
+  "expected_pins": {
+    "event": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+    "notifier": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+    "recorder": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+    "dashboard": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b"
+  },
+  "required": [
+    "verify actual reviewed/live per-role pins",
+    "genuine advancing durable exchange watermarks and physical indexed quotes/trades/bars",
+    "fresh matching owners/leases and zero new gaps/drops/restarts/HTTPerrors",
+    "appmemory<400MiB and PG<230MiB; no critical PGlogs",
+    "actualpaperbroker/pauses/schema/counters/projections",
+    "preserve originalMISSED/holdouts/userdoc and all failed evidence"
+  ],
+  "prohibited": [
+    "orders or entry rearm",
+    "account or MISSED reset",
+    "lease stealing",
+    "permission/plan increases",
+    "newagents/factories",
+    "fakefreshness or relaxedgates"
+  ],
+  "normal18check": "alreadycompleted; noresend",
+  "scheduled_via": "same-session one-time automation, verified after save"
+}

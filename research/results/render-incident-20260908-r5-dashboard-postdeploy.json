@@ -1,0 +1,56 @@
+{
+  "code_sha": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+  "data_pool_size": 2,
+  "market_totals": [
+    1442,
+    2930890,
+    28814
+  ],
+  "observed_at": "2026-09-08T22:21:27.596158+00:00",
+  "orders_submitted": 0,
+  "prepared_cache": {
+    "burst_first_count": 8,
+    "burst_prepared_baseline": 4,
+    "burst_second_count": 7,
+    "burst_warmed_shapes": 4,
+    "executions_per_shape": 7,
+    "inspection_semantics": "A new inspection-query key may schedule eviction after its count snapshot; first, second and explicit new-key cleanup observations are recorded separately.",
+    "new_key_cleanup_counts": [
+      6,
+      5,
+      4,
+      4
+    ],
+    "observed_peak": 8,
+    "observed_prepared_counts": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "prepare_threshold": 5,
+    "prepared_max": 4,
+    "read_only": true,
+    "rolled_back": true,
+    "server_budget": 8,
+    "shapes": 16,
+    "verification_scope": "sequential and warmed-key promotion workloads; not a universal cache or RSS bound",
+    "verified": true
+  },
+  "psycopg_version": "3.3.5",
+  "read_only_fixture": true,
+  "sqlalchemy_version": "2.0.52",
+  "totals_read_seconds": 0.006051544100046158
+}

@@ -1,0 +1,10 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T22:21:11.481491812Z",
+    "id": "job-dag8klpt0dsc73ed3rm0",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadoa3740ujc73cb09c0",
+    "status": "pending"
+  },
+  "purpose": "Actualdashboardimage/pool2/libraryversion/cachefixture/O(1)counterverification duringhotsoak; no orders"
+}

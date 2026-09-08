@@ -1,0 +1,21 @@
+[
+  {
+    "id": "18f8c63c-a846-437d-97ea-7e24cb613484",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "job-dag8icdg1s2s73bh6e4g"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "R5_POSTDEPLOY_REPORT {\"cohort_id\": \"v20-incident-20260908-r4\", \"daily_schedule_changed\": false, \"duration_seconds\": 8.018327947240323, \"job_peak_rss_bytes\": 213864448, \"serialized_bytes\": 984688}",
+    "timestamp": "2026-09-08T22:16:43.504376273Z"
+  }
+]
