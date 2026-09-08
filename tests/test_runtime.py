@@ -9,6 +9,7 @@ from uuid import uuid4
 
 import pytest
 from pydantic import SecretStr
+from sqlalchemy import event
 from websockets.asyncio.client import connect as websocket_connect
 from websockets.asyncio.server import serve
 
@@ -21,11 +22,12 @@ from tradeagent.alpaca_stream import (
     AlpacaMarketStream,
     AlpacaStreamSettings,
     MarketQuote,
+    MarketTrade,
     ReceivedStreamEvent,
 )
 from tradeagent.config import AppConfig, IntradayConfig
 from tradeagent.data import synthetic_bars
-from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.persistence import Database, ProductionRepository, events
 from tradeagent.runtime import (
     MarketFeedStatusMonitor,
     ProductionPaperReconciler,
@@ -75,10 +77,18 @@ def _running_recorder(repository, now, *, owner="worker-1", details=None):
     )
 
 
-def _durable_batch(repository, event_at, *, received_at=None, processing_at=None, owner="worker-1"):
+def _durable_batch(
+    repository,
+    event_at,
+    *,
+    received_at=None,
+    processing_at=None,
+    owner="worker-1",
+    market_event=None,
+):
     received_at = received_at or event_at + timedelta(milliseconds=30)
     processing_at = processing_at or received_at + timedelta(milliseconds=100)
-    quote = MarketQuote(
+    quote = market_event or MarketQuote(
         symbol="SPY",
         timestamp=event_at,
         bid_price=Decimal(100),
@@ -272,6 +282,208 @@ def test_durable_progress_resolves_live_double_sampling_without_freshening_heart
         assert repository.latest_heartbeat("tradeagent-shadow-recorder") == original_heartbeat
 
 
+@pytest.mark.parametrize("late_kind", ["minute_bar", "quote", "trade"])
+def test_later_old_packet_batch_preserves_durable_exchange_progress_until_expiry(
+    tmp_path,
+    late_kind,
+):
+    with Database(f"sqlite:///{tmp_path / 'late-batch.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 14, 35, 0, 500000, tzinfo=UTC)
+        _running_recorder(repository, now)
+        original_heartbeat = repository.latest_heartbeat("tradeagent-shadow-recorder")
+        quote_at = now - timedelta(milliseconds=400)
+        quote_processing_at = now - timedelta(milliseconds=200)
+        quote_batch = _durable_batch(repository, quote_at, processing_at=quote_processing_at)
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            IntradayConfig(),
+            instance_id="monitor",
+            clock=lambda: now,
+        )
+        assert monitor.check() == "healthy"
+
+        old_at = datetime(2026, 9, 8, 14, 34, tzinfo=UTC)
+        late_event = None
+        if late_kind == "minute_bar":
+            late_event = next(synthetic_bars(count=1)).model_copy(update={"timestamp": old_at})
+        elif late_kind == "trade":
+            late_event = MarketTrade(
+                symbol="SPY",
+                timestamp=old_at,
+                price=Decimal(100),
+                size=Decimal(10),
+                trade_id="late-trade",
+            )
+        _durable_batch(
+            repository,
+            old_at,
+            market_event=late_event,
+            received_at=now - timedelta(milliseconds=150),
+            processing_at=now - timedelta(milliseconds=100),
+        )
+
+        assert monitor.check() == "healthy"
+        details = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]
+        assert details["durable_batch"]["event_id"] == quote_batch
+        assert details["durable_batch"]["last_event_at"] == quote_at.isoformat()
+        assert details["durable_batch"]["processing_started_at"] == quote_processing_at.isoformat()
+        assert details["event_age_seconds"] == 0.4
+        assert repository.latest_heartbeat("tradeagent-shadow-recorder") == original_heartbeat
+        assert (
+            repository.market_data_counts()
+            == {
+                "minute_bar": (1, 1, 0),
+                "quote": (0, 2, 0),
+                "trade": (0, 1, 1),
+            }[late_kind]
+        )
+
+        now += timedelta(seconds=9.6)
+        _running_recorder(repository, now)
+        assert monitor.check() == "healthy"
+        now += timedelta(milliseconds=1)
+        _running_recorder(repository, now)
+        repository.append_event(
+            "shadow_stream_status",
+            {"state": "connected"},
+            occurred_at=now,
+            trace_id="status",
+        )
+        assert monitor.check() == "stale"
+        details = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]
+        assert details["durable_batch"]["event_id"] == quote_batch
+        assert details["event_age_seconds"] == 10.001
+        assert details["market_commit_age_seconds"] == 0
+        assert details["freshness_reason"] == "durable_exchange_progress_stale"
+        assert repository.get_control("kill_switch") is None
+
+
+def test_durable_progress_compares_aware_instants_not_iso_strings(tmp_path):
+    with Database(f"sqlite:///{tmp_path / 'offset-order.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 14, 35, 0, 500000, tzinfo=UTC)
+        _running_recorder(repository, now)
+        newest_event = datetime.fromisoformat("2026-09-08T10:34:59.900000-04:00")
+        expected_batch = _durable_batch(
+            repository,
+            newest_event,
+            processing_at=now - timedelta(milliseconds=200),
+        )
+        _durable_batch(
+            repository,
+            datetime.fromisoformat("2026-09-08T14:34:59.800000+00:00"),
+            processing_at=now - timedelta(milliseconds=100),
+        )
+        monitor = MarketFeedStatusMonitor(
+            repository,
+            IntradayConfig(),
+            instance_id="monitor",
+            clock=lambda: now,
+        )
+        assert monitor.check() == "healthy"
+        proof = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]["durable_batch"]
+        assert proof["event_id"] == expected_batch
+        assert proof["last_event_at"] == newest_event.astimezone(UTC).isoformat()
+        assert proof["event_age_seconds"] == 0.6
+
+
+def test_durable_progress_streams_entire_index_bounded_interval_without_row_cap(
+    tmp_path,
+    monkeypatch,
+):
+    from tradeagent import shadow_health
+
+    with Database(f"sqlite:///{tmp_path / 'bounded-progress.db'}") as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        now = datetime(2026, 9, 8, 14, 35, 0, 500000, tzinfo=UTC)
+        _running_recorder(repository, now)
+        expected_batch = _durable_batch(
+            repository,
+            now - timedelta(milliseconds=400),
+            processing_at=now - timedelta(milliseconds=200),
+        )
+        later_at = now - timedelta(milliseconds=100)
+        payload = {
+            "instance_id": "worker-1",
+            "received": 1,
+            "inserted": 1,
+            "duplicates": 0,
+            "last_event_at": (now - timedelta(minutes=1)).isoformat(),
+            "last_received_at": (now - timedelta(milliseconds=150)).isoformat(),
+            "processing_started_at": later_at.isoformat(),
+        }
+        rows = [
+            {
+                "event_id": str(uuid4()),
+                "event_type": "shadow_recorder_batch",
+                "occurred_at": later_at,
+                "recorded_at": later_at,
+                "trace_id": "bounded-scan",
+                "payload": dict(payload),
+            }
+            for _ in range(600)
+        ]
+        for outside_at in (now - timedelta(days=30), now + timedelta(days=30)):
+            rows.append(
+                {
+                    **rows[0],
+                    "event_id": str(uuid4()),
+                    "occurred_at": outside_at,
+                    "payload": {**payload, "processing_started_at": outside_at.isoformat()},
+                }
+            )
+        rows.append(
+            {
+                **rows[0],
+                "event_id": str(uuid4()),
+                "payload": {**payload, "instance_id": "other-owner"},
+            }
+        )
+        rows.append(
+            {
+                **rows[0],
+                "event_id": str(uuid4()),
+                "event_type": "shadow_stream_status",
+            }
+        )
+        with database.begin() as connection:
+            connection.execute(events.insert(), rows)
+        queries = []
+
+        @event.listens_for(database.engine, "before_cursor_execute")
+        def observe_query(_connection, _cursor, statement, _parameters, context, _executemany):
+            if "FROM events_v2" in statement:
+                queries.append((statement, dict(context.execution_options)))
+
+        inspected = 0
+        validate_progress = shadow_health._valid_market_progress
+
+        def inspect_progress(*args, **kwargs):
+            nonlocal inspected
+            inspected += 1
+            return validate_progress(*args, **kwargs)
+
+        monkeypatch.setattr(shadow_health, "_valid_market_progress", inspect_progress)
+        snapshot = shadow_health.read_shadow_recorder_snapshot(
+            repository,
+            batch_since=now - timedelta(seconds=10),
+            clock=lambda: now,
+        )
+        assert snapshot.batch["event_id"] == expected_batch
+        assert inspected == 601
+        assert len(queries) == 1
+        statement, options = queries[0]
+        assert "LIMIT" not in statement.upper()
+        assert "events_v2.occurred_at >=" in statement
+        assert "events_v2.occurred_at <=" in statement
+        assert options["stream_results"] is True
+        assert options["yield_per"] == options["max_row_buffer"] == 1
+
+
 @pytest.mark.parametrize(
     "fault",
     [
@@ -330,20 +542,37 @@ def test_durable_progress_never_rescues_invalid_owner_or_liveness(tmp_path, faul
         "future_processing",
         "missing_timestamp",
         "naive_timestamp",
+        "malformed_timestamp",
+        "timestamp_underflow",
+        "timestamp_overflow",
+        "receipt_after_processing",
+        "processing_mismatch",
         "zero_market_count",
         "invalid_count",
+        "negative_count",
+        "mismatched_count",
+        "bool_inserted",
+        "bool_duplicates",
         "foreign_batch",
         "untagged_batch",
         "status_only",
         "expired_batch",
     ],
 )
-def test_recent_status_or_invalid_batch_never_becomes_durable_market_proof(tmp_path, fault):
+@pytest.mark.parametrize("valid_previous", [False, True])
+def test_recent_status_or_invalid_batch_never_becomes_durable_market_proof(
+    tmp_path,
+    fault,
+    valid_previous,
+):
     with Database(f"sqlite:///{tmp_path / 'invalid-proof.db'}") as database:
         database.initialize()
         repository = ProductionRepository(database)
         now = datetime(2026, 9, 8, 19, 10, 56, tzinfo=UTC)
         _running_recorder(repository, now)
+        valid_batch = (
+            _durable_batch(repository, now - timedelta(seconds=3)) if valid_previous else None
+        )
         payload = {
             "instance_id": "worker-1",
             "received": 1,
@@ -366,10 +595,28 @@ def test_recent_status_or_invalid_batch_never_becomes_durable_market_proof(tmp_p
             del payload["last_event_at"]
         if fault == "naive_timestamp":
             payload["last_event_at"] = "2026-09-08T19:10:55"
+        if fault == "malformed_timestamp":
+            payload["last_event_at"] = "not-a-timestamp"
+        if fault == "timestamp_underflow":
+            payload["last_event_at"] = "0001-01-01T00:00:00+01:00"
+        if fault == "timestamp_overflow":
+            payload["last_event_at"] = "9999-12-31T23:59:59-01:00"
+        if fault == "receipt_after_processing":
+            payload["last_received_at"] = (now + timedelta(seconds=1)).isoformat()
+        if fault == "processing_mismatch":
+            payload["processing_started_at"] = (now - timedelta(milliseconds=100)).isoformat()
         if fault == "zero_market_count":
             payload.update(received=0, inserted=0)
         if fault == "invalid_count":
             payload["received"] = True
+        if fault == "negative_count":
+            payload.update(inserted=-1, duplicates=2)
+        if fault == "mismatched_count":
+            payload["received"] = 2
+        if fault == "bool_inserted":
+            payload["inserted"] = True
+        if fault == "bool_duplicates":
+            payload["duplicates"] = False
         if fault == "foreign_batch":
             payload["instance_id"] = "previous-recorder"
         if fault == "untagged_batch":
@@ -386,8 +633,11 @@ def test_recent_status_or_invalid_batch_never_becomes_durable_market_proof(tmp_p
             instance_id="monitor",
             clock=lambda: now,
         )
-        assert monitor.check() == "stale"
-        assert repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]["healthy"] is False
+        assert monitor.check() == ("healthy" if valid_previous else "stale")
+        details = repository.latest_heartbeat("tradeagent-shadow-market-feed")[2]
+        assert details["healthy"] is valid_previous
+        if valid_previous:
+            assert details["durable_batch"]["event_id"] == valid_batch
 
 
 def test_monitor_evaluates_clock_after_snapshot_read(tmp_path, monkeypatch):

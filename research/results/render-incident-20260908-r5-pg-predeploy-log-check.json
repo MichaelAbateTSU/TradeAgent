@@ -1,0 +1,125 @@
+{
+  "since": "2026-09-08T19:00:00Z",
+  "until": "2026-09-08T20:17:49.216927+00:00",
+  "queries": {
+    "terminated by signal": [
+      {
+        "id": "93c950a5-b106-4016-902d-5bbeee54f64b",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "info"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6a9b741c.208-42] user=,db=,app=,client=,LOG:  server process (PID 472668) was terminated by signal 9: Killed",
+        "timestamp": "2026-09-08T19:45:11.176989516Z"
+      },
+      {
+        "id": "2e2d0ef0-eb3e-4594-ad3e-b49656d0b50f",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "critical"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa059ed.73174-1] user=,db=,app=,client=,FATAL:  archive command was terminated by signal 3: Quit",
+        "timestamp": "2026-09-08T19:45:11.819329849Z"
+      },
+      {
+        "id": "4a1da201-674d-472e-afd8-a417751e07e7",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "info"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6a9b741c.208-47] user=,db=,app=,client=,LOG:  server process (PID 483827) was terminated by signal 9: Killed",
+        "timestamp": "2026-09-08T19:57:18.180627883Z"
+      },
+      {
+        "id": "246948be-f16a-4f59-8883-1a1853a662d4",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "critical"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa065d7.760bc-1] user=,db=,app=,client=,FATAL:  archive command was terminated by signal 3: Quit",
+        "timestamp": "2026-09-08T19:57:18.676614205Z"
+      }
+    ],
+    "database system was interrupted": [
+      {
+        "id": "abe4a8e9-022a-4a36-a73d-5299b3b2ec3f",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "info"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa065c9.76098-1] user=,db=,app=,client=,LOG:  database system was interrupted; last known up at 2026-09-08 19:44:04 UTC",
+        "timestamp": "2026-09-08T19:45:13.578056859Z"
+      },
+      {
+        "id": "e0dd5c66-5410-4ea4-8dce-588bd4c3510a",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "info"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0689f.76ef0-1] user=,db=,app=,client=,LOG:  database system was interrupted; last known up at 2026-09-08 19:54:55 UTC",
+        "timestamp": "2026-09-08T19:57:19.678851517Z"
+      }
+    ],
+    "out of memory": []
+  }
+}

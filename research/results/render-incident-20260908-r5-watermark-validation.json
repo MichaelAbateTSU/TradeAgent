@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-09-08T20:57:31.404009+00:00",
+  "passed": 903,
+  "skipped": 1,
+  "coverage_percent": 87.24,
+  "coverage_required_percent": 85,
+  "ruff_files": 188,
+  "mypy_sources": 84,
+  "source_git_blobs": {
+    "src\\tradeagent\\shadow_health.py": "dabaa7f74b1a70cd4e6f12548d03968bdb7f0b30",
+    "src\\tradeagent\\runtime.py": "cb48de6434babf7427692ce95cec38d4135b919e",
+    "tests\\test_runtime.py": "0d95dbb273b7aa4b0b5857d5ba38a003e1d9b7d6"
+  },
+  "inputs_unchanged_during_full_run": true,
+  "review_status": "new exact-pin review required;395a15c remains rejected"
+}

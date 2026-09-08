@@ -1,0 +1,11 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T20:37:20.049267464Z",
+    "id": "job-dag7401594qs73eus1fg",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+    "status": "pending"
+  },
+  "script": "import json\nfrom datetime import UTC,datetime\nfrom sqlalchemy import text\nfrom tradeagent.config import AppConfig\nfrom tradeagent.persistence import Database\nwith Database(AppConfig().database_url.get_secret_value()) as db:\n with db.begin() as c:\n  settings=[dict(r) for r in c.execute(text(\"SELECT name,setting,unit FROM pg_settings WHERE name IN ('shared_buffers','work_mem','maintenance_work_mem','autovacuum_work_mem','autovacuum_max_workers','max_connections')\")).mappings()]\n  peers=[dict(r) for r in c.execute(text(\"SELECT pid,state,backend_start,octet_length(query) AS last_sql_bytes,left(query,120) AS last_sql_prefix FROM pg_stat_activity WHERE datname=current_database() AND usename=current_user AND pid<>pg_backend_pid() AND backend_type='client backend' ORDER BY pid LIMIT 12\")).mappings()]\n  permitted=c.scalar(text(\"SELECT has_function_privilege(current_user,'pg_catalog.pg_log_backend_memory_contexts(integer)','EXECUTE')\"))\n  requested=[]\n  if permitted:\n   for row in peers:\n    if c.scalar(text('SELECT pg_log_backend_memory_contexts(:pid)'),{'pid':row['pid']}): requested.append(row['pid'])\n  print('PG_MEMORY_DIAGNOSTIC '+json.dumps({'observed_at':datetime.now(UTC).isoformat(),'settings':settings,'peers':peers,'log_memory_permitted':permitted,'memory_logs_requested_pids':requested},default=str),flush=True)\n",
+  "purpose": "Read settings/activity and, only when existing privilege permits, request memory-context logs; no settings/control/data changes"
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "711b576f-488e-43a8-a890-95b9e8415367",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6a9b741c.208-43] user=,db=,app=,client=,DETAIL:  Failed process was running: COMMIT",
+    "timestamp": "2026-09-08T19:45:11.177011367Z"
+  },
+  {
+    "id": "f45b0ad3-c184-4df9-83de-5332c540993b",
+    "labels": [
+      {
+        "name": "resource",
+        "value": "dpg-dadn7nht0dsc73f9jja0-a"
+      },
+      {
+        "name": "level",
+        "value": "info"
+      },
+      {
+        "name": "type",
+        "value": "app"
+      }
+    ],
+    "message": "[6a9b741c.208-48] user=,db=,app=,client=,DETAIL:  Failed process was running: INSERT INTO market_quotes (quote_id, symbol, feed_source, event_at, received_at, processed_at, bid_price, bid_exchange, ask_price, ask_exchange, bid_size, ask_size) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::TIMESTAMP WITH TIME ZONE, $5::TIMESTAMP WITH TIME ZONE, $6::TIMESTAMP WITH TIME ZONE, $7, $8::VARCHAR, $9, $10::VARCHAR, $11, $12), ($13::VARCHAR, $14::VARCHAR, $15::VARCHAR, $16::TIMESTAMP WITH TIME ZONE, $17::TIMESTAMP WITH TIME ZONE, $18::TIMESTAMP WITH TIME ZONE, $19, $20::VARCHAR, $21, $22::VARCHAR, $23, $24), ($25::VARCHAR, $26::VARCHAR, $27::VARCHAR, $28::TIMESTAMP WITH TIME ZONE, $29::TIMESTAMP WITH TIME ZONE, $30::TIMESTAMP WITH TIME ZONE, $31, $32::VARCHAR, $33, $34::VARCHAR, $35, $36), ($37::VARCHAR, $38::VARCHAR, $39::VARCHAR, $40::TIMESTAMP WITH TIME ZONE, $41::TIMESTAMP WITH TIME ZONE, $42::TIMESTAMP WITH TIME ZONE, $43, $44::VARCHAR, $45, $46::VARCHAR, $47, $48), ($49::VARCHAR, $50::VARCHAR, $51::VARCHAR, $52::TIMESTAMP WITH TIME ZONE, $53::TIMESTAMP WITH TIME ZONE, $54::TIMESTAMP ",
+    "timestamp": "2026-09-08T19:57:18.180664884Z"
+  }
+]

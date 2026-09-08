@@ -1,0 +1,11 @@
+{
+  "job": {
+    "createdAt": "2026-09-08T20:33:50.688952265Z",
+    "id": "job-dag72blg1s2s73bb8740",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+    "status": "pending"
+  },
+  "submitted_at": "2026-09-08T20:33:50.876550+00:00",
+  "purpose": "Read-only fresh broker/control/schema baseline; market is closed; no orders or mutations"
+}

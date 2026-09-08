@@ -1,0 +1,247 @@
+{
+  "observed_at": "2026-09-08T20:17:49.216927+00:00",
+  "deployed": {
+    "event": {
+      "id": "dep-dag5kn6q1p3s73eern40",
+      "status": "live",
+      "sha": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f"
+    },
+    "recorder": {
+      "id": "dep-dag5kn2fngtc73dmhaag",
+      "status": "live",
+      "sha": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f"
+    },
+    "notifier": {
+      "id": "dep-dag5kn740ujc73edg0og",
+      "status": "live",
+      "sha": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f"
+    },
+    "dashboard": {
+      "id": "dep-dag5kn5bedkc73flgteg",
+      "status": "live",
+      "sha": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f"
+    }
+  },
+  "database": {
+    "status": "available",
+    "ipAllowList": []
+  },
+  "ready": {
+    "ready": true,
+    "database": "reachable",
+    "check": "dashboard_read_dependency",
+    "event_worker_fresh": true,
+    "event_worker_age_seconds": 16.935805,
+    "operational_status": {
+      "as_of": "2026-09-08T20:17:51.218972+00:00",
+      "state_source": "production_database",
+      "database": "reachable",
+      "roles": {
+        "tradeagent-event-worker": {
+          "heartbeat_at": "2026-09-08T20:17:34.283167+00:00",
+          "age_seconds": 16.935805,
+          "fresh": true,
+          "instance_id": "srv-dae4tr7qj5pc73a9e0k0-6895cdff84-2c6fx",
+          "reported": {
+            "state": "market_closed",
+            "mode": "experimental-paper",
+            "cohort_id": "v20-incident-20260908-r4",
+            "code_sha": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+            "last_successful_source_at": "2026-09-08T20:17:32.492995+00:00",
+            "events_received": 3,
+            "tick_latency_seconds": 6.39908,
+            "source_http_cache": {
+              "entries": 32,
+              "bytes": 1109740,
+              "maximum_entries": 64,
+              "maximum_bytes": 16000000,
+              "evictions": 0,
+              "evidence_history_evicted": false
+            }
+          },
+          "lease": {
+            "lock_name": "tradeagent-event-worker",
+            "present": true,
+            "owner_id": "srv-dae4tr7qj5pc73a9e0k0-6895cdff84-2c6fx",
+            "renewed_at": "2026-09-08T20:17:34.283167+00:00",
+            "age_seconds": 16.935805,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-shadow-recorder": {
+          "heartbeat_at": "2026-09-08T20:17:48.982281+00:00",
+          "age_seconds": 2.236691,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-695c54cfb5-26dwp",
+          "reported": {
+            "state": "healthy",
+            "healthy": true,
+            "mode": "shadow",
+            "received": 33296,
+            "committed": 33295,
+            "inserted": 33292,
+            "duplicates": 3,
+            "queue_depth": 1,
+            "queue_capacity": 20000,
+            "in_flight": 0,
+            "gaps": 1,
+            "dropped_events": 0,
+            "notice_overflow": 0,
+            "decision_errors": 0,
+            "derived": {
+              "state": "awaiting_complete_frame",
+              "healthy": false,
+              "frame_age_seconds": null,
+              "last_usable_frame_at": null,
+              "unusable_frame_events": 1,
+              "last_unusable_frame": {
+                "bucket_start": "2026-09-08T19:55:00+00:00",
+                "frame_at": "2026-09-08T20:00:00+00:00",
+                "reason": "incomplete_five_minute_bucket",
+                "discovered_event_at": "2026-09-08T20:00:00+00:00",
+                "missing_minutes": {
+                  "GLD": [
+                    "2026-09-08T19:55:00+00:00",
+                    "2026-09-08T19:56:00+00:00",
+                    "2026-09-08T19:57:00+00:00",
+                    "2026-09-08T19:58:00+00:00"
+                  ],
+                  "IWM": [
+                    "2026-09-08T19:55:00+00:00",
+                    "2026-09-08T19:56:00+00:00",
+                    "2026-09-08T19:57:00+00:00",
+                    "2026-09-08T19:58:00+00:00"
+                  ],
+                  "QQQ": [
+                    "2026-09-08T19:55:00+00:00",
+                    "2026-09-08T19:56:00+00:00",
+                    "2026-09-08T19:57:00+00:00",
+                    "2026-09-08T19:58:00+00:00"
+                  ],
+                  "SPY": [
+                    "2026-09-08T19:55:00+00:00",
+                    "2026-09-08T19:56:00+00:00",
+                    "2026-09-08T19:57:00+00:00",
+                    "2026-09-08T19:58:00+00:00"
+                  ],
+                  "TLT": [
+                    "2026-09-08T19:55:00+00:00",
+                    "2026-09-08T19:56:00+00:00",
+                    "2026-09-08T19:57:00+00:00",
+                    "2026-09-08T19:58:00+00:00"
+                  ]
+                },
+                "usable": false
+              },
+              "pending_minutes": 1,
+              "duplicate_minutes": 0,
+              "ignored_out_of_order_quotes": 0,
+              "evidence_epoch": "1425fdcd-3153-48c9-8fc2-a1666ff55a13",
+              "cumulative_evidence_complete": false
+            },
+            "last_received_at": "2026-09-08T20:17:48.974956+00:00",
+            "last_received_event_at": "2026-09-08T20:17:48.942141+00:00",
+            "last_event_at": "2026-09-08T20:17:48.942141+00:00",
+            "last_committed_event_at": "2026-09-08T20:17:48.845080+00:00",
+            "last_market_commit_at": "2026-09-08T20:17:48.944438+00:00",
+            "last_commit_at": "2026-09-08T20:17:48.944438+00:00",
+            "last_committed_received_at": "2026-09-08T20:17:48.878953+00:00",
+            "receive_lag_seconds": 0.032815,
+            "commit_lag_seconds": 0.119434,
+            "exchange_to_commit_lag_seconds": 0.099358,
+            "committed_event_age_seconds": 0.137205,
+            "market_commit_age_seconds": 0.037847,
+            "oldest_uncommitted_age_seconds": 0.007329,
+            "batch_write_seconds": 0.009049105981830508,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-shadow-recorder",
+            "present": true,
+            "owner_id": "srv-dadn8son74is73apqcc0-695c54cfb5-26dwp",
+            "renewed_at": "2026-09-08T20:17:48.982281+00:00",
+            "age_seconds": 2.236691,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-notifier": {
+          "heartbeat_at": "2026-09-08T20:17:46.980611+00:00",
+          "age_seconds": 4.238361,
+          "fresh": true,
+          "instance_id": "srv-dadnn6mq1p3s73ef7ef0-c7fd8dd89-tnb26",
+          "reported": {
+            "state": "running",
+            "dispatched": false,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-notifier",
+            "present": true,
+            "owner_id": "srv-dadnn6mq1p3s73ef7ef0-c7fd8dd89-tnb26",
+            "renewed_at": "2026-09-08T20:17:46.902600+00:00",
+            "age_seconds": 4.316372,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-news-worker": {
+          "heartbeat_at": "2026-09-08T20:17:32.492995+00:00",
+          "age_seconds": 18.725977,
+          "fresh": true,
+          "instance_id": "srv-dae4tr7qj5pc73a9e0k0-6895cdff84-2c6fx",
+          "reported": {
+            "state": "healthy",
+            "source_http_cache": null
+          },
+          "lease": null
+        },
+        "tradeagent-shadow-market-feed": {
+          "heartbeat_at": "2026-09-08T20:17:48.689224+00:00",
+          "age_seconds": 2.529748,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-695c54cfb5-26dwp-market-feed",
+          "reported": {
+            "state": "market_closed",
+            "healthy": true,
+            "last_market_commit_at": "2026-09-08T20:17:43.681545+00:00",
+            "market_commit_age_seconds": 5.007679,
+            "source_http_cache": null
+          },
+          "lease": null
+        }
+      },
+      "controls": {
+        "cohort_id": "v20-incident-20260908-r4",
+        "kill_switch": {
+          "value": "active",
+          "updated_at": "2026-09-08T19:05:53.187439+00:00"
+        },
+        "cohort_pause": {
+          "value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08T19:05:52.988755+00:00"
+        },
+        "missing_means": "not_recorded_not_inferred_inactive"
+      },
+      "latest_committed_recorder_batch": {
+        "event_id": "4727af07-5fb6-4afc-94e1-5b9a521c4c56",
+        "at": "2026-09-08T20:17:51.195361+00:00",
+        "received": 3,
+        "inserted": 3,
+        "duplicates": 0,
+        "first_event_at": "2026-09-08T20:17:50.977188+00:00",
+        "last_event_at": "2026-09-08T20:17:51.079989+00:00",
+        "first_received_at": "2026-09-08T20:17:51.010655+00:00",
+        "last_received_at": "2026-09-08T20:17:51.113171+00:00",
+        "processing_started_at": "2026-09-08T20:17:51.195361+00:00"
+      },
+      "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+    },
+    "live_trading_available": false
+  },
+  "regular_session_note": "Post-close observations do not prove regular-session raw market freshness."
+}

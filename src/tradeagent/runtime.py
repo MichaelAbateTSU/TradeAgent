@@ -137,6 +137,7 @@ class MarketFeedStatusMonitor:
         snapshot = read_shadow_recorder_snapshot(
             self._repository,
             batch_since=self._clock() - timedelta(seconds=self._maximum_event_age_seconds),
+            clock=self._clock,
         )
         # A heartbeat/batch can advance during the read. Never compare that new
         # observation to a request-start clock, or rewrite its own timestamp.

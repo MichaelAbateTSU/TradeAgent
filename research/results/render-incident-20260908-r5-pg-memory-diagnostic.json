@@ -1,0 +1,88 @@
+{
+  "observed_at": "2026-09-08T20:37:34.492826+00:00",
+  "settings": [
+    {
+      "name": "autovacuum_max_workers",
+      "setting": "3",
+      "unit": null
+    },
+    {
+      "name": "autovacuum_work_mem",
+      "setting": "-1",
+      "unit": "kB"
+    },
+    {
+      "name": "maintenance_work_mem",
+      "setting": "16384",
+      "unit": "kB"
+    },
+    {
+      "name": "max_connections",
+      "setting": "103",
+      "unit": null
+    },
+    {
+      "name": "shared_buffers",
+      "setting": "8192",
+      "unit": "8kB"
+    },
+    {
+      "name": "work_mem",
+      "setting": "1654",
+      "unit": "kB"
+    }
+  ],
+  "peers": [
+    {
+      "pid": 487346,
+      "state": "idle",
+      "backend_start": "2026-09-08 19:58:19.577672+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    },
+    {
+      "pid": 487347,
+      "state": "idle",
+      "backend_start": "2026-09-08 19:58:19.578482+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    },
+    {
+      "pid": 487502,
+      "state": "idle",
+      "backend_start": "2026-09-08 19:59:23.520748+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    },
+    {
+      "pid": 487503,
+      "state": "idle",
+      "backend_start": "2026-09-08 19:59:23.521205+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    },
+    {
+      "pid": 487546,
+      "state": "idle",
+      "backend_start": "2026-09-08 19:59:28.776634+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    },
+    {
+      "pid": 487705,
+      "state": "idle",
+      "backend_start": "2026-09-08 19:59:44.978194+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    },
+    {
+      "pid": 488126,
+      "state": "idle",
+      "backend_start": "2026-09-08 20:01:12.914471+00:00",
+      "last_sql_bytes": 6,
+      "last_sql_prefix": "COMMIT"
+    }
+  ],
+  "log_memory_permitted": false,
+  "memory_logs_requested_pids": []
+}

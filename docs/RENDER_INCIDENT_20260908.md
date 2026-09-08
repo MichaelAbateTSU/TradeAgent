@@ -223,7 +223,7 @@ work nor this failed soak is final production acceptance.
 
 The candidate replaces repeated PostgreSQL market-history counts with three
 transactionally maintained exact totals. Migration `0012_market_data_totals`
-initializes under write-compatible maintenance locks and installs nine
+initializes under brief write-excluding locks compatible with ordinary reads and installs nine
 statement-level transition-table triggers. Inserts count only genuinely inserted
 rows; deletes, truncation, conflicts, and rollback retain exact accounting. Missing
 or invalid totals fail explicitly with HTTP 503, never a fabricated zero or fallback
@@ -260,6 +260,29 @@ for **18:10 Eastern** to inspect the normal daily notifier run, with explicit
 instructions to schedule the remaining read-only market-open verification for
 **September 9 at 09:35 Eastern**. This is not permission to rearm entries, replay
 the MISSED window, or relax freshness or memory checks.
+
+Pinned review rejected `395a15c` before migration or deployment: choosing the latest
+processed batch can hide a still-fresh durable quote when a later batch contains
+only a minute bar timestamped at that minute's start. The correction must preserve
+valid committed exchange progress across the bounded recent same-owner batches,
+not confuse per-batch event time with a cumulative watermark. The reviewer
+reproduced this against actual persistence and monitor code in RAM SQLite.
+
+The correction now streams the complete bounded recent same-owner interval with
+one-row buffering, rejects invalid/nonmarket/future summaries, and selects the
+maximum valid exchange progress using aware datetimes rather than timestamp-string
+ordering. It does not truncate the interval with an arbitrary row limit. Liveness
+and the unchanged ten-second age gate are still evaluated after the reads; original
+timestamps remain unchanged. The corrected full tree passed **903 tests, one
+optional local PostgreSQL skip, 87.24% coverage** with identical source hashes
+before and after the run. Ruff188/mypy84 and whitespace checks pass. A new exact-pin
+review is required; the rejected pin is not being reconsidered unchanged.
+
+Additional pre-deployment PostgreSQL logs show SIG9 backend termination and
+recovery at **19:45:11 and 19:57:18 UTC**, while all applications still ran `3bbe3eb`.
+The victim statements were COMMIT and a multirow quote INSERT. Those last
+statements alone do not identify the allocation source. These failures are
+preserved and remain part of the unresolved database acceptance gate.
 
 ## Evidence files
 

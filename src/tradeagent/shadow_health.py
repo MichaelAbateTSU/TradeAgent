@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any
@@ -17,7 +18,10 @@ class ShadowRecorderSnapshot:
 
 
 def read_shadow_recorder_snapshot(
-    repository: ProductionRepository, *, batch_since: datetime
+    repository: ProductionRepository,
+    *,
+    batch_since: datetime,
+    clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> ShadowRecorderSnapshot:
     """Read bounded, durable observations without renewing any lease or heartbeat."""
     with repository._database.begin() as connection:
@@ -39,28 +43,75 @@ def read_shadow_recorder_snapshot(
             .mappings()
             .one_or_none()
         )
-        # This fixed event type contains only a compact batch summary, never raw
-        # market packets/report bodies. The existing type/time index bounds this read.
-        batch = (
-            connection.execute(
+        batch: dict[str, Any] | None = None
+        best_progress: tuple[datetime, datetime, str] | None = None
+        scan_until = clock()
+        if heartbeat is not None:
+            # Processing order is not exchange order: a newer minute-bar/delayed
+            # packet batch must not erase a still-fresh quote. Scan the entire
+            # recent type/time interval, buffering one compact row and one winner.
+            result = connection.execute(
                 select(events.c.event_id, events.c.occurred_at, events.c.payload)
                 .where(
                     events.c.event_type == "shadow_recorder_batch",
                     events.c.occurred_at >= batch_since,
-                    events.c.payload["instance_id"].as_string()
-                    == (heartbeat["instance_id"] if heartbeat else None),
+                    events.c.occurred_at <= scan_until,
+                    events.c.payload["instance_id"].as_string() == heartbeat["instance_id"],
                 )
-                .order_by(events.c.occurred_at.desc(), events.c.event_id)
-                .limit(1)
+                .execution_options(stream_results=True, yield_per=1, max_row_buffer=1)
             )
-            .mappings()
-            .one_or_none()
-        )
+            try:
+                for row in result.mappings():
+                    candidate = dict(row)
+                    progress = _valid_market_progress(
+                        candidate, owner=heartbeat["instance_id"], observed_at=scan_until
+                    )
+                    if progress is not None and (best_progress is None or progress > best_progress):
+                        batch, best_progress = candidate, progress
+            finally:
+                result.close()
     return ShadowRecorderSnapshot(
         heartbeat=dict(heartbeat) if heartbeat else None,
         lease=dict(lease) if lease else None,
-        batch=dict(batch) if batch else None,
+        batch=batch,
     )
+
+
+def _valid_market_progress(
+    batch: dict[str, Any], *, owner: str, observed_at: datetime
+) -> tuple[datetime, datetime, str] | None:
+    payload = batch["payload"]
+    if not isinstance(payload, dict) or payload.get("instance_id") != owner:
+        return None
+    received = payload.get("received")
+    inserted = payload.get("inserted")
+    duplicates = payload.get("duplicates")
+    if not (
+        isinstance(received, int)
+        and not isinstance(received, bool)
+        and isinstance(inserted, int)
+        and not isinstance(inserted, bool)
+        and isinstance(duplicates, int)
+        and not isinstance(duplicates, bool)
+        and received > 0
+        and inserted >= 0
+        and duplicates >= 0
+        and received == inserted + duplicates
+    ):
+        return None
+    event_at = payload_timestamp(payload.get("last_event_at"))
+    received_at = payload_timestamp(payload.get("last_received_at"))
+    processing_at = payload_timestamp(payload.get("processing_started_at"))
+    row_at = stored_timestamp(batch["occurred_at"])
+    if not (
+        event_at
+        and received_at
+        and processing_at
+        and row_at
+        and event_at <= received_at <= processing_at == row_at <= observed_at
+    ):
+        return None
+    return event_at, processing_at, str(batch["event_id"])
 
 
 def stored_timestamp(value: object) -> datetime | None:
@@ -74,8 +125,8 @@ def payload_timestamp(value: object) -> datetime | None:
         return None
     try:
         parsed = datetime.fromisoformat(value)
-    except ValueError:
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            return None
+        return parsed.astimezone(UTC)
+    except (ValueError, OverflowError):
         return None
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        return None
-    return parsed.astimezone(UTC)
