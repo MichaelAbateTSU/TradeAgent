@@ -67,10 +67,18 @@ recipient, including a blocked outcome. No previously accepted diagnostic,
 crypto lifecycle or daily summary message may be resent. Provider acceptance
 must be recorded separately from inbox delivery.
 
-Permanent notification handling for a current session's MISSED/terminal outcome
-is being added to close the omission discovered earlier today. It must not
-change trading authority, query heavy market history, replay old-cohort emails,
-or generate an expensive full report on every poll.
+The notifier now includes a lightweight observer for the fresh, current
+experimental-paper cohort's same-day MISSED/terminal/completion controls. It
+checks the frozen date/code/config identity and exact control versions, then
+atomically inserts a stable-ID outbox entry. Pending and sent entries deduplicate
+across polling, restarts and competing observations. A terminal/MISSED pair
+shares one result identity rather than producing two alerts. It does not scan
+old cohorts, change controls, query broker/market history, or generate a full
+report. The email explicitly distinguishes cohort attempts from account-wide
+usage and does not claim that broker flatness or fills were checked.
+
+Actual notifier deployment, send attempts and provider acceptance are still
+required before claiming that this new alert was delivered to the email provider.
 
 Capacity acceptance, trade authorization and email acceptance remain separate.
 The 15:45 Eastern close watch still must observe actual flatness through close.
