@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 import os
+import time
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
 from hashlib import sha256
@@ -30,6 +31,8 @@ from tradeagent.event_context import (
 )
 from tradeagent.event_doctor import code_identity
 from tradeagent.event_market import EventMarketClient, EventMarketState
+from tradeagent.event_operator_probe import COMMAND_KEY as OPERATOR_PROBE_KEY
+from tradeagent.event_operator_probe import run_probe
 from tradeagent.event_order_stream import AlpacaPaperTradeUpdatesStream
 from tradeagent.event_orders import FINAL, EventLeaseLostError, ExperimentalOrderManager
 from tradeagent.event_outcomes import record_quote_paths
@@ -335,11 +338,33 @@ class EventRuntime:
 
     def tick(self, now: datetime | None = None) -> dict[str, Any]:
         tick_at = now or datetime.now(UTC)
-        # Risk/position supervision is independent of all ingestion and extraction failures.
+        operator_probe = None
+        # Always supervise owned positions before optional operator diagnostics.
         self.oms.supervise(
             tick_at,
             feed_healthy=self._sources_fresh(tick_at),
         )
+        if self.repo.get_control(f"{OPERATOR_PROBE_KEY}:{self.settings.cohort_id}") is not None:
+            try:
+                operator_probe = run_probe(
+                    self.broker,
+                    self.repo,
+                    self.store,
+                    owner_id=self.instance_id,
+                    code_sha=self.code_sha,
+                    config_hash=self.config_hash,
+                    cohort_id=self.settings.cohort_id,
+                    assert_owner=self.oms.assert_owner,
+                    sleep=time.sleep,
+                )
+            except (httpx.HTTPError, ValueError) as error:
+                operator_probe = {"state": "error_requires_review", "error": type(error).__name__}
+                self.store.audit(
+                    "operator_order_probe_error",
+                    operator_probe,
+                    datetime.now(UTC),
+                    self.settings.cohort_id,
+                )
         if self.order_stream is not None:
             for message in self.order_stream.drain():
                 self.oms.reconcile_stream_update(message.model_dump(mode="json"), datetime.now(UTC))
@@ -624,6 +649,7 @@ class EventRuntime:
         heartbeat_state = {
             "state": "market_closed" if not clock.is_open else "collecting",
             "mode": self.settings.mode,
+            "operator_paper_order_probe": operator_probe,
             "purpose": self.settings.purpose,
             "entry_policy": self.settings.entry_policy,
             "qualification_eligible": self.settings.purpose != "iex-practice",
@@ -1411,9 +1437,8 @@ class EventRuntime:
             minutes=self.settings.calibration_window_minutes[0]
         ):
             return {"state": "waiting_for_declared_demo_window"}
-        if (
-            self.settings.entry_policy == "equipment-only-demo"
-            and not self.oms.demo_authorized(now)
+        if self.settings.entry_policy == "equipment-only-demo" and not self.oms.demo_authorized(
+            now
         ):
             return {"state": "blocked", "reasons": ["DEMO_AUTHORIZATION_REQUIRED"]}
         if self.context is None:
@@ -1484,8 +1509,7 @@ class EventRuntime:
             eligible_at=eligible_at,
             expires_at=min(
                 evaluated_at + timedelta(seconds=30),
-                gate.session_open
-                + timedelta(minutes=self.settings.calibration_window_minutes[1]),
+                gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1]),
             )
             if gate.session_open
             else evaluated_at + timedelta(seconds=30),
