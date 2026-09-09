@@ -536,6 +536,45 @@ the original long-window failure is retained. No threshold or trading window
 is relaxed, and the required repeat cannot finish before today's 10:30
 authorization deadline.
 
+### Corrected run also failed: remaining PostgreSQL headroom
+
+The complete repeat on recorder `645714b` ran **14:16:07.217560-14:46:10.120474
+UTC**, covering **1,802.903 seconds and 2,184 requests**. All hot HTTP requests
+returned 200; maximum request time was 5.132 seconds. Nevertheless acceptance
+**failed again**: **1,842 new drops, six new gaps, a full 20,000-item queue,
+56.092-second maximum commit lag, and PostgreSQL at 234.449 MiB**. The unchanged
+230 MiB database limit was not raised.
+
+Current-owner heartbeat deltas averaged **376.216 received versus 375.320
+committed events/second** over the observed period, not spare sustainable
+capacity. Supplemental 14:16-14:25 minute samples showed recorder CPU averaging
+0.081 cores while PostgreSQL averaged 0.086 and reached its 0.1-core allocation.
+The application optimization therefore has a real measured benefit but is not
+sufficient proof of database throughput or memory headroom.
+
+Both small-window physical samples contained increasing actual quotes, trades
+and bars for all five symbols. Real report admission returned 429, ordinary
+sections stayed 200, and the subsequent 3,678,757-byte report returned 200 in
+15.319 seconds without an email. Neither substitutes for the failed loss,
+freshness and memory requirements.
+
+The exhaustive corrected-window database log read retained 2,279 records, with
+no backend termination/recovery/FATAL/PANIC, and 87 known duplicate-evidence
+errors. A fresh event-image broker read at **10:47:45 Eastern** remained
+ACTIVE/unblocked and flat, with no open orders. Schema 0012 and zero missing
+reporting metadata were verified.
+
+Meanwhile the event worker independently recorded the expired equipment window
+as **MISSED with zero attempts**, latched a durable news terminal, and retained
+the original entry pauses. See the [actual scoped outcome](PAPER_NEWS_20260909.md#actual-september-9-expiry-no-authorized-entries).
+No late preflight, replay or replacement cohort is permitted.
+
+The live writer remains the reviewed `645714b`. A test-only, isolated,
+rollback-only PostgreSQL ingestion comparison is being prepared to determine
+whether another bounded implementation can help without adding compute cost.
+It is not a deployed fix or acceptance claim; no additional production path
+will be adopted merely because a local prototype looks faster.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)
@@ -572,6 +611,12 @@ authorization deadline.
 - [September 9 complete PostgreSQL log check](../research/results/render-incident-20260909-pg-log-check.json)
 - [September 9 exact corrective release and owner handoff](../research/results/render-incident-20260909-writer-deployed.json)
 - [September 9 actual corrective-image PostgreSQL fixtures](../research/results/render-incident-20260909-writer-pg-fixtures.json)
+- [September 9 complete corrected observation](../research/results/render-incident-20260909-corrected-soak.json)
+- [September 9 corrected failure summary](../research/results/render-incident-20260909-corrected-summary.json)
+- [September 9 corrected physical progression](../research/results/render-incident-20260909-corrected-physical.json)
+- [September 9 corrected report admission](../research/results/render-incident-20260909-corrected-report-admission.json)
+- [September 9 corrected database logs](../research/results/render-incident-20260909-corrected-pg-log-check.json)
+- [September 9 post-run broker and metadata readback](../research/results/render-incident-20260909-corrected-final-probe.json)
 
 The historical r3 record and user-owned Tuesday-readiness edits are not rewritten.
 Incident recovery acceptance is recorded separately after actual sustained tests.

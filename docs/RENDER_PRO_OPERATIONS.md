@@ -77,8 +77,11 @@ same-environment connectivity; no cross-environment test service was created.
 See [actual platform evidence](../research/results/render-pro-20260909.json) and
 [post-isolation broker/database readback](../research/results/render-incident-20260909-post-isolation-probe.json).
 These platform improvements do **not** turn the failed incident acceptance into
-a pass or authorize paper entries. A separately reviewed recorder correction is
-undergoing the mandatory new live acceptance.
+a pass or authorize paper entries. The separately reviewed recorder correction
+also failed its complete 30-minute live acceptance on loss, freshness and
+PostgreSQL memory. Application CPU improved, but the 0.1-core database still
+reached its allocation. Further bounded ingestion measurements are separate
+from the Pro configuration; no paid compute upgrade is being implied or applied.
 
 ## Official references
 

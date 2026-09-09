@@ -1,0 +1,465 @@
+{
+  "start": "2026-09-09T14:16:00Z",
+  "end": "2026-09-09T14:25:00Z",
+  "scope": "Supplemental minute-resolution evidence; includes seven seconds before observation start",
+  "cpu": [
+    {
+      "labels": [
+        {
+          "field": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        }
+      ],
+      "unit": "cpu",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 0.08180975
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 0.086486585
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 0.075225934
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 0.1
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 0.099456735
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 0.08095305
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 0.1
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 0.06666546
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 0.09352376
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 0.07376165
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "instance",
+          "value": "srv-dadn8son74is73apqcc0-97mvv"
+        },
+        {
+          "field": "service",
+          "value": "srv-dadn8son74is73apqcc0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dadn8son74is73apqcc0"
+        }
+      ],
+      "unit": "cpu",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 0.07608565
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 0.07714072
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 0.092448734
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 0.062470134
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 0.08908753
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 0.07438933
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 0.1017256
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 0.08690868
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 0.062153466
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 0.09136157
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "instance",
+          "value": "srv-dadoa3740ujc73cb09c0-hhdpj"
+        },
+        {
+          "field": "service",
+          "value": "srv-dadoa3740ujc73cb09c0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dadoa3740ujc73cb09c0"
+        }
+      ],
+      "unit": "cpu",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 0.0057480335
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 0.011706883
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 0.013072067
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 0.010666084
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 0.017064616
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 0.02130165
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 0.0127277
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 0.014269717
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 0.01258175
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 0.0141807
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "instance",
+          "value": "srv-dae4tr7qj5pc73a9e0k0-72hsr"
+        },
+        {
+          "field": "service",
+          "value": "srv-dae4tr7qj5pc73a9e0k0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dae4tr7qj5pc73a9e0k0"
+        }
+      ],
+      "unit": "cpu",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 0.007349617
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 0.0139372
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 0.006395533
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 0.01106955
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 0.010410617
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 0.01163865
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 0.009071616
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 0.010209933
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 0.012136083
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 0.0072088665
+        }
+      ]
+    }
+  ],
+  "memory": [
+    {
+      "labels": [
+        {
+          "field": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 239501310
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 235802620
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 243646460
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 242692100
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 239767550
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 211226620
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 223014910
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 226476030
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 222822400
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 229302270
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "instance",
+          "value": "srv-dadn8son74is73apqcc0-97mvv"
+        },
+        {
+          "field": "service",
+          "value": "srv-dadn8son74is73apqcc0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dadn8son74is73apqcc0"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 137457660
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 137707520
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 141103100
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 141217800
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 143073280
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 158220290
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 158588930
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 158924800
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 158429180
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 158552060
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "service",
+          "value": "srv-dadoa3740ujc73cb09c0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dadoa3740ujc73cb09c0"
+        },
+        {
+          "field": "instance",
+          "value": "srv-dadoa3740ujc73cb09c0-hhdpj"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 233201660
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 233365500
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 234086400
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 233418750
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 233951230
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 238391300
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 238243840
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 238268420
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 238698500
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 238182400
+        }
+      ]
+    },
+    {
+      "labels": [
+        {
+          "field": "instance",
+          "value": "srv-dae4tr7qj5pc73a9e0k0-72hsr"
+        },
+        {
+          "field": "service",
+          "value": "srv-dae4tr7qj5pc73a9e0k0"
+        },
+        {
+          "field": "resource",
+          "value": "srv-dae4tr7qj5pc73a9e0k0"
+        }
+      ],
+      "unit": "bytes",
+      "values": [
+        {
+          "timestamp": "2026-09-09T14:16:00Z",
+          "value": 163811330
+        },
+        {
+          "timestamp": "2026-09-09T14:17:00Z",
+          "value": 166334460
+        },
+        {
+          "timestamp": "2026-09-09T14:18:00Z",
+          "value": 166318080
+        },
+        {
+          "timestamp": "2026-09-09T14:19:00Z",
+          "value": 159510530
+        },
+        {
+          "timestamp": "2026-09-09T14:20:00Z",
+          "value": 164548600
+        },
+        {
+          "timestamp": "2026-09-09T14:21:00Z",
+          "value": 166387710
+        },
+        {
+          "timestamp": "2026-09-09T14:22:00Z",
+          "value": 163618820
+        },
+        {
+          "timestamp": "2026-09-09T14:23:00Z",
+          "value": 166400000
+        },
+        {
+          "timestamp": "2026-09-09T14:24:00Z",
+          "value": 164077570
+        },
+        {
+          "timestamp": "2026-09-09T14:25:00Z",
+          "value": 164061180
+        }
+      ]
+    }
+  ]
+}

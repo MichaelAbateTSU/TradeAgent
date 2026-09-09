@@ -1,0 +1,5373 @@
+{
+  "start": "2026-09-09T14:16:07.217560Z",
+  "end": "2026-09-09T14:46:10.120474Z",
+  "retrieved_at": "2026-09-09T14:48:44.980118+00:00",
+  "complete": true,
+  "pages": 3,
+  "log_records": 2279,
+  "termination_or_recovery_records": [],
+  "sql_error_count": 87,
+  "known_duplicate_evidence_error_count": 87,
+  "maintenance_records": [
+    {
+      "id": "fd5cb5a5-ba92-4626-8104-9ef1157c9e68",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a62.90d73-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:17:06.183026233Z"
+    },
+    {
+      "id": "24bd6f11-11cb-46dd-9981-4a1c6687acab",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:17:06.183064004Z"
+    },
+    {
+      "id": "109a4c69-c8b6-4d53-a718-83823b957544",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a62.90d73-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:17:06.276674566Z"
+    },
+    {
+      "id": "be3b9241-6d4b-497c-a743-8d3ca9b09191",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:17:06.27685699Z"
+    },
+    {
+      "id": "f07986b0-8331-4000-93ea-d3689eb763f1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a62.90d73-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:17:06.37711843Z"
+    },
+    {
+      "id": "b4afbbe9-a6eb-436c-a6cd-6728037bd572",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.10 s",
+      "timestamp": "2026-09-09T14:17:06.37714297Z"
+    },
+    {
+      "id": "7df7ed56-5f0e-47f1-a4fa-c92ac700c9e2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a62.90d73-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:17:06.676668171Z"
+    },
+    {
+      "id": "8ccade22-0320-46fb-b159-9d3ec850752a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.29 s",
+      "timestamp": "2026-09-09T14:17:06.676719052Z"
+    },
+    {
+      "id": "e786090d-fda0-4282-87fe-84fa6164868f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-440] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 633 buffers (7.7%); 0 WAL file(s) added, 0 removed, 16 recycled; write=269.079 s, sync=0.020 s, total=269.148 s; sync files=111, longest=0.008 s, average=0.001 s; distance=263076 kB, estimate=419026 kB; lsn=7/7756CF60, redo lsn=7/67143210",
+      "timestamp": "2026-09-09T14:17:43.1475746Z"
+    },
+    {
+      "id": "5dfa3d05-f75f-4c3a-b3ca-7dcb15554f20",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a9e.90e40-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:18:06.125841476Z"
+    },
+    {
+      "id": "4b3a3262-3d6d-4c7b-b328-0c7c91b0377a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:18:06.125866207Z"
+    },
+    {
+      "id": "5b2b761c-ae1d-4b98-bc66-6c22a02eeb52",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a9e.90e40-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:18:06.176381225Z"
+    },
+    {
+      "id": "d53331d9-2076-4bc0-9cb6-ebf2407b848d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.04 s",
+      "timestamp": "2026-09-09T14:18:06.176406046Z"
+    },
+    {
+      "id": "01e03ce0-16e2-461b-9f7b-5b215d2f1233",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a9e.90e40-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:18:06.181589371Z"
+    },
+    {
+      "id": "f913be5a-4484-4b48-b7c8-95ac488f3f7e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:18:06.181608961Z"
+    },
+    {
+      "id": "8ae7ec17-72d8-43f5-81fc-5cf9ffd24a8b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16a9e.90e40-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:18:06.191111701Z"
+    },
+    {
+      "id": "f73b76f0-ceaf-488f-8361-20f0214e3eee",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:18:06.191152622Z"
+    },
+    {
+      "id": "cd96d845-b65f-42cb-88ba-971ad69833c9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ada.91094-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:19:06.182802426Z"
+    },
+    {
+      "id": "466f3982-362b-41da-bb4e-f374afae166f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:19:06.182851527Z"
+    },
+    {
+      "id": "ef47f99c-ec65-4b24-b0bd-2d1cd5552489",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ada.91094-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:19:06.191165571Z"
+    },
+    {
+      "id": "2579dd76-9c69-417d-9eea-fc3841a86345",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:19:06.191185332Z"
+    },
+    {
+      "id": "164361d3-064c-4441-a4b4-f1fa51924b2b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ada.91094-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:19:06.379933839Z"
+    },
+    {
+      "id": "2cb176dd-2968-4f5b-9155-1e3acfb8aacd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.18 s",
+      "timestamp": "2026-09-09T14:19:06.380010121Z"
+    },
+    {
+      "id": "1a11dfa6-a0c9-41e4-9cf1-592cb3913371",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b16.91259-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:20:06.277535854Z"
+    },
+    {
+      "id": "cf9cb45f-d535-4a41-a0bf-5574b05cd5da",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.06 s",
+      "timestamp": "2026-09-09T14:20:06.277561725Z"
+    },
+    {
+      "id": "126965eb-63f7-456b-80bc-730a91edf4d9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b16.91259-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.worker_locks\": index scans: 0",
+      "timestamp": "2026-09-09T14:20:06.28190031Z"
+    },
+    {
+      "id": "d17e93f0-e77c-4761-a1ff-646096342819",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:20:06.281943382Z"
+    },
+    {
+      "id": "c361a73d-88fd-4092-b925-5e074662a663",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b16.91259-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:20:06.282104105Z"
+    },
+    {
+      "id": "6ee0ce49-6ce8-4de0-a8aa-6306ed7f11d2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:20:06.282122495Z"
+    },
+    {
+      "id": "5e6c10a7-0feb-463a-87c6-242561f9d6a9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b16.91259-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:20:06.290618294Z"
+    },
+    {
+      "id": "e03e7795-fc85-4152-88a6-2bbcd04e0a8f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:20:06.290676675Z"
+    },
+    {
+      "id": "c77b49d3-043f-4450-ad06-ce8f3ca675ba",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b16.91259-5] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:20:06.293243322Z"
+    },
+    {
+      "id": "81a4be93-aba6-4b87-ba4e-a935c934e5ac",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:20:06.293260332Z"
+    },
+    {
+      "id": "cb319014-2535-42a4-b67c-a35fbd93d3e6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b16.91259-6] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:20:06.481727023Z"
+    },
+    {
+      "id": "d528a931-3814-4e4c-836e-10bd8b27e4cf",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.18 s",
+      "timestamp": "2026-09-09T14:20:06.481776704Z"
+    },
+    {
+      "id": "2c61eaeb-58ec-4038-b4a3-3993436c7299",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b52.913ca-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:21:06.380390483Z"
+    },
+    {
+      "id": "f815a8d5-0f46-48ea-84b7-af0c8be65163",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:21:06.380435274Z"
+    },
+    {
+      "id": "adc12f95-5501-4a44-9904-bb33c10e0404",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b52.913ca-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:21:06.386912178Z"
+    },
+    {
+      "id": "11b97eb2-5f89-4e55-82d0-c3723add2a1f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:21:06.386956759Z"
+    },
+    {
+      "id": "ad1189e0-2c01-4a20-aaeb-5dcff5b1084a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b52.913ca-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:21:06.476839358Z"
+    },
+    {
+      "id": "46833620-7862-4a5e-8649-5a526e2477fb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.08 s",
+      "timestamp": "2026-09-09T14:21:06.476864558Z"
+    },
+    {
+      "id": "9bc60ac7-9c84-4f52-82f5-70c62d9bc8c7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b52.913ca-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:21:06.776392937Z"
+    },
+    {
+      "id": "fd1752a7-5f99-4975-93af-d9e57951db0d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.29 s",
+      "timestamp": "2026-09-09T14:21:06.776466829Z"
+    },
+    {
+      "id": "35d74af7-ddc2-4101-9d81-05b8f3711329",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b8e.914d7-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:22:06.314829659Z"
+    },
+    {
+      "id": "374ea194-72b4-4731-90d0-48a28ee6b670",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:22:06.31485636Z"
+    },
+    {
+      "id": "8502fe8a-12e1-4afc-a96a-86a3e7af1471",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b8e.914d7-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:22:06.316126318Z"
+    },
+    {
+      "id": "e4d2b450-349d-40b1-acf2-fed3bb5d83c2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:22:06.316151078Z"
+    },
+    {
+      "id": "46e03f35-dd98-4f78-957f-48d138a81c8b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b8e.914d7-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:22:06.321924246Z"
+    },
+    {
+      "id": "5ea5d3aa-2f6e-428a-ab7e-1b1b2ca5ddda",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:22:06.321948967Z"
+    },
+    {
+      "id": "c9d25fb9-8caf-4621-9c9e-133cdc83ee65",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16b8e.914d7-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:22:06.352766559Z"
+    },
+    {
+      "id": "b33d3e45-8169-4c40-8ca0-8b8f928d2ec2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.02 s",
+      "timestamp": "2026-09-09T14:22:06.352843931Z"
+    },
+    {
+      "id": "45b7cd9d-d9e9-47e3-848e-660c1f847ca6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-442] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 578 buffers (7.1%); 0 WAL file(s) added, 0 removed, 17 recycled; write=269.882 s, sync=0.101 s, total=270.105 s; sync files=55, longest=0.055 s, average=0.002 s; distance=279100 kB, estimate=405034 kB; lsn=7/89619F78, redo lsn=7/781D25D8",
+      "timestamp": "2026-09-09T14:22:43.285255347Z"
+    },
+    {
+      "id": "e6e933da-1d37-4379-a76c-0243f4bd5657",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16bca.9156b-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 0",
+      "timestamp": "2026-09-09T14:23:06.33089473Z"
+    },
+    {
+      "id": "72afc561-01dd-4a99-ada5-6591b1df93f6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:23:06.330941351Z"
+    },
+    {
+      "id": "a493beb0-fbd4-4458-9c24-99e8559008a2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16bca.9156b-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:23:06.337577078Z"
+    },
+    {
+      "id": "3c14bb4a-a943-4774-9eba-ac13754b8abf",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:23:06.337633239Z"
+    },
+    {
+      "id": "77174eb5-f0d6-473f-b858-4d628f2c2655",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16bca.9156b-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:23:06.343222702Z"
+    },
+    {
+      "id": "036138c1-11d3-48ad-a3dd-f05d3fa1d5c4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:23:06.343237183Z"
+    },
+    {
+      "id": "77c4d03f-5743-4fdc-aa3a-0375c818af8c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16bca.9156b-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:23:06.376846825Z"
+    },
+    {
+      "id": "24e21a38-a90d-41a5-86de-f6358088fd36",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.03 s",
+      "timestamp": "2026-09-09T14:23:06.376894835Z"
+    },
+    {
+      "id": "2edc4706-85cd-4ac3-8099-1c2b08521c13",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c06.917bd-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:24:06.57681255Z"
+    },
+    {
+      "id": "3fad3797-6aa4-4a04-a9e9-69ffd57df6e8",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:24:06.57683741Z"
+    },
+    {
+      "id": "0d3c5cb6-8d00-4bdd-8e7f-fb1f0ebcaa2e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c06.917bd-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:24:06.578317663Z"
+    },
+    {
+      "id": "4fecdd74-b175-4921-b037-7f04f4713476",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:24:06.578337564Z"
+    },
+    {
+      "id": "bbd3f6db-234a-4f9f-b875-d20dd7e57521",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c06.917bd-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:24:06.586309529Z"
+    },
+    {
+      "id": "e71ae431-cf87-49b5-9fb2-2af5e548672d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:24:06.586357201Z"
+    },
+    {
+      "id": "f6561b2b-1e5d-4193-90e1-a112d6d543dd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c06.917bd-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:24:06.589156042Z"
+    },
+    {
+      "id": "f05b0a33-c070-4cb2-99a7-b06fa02b77ab",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:24:06.589182413Z"
+    },
+    {
+      "id": "6c30e98d-66a5-4698-b81a-1425127080fb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c06.917bd-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:24:06.782674083Z"
+    },
+    {
+      "id": "4b6b63cd-78d2-45e6-9bf1-87eb09d7fabf",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.10 s",
+      "timestamp": "2026-09-09T14:24:06.782724034Z"
+    },
+    {
+      "id": "d23563d7-36fa-4e77-9dd6-97c3cc8ca646",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:25:06.481483085Z"
+    },
+    {
+      "id": "51b7422b-9ffa-491d-bf76-ffafd5a391d9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:25:06.481552127Z"
+    },
+    {
+      "id": "72023c09-eb03-4dd0-ab13-1a9bd74f5b29",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:25:06.487845956Z"
+    },
+    {
+      "id": "b43e886b-06d5-40d6-bd8a-5b9e0606f55a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:25:06.487873047Z"
+    },
+    {
+      "id": "cd82571e-a921-4c1a-91fc-bffdc0e6b6a3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.worker_locks\": index scans: 0",
+      "timestamp": "2026-09-09T14:25:06.49030138Z"
+    },
+    {
+      "id": "8a77291f-2630-4568-85b0-2903dcc73cb7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:25:06.490373622Z"
+    },
+    {
+      "id": "a626e61a-a118-4dcd-84e3-ca40f8a058e0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:25:06.583424415Z"
+    },
+    {
+      "id": "93cd03f5-d147-479e-8335-5b5220c0db84",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:25:06.583472986Z"
+    },
+    {
+      "id": "99225cd6-c0ec-4da3-80ba-af0f9c330c55",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-5] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:25:06.586403051Z"
+    },
+    {
+      "id": "e0a600d3-38cc-48e4-beae-6f63a56abbf0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:25:06.586422061Z"
+    },
+    {
+      "id": "ccb3d47b-f5db-420e-8a45-ffb5b5e59565",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-6] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_quotes\"",
+      "timestamp": "2026-09-09T14:25:29.781782357Z"
+    },
+    {
+      "id": "ab2c5d95-5a80-47a9-81fb-ee241c1c7b96",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.42 s, system: 0.34 s, elapsed: 23.10 s",
+      "timestamp": "2026-09-09T14:25:29.781808108Z"
+    },
+    {
+      "id": "bc260f07-d0e3-480e-8fc7-a87cbd49c4a1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-7] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16442\": index scans: 1",
+      "timestamp": "2026-09-09T14:25:29.881297533Z"
+    },
+    {
+      "id": "f18f2aac-00d8-433f-9635-3b13f6803082",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:25:29.881343794Z"
+    },
+    {
+      "id": "8d737f45-0281-4ea9-88f6-a0596830f6d9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c42.919c3-8] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:25:30.380180193Z"
+    },
+    {
+      "id": "c20c9f02-8fc6-4036-9f35-8ff35a3d3322",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.49 s",
+      "timestamp": "2026-09-09T14:25:30.380241075Z"
+    },
+    {
+      "id": "0cbc2cf2-f4c3-493f-85b4-c805d71000ed",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c7e.91b62-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:26:06.481569006Z"
+    },
+    {
+      "id": "fe5ad305-31ff-4f9b-810f-f97c3efc49d9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:26:06.481599477Z"
+    },
+    {
+      "id": "8354c7bd-2017-4098-bce7-e764d443faa6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c7e.91b62-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:26:06.489520041Z"
+    },
+    {
+      "id": "ff02c7b0-6105-4544-afdd-0eb6083d8d73",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:26:06.489560672Z"
+    },
+    {
+      "id": "5f22f78e-925b-477f-a828-263a84bfa162",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16c7e.91b62-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:26:06.492344744Z"
+    },
+    {
+      "id": "bfc1517f-cccd-423a-b493-209c957e2a1d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:26:06.492365664Z"
+    },
+    {
+      "id": "5f4f91b9-e84a-41df-99e9-1631e821dfdd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.controls_v2\"",
+      "timestamp": "2026-09-09T14:27:06.676618587Z"
+    },
+    {
+      "id": "008dc1a4-cfb5-4e66-bdc7-4f9861cfcdcd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.19 s",
+      "timestamp": "2026-09-09T14:27:06.676647938Z"
+    },
+    {
+      "id": "8a8eea78-da48-4b9e-8915-51b2caafb7b0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:27:06.77781208Z"
+    },
+    {
+      "id": "a915a100-93a6-4788-bea1-8985fc2f1afd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:27:06.777864591Z"
+    },
+    {
+      "id": "0336281a-be3d-48e1-8b53-25365474146b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:27:06.781245846Z"
+    },
+    {
+      "id": "380c2997-e786-4690-a3d4-99cc65d2cec5",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:27:06.781262106Z"
+    },
+    {
+      "id": "bc16de35-2ef3-4e5f-966b-b5d778c7f1e6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.event_evidence\": index scans: 1",
+      "timestamp": "2026-09-09T14:27:06.877116462Z"
+    },
+    {
+      "id": "475a837e-e8e1-4028-8f12-41638b75bcfe",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:27:06.877185353Z"
+    },
+    {
+      "id": "07817374-bb8b-41df-b0c3-d3ffcfb9e064",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-5] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:27:06.976383282Z"
+    },
+    {
+      "id": "43895532-f032-49dc-accd-3c9036813d65",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:27:06.976408963Z"
+    },
+    {
+      "id": "18fd05e7-6c1b-46fb-9799-de2e0aaf58ca",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-6] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_trades\"",
+      "timestamp": "2026-09-09T14:27:11.980625257Z"
+    },
+    {
+      "id": "62252a1d-4667-4fdc-8f02-2b3d2de9d1c5",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.21 s, system: 0.01 s, elapsed: 4.99 s",
+      "timestamp": "2026-09-09T14:27:11.980654588Z"
+    },
+    {
+      "id": "c4f7aefb-b0a6-4660-a0e2-c620b4c2d285",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cba.91c6b-7] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:27:12.1765114Z"
+    },
+    {
+      "id": "94009573-0def-4db5-9835-273403a812f9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.19 s",
+      "timestamp": "2026-09-09T14:27:12.176572012Z"
+    },
+    {
+      "id": "5edae90e-a63b-4d17-b00c-5b6337a8a4e0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-444] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 612 buffers (7.5%); 0 WAL file(s) added, 0 removed, 18 recycled; write=269.794 s, sync=0.114 s, total=270.210 s; sync files=68, longest=0.089 s, average=0.002 s; distance=294329 kB, estimate=393963 kB; lsn=7/9D285970, redo lsn=7/8A140B88",
+      "timestamp": "2026-09-09T14:27:43.485751749Z"
+    },
+    {
+      "id": "0b8a5349-76e0-409f-8c00-e744e65f0d7c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cf6.91d38-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:28:06.485706532Z"
+    },
+    {
+      "id": "852db057-15b5-4eb3-8e9c-976c29579e6a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:28:06.485739582Z"
+    },
+    {
+      "id": "8fe7ed8e-b7a9-42c1-88c9-2e6ebfacc4b5",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cf6.91d38-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:28:06.583716755Z"
+    },
+    {
+      "id": "b298ca41-ddcc-4a7e-9ae4-f03eeb988916",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:28:06.583744656Z"
+    },
+    {
+      "id": "c0d7e972-7105-45e9-8220-2b1972c999d1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16cf6.91d38-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:28:06.687827802Z"
+    },
+    {
+      "id": "4ab2f401-4ab7-4c2b-9e7d-d36e54f759e4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.10 s",
+      "timestamp": "2026-09-09T14:28:06.687891534Z"
+    },
+    {
+      "id": "d0442e22-1c7e-4f9f-b0a2-4457ebaff858",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d32.91f8b-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:29:06.584266772Z"
+    },
+    {
+      "id": "976373ed-9334-450b-b8a6-47f7f2ecc0cd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:29:06.584334864Z"
+    },
+    {
+      "id": "2397c014-a444-4f81-9365-1865fb08ed7c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d32.91f8b-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:29:06.588814473Z"
+    },
+    {
+      "id": "1320c29c-6782-4f13-b8d3-af595066d545",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:29:06.588832293Z"
+    },
+    {
+      "id": "4e5839c7-c9c9-4b00-98ce-43520bfecc58",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d32.91f8b-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:29:06.676480767Z"
+    },
+    {
+      "id": "2b6e52cd-fef0-421c-ba81-38a473abf974",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.08 s",
+      "timestamp": "2026-09-09T14:29:06.676504738Z"
+    },
+    {
+      "id": "bff62c8e-0ca1-4ec2-bf33-14cc7680d880",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d32.91f8b-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:29:06.707575724Z"
+    },
+    {
+      "id": "dd01a5a0-ad2e-4f7f-99bc-bbfc96c4a8bc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.02 s",
+      "timestamp": "2026-09-09T14:29:06.707633465Z"
+    },
+    {
+      "id": "5500800c-e8a2-49c7-8531-78a042026687",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d6e.9219c-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.worker_locks\": index scans: 0",
+      "timestamp": "2026-09-09T14:30:06.580341573Z"
+    },
+    {
+      "id": "91a0de14-00d5-4a55-ac6f-45f7acae2528",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:30:06.580389815Z"
+    },
+    {
+      "id": "61ce2447-1b1b-4a71-823c-f565a34bc554",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d6e.9219c-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:30:06.585405205Z"
+    },
+    {
+      "id": "7d39f8e6-a92e-4587-bced-52a00094a810",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:30:06.585429156Z"
+    },
+    {
+      "id": "c3339106-fd56-4a89-a651-fffd3596b488",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d6e.9219c-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:30:06.594999817Z"
+    },
+    {
+      "id": "6b618774-c95a-4eae-ba39-895d6f86385a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:30:06.595054968Z"
+    },
+    {
+      "id": "7fabcbcf-05a9-4aa8-a2c3-8a19aab88493",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d6e.9219c-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:30:06.676663229Z"
+    },
+    {
+      "id": "8197dc15-e0f4-4fd2-81b2-a6af7aaacefb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.08 s",
+      "timestamp": "2026-09-09T14:30:06.67668601Z"
+    },
+    {
+      "id": "4079a122-b332-458f-b4bf-e317aeeb18e6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16d6e.9219c-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:30:06.688316126Z"
+    },
+    {
+      "id": "a533d5ef-8708-4305-bac2-aa3e93078a46",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:30:06.688360337Z"
+    },
+    {
+      "id": "ff7c73ce-3929-4020-b460-b6e3ac233e39",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:31:06.580280901Z"
+    },
+    {
+      "id": "d3b849f3-9015-4ebd-b81e-2570e9bb86b2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:31:06.580338323Z"
+    },
+    {
+      "id": "77de5bed-ba4f-410b-83c9-a2e896f0bec2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:31:06.586053699Z"
+    },
+    {
+      "id": "285dab12-015a-4e49-b220-54eb9f9e051c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:31:06.586075459Z"
+    },
+    {
+      "id": "d9a8a5d6-fafd-4312-97ea-36a05bea53ee",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_bars\"",
+      "timestamp": "2026-09-09T14:31:06.682492337Z"
+    },
+    {
+      "id": "d4736197-9aae-433b-9a18-ed551eb42bac",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:31:06.682537778Z"
+    },
+    {
+      "id": "f362401b-6f54-47e7-824a-71d54abf8f7b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:31:06.779375355Z"
+    },
+    {
+      "id": "0a491703-a1ce-42ee-a9d3-9ee9990699ed",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:31:06.779442196Z"
+    },
+    {
+      "id": "0459b262-a70f-4c00-8c8d-8ae00113e6c0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-5] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:31:06.779675221Z"
+    },
+    {
+      "id": "20910d6f-6b7f-4ee3-ab06-e90df4f546be",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:31:06.779687911Z"
+    },
+    {
+      "id": "6df49499-31c4-451e-844a-150c560c5e3e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-6] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_quotes\": index scans: 0",
+      "timestamp": "2026-09-09T14:31:40.778638991Z"
+    },
+    {
+      "id": "b270787d-2fe7-421d-a1cb-f860e38fbef1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.20 s, system: 0.25 s, elapsed: 33.99 s",
+      "timestamp": "2026-09-09T14:31:40.778687432Z"
+    },
+    {
+      "id": "a84bd8f6-f4ec-49c5-b982-60e0fca6be37",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16daa.922e1-7] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:31:41.280950204Z"
+    },
+    {
+      "id": "6a3a7a11-fcb6-4b87-80de-14f0e62d848a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.50 s",
+      "timestamp": "2026-09-09T14:31:41.281020426Z"
+    },
+    {
+      "id": "6a0b0950-8b3f-4e1e-ad03-15fa6bd78b59",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16de6.925a8-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:32:06.588076182Z"
+    },
+    {
+      "id": "a99232fa-67fc-4268-a2ee-8e25274cfcc3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:32:06.588103972Z"
+    },
+    {
+      "id": "6cdb84f2-3146-426d-a0ad-610bf5dd3fd2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16de6.925a8-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:32:06.594915523Z"
+    },
+    {
+      "id": "a050f26a-88a6-4c2e-b6bc-a6615215a711",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:32:06.594994315Z"
+    },
+    {
+      "id": "6be53661-05fc-4913-9a24-f9b0b7d1f584",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16de6.925a8-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:32:06.597560851Z"
+    },
+    {
+      "id": "d3e7fa2e-a8ea-4862-aa4f-2f5e00c106e7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:32:06.597586282Z"
+    },
+    {
+      "id": "70e817b6-4113-4f64-b1da-fbed857d0a38",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16de6.925a8-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:32:06.684212873Z"
+    },
+    {
+      "id": "21b8b251-6630-4edb-8ae2-06326fd5ee80",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.08 s",
+      "timestamp": "2026-09-09T14:32:06.684271745Z"
+    },
+    {
+      "id": "10a56242-bdc8-4be7-8d07-b9edf42c04f3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-446] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 637 buffers (7.8%); 0 WAL file(s) added, 0 removed, 20 recycled; write=269.185 s, sync=0.405 s, total=269.810 s; sync files=60, longest=0.101 s, average=0.007 s; distance=329298 kB, estimate=387497 kB; lsn=7/B63CC0B0, redo lsn=7/9E2D5708",
+      "timestamp": "2026-09-09T14:32:43.695561376Z"
+    },
+    {
+      "id": "7373f2d9-caaf-45b2-9881-6303dff69cdf",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e22.926b5-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:33:06.677710449Z"
+    },
+    {
+      "id": "a8b11cf0-fd47-4440-8182-3494d8ab0a85",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:33:06.67775528Z"
+    },
+    {
+      "id": "490028f4-e2ad-4e4f-980a-7ac60ecdbd73",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e22.926b5-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:33:06.684285914Z"
+    },
+    {
+      "id": "c02ef5d9-1d30-4a2f-b7cd-cdfa4f66b21e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:33:06.684312175Z"
+    },
+    {
+      "id": "c4bd4722-f17f-4605-a262-f82b8eaffc17",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e22.926b5-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:33:06.778098904Z"
+    },
+    {
+      "id": "958c6793-148c-475b-a5ed-6965dd6b5046",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:33:06.778123215Z"
+    },
+    {
+      "id": "6d62f6fd-1ac5-4e1a-921c-16ad3d6029d6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e22.926b5-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:33:06.880597706Z"
+    },
+    {
+      "id": "178de3a3-189a-4fb5-960e-691707445f73",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.10 s",
+      "timestamp": "2026-09-09T14:33:06.880643907Z"
+    },
+    {
+      "id": "0e60568a-6a00-455c-92fe-c97cb03476c1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e5e.928fa-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:34:06.880414316Z"
+    },
+    {
+      "id": "755a117d-1d3d-4af8-80ff-a0abc25fd061",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:34:06.880443727Z"
+    },
+    {
+      "id": "c53c9cb3-1210-4476-8c39-f7794cbfb900",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e5e.928fa-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:34:06.982291374Z"
+    },
+    {
+      "id": "0395e9a7-369a-4f49-9979-b90d5d10e1f4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:34:06.982375246Z"
+    },
+    {
+      "id": "4c4915c1-d385-4c51-bd22-da8d6eb19145",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e5e.928fa-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:34:07.076491013Z"
+    },
+    {
+      "id": "cf73711f-2660-43c2-81fe-b56b86ed029b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:34:07.076519913Z"
+    },
+    {
+      "id": "3651afdf-48ef-4a70-a567-71f89e0a2808",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e5e.928fa-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:34:07.4797189Z"
+    },
+    {
+      "id": "cf471d25-404d-40d0-948d-d8c363618380",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.40 s",
+      "timestamp": "2026-09-09T14:34:07.479778391Z"
+    },
+    {
+      "id": "d96f49a8-6661-4025-b020-4a4bb47761ed",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e9a.92a7b-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:35:06.781440868Z"
+    },
+    {
+      "id": "7ff8b6e3-7734-48f7-b81d-8f5787371378",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:35:06.781501359Z"
+    },
+    {
+      "id": "5294f9b9-02b7-489a-881b-2b7876ec7f6f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e9a.92a7b-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:35:06.787331768Z"
+    },
+    {
+      "id": "0b98eca0-3387-4ca9-986f-854dc0d624a4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:35:06.787359849Z"
+    },
+    {
+      "id": "91010c06-3fb8-4d32-a935-932cd3a0e0f5",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e9a.92a7b-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.worker_locks\": index scans: 0",
+      "timestamp": "2026-09-09T14:35:06.876391953Z"
+    },
+    {
+      "id": "a7d44e36-8b36-4f44-a0aa-ac33e3cf400f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.08 s",
+      "timestamp": "2026-09-09T14:35:06.876459694Z"
+    },
+    {
+      "id": "243cf0fa-c58a-407b-98cb-65beecbe57d3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e9a.92a7b-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:35:06.879084932Z"
+    },
+    {
+      "id": "c2341ea9-afce-4702-8c13-1095fda4849e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:35:06.879108363Z"
+    },
+    {
+      "id": "0a4b158e-279b-4121-8dde-9fc5fed1174a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e9a.92a7b-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16442\": index scans: 1",
+      "timestamp": "2026-09-09T14:35:06.884757868Z"
+    },
+    {
+      "id": "d42eb195-6e31-4b0a-ae19-f7e237b64466",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:35:06.884803009Z"
+    },
+    {
+      "id": "0f8689c0-f3e7-4635-bb4a-dd521d1497dd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16e9a.92a7b-6] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:35:07.076403256Z"
+    },
+    {
+      "id": "7fbf2a05-1c54-4759-81dc-91090e9bb1ab",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.19 s",
+      "timestamp": "2026-09-09T14:35:07.076464867Z"
+    },
+    {
+      "id": "42c927c6-cc88-44dc-b140-db1696924d8a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ed6.92bed-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:36:06.782408956Z"
+    },
+    {
+      "id": "63e69ad0-66ac-4a54-92e4-994592309d76",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:36:06.782440227Z"
+    },
+    {
+      "id": "73fc31af-397b-42e8-adc4-3fc8ac910694",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ed6.92bed-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:36:06.785698899Z"
+    },
+    {
+      "id": "bfe59c22-7c87-4dba-a7cf-0a18ec2fea15",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:36:06.78575411Z"
+    },
+    {
+      "id": "13f40f98-4019-43cc-a995-43617fd16c38",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ed6.92bed-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:36:06.788521111Z"
+    },
+    {
+      "id": "3a249ae3-0502-4ce3-92df-7f0d275fae2b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:36:06.788540432Z"
+    },
+    {
+      "id": "06fd2abb-69ed-489a-ab61-4a1c7ad37c28",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16ed6.92bed-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:36:07.076383813Z"
+    },
+    {
+      "id": "915759f9-16b0-4914-9134-0b84971e0a09",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.28 s",
+      "timestamp": "2026-09-09T14:36:07.076441504Z"
+    },
+    {
+      "id": "f5c2b863-1de1-4bdc-8bea-8fc156842d92",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f12.92cda-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:37:06.779956143Z"
+    },
+    {
+      "id": "d56a51d5-96cd-4343-8c31-f1728712a174",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:37:06.780028674Z"
+    },
+    {
+      "id": "445a6e7f-2826-4145-9d7d-9f1f7a2fcebb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f12.92cda-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:37:06.786230571Z"
+    },
+    {
+      "id": "20ced6c7-c611-4a62-a861-17efaea97831",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:37:06.786253671Z"
+    },
+    {
+      "id": "4c60ae83-4a39-40b3-8c58-ac8844d73beb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f12.92cda-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:37:06.790483595Z"
+    },
+    {
+      "id": "f4b6db1f-3475-43f9-8de7-9a8751131664",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:37:06.790508455Z"
+    },
+    {
+      "id": "a9d5343c-3c26-4472-aef2-7361f4c009b6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f12.92cda-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:37:06.799828191Z"
+    },
+    {
+      "id": "de6ca1f5-cc1b-4052-ac6a-4c45d454ee26",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:37:06.799887932Z"
+    },
+    {
+      "id": "13d824d4-3694-4c68-8b1a-5a65cf2e1b22",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-448] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 646 buffers (7.9%); 0 WAL file(s) added, 0 removed, 25 recycled; write=269.670 s, sync=0.025 s, total=269.772 s; sync files=54, longest=0.005 s, average=0.001 s; distance=412722 kB, estimate=412722 kB; lsn=7/C7D08500, redo lsn=7/B75E21D0",
+      "timestamp": "2026-09-09T14:37:43.169915221Z"
+    },
+    {
+      "id": "08813427-b9c3-483d-b4c4-3c8773e08ded",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f4e.92dc6-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:38:06.980876049Z"
+    },
+    {
+      "id": "f870450a-2529-4e1f-8ac3-9a5cad22e7cc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:38:06.98091104Z"
+    },
+    {
+      "id": "8b333659-fd35-4a77-8aaf-25beef1a09ff",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f4e.92dc6-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:38:06.987036905Z"
+    },
+    {
+      "id": "f497e224-719e-4d42-80ec-54e4504b3d70",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:38:06.987088206Z"
+    },
+    {
+      "id": "28fd4c7b-ccd0-438b-b7c7-fe2bb268fd7a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f4e.92dc6-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:38:06.989479649Z"
+    },
+    {
+      "id": "06f88ba4-7e85-45a8-b145-8983d63ba37e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:38:06.98951357Z"
+    },
+    {
+      "id": "7cba2f87-c3b5-4e55-b3c0-0e44797292a2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f4e.92dc6-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:38:07.184182035Z"
+    },
+    {
+      "id": "95d5d56e-0db9-4f93-8bc9-c01d240699b6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.19 s",
+      "timestamp": "2026-09-09T14:38:07.184229766Z"
+    },
+    {
+      "id": "1ff7cd96-04f2-422e-99f9-f00762e999f0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f8a.92fa9-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:39:06.84278193Z"
+    },
+    {
+      "id": "d572f193-7ffb-4047-9c2b-029136fb45e7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:39:06.842841952Z"
+    },
+    {
+      "id": "878c2e3e-2984-4596-9b5e-89acf380b6f2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f8a.92fa9-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:39:06.848498926Z"
+    },
+    {
+      "id": "65560382-dac0-44f7-9608-64aaf1275b4a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:39:06.848528267Z"
+    },
+    {
+      "id": "04263eef-f86d-4fb7-89ec-a0be14345908",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f8a.92fa9-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:39:06.851571344Z"
+    },
+    {
+      "id": "f0838e1e-e592-44ae-9d28-963e429aa94f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:39:06.851608565Z"
+    },
+    {
+      "id": "708d6c93-4b0f-4193-9000-31a7b159630d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16f8a.92fa9-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:39:06.860926791Z"
+    },
+    {
+      "id": "1de30a33-574d-4cf1-821f-b9266a634e83",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:39:06.860958412Z"
+    },
+    {
+      "id": "a6d648b9-db92-4ce8-9e62-a0b0c11c8c2f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16fc6.93163-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.worker_locks\": index scans: 0",
+      "timestamp": "2026-09-09T14:40:06.97865892Z"
+    },
+    {
+      "id": "f3483ab0-e43c-494c-9fba-987e5a02566a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:40:06.978726482Z"
+    },
+    {
+      "id": "788eb16e-9ea9-489f-93cf-4ae0c18903bb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16fc6.93163-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:40:07.077733366Z"
+    },
+    {
+      "id": "960c013c-dcd8-4229-8cab-e6dbc7edf3dc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:40:07.077754467Z"
+    },
+    {
+      "id": "84ec6f7f-e68b-4ee4-b208-cd024b2eb7cb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16fc6.93163-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:40:07.083129045Z"
+    },
+    {
+      "id": "2769a8fb-f47a-42e8-ac2a-d06552486c2e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:40:07.083148555Z"
+    },
+    {
+      "id": "78f02b75-bf1b-44ff-b828-2ee1b8a6d854",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa16fc6.93163-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:40:07.280587181Z"
+    },
+    {
+      "id": "5d8d7f2b-19c2-4115-9bf8-7df490125fe7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.19 s",
+      "timestamp": "2026-09-09T14:40:07.28095475Z"
+    },
+    {
+      "id": "341a73eb-42fb-401c-8c26-80e5b26540bf",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa17002.932c8-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.controls_v2\"",
+      "timestamp": "2026-09-09T14:41:06.912031465Z"
+    },
+    {
+      "id": "2f497adb-8f63-4a0c-9c51-05305dd65cc5",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:41:06.912057436Z"
+    },
+    {
+      "id": "8746fa43-a0d7-42c3-887d-ab637bd426a6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa17002.932c8-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:41:06.915207136Z"
+    },
+    {
+      "id": "01b2b27f-d966-4705-8477-f4f90219f3fb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:41:06.915247536Z"
+    },
+    {
+      "id": "11be8a9f-a711-4695-b467-f142b775bf9f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa17002.932c8-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:41:06.918319264Z"
+    },
+    {
+      "id": "1430f3e0-1c21-4c20-a316-901a070acc18",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:41:06.918342305Z"
+    },
+    {
+      "id": "3a77d1dd-e90a-4533-a1a7-b9ee0a0baeb3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa17002.932c8-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:41:06.980643889Z"
+    },
+    {
+      "id": "3a0c4391-3d6c-43e3-b2d1-fe0ef1b24635",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:41:06.98068292Z"
+    },
+    {
+      "id": "49139069-b991-42bd-9d41-bb9587b1f23f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa17002.932c8-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:41:07.09308426Z"
+    },
+    {
+      "id": "6cac0f50-4145-4881-aa65-1a92569b5bd3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.11 s",
+      "timestamp": "2026-09-09T14:41:07.093125891Z"
+    },
+    {
+      "id": "bb333afb-eed8-4c7e-9a29-0c7d0f549430",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1703e.933b3-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:42:06.976774687Z"
+    },
+    {
+      "id": "1e4df6c0-f1f6-4c24-bb43-cea22e1d223a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.03 s",
+      "timestamp": "2026-09-09T14:42:06.976806887Z"
+    },
+    {
+      "id": "8037dfc0-52b3-4acc-8e48-476ea5749039",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1703e.933b3-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:42:06.985732404Z"
+    },
+    {
+      "id": "5a1c7f6d-fc5f-4b4e-8a35-cb74dcc5283a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:42:06.985797006Z"
+    },
+    {
+      "id": "ff14ae6a-b0f2-44d3-95af-2e2eb2b6408a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1703e.933b3-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:42:06.991077672Z"
+    },
+    {
+      "id": "e4ceef0f-a64e-4cd9-ac05-f030d343f70e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:42:06.991108553Z"
+    },
+    {
+      "id": "c945705d-3e08-479b-96ab-53c96010ea7b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1703e.933b3-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_2619\": index scans: 1",
+      "timestamp": "2026-09-09T14:42:06.999519688Z"
+    },
+    {
+      "id": "2e8ad2ee-ccca-4d03-a325-36df92dbd912",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:42:06.99959863Z"
+    },
+    {
+      "id": "e1ee1029-b906-4688-8df4-5ed91c9bf7dc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1703e.933b3-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:42:07.018399565Z"
+    },
+    {
+      "id": "96ccfdee-b8ea-46cb-a332-5a3f829a1bcc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.01 s",
+      "timestamp": "2026-09-09T14:42:07.018447226Z"
+    },
+    {
+      "id": "367bcb56-df0d-4608-9ac7-af585324ffd2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-450] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 500 buffers (6.1%); 0 WAL file(s) added, 0 removed, 17 recycled; write=269.709 s, sync=0.023 s, total=269.851 s; sync files=57, longest=0.004 s, average=0.001 s; distance=281500 kB, estimate=399600 kB; lsn=7/D8D6E720, redo lsn=7/C88C94A0",
+      "timestamp": "2026-09-09T14:42:43.215311287Z"
+    },
+    {
+      "id": "51a6430f-9393-4415-86e0-a52c5c31b5fc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1707a.9349f-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:43:06.970928703Z"
+    },
+    {
+      "id": "5eef4c67-00ff-4410-9a22-dd27ac21e0e3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:43:06.971012785Z"
+    },
+    {
+      "id": "65630815-3f30-4e47-ab6b-88057dac210d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1707a.9349f-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:43:06.97622821Z"
+    },
+    {
+      "id": "9c93a8b7-e55c-45e5-ac5b-4386acee3a52",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:43:06.976250771Z"
+    },
+    {
+      "id": "6d56ebfe-5694-4da7-9dcc-8f937d02dacb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1707a.9349f-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:43:06.981604879Z"
+    },
+    {
+      "id": "19144f43-f400-4fea-882c-8a943e003f5f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:43:06.98163617Z"
+    },
+    {
+      "id": "101f03d1-cec4-4691-8587-482059fbefc3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1707a.9349f-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:43:06.984301118Z"
+    },
+    {
+      "id": "5086c482-2653-4a34-9ab4-652513bb6548",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:43:06.984318719Z"
+    },
+    {
+      "id": "123deb25-2219-4d34-899d-0ca549d86104",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1707a.9349f-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:43:07.015032446Z"
+    },
+    {
+      "id": "99868801-6ef2-445d-94c5-e5f6289e9067",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.02 s",
+      "timestamp": "2026-09-09T14:43:07.015089897Z"
+    },
+    {
+      "id": "08ee5ddd-e1a9-4b4d-a923-a46254bf6658",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170b6.93682-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:44:07.005276884Z"
+    },
+    {
+      "id": "aa510659-b514-49c8-be39-1abce4e2fc3d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:44:07.005301295Z"
+    },
+    {
+      "id": "8ead9733-47e5-4099-b51a-17ae99884187",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170b6.93682-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:44:07.010833107Z"
+    },
+    {
+      "id": "ddfa9b0d-9f84-4124-9af7-5c508b3dafaf",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:44:07.010853487Z"
+    },
+    {
+      "id": "65fb451b-acf3-49c4-810e-43a857dddc33",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170b6.93682-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16442\": index scans: 1",
+      "timestamp": "2026-09-09T14:44:07.018059206Z"
+    },
+    {
+      "id": "04a8ed24-ff77-400e-83c7-c2a1285f61c4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:44:07.018097827Z"
+    },
+    {
+      "id": "d74a515a-d248-4c3b-a7cc-b9a3ff2e12fd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170b6.93682-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:44:07.079125213Z"
+    },
+    {
+      "id": "3df7d82f-714d-4846-af6a-c32d4b9acabd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.06 s",
+      "timestamp": "2026-09-09T14:44:07.079169304Z"
+    },
+    {
+      "id": "5f395740-2c2c-4b61-a31f-34a4fbffafc4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170f3.9382f-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-09T14:45:07.17689029Z"
+    },
+    {
+      "id": "780bb25e-ea66-4c30-8e64-bdba62fde82e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:45:07.176945851Z"
+    },
+    {
+      "id": "efbb217e-11ae-4f67-9203-fa3c5ce6c871",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170f3.9382f-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:45:07.182652327Z"
+    },
+    {
+      "id": "1864fdf4-9f2a-4832-a34c-6b4c5e5e6671",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:45:07.182667108Z"
+    },
+    {
+      "id": "2ab2084b-69a7-4006-abc6-f869f660d6b4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170f3.9382f-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.worker_locks\": index scans: 0",
+      "timestamp": "2026-09-09T14:45:07.276366485Z"
+    },
+    {
+      "id": "ec2edac4-b8f3-4d6e-a271-d4e64714f316",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-09T14:45:07.276410806Z"
+    },
+    {
+      "id": "a30fa479-1bfd-45c3-b63b-ceab19b6a992",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170f3.9382f-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:45:07.279553325Z"
+    },
+    {
+      "id": "21065ef9-0a26-4097-9b14-a02b3c76c040",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:45:07.279572005Z"
+    },
+    {
+      "id": "c3ababbe-7f36-4ce9-a3c4-ec4d1ac36930",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa170f3.9382f-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:45:07.782627523Z"
+    },
+    {
+      "id": "9fe7545f-14ea-4d02-bf96-7167f8c1e03d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.40 s",
+      "timestamp": "2026-09-09T14:45:07.782683564Z"
+    },
+    {
+      "id": "80ed41cd-0ec2-49b9-a972-3c8a77217162",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1712f.939a0-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-09T14:46:07.117496197Z"
+    },
+    {
+      "id": "8ac93d66-8ebe-4e63-a8c9-6e27d79123cc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:46:07.117524768Z"
+    },
+    {
+      "id": "aa98c676-6d31-461e-9c50-504a1bfe0a3f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1712f.939a0-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-09T14:46:07.118788906Z"
+    },
+    {
+      "id": "0d083ace-d747-4cde-ba6c-8a81b22ea524",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:46:07.118809886Z"
+    },
+    {
+      "id": "f788e593-3d70-456b-be00-e7471ea31df1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1712f.939a0-3] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.market_data_totals\": index scans: 0",
+      "timestamp": "2026-09-09T14:46:07.126088727Z"
+    },
+    {
+      "id": "e9530bbb-b05d-4b2e-930a-9093ee17074e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:46:07.126163788Z"
+    },
+    {
+      "id": "bb2c0e65-2221-4583-a598-4f622be8f9ae",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1712f.939a0-4] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.market_data_totals\"",
+      "timestamp": "2026-09-09T14:46:07.126415464Z"
+    },
+    {
+      "id": "58c34341-c941-4729-b531-f403a270c4de",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:46:07.126429054Z"
+    },
+    {
+      "id": "f2dede5e-fdf4-433e-a7f0-8022876f030f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa1712f.939a0-5] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-09T14:46:07.136339093Z"
+    },
+    {
+      "id": "44e5e1dc-0d1d-4b3e-8383-cd1beb241b85",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-09T14:46:07.136416294Z"
+    }
+  ],
+  "raw_log_sha256": "51ef816f7567f96dd6a73c8e8d25f807b744b07b88f848713a76615acff0d82d",
+  "raw_logs_retained_in_session_artifacts": true
+}
