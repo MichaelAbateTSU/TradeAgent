@@ -1,0 +1,167 @@
+{
+  "test_id": "operator-btc-paper-20260909-0151",
+  "classification": "EXPLICIT_OPERATOR_CRYPTO_PAPER_TEST",
+  "authority": "Owner explicitly requested an immediate crypto paper trade, using the running Render worker only, on September 9 at 01:51 Eastern.",
+  "actual_round_trip_completed": true,
+  "profitability_established": false,
+  "qualification_eligible": false,
+  "worker": {
+    "service_id": "srv-dae4tr7qj5pc73a9e0k0",
+    "instance_id": "srv-dae4tr7qj5pc73a9e0k0-8c6c556df-5qsrm",
+    "code_sha": "dddb3d7e97decc2682f1af8210a8c27f16248a97",
+    "cohort_id": "v20-crypto-proof-20260909",
+    "config_hash": "753c7842972b508e6bef6e37b99486d5bf719372e9c49fcdebcd297ab1eeafa0",
+    "deploy_id": "dep-dagfgtou01pc73fl6k8g",
+    "ownership_confirmed_at": "2026-09-09T06:19:43.5137172Z",
+    "news_items_fetched": 16,
+    "news_assessment": "Worker-collected context, not a validated crypto strategy or probability of profit."
+  },
+  "command_publisher": {
+    "failed_handoff_wait_job": "job-dagfhpv40ujc73evrcf0",
+    "failed_wait_effect": "No command was issued before the new worker heartbeat was confirmed.",
+    "successful_job": "job-dagfla67bikc73b01jog",
+    "published_at": "2026-09-09T06:20:48Z",
+    "broker_calls": 0,
+    "role": "Database command only. The already-running lease-owning Render worker fetched news and submitted both orders."
+  },
+  "broker": {
+    "host": "https://paper-api.alpaca.markets",
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "symbol": "BTC/USD",
+    "maximum_requested_buy_notional_usd": "20",
+    "buy": {
+      "id": "385947be-92ac-4215-98f4-54380075a145",
+      "client_order_id": "ta-crypto-test-20260909-0151-buy",
+      "status": "filled",
+      "type": "market",
+      "time_in_force": "gtc",
+      "requested_notional": "20",
+      "requested_quantity": null,
+      "filled_quantity": "0.000247676",
+      "filled_average_price": "79217.31",
+      "filled_at": "2026-09-09T06:20:49.378751Z",
+      "fill_value": "19.62022647156",
+      "activity_id": "20260909022049378::b81c2780-1ead-43e5-b749-5be3feac0a81"
+    },
+    "sell": {
+      "id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+      "client_order_id": "ta-crypto-test-20260909-0151-s0",
+      "status": "filled",
+      "type": "market",
+      "time_in_force": "gtc",
+      "quantity": "0.000247056",
+      "filled_quantity": "0.000247056",
+      "filled_average_price": "79103.5",
+      "filled_at": "2026-09-09T06:21:28.132488Z",
+      "fill_value": "19.5429942960",
+      "activity_id": "20260909022128132::64e75807-3bc9-45a9-adc5-0931565da312"
+    },
+    "exit_reason": "protective_quote_unavailable",
+    "exit_explanation": "The worker's protective crypto quote did not satisfy its validity/freshness check; it liquidated confirmed owned quantity rather than waiting indefinitely for a positive price.",
+    "fill_value_difference": "-0.07723217556",
+    "conservative_net_estimate": "-0.12608966130000",
+    "fees": {
+      "assumed_taker_rate_each_side": "0.0025",
+      "credited_quantity_shortfall": "0.000000620",
+      "additional_entry_reserve": "0",
+      "method": "Buy-side credited-quantity reduction is already reflected in sale quantity; only any remaining unrepresented entry reserve and estimated sale fee are deducted.",
+      "CFEE_or_FEE_activities_present_at_verification": false,
+      "final_fee_reconciliation": "pending; same-day fee activity may not yet be posted"
+    }
+  },
+  "independent_verification": {
+    "job_id": "job-dagfmgou01pc73flu9gg",
+    "job_status": "succeeded",
+    "verified_at": "2026-09-09T06:23:17.310681Z",
+    "role": "Read-only same-image order, position, account activity and notification queries; no order submissions.",
+    "buy_and_sell_Fill_activities_confirmed": true,
+    "positions": [],
+    "open_orders": [],
+    "global_kill": "active"
+  },
+  "render_notifier": {
+    "service_id": "srv-dadnn6mq1p3s73ef7ef0",
+    "messages": [
+      {
+        "stage": "buy acknowledged",
+        "notification_id": "521e60c9-3943-5b08-9e35-03f47585f247",
+        "provider_message_id": "29c7a5fc-d411-40df-a074-993150c676b5",
+        "sent_at": "2026-09-09T06:20:51.266154Z",
+        "attempts": 1
+      },
+      {
+        "stage": "buy filled",
+        "notification_id": "ca50bb27-7e3e-5c1b-a6cf-ee6b23776a05",
+        "provider_message_id": "2e8d8f40-e732-4464-aae8-3e57fcc66821",
+        "sent_at": "2026-09-09T06:21:31.646236Z",
+        "attempts": 1
+      },
+      {
+        "stage": "sell acknowledged",
+        "notification_id": "5e2ffdc6-0751-5b57-a6ae-f5388778b43e",
+        "provider_message_id": "013cb2fb-e8a5-4645-ba16-980d3abb9d93",
+        "sent_at": "2026-09-09T06:21:31.824656Z",
+        "attempts": 1
+      },
+      {
+        "stage": "completed",
+        "notification_id": "94973529-1b76-504a-a73b-1355a601405c",
+        "provider_message_id": "4c92bffd-68c7-4777-9d63-3b7b0ad01779",
+        "sent_at": "2026-09-09T06:22:12.442418Z",
+        "attempts": 1
+      }
+    ],
+    "inbox_delivery_verified": false,
+    "recipients_or_daily_schedule_changed": false
+  },
+  "validation": {
+    "full_tests_passed": 1013,
+    "skipped": 2,
+    "coverage_percent": 87.32,
+    "coverage_gate_percent": 85,
+    "targeted_tests_passed": 78,
+    "mypy_source_files": 90,
+    "review": "Notional nullable-quantity, missing protective quote and rejected-exit recovery defects corrected; final focused review found no significant issues.",
+    "postdeployment_soak": "crypto-paper-test-20260909-afterhours.json",
+    "postdeployment_soak_seconds": 662.469183,
+    "postdeployment_http_requests": 882,
+    "postdeployment_http_errors": 0,
+    "maximum_application_memory_mib": 217.96,
+    "maximum_postgres_memory_mib": 215.89,
+    "full_equity_market_flow_acceptance": false,
+    "remaining_acceptance_note": "Stock recorder/feed correctly lacked advancing quotes/trades/bars while the equity market was closed; actual crypto fills are independently verified above."
+  },
+  "morning_configuration_restoration": {
+    "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "config_hash": "77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43",
+    "deploy_id": "dep-dagfr5v40ujc73f15eb0",
+    "current_owner": "srv-dae4tr7qj5pc73a9e0k0-65779db4ff-72hsr",
+    "owner_confirmed_at": "2026-09-09T06:40:55.8430216Z",
+    "global_kill": "active",
+    "cohort_pause": "OPERATOR_PAUSE",
+    "control_timestamps_preserved": true,
+    "independent_verification_job": "job-dagfvi142hec73c5qjb0",
+    "independent_verification_status": "succeeded",
+    "post_restore_soak": "crypto-paper-test-20260909-morning-restore-soak.json",
+    "verified_at": "2026-09-09T06:42:25.006638Z",
+    "post_restore_soak_seconds": 662.677487,
+    "post_restore_http_requests": 882,
+    "post_restore_http_errors": 0,
+    "post_restore_max_application_memory_mib": 217.26,
+    "post_restore_max_postgres_memory_mib": 178.07,
+    "post_restore_full_stock_market_acceptance": false,
+    "post_restore_remaining_gate": "Regular-session stock quote/trade/bar progression; unchanged scheduled morning acceptance.",
+    "crypto_orders_still_filled_and_account_flat": true
+  },
+  "preserved": {
+    "normal_equity_trading_paused": true,
+    "original_september8_MISSED": true,
+    "sealed_holdouts_unopened": true,
+    "repeat_crypto_buy_authorized": false,
+    "live_trading_available": false
+  },
+  "sources": [
+    "https://docs.alpaca.markets/us/docs/crypto-trading"
+  ]
+}
