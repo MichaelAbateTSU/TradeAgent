@@ -1,0 +1,167 @@
+{
+  "job_id": "job-dagornh594qs73erlj00",
+  "readbacks": [
+    {
+      "observed_at": "2026-09-09T16:49:41.279504+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": null,
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-09T16:49:56.285268+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": null,
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-09T16:50:11.291151+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": null,
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-09T16:50:26.297016+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": null,
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-09T16:50:41.301554+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": null,
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-09T16:50:56.306673+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": {
+        "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER MISSED] v20-news-paper-20260909-r1",
+          "text": "Persisted paper workflow result: MISSED\nCohort: v20-news-paper-20260909-r1\nSession date: 2026-09-09 (America/New_York)\nObserved: 2026-09-09T16:50:56.261692+00:00\nWorker heartbeat: 2026-09-09T16:50:45.930679+00:00\nCohort entry attempts: 0\nReasons: NEWS_AUTHORIZATION_REQUIRED, SESSION_FINISHED_OR_EQUIPMENT_FAILED\nv20-news-paper-20260909-r1:calibration_status: 2026-09-09T14:30:33.286983+00:00\nv20-news-paper-20260909-r1:news-terminal: 2026-09-09T14:30:24.386665+00:00\n\nThis observer did not check the broker. Current flatness, orders, fills and P&L are not established by this notification. Cohort attempts are not account-wide budget usage. No entry permission or profitability claim.",
+          "cohort_id": "v20-news-paper-20260909-r1",
+          "session_date": "2026-09-09",
+          "operational_status": "MISSED",
+          "entry_attempts": 0,
+          "reasons": [
+            "NEWS_AUTHORIZATION_REQUIRED",
+            "SESSION_FINISHED_OR_EQUIPMENT_FAILED"
+          ],
+          "paper_only": true,
+          "qualification_eligible": false,
+          "broker_state_verified": false,
+          "observed_at": "2026-09-09T16:50:56.261692+00:00",
+          "control_versions": {
+            "v20-news-paper-20260909-r1:calibration_status": {
+              "updated_at": "2026-09-09T14:30:33.286983+00:00",
+              "sha256": "710b7d686daf4285377f8059d78432020a66063a1d6d98d7ca12f5c11f6501d6"
+            },
+            "v20-news-paper-20260909-r1:news-terminal": {
+              "updated_at": "2026-09-09T14:30:24.386665+00:00",
+              "sha256": "40b75a2d043fc570993725c374f35e1fcc3a7fc505b861e0b2e09282525b8a5e"
+            }
+          }
+        },
+        "status": "sending",
+        "attempts": 1,
+        "provider_message_id": null,
+        "created_at": "2026-09-09 16:50:56.261692+00:00",
+        "sent_at": null,
+        "claimed_at": "2026-09-09 16:50:56.279278+00:00"
+      },
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 10
+        },
+        {
+          "status": "sending",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "observed_at": "2026-09-09T16:51:11.311290+00:00",
+      "read_only": true,
+      "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+      "row": {
+        "notification_id": "3c12a339-00a7-52e5-97aa-2d4aae49a5d9",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER MISSED] v20-news-paper-20260909-r1",
+          "text": "Persisted paper workflow result: MISSED\nCohort: v20-news-paper-20260909-r1\nSession date: 2026-09-09 (America/New_York)\nObserved: 2026-09-09T16:50:56.261692+00:00\nWorker heartbeat: 2026-09-09T16:50:45.930679+00:00\nCohort entry attempts: 0\nReasons: NEWS_AUTHORIZATION_REQUIRED, SESSION_FINISHED_OR_EQUIPMENT_FAILED\nv20-news-paper-20260909-r1:calibration_status: 2026-09-09T14:30:33.286983+00:00\nv20-news-paper-20260909-r1:news-terminal: 2026-09-09T14:30:24.386665+00:00\n\nThis observer did not check the broker. Current flatness, orders, fills and P&L are not established by this notification. Cohort attempts are not account-wide budget usage. No entry permission or profitability claim.",
+          "cohort_id": "v20-news-paper-20260909-r1",
+          "session_date": "2026-09-09",
+          "operational_status": "MISSED",
+          "entry_attempts": 0,
+          "reasons": [
+            "NEWS_AUTHORIZATION_REQUIRED",
+            "SESSION_FINISHED_OR_EQUIPMENT_FAILED"
+          ],
+          "paper_only": true,
+          "qualification_eligible": false,
+          "broker_state_verified": false,
+          "observed_at": "2026-09-09T16:50:56.261692+00:00",
+          "control_versions": {
+            "v20-news-paper-20260909-r1:calibration_status": {
+              "updated_at": "2026-09-09T14:30:33.286983+00:00",
+              "sha256": "710b7d686daf4285377f8059d78432020a66063a1d6d98d7ca12f5c11f6501d6"
+            },
+            "v20-news-paper-20260909-r1:news-terminal": {
+              "updated_at": "2026-09-09T14:30:24.386665+00:00",
+              "sha256": "40b75a2d043fc570993725c374f35e1fcc3a7fc505b861e0b2e09282525b8a5e"
+            }
+          }
+        },
+        "status": "sent",
+        "attempts": 1,
+        "provider_message_id": "8028c160-8139-4211-bc35-3c59e278d066",
+        "created_at": "2026-09-09 16:50:56.261692+00:00",
+        "sent_at": "2026-09-09 16:50:56.501699+00:00",
+        "claimed_at": "2026-09-09 16:50:56.279278+00:00"
+      },
+      "all_status_counts": [
+        {
+          "status": "sent",
+          "count": 11
+        }
+      ]
+    }
+  ],
+  "provider_acceptance_verified": true,
+  "inbox_delivery_verified": false
+}

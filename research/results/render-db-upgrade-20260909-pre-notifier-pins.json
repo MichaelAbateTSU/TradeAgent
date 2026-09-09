@@ -1,0 +1,115 @@
+{
+  "observed_at": "2026-09-09T16:44:24.634680+00:00",
+  "services": {
+    "event": {
+      "service_id": "srv-dae4tr7qj5pc73a9e0k0",
+      "plan": "starter",
+      "start_command": "tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-09 --cohort-id v20-news-paper-20260909-r1 --entry-policy news-paper --news-account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --max-entries-per-session 2 --symbols AAPL,MSFT,NVDA",
+      "auto_deploy": "no",
+      "deployment": {
+        "id": "dep-dagfr5v40ujc73f15eb0",
+        "commit": {
+          "id": "29cf2327e8145af510735faa5a51d852a747a47b",
+          "message": "Normalize related demo formatting for complete release gates\n\nAST-identical formatting only. All 198 files pass Ruff format, repository-wide Ruff passes, and 72 equipment/news tests pass.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-09T04:59:50Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-09T06:32:55.637229Z",
+        "updatedAt": "2026-09-09T06:34:14.009083Z",
+        "startedAt": "2026-09-09T06:32:55.635597Z",
+        "finishedAt": "2026-09-09T06:34:14.008835Z"
+      }
+    },
+    "recorder": {
+      "service_id": "srv-dadn8son74is73apqcc0",
+      "plan": "starter",
+      "start_command": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD",
+      "auto_deploy": "no",
+      "deployment": {
+        "id": "dep-dagmh2mk1f9s73diissg",
+        "commit": {
+          "id": "645714bf4c21aa8a9cbd73849f94119dc0b563a6",
+          "message": "Reduce recorder batch SQL construction overhead\n\nPreserve paged atomic conflict and retry semantics; record the failed opening conditions and local throughput evidence. Production acceptance remains required.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-09T13:52:24Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-09T14:09:14.047612Z",
+        "updatedAt": "2026-09-09T14:10:48.354073Z",
+        "startedAt": "2026-09-09T14:09:14.045615Z",
+        "finishedAt": "2026-09-09T14:10:48.353907Z"
+      }
+    },
+    "notifier": {
+      "service_id": "srv-dadnn6mq1p3s73ef7ef0",
+      "plan": "starter",
+      "start_command": "tradeagent notifier",
+      "auto_deploy": "no",
+      "deployment": {
+        "id": "dep-dag5kn740ujc73edg0og",
+        "commit": {
+          "id": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+          "message": "fix: retry deferred end-of-day report persistence\n\nKeep broker completion facts independent from report persistence acknowledgement. Retry a missing snapshot after contention or failure, including across restarts, without turning report admission contention into an execution-worker fault.\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T18:53:55Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T18:56:28.671342Z",
+        "updatedAt": "2026-09-08T18:57:39.651563Z",
+        "startedAt": "2026-09-08T18:56:28.669329Z",
+        "finishedAt": "2026-09-08T18:57:39.651395Z"
+      }
+    },
+    "dashboard": {
+      "service_id": "srv-dadoa3740ujc73cb09c0",
+      "plan": "starter",
+      "start_command": "tradeagent serve --host 0.0.0.0 --port $PORT --production",
+      "auto_deploy": "no",
+      "deployment": {
+        "id": "dep-dag8gd6k1f9s738f7hpg",
+        "commit": {
+          "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+          "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T21:58:20Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T22:12:04.554904Z",
+        "updatedAt": "2026-09-08T22:13:40.34932Z",
+        "startedAt": "2026-09-08T22:12:04.527277Z",
+        "finishedAt": "2026-09-08T22:13:10.396813Z"
+      }
+    }
+  },
+  "database": {
+    "connectionPool": "none",
+    "createdAt": "2026-09-05T01:43:58.415023Z",
+    "dashboardUrl": "https://dashboard.render.com/d/dpg-dadn7nht0dsc73f9jja0-a",
+    "databaseName": "tradeagent",
+    "databaseUser": "tradeagent",
+    "diskAutoscalingEnabled": false,
+    "diskSizeGB": 15,
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "highAvailabilityEnabled": false,
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "ipAllowList": [],
+    "name": "tradeagent-postgres",
+    "owner": {
+      "email": "michaelabate819@gmail.com",
+      "id": "tea-d9dqrkr7uimc73c2e240",
+      "name": "Trade Agent",
+      "type": "team"
+    },
+    "plan": "0.5c-1g",
+    "readReplicas": [],
+    "region": "oregon",
+    "role": "primary",
+    "status": "available",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "updatedAt": "2026-09-09T16:25:58.12949Z",
+    "version": "17"
+  },
+  "next_action": "deploy reviewed notifier37 only; do not deploy current HEAD to other roles"
+}

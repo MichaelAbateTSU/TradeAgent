@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "createdAt": "2026-09-09T16:39:23Z",
+    "id": "37e7a72c792a0398324ac0c5bee5cd50cdbb5077",
+    "message": "Notify current paper session outcomes without requiring a trade\n\nObserve same-day frozen cohort controls and atomically enqueue deduplicated MISSED, BLOCKED or completion notices through the existing notifier. No historical replay, broker-state claim, trading-control changes or heavy report generation.\n\nCo-authored-by: Copilot App \u003c223556219+Copilot@users.noreply.github.com\u003e"
+  },
+  "createdAt": "2026-09-09T16:45:49.852563Z",
+  "id": "dep-dagoqf8n74is739dkj7g",
+  "startedAt": "2026-09-09T16:45:49.85094Z",
+  "status": "build_in_progress",
+  "trigger": "api",
+  "updatedAt": "2026-09-09T16:45:49.852563Z"
+}

@@ -77,11 +77,43 @@ old cohorts, change controls, query broker/market history, or generate a full
 report. The email explicitly distinguishes cohort attempts from account-wide
 usage and does not claim that broker flatness or fills were checked.
 
-Actual notifier deployment, send attempts and provider acceptance are still
-required before claiming that this new alert was delivered to the email provider.
+The independently reviewed notifier release
+`37e7a72c792a0398324ac0c5bee5cd50cdbb5077` passed full validation (1,076 passed,
+two skipped; 87.41% coverage) and was deployed only to the notifier as
+`dep-dagoqf8n74is739dkj7g`. Its new owner
+`srv-dadnn6mq1p3s73ef7ef0-867d694f49-fqbql` obtained the delivery lease naturally;
+temporary lease-contention starts are preserved separately.
+
+The **running notifier**, not an email-sending job, automatically enqueued and
+sent the current cohort's MISSED result at **12:50:56 Eastern**, exactly once.
+Notification `3c12a339-00a7-52e5-97aa-2d4aae49a5d9` has status `sent`, one attempt,
+and provider ID **`8028c160-8139-4211-bc35-3c59e278d066`**.
+The independent proof job only read the outbox. This establishes provider
+acceptance, not inbox delivery. A separate owner-requested retry summary follows
+the full upgraded-capacity observation; it is not a resend of this MISSED alert.
 
 Capacity acceptance, trade authorization and email acceptance remain separate.
 The 15:45 Eastern close watch still must observe actual flatness through close.
+
+## Physical-data defect found during the rerun
+
+The larger database kept raw ingestion fast, but the independent physical probe
+found **no QQQ trade rows** in its recent window despite advancing QQQ quotes and
+bars. A bounded, read-only Alpaca IEX historical request then returned 20 actual
+QQQ trades with IDs 4118-4137 at approximately 16:49 UTC on September 9.
+Every sampled ID matched a stored **September 8** trade instead, with a different
+timestamp and price.
+
+The existing unique key `(symbol, feed_source, provider_trade_id)` incorrectly
+treats provider trade IDs as globally unique across sessions. `ON CONFLICT`
+therefore silently classified these genuine new trades as duplicates. Zero queue
+drops and successful HTTP requests do not establish complete persistence.
+
+This evidence blocks full data-pipeline acceptance even if the generic load
+observer passes. A narrow, data-preserving trade-identity correction is being
+implemented and must receive its own migration, exact review and full live
+acceptance. Old rows and all failed observations remain; no historical REST
+backfill or replay is being used to repair evidence into a pass.
 
 ## Evidence
 
@@ -90,3 +122,7 @@ The 15:45 Eastern close watch still must observe actual flatness through close.
 - [Planned outage and reconnection observations](../research/results/render-db-upgrade-20260909-reconnection.json)
 - [Resize-related process events](../research/results/render-db-upgrade-20260909-process-events.json)
 - [Complete account-day broker orders and posted fees](../research/results/news-paper-20260909-afternoon-broker-budget.json)
+- [Automatic outcome-email provider acceptance](../research/results/render-notifier-outcomes-20260909-email-proof.json)
+- [Actual notifier deployment](../research/results/render-notifier-outcomes-20260909-deploy.json)
+- [Natural notifier handoff](../research/results/render-notifier-outcomes-20260909-handoff.json)
+- [Actual QQQ provider-ID collisions across days](../research/results/render-db-upgrade-20260909-qqq-investigation.json)
