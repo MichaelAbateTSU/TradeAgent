@@ -1,0 +1,41 @@
+{
+  "requested_wake": "2026-09-09T15:45:31.875-04:00",
+  "control_plane_verified_at": "2026-09-09T19:46:18.766834+00:00",
+  "job_id": "job-dagrg69t0dsc73feo7q0",
+  "job_status": "succeeded",
+  "sample_count": 17,
+  "first_broker_at": "2026-09-09T15:49:01.627036-04:00",
+  "last_broker_at": "2026-09-09T16:05:00.473252-04:00",
+  "first_observed_closed_at": "2026-09-09T16:00:07.250529-04:00",
+  "maximum_sample_spacing_seconds": 61.36858,
+  "all_observed_flat": true,
+  "all_observed_no_open_orders": true,
+  "all_observed_no_unresolved_local_intents": true,
+  "diagnostics_terminal_unchanged": true,
+  "old_cohort_and_selected_controls_unchanged": true,
+  "account_day_orders_unchanged": true,
+  "account_day_order_count": 3,
+  "account_day_buy_submissions": 2,
+  "global_kill_active_original_timestamp": true,
+  "new_r1_pause_preserved": true,
+  "no_operator_orders_or_rearm": true,
+  "read_only_watch_complete": true,
+  "log_read_errors": [
+    {
+      "at": "2026-09-09T20:03:18.696947+00:00",
+      "type": "ReadTimeout"
+    }
+  ],
+  "evidence_sha256": "874b35549a17e82e70c6bf3e07cbbc9d9b726f70591266d7727627a28a35a605",
+  "limitations": [
+    "Snapshots are periodic observations, not continuous exposure proof",
+    "Broker sampling began15:49aftercontrol-planechecks; no earlier flatness inferred",
+    "No profitability/qualification/trading approval; existing R1 and account-budget blocks remain"
+  ],
+  "evidence_archive": "paper-close-20260909-samples.json.gz",
+  "close_email_notification_id": "59211edb-9c6a-5a58-b5fe-6524e7fa71d7",
+  "close_email_provider_id": "46e17c07-5c77-40b9-b2c5-7d15bba9bdd5",
+  "close_email_attempts": 1,
+  "close_email_provider_accepted_at": "2026-09-09T20:08:16.150457Z",
+  "inbox_delivery_verified": false
+}

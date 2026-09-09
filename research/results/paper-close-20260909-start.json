@@ -1,0 +1,438 @@
+{
+  "observed_at": "2026-09-09T19:46:18.766834+00:00",
+  "services": {
+    "event": {
+      "id": "srv-dae4tr7qj5pc73a9e0k0",
+      "deploy": {
+        "id": "dep-dagqkimk1f9s73ckdtog",
+        "commit": {
+          "id": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "message": "Scope persisted trade identity to venue and event time\n\nPreserve originals while accepting provider IDs reused on another day or venue. Add bounded concurrent-index migration, atomic conflict-aware generic writes, cross-session regressions and a private rollback-only PostgreSQL fixture. No historical backfill or trading-risk changes.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-09T17:45:51Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-09T18:49:46.120838Z",
+        "updatedAt": "2026-09-09T18:51:38.986177Z",
+        "startedAt": "2026-09-09T18:49:46.118978Z",
+        "finishedAt": "2026-09-09T18:51:38.985844Z"
+      },
+      "details": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent run --mode shadow --purpose iex-practice --practice-start-date 2026-09-09 --entry-policy event-strategy --cohort-id iex-trade-repair-20260909 --symbols AAPL,MSFT,NVDA --max-entries-per-session 2"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+      },
+      "autoDeploy": "no"
+    },
+    "recorder": {
+      "id": "srv-dadn8son74is73apqcc0",
+      "deploy": {
+        "id": "dep-dagps3dbedkc739omglg",
+        "commit": {
+          "id": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "message": "Scope persisted trade identity to venue and event time\n\nPreserve originals while accepting provider IDs reused on another day or venue. Add bounded concurrent-index migration, atomic conflict-aware generic writes, cross-session regressions and a private rollback-only PostgreSQL fixture. No historical backfill or trading-risk changes.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-09T17:45:51Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-09T17:57:34.004393Z",
+        "updatedAt": "2026-09-09T17:59:13.194809Z",
+        "startedAt": "2026-09-09T17:57:34.002443Z",
+        "finishedAt": "2026-09-09T17:59:13.18722Z"
+      },
+      "details": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadn8son74is73apqcc0@ssh.oregon.render.com"
+      },
+      "autoDeploy": "no"
+    },
+    "notifier": {
+      "id": "srv-dadnn6mq1p3s73ef7ef0",
+      "deploy": {
+        "id": "dep-dagoqf8n74is739dkj7g",
+        "commit": {
+          "id": "37e7a72c792a0398324ac0c5bee5cd50cdbb5077",
+          "message": "Notify current paper session outcomes without requiring a trade\n\nObserve same-day frozen cohort controls and atomically enqueue deduplicated MISSED, BLOCKED or completion notices through the existing notifier. No historical replay, broker-state claim, trading-control changes or heavy report generation.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-09T16:39:23Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-09T16:45:49.852563Z",
+        "updatedAt": "2026-09-09T16:47:23.876267Z",
+        "startedAt": "2026-09-09T16:45:49.85094Z",
+        "finishedAt": "2026-09-09T16:47:23.876032Z"
+      },
+      "details": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent notifier"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+      },
+      "autoDeploy": "no"
+    },
+    "dashboard": {
+      "id": "srv-dadoa3740ujc73cb09c0",
+      "deploy": {
+        "id": "dep-dag8gd6k1f9s738f7hpg",
+        "commit": {
+          "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+          "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T21:58:20Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T22:12:04.554904Z",
+        "updatedAt": "2026-09-08T22:13:40.34932Z",
+        "startedAt": "2026-09-08T22:12:04.527277Z",
+        "finishedAt": "2026-09-08T22:13:10.396813Z"
+      },
+      "details": {
+        "buildPlan": "starter",
+        "cache": {
+          "profile": "no-cache"
+        },
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "startCommand": "tradeagent serve --host 0.0.0.0 --port $PORT --production"
+        },
+        "healthCheckPath": "/health",
+        "ipAllowList": [
+          {
+            "cidrBlock": "0.0.0.0/0",
+            "description": "everywhere"
+          }
+        ],
+        "maintenanceMode": {
+          "enabled": false,
+          "uri": ""
+        },
+        "numInstances": 1,
+        "openPorts": [
+          {
+            "port": 10000,
+            "protocol": "TCP"
+          }
+        ],
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadoa3740ujc73cb09c0@ssh.oregon.render.com",
+        "url": "https://tradeagent-runtime-dashboard.onrender.com"
+      },
+      "autoDeploy": "no"
+    }
+  },
+  "database": {
+    "connectionPool": "none",
+    "createdAt": "2026-09-05T01:43:58.415023Z",
+    "dashboardUrl": "https://dashboard.render.com/d/dpg-dadn7nht0dsc73f9jja0-a",
+    "databaseName": "tradeagent",
+    "databaseUser": "tradeagent",
+    "diskAutoscalingEnabled": false,
+    "diskSizeGB": 15,
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "highAvailabilityEnabled": false,
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "ipAllowList": [],
+    "name": "tradeagent-postgres",
+    "owner": {
+      "email": "michaelabate819@gmail.com",
+      "id": "tea-d9dqrkr7uimc73c2e240",
+      "name": "Trade Agent",
+      "type": "team"
+    },
+    "plan": "0.5c-1g",
+    "readReplicas": [],
+    "region": "oregon",
+    "role": "primary",
+    "status": "available",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "updatedAt": "2026-09-09T16:25:58.12949Z",
+    "version": "17"
+  },
+  "environment": {
+    "databasesIds": [
+      "dpg-dadn7nht0dsc73f9jja0-a"
+    ],
+    "envGroupIds": [],
+    "id": "evm-daf34jn40ujc739c8530",
+    "ipAllowList": [
+      {
+        "cidrBlock": "0.0.0.0/0",
+        "description": "everywhere"
+      }
+    ],
+    "name": "Production",
+    "networkIsolationEnabled": true,
+    "projectId": "prj-daf34jn40ujc739c852g",
+    "protectedStatus": "protected",
+    "redisIds": [],
+    "serviceIds": [
+      "srv-dadn8son74is73apqcc0",
+      "srv-dae4tr7qj5pc73a9e0k0",
+      "srv-dadnn6mq1p3s73ef7ef0",
+      "srv-dadoa3740ujc73cb09c0"
+    ]
+  },
+  "ready": {
+    "ready": true,
+    "database": "reachable",
+    "check": "dashboard_read_dependency",
+    "event_worker_fresh": true,
+    "event_worker_age_seconds": 19.593668,
+    "operational_status": {
+      "as_of": "2026-09-09T19:46:18.712297+00:00",
+      "state_source": "production_database",
+      "database": "reachable",
+      "roles": {
+        "tradeagent-event-worker": {
+          "heartbeat_at": "2026-09-09T19:45:59.118629+00:00",
+          "age_seconds": 19.593668,
+          "fresh": true,
+          "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+          "reported": {
+            "state": "collecting",
+            "mode": "shadow",
+            "cohort_id": "iex-trade-repair-20260909",
+            "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+            "last_successful_source_at": "2026-09-09T19:45:58.628909+00:00",
+            "events_received": 2,
+            "tick_latency_seconds": 5.678313,
+            "source_http_cache": {
+              "entries": 64,
+              "bytes": 1114069,
+              "maximum_entries": 64,
+              "maximum_bytes": 16000000,
+              "evictions": 34,
+              "evidence_history_evicted": false
+            }
+          },
+          "lease": {
+            "lock_name": "tradeagent-event-worker",
+            "present": true,
+            "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+            "renewed_at": "2026-09-09T19:45:59.118629+00:00",
+            "age_seconds": 19.593668,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-shadow-recorder": {
+          "heartbeat_at": "2026-09-09T19:46:15.995801+00:00",
+          "age_seconds": 2.716496,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-58d84df74b-r47rd",
+          "reported": {
+            "state": "healthy",
+            "healthy": true,
+            "mode": "shadow",
+            "received": 778890,
+            "committed": 778879,
+            "inserted": 778680,
+            "duplicates": 199,
+            "queue_depth": 11,
+            "queue_capacity": 20000,
+            "in_flight": 0,
+            "gaps": 1,
+            "dropped_events": 0,
+            "notice_overflow": 0,
+            "decision_errors": 0,
+            "derived": {
+              "state": "awaiting_complete_frame",
+              "healthy": false,
+              "frame_age_seconds": null,
+              "last_usable_frame_at": null,
+              "unusable_frame_events": 17,
+              "last_unusable_frame": {
+                "bucket_start": "2026-09-09T19:40:00+00:00",
+                "frame_at": "2026-09-09T19:45:00+00:00",
+                "reason": "incomplete_five_minute_bucket",
+                "discovered_event_at": "2026-09-09T19:45:00+00:00",
+                "missing_minutes": {
+                  "GLD": [
+                    "2026-09-09T19:42:00+00:00"
+                  ],
+                  "IWM": [],
+                  "QQQ": [],
+                  "SPY": [],
+                  "TLT": []
+                },
+                "usable": false
+              },
+              "pending_minutes": 5,
+              "duplicate_minutes": 0,
+              "ignored_out_of_order_quotes": 0,
+              "evidence_epoch": "976fe3e7-e608-48c8-8b7b-9536ec98ef49",
+              "cumulative_evidence_complete": false
+            },
+            "last_received_at": "2026-09-09T19:46:15.913466+00:00",
+            "last_received_event_at": "2026-09-09T19:46:15.878164+00:00",
+            "last_event_at": "2026-09-09T19:46:15.878164+00:00",
+            "last_committed_event_at": "2026-09-09T19:46:15.827205+00:00",
+            "last_market_commit_at": "2026-09-09T19:46:15.881324+00:00",
+            "last_commit_at": "2026-09-09T19:46:15.881324+00:00",
+            "last_committed_received_at": "2026-09-09T19:46:15.861625+00:00",
+            "receive_lag_seconds": 0.035302,
+            "commit_lag_seconds": 0.150949,
+            "exchange_to_commit_lag_seconds": 0.054119,
+            "committed_event_age_seconds": 0.168603,
+            "market_commit_age_seconds": 0.114484,
+            "event_age_seconds": 0.117644,
+            "oldest_uncommitted_age_seconds": 0.092175,
+            "batch_write_seconds": 0.01640509394928813,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-shadow-recorder",
+            "present": true,
+            "owner_id": "srv-dadn8son74is73apqcc0-58d84df74b-r47rd",
+            "renewed_at": "2026-09-09T19:46:15.995801+00:00",
+            "age_seconds": 2.716496,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-notifier": {
+          "heartbeat_at": "2026-09-09T19:46:14.509869+00:00",
+          "age_seconds": 4.202428,
+          "fresh": true,
+          "instance_id": "srv-dadnn6mq1p3s73ef7ef0-867d694f49-fqbql",
+          "reported": {
+            "state": "running",
+            "dispatched": false,
+            "source_http_cache": null
+          },
+          "lease": {
+            "lock_name": "tradeagent-notifier",
+            "present": true,
+            "owner_id": "srv-dadnn6mq1p3s73ef7ef0-867d694f49-fqbql",
+            "renewed_at": "2026-09-09T19:46:14.507637+00:00",
+            "age_seconds": 4.20466,
+            "owner_matches_heartbeat": true,
+            "recent_within_120_seconds": true,
+            "basis": "observation only; actual takeover thresholds are role-configured"
+          }
+        },
+        "tradeagent-news-worker": {
+          "heartbeat_at": "2026-09-09T19:45:58.628909+00:00",
+          "age_seconds": 20.083388,
+          "fresh": true,
+          "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+          "reported": {
+            "state": "healthy",
+            "source_http_cache": null
+          },
+          "lease": null
+        },
+        "tradeagent-shadow-market-feed": {
+          "heartbeat_at": "2026-09-09T19:46:15.435437+00:00",
+          "age_seconds": 3.27686,
+          "fresh": true,
+          "instance_id": "srv-dadn8son74is73apqcc0-58d84df74b-r47rd-market-feed",
+          "reported": {
+            "state": "healthy",
+            "healthy": true,
+            "last_market_commit_at": "2026-09-09T19:46:10.922374+00:00",
+            "market_commit_age_seconds": 4.513063,
+            "freshness_basis": "durable_market_batch",
+            "freshness_reason": "fresh_durable_market_batch",
+            "durable_batch": {
+              "event_id": "279302d4-ea57-406f-be3a-39437aed33ad",
+              "instance_id": "srv-dadn8son74is73apqcc0-58d84df74b-r47rd",
+              "owner_matches": true,
+              "market_events": 142,
+              "last_event_at": "2026-09-09T19:46:15.230487+00:00",
+              "last_received_at": "2026-09-09T19:46:15.263471+00:00",
+              "processing_started_at": "2026-09-09T19:46:15.283787+00:00",
+              "event_age_seconds": 0.20495,
+              "received_age_seconds": 0.171966,
+              "processing_age_seconds": 0.15165,
+              "visible_in_database": true
+            },
+            "recorder_heartbeat_at": "2026-09-09T19:46:10.987962+00:00",
+            "recorder_lease_age_seconds": 4.447475,
+            "last_market_event_at": "2026-09-09T19:46:15.230487+00:00",
+            "event_age_seconds": 0.20495,
+            "source_http_cache": null
+          },
+          "lease": null
+        }
+      },
+      "controls": {
+        "cohort_id": "iex-trade-repair-20260909",
+        "kill_switch": {
+          "value": "active",
+          "updated_at": "2026-09-08T23:33:26.789305+00:00"
+        },
+        "cohort_pause": {
+          "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09T18:56:28.415955+00:00"
+        },
+        "missing_means": "not_recorded_not_inferred_inactive"
+      },
+      "latest_committed_recorder_batch": {
+        "event_id": "ac09a840-42a3-403a-97d3-07c42d9af692",
+        "at": "2026-09-09T19:46:18.689707+00:00",
+        "instance_id": "srv-dadn8son74is73apqcc0-58d84df74b-r47rd",
+        "received": 10,
+        "inserted": 10,
+        "duplicates": 0,
+        "first_event_at": "2026-09-09T19:46:18.504872+00:00",
+        "last_event_at": "2026-09-09T19:46:18.644469+00:00",
+        "first_received_at": "2026-09-09T19:46:18.536708+00:00",
+        "last_received_at": "2026-09-09T19:46:18.678210+00:00",
+        "processing_started_at": "2026-09-09T19:46:18.689707+00:00"
+      },
+      "progress_basis": "Compare batch IDs and timestamps between samples for durable progress. Recorder counters are instance-local; event-worker events_received is last-tick only. Fresh heartbeats do not prove source coverage, market progress, or trading permission."
+    },
+    "live_trading_available": false
+  },
+  "read_only": true
+}

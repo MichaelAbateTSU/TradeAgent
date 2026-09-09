@@ -1,0 +1,80 @@
+{
+  "job_id": "job-dagrp4id0e5s73auhhg0",
+  "enqueue": [
+    {
+      "notification_id": "59211edb-9c6a-5a58-b5fe-6524e7fa71d7",
+      "newly_enqueued": true,
+      "sender": "existing running Render notifier; job only enqueues and reads",
+      "daily_schedule": {
+        "enabled": true,
+        "timezone": "America/New_York",
+        "hour": 18,
+        "minute": 0
+      }
+    }
+  ],
+  "readbacks": [
+    {
+      "observed_at": "2026-09-09T20:08:11.382706+00:00",
+      "row": {
+        "notification_id": "59211edb-9c6a-5a58-b5fe-6524e7fa71d7",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] Close watch complete - account flat",
+          "text": "The September9 read-only close watch is complete.\n\nAll 17 paper-broker snapshots from 2026-09-09T15:49:01.627036-04:00 through 2026-09-09T16:05:00.473252-04:00 showed zero positions, zero open orders and no unresolved local intents. Alpaca first reported the market closed at 2026-09-09T16:00:07.250529-04:00. These are periodic observations, not continuous exposure proof or retroactive proof before sampling began.\n\nThe account-day order list is unchanged: the earlier canceled AAPL diagnostic BUY, the filled BTC BUY and its filled SELL. The two submitted BUY attempts remain consumed. Both diagnostics stayed terminal.\n\nThe old morning cohort, MISSED/terminal record, selected controls and shared budget were preserved exactly. The global kill remains active at its original timestamp, the new R1 pause remains recorded, and the corrected event worker remains in SHADOW mode. No order, cancellation, rearm, lease change, deployment or configuration change was performed by the watch.\n\nOne control-plane log-read timeout was recovered by reading the existing job logs. All17 sequential broker samples were retained; no job or message was resubmitted.\n\nThis is the one distinct close-summary message; prior accepted notices were not resent. The normal18:00ET daily summary remains scheduled. No new trading permission, strategy qualification or profitability claim is implied.\n",
+          "cohort_id": "iex-trade-repair-20260909",
+          "session_date": "2026-09-09",
+          "operational_status": "CLOSE_WATCH_COMPLETE_FLAT",
+          "mode": "shadow",
+          "trading_authorized": false,
+          "qualification_eligible": false,
+          "sample_count": 17,
+          "first_broker_at": "2026-09-09T15:49:01.627036-04:00",
+          "last_broker_at": "2026-09-09T16:05:00.473252-04:00",
+          "no_operator_orders_or_rearm": true,
+          "evidence_sha256": "874b35549a17e82e70c6bf3e07cbbc9d9b726f70591266d7727627a28a35a605",
+          "created_at": "2026-09-09T20:06:51.537574+00:00"
+        },
+        "status": "pending",
+        "attempts": 0,
+        "provider_message_id": null,
+        "created_at": "2026-09-09 20:08:11.369965+00:00",
+        "sent_at": null,
+        "claimed_at": null
+      }
+    },
+    {
+      "observed_at": "2026-09-09T20:08:16.386622+00:00",
+      "row": {
+        "notification_id": "59211edb-9c6a-5a58-b5fe-6524e7fa71d7",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] Close watch complete - account flat",
+          "text": "The September9 read-only close watch is complete.\n\nAll 17 paper-broker snapshots from 2026-09-09T15:49:01.627036-04:00 through 2026-09-09T16:05:00.473252-04:00 showed zero positions, zero open orders and no unresolved local intents. Alpaca first reported the market closed at 2026-09-09T16:00:07.250529-04:00. These are periodic observations, not continuous exposure proof or retroactive proof before sampling began.\n\nThe account-day order list is unchanged: the earlier canceled AAPL diagnostic BUY, the filled BTC BUY and its filled SELL. The two submitted BUY attempts remain consumed. Both diagnostics stayed terminal.\n\nThe old morning cohort, MISSED/terminal record, selected controls and shared budget were preserved exactly. The global kill remains active at its original timestamp, the new R1 pause remains recorded, and the corrected event worker remains in SHADOW mode. No order, cancellation, rearm, lease change, deployment or configuration change was performed by the watch.\n\nOne control-plane log-read timeout was recovered by reading the existing job logs. All17 sequential broker samples were retained; no job or message was resubmitted.\n\nThis is the one distinct close-summary message; prior accepted notices were not resent. The normal18:00ET daily summary remains scheduled. No new trading permission, strategy qualification or profitability claim is implied.\n",
+          "cohort_id": "iex-trade-repair-20260909",
+          "session_date": "2026-09-09",
+          "operational_status": "CLOSE_WATCH_COMPLETE_FLAT",
+          "mode": "shadow",
+          "trading_authorized": false,
+          "qualification_eligible": false,
+          "sample_count": 17,
+          "first_broker_at": "2026-09-09T15:49:01.627036-04:00",
+          "last_broker_at": "2026-09-09T16:05:00.473252-04:00",
+          "no_operator_orders_or_rearm": true,
+          "evidence_sha256": "874b35549a17e82e70c6bf3e07cbbc9d9b726f70591266d7727627a28a35a605",
+          "created_at": "2026-09-09T20:06:51.537574+00:00"
+        },
+        "status": "sent",
+        "attempts": 1,
+        "provider_message_id": "46e17c07-5c77-40b9-b2c5-7d15bba9bdd5",
+        "created_at": "2026-09-09 20:08:11.369965+00:00",
+        "sent_at": "2026-09-09 20:08:16.150457+00:00",
+        "claimed_at": "2026-09-09 20:08:15.938731+00:00"
+      }
+    }
+  ],
+  "provider_acceptance_verified": true,
+  "inbox_delivery_verified": false
+}

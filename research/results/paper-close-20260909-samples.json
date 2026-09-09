@@ -1,0 +1,1598 @@
+{
+  "job_id": "job-dagrg69t0dsc73feo7q0",
+  "job": {
+    "createdAt": "2026-09-09T19:48:41.954196Z",
+    "finishedAt": "2026-09-09T20:05:04Z",
+    "id": "job-dagrg69t0dsc73feo7q0",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+    "startCommand": "python -u -c \"import base64;exec(base64.b64decode('aW1wb3J0IGhhc2hsaWIsanNvbixvcyx0aW1lCmZyb20gZGF0ZXRpbWUgaW1wb3J0IFVUQyxkYXRlLGRhdGV0aW1lCmZyb20gc3FsYWxjaGVteSBpbXBvcnQgc2VsZWN0LHRleHQKZnJvbSB0cmFkZWFnZW50LmFscGFjYV9wYXBlciBpbXBvcnQgQWxwYWNhUGFwZXJDbGllbnQsQWxwYWNhUGFwZXJTZXR0aW5ncwpmcm9tIHRyYWRlYWdlbnQuY29uZmlnIGltcG9ydCBBcHBDb25maWcKZnJvbSB0cmFkZWFnZW50LmV2ZW50X29yZGVycyBpbXBvcnQgRklOQUwKZnJvbSB0cmFkZWFnZW50LmV2ZW50X3Nlc3Npb24gaW1wb3J0IHNlc3Npb25fY29udHJvbF9rZXkKZnJvbSB0cmFkZWFnZW50LmV2ZW50X3N0b3JlIGltcG9ydCBldmVudF9jb2hvcnRzCmZyb20gdHJhZGVhZ2VudC5wZXJzaXN0ZW5jZSBpbXBvcnQgRGF0YWJhc2UsY29udHJvbHMsaGVhcnRiZWF0cyxvcmRlcnMsd29ya2VyX2xvY2tzCmFzc2VydCBvcy5lbnZpcm9uWydSRU5ERVJfR0lUX0NPTU1JVCddPT0nNjhjMmU4ZmUwODZhZjA2YzU0OGU3MDY0MDE0YzhmMWQ5MjdmZjk1MicKb2xkPSd2MjAtbmV3cy1wYXBlci0yMDI2MDkwOS1yMSc7bmV3PSdpZXgtdHJhZGUtcmVwYWlyLTIwMjYwOTA5JztkaWdlc3Q9J2IzZGRmNjk3MDkyYWQ1MTZjN2U2ODAyNGFmMDY5MTZmN2M1ZGM5MjFjOGRmZDQ0ZmYzNWVhNjYxOGI0NDk0N2YnCmVuZD1kYXRldGltZSgyMDI2LDksOSwyMCw1LHR6aW5mbz1VVEMpO3NhbXBsZXM9W10Ka2V5cz1bJ2tpbGxfc3dpdGNoJyxvbGQrJzpwYXVzZScsb2xkKyc6bmV3cy10ZXJtaW5hbCcsb2xkKyc6Y2FsaWJyYXRpb25fc3RhdHVzJyxvbGQrJzpjZXJ0aWZpY2F0ZScsb2xkKyc6bmV3cy1hdXRob3JpemF0aW9uJyxzZXNzaW9uX2NvbnRyb2xfa2V5KGRpZ2VzdCxkYXRlKDIwMjYsOSw5KSksbmV3Kyc6cGF1c2UnLG5ldysnOmNlcnRpZmljYXRlJyxuZXcrJzpuZXdzLWF1dGhvcml6YXRpb24nLCdvcGVyYXRvci1wYXBlci1wcm9iZToyMDI2MDkwOTpyZXF1ZXN0OicrbmV3LCdvcGVyYXRvci1idGMtdGVzdDoyMDI2MDkwOTpyZXF1ZXN0OicrbmV3LCdvcGVyYXRvci1wYXBlci1wcm9iZToyMDI2MDkwOTowMDIwJywnb3BlcmF0b3ItYnRjLXRlc3Q6MjAyNjA5MDk6c3RhdGUnXQp3aXRoIEFscGFjYVBhcGVyQ2xpZW50KEFscGFjYVBhcGVyU2V0dGluZ3MubW9kZWxfdmFsaWRhdGUoe30pKSBhcyBicm9rZXIsRGF0YWJhc2UoQXBwQ29uZmlnKCkuZGF0YWJhc2VfdXJsLmdldF9zZWNyZXRfdmFsdWUoKSxwb29sX3NpemU9MSkgYXMgZGI6CiAgICBmb3IgaW5kZXggaW4gcmFuZ2UoMzIpOgogICAgICAgIGJlZ2FuPWRhdGV0aW1lLm5vdyhVVEMpO2E9YnJva2VyLmFjY291bnQoKTthc3NlcnQgaGFzaGxpYi5zaGEyNTYoc3RyKGEuaWQpLmVuY29kZSgpKS5oZXhkaWdlc3QoKT09ZGlnZXN0CiAgICAgICAgcG9zaXRpb25zPVtwLm1vZGVsX2R1bXAobW9kZT0nanNvbicpIGZvciBwIGluIGJyb2tlci5wb3NpdGlvbnMoKV07b3Blbl9vcmRlcnM9W28ubW9kZWxfZHVtcChtb2RlPSdqc29uJykgZm9yIG8gaW4gYnJva2VyLm9wZW5fb3JkZXJzKCldO2Nsb2NrPWJyb2tlci5jbG9jaygpLm1vZGVsX2R1bXAobW9kZT0nanNvbicpCiAgICAgICAgd2l0aCBkYi5iZWdpbigpIGFzIGM6CiAgICAgICAgICAgIGMuZXhlY19kcml2ZXJfc3FsKCdTRVQgVFJBTlNBQ1RJT04gUkVBRCBPTkxZJyk7Yy5leGVjX2RyaXZlcl9zcWwoIlNFVCBMT0NBTCBzdGF0ZW1lbnRfdGltZW91dD0nNXMnIikKICAgICAgICAgICAgcHJpb3I9ZGljdChjLmV4ZWN1dGUoc2VsZWN0KGV2ZW50X2NvaG9ydHMpLndoZXJlKGV2ZW50X2NvaG9ydHMuYy5jb2hvcnRfaWQ9PW9sZCkpLm1hcHBpbmdzKCkub25lKCkpO2N1cnJlbnQ9ZGljdChjLmV4ZWN1dGUoc2VsZWN0KGV2ZW50X2NvaG9ydHMpLndoZXJlKGV2ZW50X2NvaG9ydHMuYy5jb2hvcnRfaWQ9PW5ldykpLm1hcHBpbmdzKCkub25lKCkpCiAgICAgICAgICAgIHJvd3M9W2RpY3QocikgZm9yIHIgaW4gYy5leGVjdXRlKHNlbGVjdChjb250cm9scykud2hlcmUoY29udHJvbHMuYy5jb250cm9sX2tleS5pbl8oa2V5cykpLm9yZGVyX2J5KGNvbnRyb2xzLmMuY29udHJvbF9rZXkpKS5tYXBwaW5ncygpXQogICAgICAgICAgICBkaWFnbm9zdGljPVtdO3NlbGVjdGVkPVtdCiAgICAgICAgICAgIGZvciByb3cgaW4gcm93czoKICAgICAgICAgICAgICAgIGlmIHJvd1snY29udHJvbF9rZXknXSBpbiBbJ29wZXJhdG9yLXBhcGVyLXByb2JlOjIwMjYwOTA5OjAwMjAnLCdvcGVyYXRvci1idGMtdGVzdDoyMDI2MDkwOTpzdGF0ZSddOgogICAgICAgICAgICAgICAgICAgIHZhbHVlPWpzb24ubG9hZHMocm93Wydjb250cm9sX3ZhbHVlJ10pO2RpYWdub3N0aWMuYXBwZW5kKHsna2V5Jzpyb3dbJ2NvbnRyb2xfa2V5J10sJ3N0YXRlJzp2YWx1ZS5nZXQoJ3N0YXRlJyksJ2NvbXBsZXRlZF9hdCc6dmFsdWUuZ2V0KCdjb21wbGV0ZWRfYXQnKSwnc2hhMjU2JzpoYXNobGliLnNoYTI1Nihyb3dbJ2NvbnRyb2xfdmFsdWUnXS5lbmNvZGUoKSkuaGV4ZGlnZXN0KCl9KQogICAgICAgICAgICAgICAgZWxzZTpzZWxlY3RlZC5hcHBlbmQocm93KQogICAgICAgICAgICBoYj1kaWN0KGMuZXhlY3V0ZShzZWxlY3QoaGVhcnRiZWF0cykud2hlcmUoaGVhcnRiZWF0cy5jLnNlcnZpY2VfbmFtZT09J3RyYWRlYWdlbnQtZXZlbnQtd29ya2VyJykpLm1hcHBpbmdzKCkub25lKCkpO2xlYXNlPWRpY3QoYy5leGVjdXRlKHNlbGVjdCh3b3JrZXJfbG9ja3MpLndoZXJlKHdvcmtlcl9sb2Nrcy5jLmxvY2tfbmFtZT09J3RyYWRlYWdlbnQtZXZlbnQtd29ya2VyJykpLm1hcHBpbmdzKCkub25lKCkpCiAgICAgICAgICAgIGxvY2FsPVtkaWN0KHIpIGZvciByIGluIGMuZXhlY3V0ZShzZWxlY3Qob3JkZXJzLmMuY2xpZW50X29yZGVyX2lkLG9yZGVycy5jLnN0YXR1cykud2hlcmUob3JkZXJzLmMuc3RhdHVzLm5vdF9pbihGSU5BTCkpKS5tYXBwaW5ncygpXQogICAgICAgICAgICByZXZpc2lvbj1jLnNjYWxhcih0ZXh0KCdTRUxFQ1QgdmVyc2lvbl9udW0gRlJPTSBhbGVtYmljX3ZlcnNpb24nKSkKICAgICAgICBvYnNlcnZlZD1kYXRldGltZS5ub3coVVRDKQogICAgICAgIHJvdz17J3NhbXBsZSc6aW5kZXgsJ3N0YXJ0ZWRfYXQnOmJlZ2FuLmlzb2Zvcm1hdCgpLCdvYnNlcnZlZF9hdCc6b2JzZXJ2ZWQuaXNvZm9ybWF0KCksJ3JlYWRfb25seSc6VHJ1ZSwnZGF0YWJhc2VfdHJhbnNhY3Rpb25zX3JlYWRfb25seSc6VHJ1ZSwnc2NoZW1hJzpyZXZpc2lvbiwnYnJva2VyJzp7J2FjY291bnRfZGlnZXN0JzpkaWdlc3QsJ3N0YXR1cyc6c3RyKGEuc3RhdHVzKSwnYWNjb3VudF9ibG9ja2VkJzphLmFjY291bnRfYmxvY2tlZCwndHJhZGluZ19ibG9ja2VkJzphLnRyYWRpbmdfYmxvY2tlZCwncG9zaXRpb25zJzpwb3NpdGlvbnMsJ29wZW5fb3JkZXJzJzpvcGVuX29yZGVycywnY2xvY2snOmNsb2NrfSwndW5yZXNvbHZlZF9sb2NhbF9vcmRlcnMnOmxvY2FsLCdkaWFnbm9zdGljcyc6ZGlhZ25vc3RpYywnY29udHJvbHMnOnNlbGVjdGVkLCdvbGRfY29ob3J0X3Jvd19zaGEyNTYnOmhhc2hsaWIuc2hhMjU2KGpzb24uZHVtcHMocHJpb3Isc29ydF9rZXlzPVRydWUsZGVmYXVsdD1zdHIpLmVuY29kZSgpKS5oZXhkaWdlc3QoKSwnY3VycmVudF9jb25maWdfaGFzaCc6Y3VycmVudFsnY29uZmlnX2hhc2gnXSwnY3VycmVudF9tb2RlJzpjdXJyZW50Wydtb2RlJ10sJ2V2ZW50X2hlYXJ0YmVhdCc6eydpbnN0YW5jZV9pZCc6aGJbJ2luc3RhbmNlX2lkJ10sJ29ic2VydmVkX2F0JzpoYlsnb2JzZXJ2ZWRfYXQnXSwnZGV0YWlscyc6e2s6aGJbJ2RldGFpbHMnXS5nZXQoaykgZm9yIGsgaW4gWydtb2RlJywnY29ob3J0X2lkJywnY29uZmlnX2hhc2gnLCdjb2RlX3NoYScsJ3N0YXRlJywnbGFzdF9zdWNjZXNzZnVsX3NvdXJjZV9hdCcsJ2Jyb2tlcl9zdHJlYW0nXX19LCdldmVudF9sZWFzZSc6bGVhc2UsJ29wZXJhdG9yX29yZGVyc19zdWJtaXR0ZWQnOjB9CiAgICAgICAgaWYgaW5kZXg9PTAgb3Igb2JzZXJ2ZWQ+PWVuZDoKICAgICAgICAgICAgZGF5PWJyb2tlci5fcmVxdWVzdCgnR0VUJywnL3YyL29yZGVycycscGFyYW1zPXsnc3RhdHVzJzonYWxsJywnYWZ0ZXInOicyMDI2LTA5LTA5VDA0OjAwOjAwWicsJ3VudGlsJzonMjAyNi0wOS0xMFQwNDowMDowMFonLCdkaXJlY3Rpb24nOidhc2MnLCdsaW1pdCc6NTAwfSk7YXNzZXJ0IGlzaW5zdGFuY2UoZGF5LGxpc3QpIGFuZCBsZW4oZGF5KTw1MDAKICAgICAgICAgICAgcm93WydhY2NvdW50X2RheV9vcmRlcnMnXT1be2s6by5nZXQoaykgZm9yIGsgaW4gWydpZCcsJ2NsaWVudF9vcmRlcl9pZCcsJ3NpZGUnLCdzeW1ib2wnLCdzdGF0dXMnLCdmaWxsZWRfcXR5J119IGZvciBvIGluIGRheV07cm93WydhY2NvdW50X2RheV9vcmRlcnNfY29tcGxldGUnXT1UcnVlCiAgICAgICAgcHJpbnQoJ1BBUEVSX0NMT1NFX1NBTVBMRSAnK2pzb24uZHVtcHMocm93LGRlZmF1bHQ9c3RyKSxmbHVzaD1UcnVlKTtzYW1wbGVzLmFwcGVuZChyb3cpCiAgICAgICAgdmFsdWU9e3JbJ2NvbnRyb2xfa2V5J106clsnY29udHJvbF92YWx1ZSddIGZvciByIGluIHNlbGVjdGVkfQogICAgICAgIGFzc2VydCBub3QgcG9zaXRpb25zIGFuZCBub3Qgb3Blbl9vcmRlcnMgYW5kIG5vdCBsb2NhbCwnVW5leHBlY3RlZCBleHBvc3VyZSBvciB1bnJlc29sdmVkIGludGVudDsgcmVhZC1vbmx5IHJlY292ZXJ5IHdhdGNoIHJlcXVpcmVzIGF0dGVudGlvbicKICAgICAgICBhc3NlcnQgcmV2aXNpb249PScwMDEzX3RyYWRlX2V2ZW50X2lkZW50aXR5JyBhbmQgcm93WydvbGRfY29ob3J0X3Jvd19zaGEyNTYnXT09JzY2MzNhMDAwNmQ2YjZlOGExMWQ2Y2QzNTU1ZjBjOGEwNjFiYmU5YzlhNjk2ZTM1NjZkM2E5YTFmODA5MjAzZmEnCiAgICAgICAgYXNzZXJ0IGN1cnJlbnRbJ21vZGUnXT09J3NoYWRvdycgYW5kIGN1cnJlbnRbJ2NvbmZpZ19oYXNoJ109PSc2MDdkZWRkZDFhN2IwNTE3ODgzMGZhNGNkOTY2ZGUxNDhlMjY2ZTAyMDkwNTM1OTU1NTY4NmE2NDA0MmRjYWQ4JwogICAgICAgIGFzc2VydCB2YWx1ZS5nZXQoJ2tpbGxfc3dpdGNoJyk9PSdhY3RpdmUnIGFuZCB2YWx1ZS5nZXQob2xkKyc6cGF1c2UnKT09J09QRVJBVE9SX1BBVVNFJyBhbmQgdmFsdWUuZ2V0KG5ldysnOnBhdXNlJyk9PSdSMV9FVkVOVF9SRVFVSVJFU19QT1NJVElPTl9SRVZJRVcnCiAgICAgICAgYXNzZXJ0IG5vdCBhbnkoayBpbiB2YWx1ZSBmb3IgayBpbiBbbmV3Kyc6Y2VydGlmaWNhdGUnLG5ldysnOm5ld3MtYXV0aG9yaXphdGlvbicsJ29wZXJhdG9yLXBhcGVyLXByb2JlOjIwMjYwOTA5OnJlcXVlc3Q6JytuZXcsJ29wZXJhdG9yLWJ0Yy10ZXN0OjIwMjYwOTA5OnJlcXVlc3Q6JytuZXddKQogICAgICAgIGFzc2VydCB7ZFsna2V5J106ZFsnc3RhdGUnXSBmb3IgZCBpbiBkaWFnbm9zdGljfT09eydvcGVyYXRvci1wYXBlci1wcm9iZToyMDI2MDkwOTowMDIwJzonY2FuY2VsZWRfYW5kX2ZsYXQnLCdvcGVyYXRvci1idGMtdGVzdDoyMDI2MDkwOTpzdGF0ZSc6J2NvbXBsZXRlZCd9CiAgICAgICAgYXNzZXJ0IGhiWydkZXRhaWxzJ11bJ2NvZGVfc2hhJ109PW9zLmVudmlyb25bJ1JFTkRFUl9HSVRfQ09NTUlUJ10gYW5kIGhiWydkZXRhaWxzJ11bJ2NvaG9ydF9pZCddPT1uZXcgYW5kIGhiWydkZXRhaWxzJ11bJ21vZGUnXT09J3NoYWRvdycgYW5kIGhiWydpbnN0YW5jZV9pZCddPT1sZWFzZVsnb3duZXJfaWQnXQogICAgICAgIGFzc2VydCAwPD0ob2JzZXJ2ZWQtaGJbJ29ic2VydmVkX2F0J10pLnRvdGFsX3NlY29uZHMoKTwxMjAgYW5kIDA8PShvYnNlcnZlZC1sZWFzZVsnYWNxdWlyZWRfYXQnXSkudG90YWxfc2Vjb25kcygpPDEyMAogICAgICAgIGlmIG9ic2VydmVkPj1lbmQ6CiAgICAgICAgICAgIGFzc2VydCBjbG9ja1snaXNfb3BlbiddIGlzIEZhbHNlCiAgICAgICAgICAgIHByaW50KCdQQVBFUl9DTE9TRV9DT01QTEVURUQgJytqc29uLmR1bXBzKHsnc3RhcnRlZF9hdCc6c2FtcGxlc1swXVsnc3RhcnRlZF9hdCddLCdmaW5pc2hlZF9hdCc6b2JzZXJ2ZWQuaXNvZm9ybWF0KCksJ3NhbXBsZXMnOmxlbihzYW1wbGVzKSwnYnJva2VyX2Nsb3NlZCc6VHJ1ZSwnYWxsX29ic2VydmVkX2ZsYXQnOlRydWUsJ3JlYWRfb25seSc6VHJ1ZSwnb3BlcmF0b3Jfb3JkZXJzX3N1Ym1pdHRlZCc6MH0pLGZsdXNoPVRydWUpO2JyZWFrCiAgICAgICAgdGltZS5zbGVlcChtaW4oNjAsbWF4KDAsKGVuZC1kYXRldGltZS5ub3coVVRDKSkudG90YWxfc2Vjb25kcygpKSkpCiAgICBlbHNlOnJhaXNlIFJ1bnRpbWVFcnJvcignQ2xvc2Ugd2F0Y2ggZGlkIG5vdCByZWFjaCBpdHMgcmVxdWlyZWQgZmluYWwgdGltZScp'))\"",
+    "startedAt": "2026-09-09T19:48:42Z",
+    "status": "succeeded"
+  },
+  "samples": [
+    {
+      "sample": 0,
+      "started_at": "2026-09-09T19:49:01.220942+00:00",
+      "observed_at": "2026-09-09T19:49:01.685450+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:49:01.627036-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:48:52.424955+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:48:51.850975+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:48:52.424955+00:00"
+      },
+      "operator_orders_submitted": 0,
+      "account_day_orders": [
+        {
+          "id": "dd9ba5c8-8319-4466-83c0-af3cc9911c73",
+          "client_order_id": "ta-probe-20260909-0020-aapl",
+          "side": "buy",
+          "symbol": "AAPL",
+          "status": "canceled",
+          "filled_qty": "0"
+        },
+        {
+          "id": "385947be-92ac-4215-98f4-54380075a145",
+          "client_order_id": "ta-crypto-test-20260909-0151-buy",
+          "side": "buy",
+          "symbol": "BTC/USD",
+          "status": "filled",
+          "filled_qty": "0.000247676"
+        },
+        {
+          "id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+          "client_order_id": "ta-crypto-test-20260909-0151-s0",
+          "side": "sell",
+          "symbol": "BTC/USD",
+          "status": "filled",
+          "filled_qty": "0.000247056"
+        }
+      ],
+      "account_day_orders_complete": true
+    },
+    {
+      "sample": 1,
+      "started_at": "2026-09-09T19:50:01.760557+00:00",
+      "observed_at": "2026-09-09T19:50:02.133422+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:50:02.096040-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:49:30.324521+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:49:29.701265+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:50:00.557355+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 2,
+      "started_at": "2026-09-09T19:51:02.133784+00:00",
+      "observed_at": "2026-09-09T19:51:02.499417+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:51:02.463982-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:50:40.133819+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:50:39.602696+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:50:40.133819+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 3,
+      "started_at": "2026-09-09T19:52:02.499798+00:00",
+      "observed_at": "2026-09-09T19:52:02.869422+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:52:02.834301-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:51:49.806313+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:51:48.908638+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:51:49.806313+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 4,
+      "started_at": "2026-09-09T19:53:02.869782+00:00",
+      "observed_at": "2026-09-09T19:53:03.328780+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:53:03.292286-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:52:58.809613+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:52:58.196349+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:52:58.809613+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 5,
+      "started_at": "2026-09-09T19:54:03.329252+00:00",
+      "observed_at": "2026-09-09T19:54:03.801445+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:54:03.767711-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:53:32.512531+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:53:31.990295+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:54:02.618294+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 6,
+      "started_at": "2026-09-09T19:55:03.801779+00:00",
+      "observed_at": "2026-09-09T19:55:05.183452+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:55:05.136291-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:54:42.225231+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:54:41.738240+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:54:42.225231+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 7,
+      "started_at": "2026-09-09T19:56:05.183766+00:00",
+      "observed_at": "2026-09-09T19:56:05.545584+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:56:05.511231-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:55:51.926609+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:55:51.381373+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:55:51.926609+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 8,
+      "started_at": "2026-09-09T19:57:05.545942+00:00",
+      "observed_at": "2026-09-09T19:57:05.915039+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:57:05.880521-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:57:01.930262+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:57:01.387833+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:57:01.930262+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 9,
+      "started_at": "2026-09-09T19:58:05.915477+00:00",
+      "observed_at": "2026-09-09T19:58:06.383677+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:58:06.348902-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:57:37.584531+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:57:37.095818+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:57:37.584531+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 10,
+      "started_at": "2026-09-09T19:59:06.384123+00:00",
+      "observed_at": "2026-09-09T19:59:06.834651+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T15:59:06.798288-04:00",
+          "is_open": true,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-09T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:58:46.626599+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:58:46.130387+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:58:46.626599+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 11,
+      "started_at": "2026-09-09T20:00:06.835060+00:00",
+      "observed_at": "2026-09-09T20:00:07.285145+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T16:00:07.250529-04:00",
+          "is_open": false,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-10T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 19:59:55.412289+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "collecting",
+          "last_successful_source_at": "2026-09-09T19:59:54.805908+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 19:59:55.412289+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 12,
+      "started_at": "2026-09-09T20:01:07.285488+00:00",
+      "observed_at": "2026-09-09T20:01:07.735590+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T16:01:07.699709-04:00",
+          "is_open": false,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-10T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 20:00:30.141299+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "market_closed",
+          "last_successful_source_at": "2026-09-09T20:00:28.997777+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 20:01:02.976261+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 13,
+      "started_at": "2026-09-09T20:02:07.736081+00:00",
+      "observed_at": "2026-09-09T20:02:08.174505+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T16:02:08.139731-04:00",
+          "is_open": false,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-10T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 20:01:42.886988+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "market_closed",
+          "last_successful_source_at": "2026-09-09T20:01:42.386297+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 20:01:42.886988+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 14,
+      "started_at": "2026-09-09T20:03:08.174882+00:00",
+      "observed_at": "2026-09-09T20:03:08.537105+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T16:03:08.501926-04:00",
+          "is_open": false,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-10T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 20:02:53.332482+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "market_closed",
+          "last_successful_source_at": "2026-09-09T20:02:52.745829+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 20:02:53.332482+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 15,
+      "started_at": "2026-09-09T20:04:08.537461+00:00",
+      "observed_at": "2026-09-09T20:04:08.974156+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T16:04:08.938833-04:00",
+          "is_open": false,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-10T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 20:04:03.983779+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "market_closed",
+          "last_successful_source_at": "2026-09-09T20:04:03.401718+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 20:04:03.983779+00:00"
+      },
+      "operator_orders_submitted": 0
+    },
+    {
+      "sample": 16,
+      "started_at": "2026-09-09T20:05:00.000107+00:00",
+      "observed_at": "2026-09-09T20:05:00.507246+00:00",
+      "read_only": true,
+      "database_transactions_read_only": true,
+      "schema": "0013_trade_event_identity",
+      "broker": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "status": "ACTIVE",
+        "account_blocked": false,
+        "trading_blocked": false,
+        "positions": [],
+        "open_orders": [],
+        "clock": {
+          "timestamp": "2026-09-09T16:05:00.473252-04:00",
+          "is_open": false,
+          "next_open": "2026-09-10T09:30:00-04:00",
+          "next_close": "2026-09-10T16:00:00-04:00"
+        }
+      },
+      "unresolved_local_orders": [],
+      "diagnostics": [
+        {
+          "key": "operator-btc-test:20260909:state",
+          "state": "completed",
+          "completed_at": "2026-09-09T06:22:09.153947+00:00",
+          "sha256": "44fb6cd5a9b304b749bcc9897f894bbf047ffdd344d0e49cb0774d02e7507d65"
+        },
+        {
+          "key": "operator-paper-probe:20260909:0020",
+          "state": "canceled_and_flat",
+          "completed_at": "2026-09-09T04:37:12.032237+00:00",
+          "sha256": "37652f071e77bfa721894609041aa7488d199a1bcdb3f01353f620de44a5744b"
+        }
+      ],
+      "controls": [
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:calibration_status",
+          "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+          "updated_at": "2026-09-09 14:30:33.286983+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:news-terminal",
+          "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+          "updated_at": "2026-09-09 14:30:24.386665+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        }
+      ],
+      "old_cohort_row_sha256": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "current_config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+      "current_mode": "shadow",
+      "event_heartbeat": {
+        "instance_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "observed_at": "2026-09-09 20:04:39.583303+00:00",
+        "details": {
+          "mode": "shadow",
+          "cohort_id": "iex-trade-repair-20260909",
+          "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+          "code_sha": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+          "state": "market_closed",
+          "last_successful_source_at": "2026-09-09T20:04:39.035094+00:00",
+          "broker_stream": {
+            "state": "not_connected_in_this_run",
+            "rest_reconciliation": "active"
+          }
+        }
+      },
+      "event_lease": {
+        "lock_name": "tradeagent-event-worker",
+        "owner_id": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+        "acquired_at": "2026-09-09 20:04:39.583303+00:00"
+      },
+      "operator_orders_submitted": 0,
+      "account_day_orders": [
+        {
+          "id": "dd9ba5c8-8319-4466-83c0-af3cc9911c73",
+          "client_order_id": "ta-probe-20260909-0020-aapl",
+          "side": "buy",
+          "symbol": "AAPL",
+          "status": "canceled",
+          "filled_qty": "0"
+        },
+        {
+          "id": "385947be-92ac-4215-98f4-54380075a145",
+          "client_order_id": "ta-crypto-test-20260909-0151-buy",
+          "side": "buy",
+          "symbol": "BTC/USD",
+          "status": "filled",
+          "filled_qty": "0.000247676"
+        },
+        {
+          "id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+          "client_order_id": "ta-crypto-test-20260909-0151-s0",
+          "side": "sell",
+          "symbol": "BTC/USD",
+          "status": "filled",
+          "filled_qty": "0.000247056"
+        }
+      ],
+      "account_day_orders_complete": true
+    }
+  ],
+  "completion": {
+    "started_at": "2026-09-09T19:49:01.220942+00:00",
+    "finished_at": "2026-09-09T20:05:00.507246+00:00",
+    "samples": 17,
+    "broker_closed": true,
+    "all_observed_flat": true,
+    "read_only": true,
+    "operator_orders_submitted": 0
+  },
+  "log_read_errors": [
+    {
+      "at": "2026-09-09T20:03:18.696947+00:00",
+      "type": "ReadTimeout"
+    }
+  ],
+  "retrieved_at": "2026-09-09T20:05:26.083254+00:00"
+}

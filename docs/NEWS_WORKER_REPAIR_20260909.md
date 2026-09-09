@@ -109,6 +109,11 @@ The existing Render notifier sent the repair-completion email **once at
 `7a64b8e8-2397-4b45-889e-45a4e9ff0ec3`. This is provider acceptance, not proof
 of inbox delivery. No earlier accepted message was resent.
 
+The subsequent [read-only close watch](PAPER_CLOSE_20260909.md) completed with
+17 flat broker observations through **16:05 Eastern**, preserved all selected
+controls and account-day orders, and sent its distinct close summary once.
+No trading permissions were enabled.
+
 ## Evidence
 
 - [Fresh transition guards](../research/results/news-worker-repair-20260909-preflight.json)
