@@ -7,7 +7,13 @@ from typing import Any
 import httpx
 import pytest
 
-from infra.render.acceptance_probe import email_status, market_window_counts, report_test
+from infra.render.acceptance_probe import (
+    RECORDER_SYMBOLS,
+    email_status,
+    market_window_counts,
+    physical_progress_failures,
+    report_test,
+)
 from infra.render.observe_release import (
     DATABASE,
     ROLE_STATES,
@@ -167,6 +173,71 @@ def test_market_progress_probe_uses_fixed_indexed_window_without_history_scans()
             assert all(
                 connection.scalar(select(func.count()).select_from(table)) == 5 for table in tables
             )
+
+
+def physical_samples() -> tuple[dict[str, Any], dict[str, Any]]:
+    start = datetime(2026, 9, 9, 17, tzinfo=UTC)
+    output = []
+    for minutes in (2, 5):
+        exchange = start + timedelta(minutes=minutes, seconds=-1)
+        output.append(
+            {
+                "market_count_scope": {
+                    "since_exchange_at": start.isoformat(),
+                    "until_exchange_at": (start + timedelta(minutes=minutes)).isoformat(),
+                    "symbols": list(RECORDER_SYMBOLS),
+                },
+                "market": {
+                    table: [
+                        {
+                            "symbol": symbol,
+                            "count": minutes,
+                            "latest_exchange_at": exchange.isoformat(),
+                            "latest_received_at": exchange + timedelta(milliseconds=30),
+                            "latest_committed_at": exchange + timedelta(milliseconds=100),
+                        }
+                        for symbol in RECORDER_SYMBOLS
+                    ]
+                    for table in ("market_quotes", "market_trades", "market_bars")
+                },
+            }
+        )
+    return output[0], output[1]
+
+
+def test_physical_progress_requires_each_symbol_not_just_aggregate_flow() -> None:
+    first, last = physical_samples()
+    assert physical_progress_failures(first, last) == []
+    for sample in (first, last):
+        sample["market"]["market_trades"] = [
+            row for row in sample["market"]["market_trades"] if row["symbol"] != "QQQ"
+        ]
+    assert physical_progress_failures(first, last) == ["physical:market_trades:QQQ:not_advancing"]
+    first, last = physical_samples()
+    first["market"]["market_trades"] = []
+    assert physical_progress_failures(first, last) == []
+    last["market"]["market_bars"][0] = deepcopy(physical_samples()[0]["market"]["market_bars"][0])
+    assert "physical:market_bars:SPY:not_advancing" in physical_progress_failures(first, last)
+
+
+@pytest.mark.parametrize(
+    "mutation", ["window", "interval", "naive", "count", "duplicate", "receipt"]
+)
+def test_physical_progress_rejects_invalid_evidence(mutation: str) -> None:
+    first, last = physical_samples()
+    if mutation == "window":
+        last["market_count_scope"]["since_exchange_at"] = "2026-09-09T17:01:00Z"
+    elif mutation == "interval":
+        last["market_count_scope"]["until_exchange_at"] = "2026-09-09T17:27:00Z"
+    elif mutation == "naive":
+        last["market"]["market_quotes"][0]["latest_exchange_at"] = "2026-09-09T17:04:59"
+    elif mutation == "count":
+        last["market"]["market_quotes"][0]["count"] = True
+    elif mutation == "duplicate":
+        last["market"]["market_quotes"].append(deepcopy(last["market"]["market_quotes"][0]))
+    else:
+        last["market"]["market_quotes"][0]["latest_received_at"] = "2026-09-09T16:00:00Z"
+    assert physical_progress_failures(first, last)
 
 
 def test_acceptance_rejects_oom_restarts_changed_code_and_high_memory() -> None:

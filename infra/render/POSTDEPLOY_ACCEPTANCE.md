@@ -97,6 +97,15 @@ clear an expired cohort's terminal. A larger database does not authorize entries
    `(symbol,event_at)` indexes. These are exact window counts, not all-history
    totals. Full-history `GROUP BY` scans over millions of quotes are not a polling
    health check: the September 8 validation itself caused unnecessary database load.
+   Validate the two decoded snapshot objects with `physical_progress_failures`
+   from `infra.render.acceptance_probe`. It requires one unchanged recent cutoff,
+   endpoint separation below 25 minutes, and increasing physical counts/exchange
+   timestamps for **each** SPY/QQQ/IWM/TLT/GLD quote/trade/bar series. Aggregate
+   counter growth is insufficient: September 9 exposed missing current QQQ
+   trades despite healthy HTTP and growing total trade counts. Retain any
+   missing-symbol result and its provider comparison; never substitute a wider
+   historical count or fabricated bar. A generic load-observer pass plus a
+   physical-probe failure is **not** full incident acceptance.
 3. For a notifier release, explicitly exercise production report generation and
    the existing approved recipient once:
 

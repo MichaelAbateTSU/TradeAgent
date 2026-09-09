@@ -64,6 +64,74 @@ def market_window_counts(
     return result
 
 
+def physical_progress_failures(first: dict[str, Any], last: dict[str, Any]) -> list[str]:
+    """Validate indexed physical endpoints; aggregate counters cannot prove each symbol."""
+
+    def timestamp(value: Any) -> datetime:
+        parsed = value if isinstance(value, datetime) else datetime.fromisoformat(value)
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise ValueError("Physical evidence timestamps must be timezone-aware")
+        return parsed
+
+    try:
+        scopes = (first["market_count_scope"], last["market_count_scope"])
+        starts = [timestamp(scope["since_exchange_at"]) for scope in scopes]
+        ends = [timestamp(scope["until_exchange_at"]) for scope in scopes]
+        if (
+            starts[0] != starts[1]
+            or not timedelta(0) < ends[1] - ends[0] < timedelta(minutes=25)
+            or any(
+                not timedelta(0) <= end - start <= timedelta(minutes=30)
+                for start, end in zip(starts, ends, strict=True)
+            )
+            or any(
+                len(scope["symbols"]) != len(RECORDER_SYMBOLS)
+                or set(scope["symbols"]) != set(RECORDER_SYMBOLS)
+                for scope in scopes
+            )
+        ):
+            return ["physical:invalid_or_changed_fixed_window"]
+    except (KeyError, TypeError, ValueError):
+        return ["physical:missing_or_invalid_window_metadata"]
+
+    failures = []
+    for table in ("market_quotes", "market_trades", "market_bars"):
+        try:
+            series = []
+            for sample, end in zip((first, last), ends, strict=True):
+                rows = sample["market"][table]
+                by_symbol = {row["symbol"]: row for row in rows}
+                if len(by_symbol) != len(rows) or set(by_symbol) - set(RECORDER_SYMBOLS):
+                    raise ValueError("Duplicate or unexpected physical symbol")
+                for row in rows:
+                    if type(row["count"]) is not int or row["count"] <= 0:
+                        raise ValueError("Physical row counts must be positive integers")
+                    exchange = timestamp(row["latest_exchange_at"])
+                    if not starts[0] <= exchange <= end:
+                        raise ValueError("Exchange proof outside the fixed window")
+                    if any(
+                        timestamp(row[key]) < exchange
+                        for key in ("latest_received_at", "latest_committed_at")
+                    ):
+                        raise ValueError("Receipt/commit proof precedes exchange time")
+                series.append(by_symbol)
+            for symbol in RECORDER_SYMBOLS:
+                before, after = (rows.get(symbol) for rows in series)
+                if (
+                    after is None
+                    or after["count"] <= (before["count"] if before else 0)
+                    or (
+                        before is not None
+                        and timestamp(after["latest_exchange_at"])
+                        <= timestamp(before["latest_exchange_at"])
+                    )
+                ):
+                    failures.append(f"physical:{table}:{symbol}:not_advancing")
+        except (KeyError, TypeError, ValueError):
+            failures.append(f"physical:{table}:invalid_rows_or_timestamps")
+    return failures
+
+
 def snapshot(database: Database, *, market_since: datetime | None = None) -> dict[str, Any]:
     from tradeagent.reporting_metadata import missing_reporting_metadata
     from tradeagent.reporting_reads import REPORTING_PROJECTION_VERSION
