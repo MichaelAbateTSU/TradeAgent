@@ -80,7 +80,8 @@ class AlpacaPaperOrder(BaseModel):
     status: AlpacaOrderStatus
     symbol: str
     side: Literal["buy", "sell"]
-    quantity: Decimal = Field(alias="qty")
+    quantity: Decimal | None = Field(alias="qty")
+    notional: Decimal | None = None
     filled_quantity: Decimal = Field(alias="filled_qty")
     filled_average_price: Decimal | None = Field(alias="filled_avg_price")
     created_at: datetime
@@ -88,6 +89,12 @@ class AlpacaPaperOrder(BaseModel):
     submitted_at: datetime | None = None
     filled_at: datetime | None = None
     canceled_at: datetime | None = None
+
+    @model_validator(mode="after")
+    def validate_size_basis(self) -> Self:
+        if self.quantity is None and (self.notional is None or self.notional <= 0):
+            raise ValueError("order must identify requested quantity or positive notional")
+        return self
 
 
 class PaperAsset(BaseModel):
@@ -234,6 +241,35 @@ class AlpacaPaperClient:
         if not isinstance(payload, dict):
             raise ValueError("Alpaca order response must be an object")
         return AlpacaPaperOrder.model_validate(payload)
+
+    def bitcoin_asset(self) -> dict[str, Any]:
+        payload = self._request(
+            "GET", "/v2/assets", params={"asset_class": "crypto", "status": "active"}
+        )
+        if not isinstance(payload, list):
+            raise ValueError("crypto assets must be an array")
+        for item in payload:
+            if isinstance(item, dict) and item.get("symbol") == "BTC/USD":
+                return dict(item)
+        raise ValueError("BTC/USD is not available on this paper account")
+
+    def submit_bitcoin_test_buy(self, client_order_id: str) -> AlpacaPaperOrder:
+        if not client_order_id.startswith("ta-crypto-test-") or len(client_order_id) > 48:
+            raise ValueError("explicit crypto paper test identity required")
+        return AlpacaPaperOrder.model_validate(
+            self._request(
+                "POST",
+                "/v2/orders",
+                json={
+                    "symbol": "BTC/USD",
+                    "notional": "20",
+                    "side": "buy",
+                    "type": "market",
+                    "time_in_force": "gtc",
+                    "client_order_id": client_order_id,
+                },
+            )
+        )
 
     def order_by_client_id(self, client_order_id: str) -> AlpacaPaperOrder:
         payload = self._request(

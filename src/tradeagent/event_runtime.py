@@ -30,6 +30,7 @@ from tradeagent.event_context import (
     OfficialContextSnapshot,
     latest_rest_quote_size_unit,
 )
+from tradeagent.event_crypto_test import step_crypto_test
 from tradeagent.event_doctor import code_identity
 from tradeagent.event_market import EventMarketClient, EventMarketState
 from tradeagent.event_operator_probe import COMMAND_KEY as OPERATOR_PROBE_KEY
@@ -373,6 +374,17 @@ class EventRuntime:
             tick_at,
             feed_healthy=self._sources_fresh(tick_at),
         )
+        crypto_test = step_crypto_test(
+            self.broker,
+            self.market,
+            self.repo,
+            self.store,
+            owner_id=self.instance_id,
+            code_sha=self.code_sha,
+            config_hash=self.config_hash,
+            cohort_id=self.settings.cohort_id,
+            assert_owner=self.oms.assert_owner,
+        )
         if self.repo.get_control(f"{OPERATOR_PROBE_KEY}:{self.settings.cohort_id}") is not None:
             try:
                 operator_probe = run_probe(
@@ -679,6 +691,23 @@ class EventRuntime:
             "state": "market_closed" if not clock.is_open else "collecting",
             "mode": self.settings.mode,
             "operator_paper_order_probe": operator_probe,
+            "operator_crypto_test": (
+                {
+                    key: crypto_test.get(key)
+                    for key in (
+                        "test_id",
+                        "state",
+                        "started_at",
+                        "exit_due_at",
+                        "exit_reason",
+                        "latest_net_estimate",
+                        "completed_at",
+                        "fill_value_difference",
+                    )
+                }
+                if crypto_test
+                else None
+            ),
             "purpose": self.settings.purpose,
             "entry_policy": self.settings.entry_policy,
             "qualification_eligible": self.settings.purpose != "iex-practice",
