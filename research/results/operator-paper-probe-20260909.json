@@ -1,0 +1,103 @@
+{
+  "test_id": "operator-paper-submit-cancel-20260909",
+  "authority": "Owner explicitly requested an immediate paper order performed by the running Render worker, followed by an email from the Render email worker.",
+  "classification": "OPERATOR_API_SUBMIT_CANCEL_TEST",
+  "actual_filled_trade_proven": false,
+  "strategy_qualification_evidence": false,
+  "running_worker": {
+    "service_id": "srv-dae4tr7qj5pc73a9e0k0",
+    "instance_id": "srv-dae4tr7qj5pc73a9e0k0-657f7bdb5b-vfzh4",
+    "code_sha": "8bcaacd677b47c274ca869454ff28fc55b65c147",
+    "deploy_id": "dep-dage21f40ujc73ep8rhg",
+    "cohort_id": "v20-operator-probe-20260909",
+    "config_hash": "d7e4038683bb2bef463a8a7e5b249210426d220fc8ff4153a38e708a1fa7cd38",
+    "fresh_owner_confirmed_at": "2026-09-09T04:36:38.5418371Z"
+  },
+  "command_publication": {
+    "job_id": "job-dage3567bikc73ap7lc0",
+    "published_at": "2026-09-09T04:36:38.699671Z",
+    "job_status": "succeeded",
+    "broker_calls_by_publisher": 0,
+    "purpose": "Publish a code/config/account/cohort-bound database command only. The already-running worker performed the broker calls."
+  },
+  "alpaca_order": {
+    "id": "dd9ba5c8-8319-4466-83c0-af3cc9911c73",
+    "client_order_id": "ta-probe-20260909-0020-aapl",
+    "broker_host": "https://paper-api.alpaca.markets",
+    "symbol": "AAPL",
+    "side": "buy",
+    "type": "limit",
+    "quantity": "0.1",
+    "limit_price": "100",
+    "maximum_notional_usd": "10",
+    "time_in_force": "day",
+    "extended_hours": false,
+    "created_at": "2026-09-09T04:37:09.535181Z",
+    "canceled_at": "2026-09-09T04:37:09.716007Z",
+    "final_status": "canceled",
+    "filled_quantity": "0",
+    "filled_average_price": null,
+    "price_basis": "Fixed non-marketable diagnostic ceiling, not a fresh market quote or strategy signal.",
+    "worker_reported_complete_at": "2026-09-09T04:37:12.032237Z"
+  },
+  "independent_readback": {
+    "job_id": "job-dage5je7bikc73apik2g",
+    "job_status": "succeeded",
+    "verified_at": "2026-09-09T04:38:54.896114Z",
+    "broker_calls": "Read-only order lookup, positions and open orders; no submission.",
+    "worker_owner_matches": true,
+    "order_id_matches": true,
+    "positions": 0,
+    "open_orders": 0,
+    "global_kill": "active"
+  },
+  "email": {
+    "worker_service_id": "srv-dadnn6mq1p3s73ef7ef0",
+    "notification_id": "211d9049-7a87-527f-a249-b88e0609caf1",
+    "provider": "Resend",
+    "provider_message_id": "4aa6eeb3-9947-43f1-9b21-329414ff3dde",
+    "accepted_at": "2026-09-09T04:37:13Z",
+    "outbox_status": "sent",
+    "attempts": 1,
+    "subject": "[TradeAgent PAPER TEST] Render worker order accepted and canceled",
+    "inbox_delivery_verified": false,
+    "recipients_changed": false,
+    "daily_schedule_changed": false
+  },
+  "preserved": {
+    "global_strategy_pause": true,
+    "all_prior_cohort_pauses": true,
+    "september_8_missed_test": true,
+    "sealed_holdouts": true,
+    "normal_news_entry_authorization_issued": false,
+    "tomorrow_filled_round_trip_proven": false
+  },
+  "limitations": [
+    "Regular stock market was closed. The order was accepted and canceled, not filled.",
+    "No BUY/SELL round trip or profitable strategy result is claimed.",
+    "This is a diagnostic performed by the running Render event worker, not a scheduled future order or a local broker submission.",
+    "The running notifier independently delivered the outbox message; provider acceptance does not prove inbox delivery.",
+    "The broader morning news-paper flow and regular-session incident acceptance remain separate work."
+  ],
+  "validation": {
+    "full_suite_before_final_recovery_regression": "952 passed, 2 skipped, coverage 86.35%",
+    "focused_runtime_recovery_after_fix": "91 passed",
+    "probe_and_notification_tests_after_email_integration": "16 passed",
+    "code_review": "Cancellation-recovery finding corrected; focused re-review found no significant issues.",
+    "ruff_and_targeted_mypy": "passed",
+    "postdeployment_soak_artifact": "operator-paper-probe-20260909-afterhours.json",
+    "postdeployment_soak_state": "after-hours HTTP/memory/owner checks completed; full market-flow acceptance remains pending",
+    "postdeployment_soak_duration_seconds": 662.532782,
+    "postdeployment_http_requests": 882,
+    "postdeployment_http_errors": 0,
+    "maximum_application_memory_mib": 201.86,
+    "maximum_postgres_memory_mib": 206.81,
+    "new_recorder_drops": 0,
+    "new_recorder_gaps": 0,
+    "full_acceptance": false,
+    "remaining_soak_failures": [
+      "Recorder market quotes/trades/bars and committed exchange timestamps did not advance while the market was closed.",
+      "Recorder and feed correctly reported degraded/closed-market states instead of fabricated healthy market flow."
+    ]
+  }
+}
