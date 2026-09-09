@@ -190,6 +190,12 @@ release transition first.
 
 ## Final retry outcome
 
+**Subsequent update:** at 14:43 Eastern the owner authorized fixing the frozen
+news worker. The separate [shadow-only repair](NEWS_WORKER_REPAIR_20260909.md)
+updates that producer while preserving the old cohort and trading restrictions.
+The statements below describe the earlier retry outcome; they are not permission
+to reopen its terminal or erase its history.
+
 The corrected recorder's complete **18:01:53.468854-18:31:56.921440 UTC**
 observation passed the reviewed capacity/load and per-symbol physical checks:
 **1,803.453 seconds, 2,366 HTTP requests, zero HTTP errors, zero new queue drops

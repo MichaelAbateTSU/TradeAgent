@@ -1,0 +1,20 @@
+{
+  "job_id": "job-dagqptn40ujc7395hg70",
+  "result": {
+    "observed_at": "2026-09-09T19:01:34.266707+00:00",
+    "read_only": true,
+    "busy_status": 429,
+    "busy_seconds": 0.0927725718356669,
+    "light_sections": {
+      "/health": 200,
+      "/ready": 200,
+      "/api/status": 200
+    },
+    "report_status": 200,
+    "report_seconds": 1.2270829631015658,
+    "report_bytes": 5309674,
+    "cohort_id": "iex-trade-repair-20260909",
+    "session_state": "UNRESOLVED_OR_IN_PROGRESS",
+    "report_id": "5b5d6f16-a075-5eb8-94b9-4b6ba9f2d100"
+  }
+}
