@@ -353,8 +353,8 @@
       "updated_at": "2026-09-08T23:33:26.789305+00:00"
     },
     "cohort_pause": {
-      "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
-      "updated_at": "2026-09-09T05:11:00.649221+00:00"
+      "value": "OPERATOR_PAUSE",
+      "updated_at": "2026-09-09T05:34:16.069284+00:00"
     },
     "missing_means": "not_recorded_not_inferred_inactive"
   },
@@ -364,8 +364,8 @@
   "filled_roundtrip_proven": false,
   "market_flow_acceptance": "pending_regular_session; never waived",
   "new_cohort_risk_acknowledgement": {
-    "state": "NOT_AUTHORIZED_OR_EXECUTED",
-    "reason": "Fresh exact three unchanged metadata-only records reviewed read-only; previous cohort acknowledgement is not transferable. Await separately explicit parent scoped authority for atomic audited CAS.",
+    "state": "COMMITTED_AND_INDEPENDENTLY_VERIFIED",
+    "reason": "NEW separately parent-approved exact-evidence acknowledgement; not inherited from old cohort and not trading authorization.",
     "R1_event_ids": [
       "7ae45781-e323-4c97-85bf-405679db3c54",
       "9bb264f9-b83f-4812-b41d-a3c7db0b7d06",
@@ -399,19 +399,34 @@
         "differing_immutable_fields": [],
         "content_integrity_matches": true
       }
-    ]
+    ],
+    "parent_approved_at": "2026-09-09T01:28:35.403-04:00",
+    "reviewed_at": "2026-09-09T05:34:16.069284+00:00",
+    "audit_event_id": "9a5a4c22-e122-54b1-a245-b0c897911e5f",
+    "audit_event_type": "event_operator_risk_review",
+    "reporting_metadata_same_transaction": true,
+    "job_id": "job-dagevhf40ujc73etbra0",
+    "all_other_controls_unchanged_in_transaction": true,
+    "post_commit_other_control_changes": [],
+    "global_kill_original_timestamp_preserved": true,
+    "news_authorization_issued": false,
+    "certificate_issued": false,
+    "orders_submitted": 0,
+    "future_R1_requires_separate_fresh_review": true
   },
   "root_automation": {
     "session_id": "d889264f-50d4-4da4-be00-be99b5089546",
     "interval": "once",
     "next_run_at": "2026-09-09T13:35:00.000Z",
-    "updated_at": "2026-09-09T05:21:25.573Z",
+    "updated_at": "2026-09-09T05:36:39.550Z",
     "verified_by": "save_session_automation returned persisted exact nextRunAt and complete updated prompt",
     "first_gate": "unchanged strictly read-only1800-second market-load incident acceptance09:35-10:05ET",
-    "second_gate": "new explicitly scoped news-paper preflight only after passing incident and allriskguards; currentnewR1 remainsblocking",
+    "second_gate": "Explicit news-paper preflight ONLY after passing unchanged live incident acceptance and all risk guards; exact three reviewed R1 flags separately acknowledged, future/new risks require new review.",
     "preflight_window_et": "10:05 inclusive to10:30 exclusive",
     "equipment_window_et": "10:10 inclusive to10:30 exclusive",
-    "remaining_day": "atmostone genuine H1/H2 news entry after actual equipment completion; finitewindow, localprotection, actuallifecycleemailproof and recoveryuntilflat; schedulefollowup by15:45 onlyafter09:35wake runs"
+    "remaining_day": "atmostone genuine H1/H2 news entry after actual equipment completion; finitewindow, localprotection, actuallifecycleemailproof and recoveryuntilflat; schedulefollowup by15:45 onlyafter09:35wake runs",
+    "initial_release_update_at": "2026-09-09T05:21:25.573Z",
+    "risk_acknowledgement_audit": "9a5a4c22-e122-54b1-a245-b0c897911e5f"
   },
   "preserved": {
     "user_dirty_readiness_doc": true,
@@ -470,6 +485,30 @@
       "bytes": 158430,
       "sha256": "36d1a98274db811b71856f381be876f1f7e84c3f2dea929dc8f530c4e5442414"
     },
+    "news-paper-20260909-R1-ack-job-status.json": {
+      "bytes": 9075,
+      "sha256": "a13bfe2d6917885426690767476023c5c70ecb4482befd8b2c68c07f2822b17d"
+    },
+    "news-paper-20260909-R1-ack-job.json": {
+      "bytes": 9472,
+      "sha256": "a278fba26b640248741d8cef4fd55850a73f0759db460414311851b2ad48c51d"
+    },
+    "news-paper-20260909-R1-ack-logs.json": {
+      "bytes": 14720,
+      "sha256": "27a11d80c1563df0f3d62b454d09f084c0ec177ffbc933c01a2d64309e8fe890"
+    },
+    "news-paper-20260909-R1-ack-operation.py.txt": {
+      "bytes": 17626,
+      "sha256": "390333a4717d0ffef6436146583a5ad5198f56c80f2ecd0bffdf99dd5ffb09c9"
+    },
+    "news-paper-20260909-R1-ack-ready.json": {
+      "bytes": 8318,
+      "sha256": "37450e0eb0a9071767da4d3f65479ac42adbffab10e844fe968905e8e4d68b0d"
+    },
+    "news-paper-20260909-R1-ack.json": {
+      "bytes": 5701,
+      "sha256": "01f6f58ff4477a3249fbd44e6b3abe20d9b021399ce568998d5ec6869296d3e8"
+    },
     "news-paper-20260909-scope.json": {
       "bytes": 1122,
       "sha256": "b1cc95d096e177b543170fda57d233a7c17c4b153964390643091e3d2264e310"
@@ -498,5 +537,40 @@
       "bytes": 15323,
       "sha256": "473e471a144cbc7af715e714fcba6db2c74fad9b4a3a2a68eb429da328e3fa78"
     }
-  }
+  },
+  "updated_at": "2026-09-09T05:37:44.800653+00:00",
+  "pre_acknowledgement_controls": {
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "kill_switch": {
+      "value": "active",
+      "updated_at": "2026-09-08T23:33:26.789305+00:00"
+    },
+    "cohort_pause": {
+      "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+      "updated_at": "2026-09-09T05:11:00.649221+00:00"
+    },
+    "missing_means": "not_recorded_not_inferred_inactive"
+  },
+  "broker_at_acknowledgement": {
+    "broker_checked_at": "2026-09-09T05:34:16.064386+00:00",
+    "broker_clock": {
+      "is_open": false,
+      "next_close": "2026-09-09T16:00:00-04:00",
+      "next_open": "2026-09-09T09:30:00-04:00",
+      "timestamp": "2026-09-09T01:34:16.030050-04:00"
+    },
+    "broker_status": "ACTIVE",
+    "broker_positions": 0,
+    "broker_open_orders": 0,
+    "unresolved_local_intents": 0,
+    "waiting_local_news_candidates": 0
+  },
+  "preparation_complete": true,
+  "future_proof_pending": [
+    "Actual1800-second regular-session market acceptance",
+    "Passing explicitly scoped preflight with fresh broker/source/risk checks",
+    "Actual controlled equipmentBUY/SELLfills and flatendingstate",
+    "Atmostone genuinelyeligible news entry or honest abstention",
+    "Actual lifecycle/roundtrip notifier provider acceptance"
+  ]
 }

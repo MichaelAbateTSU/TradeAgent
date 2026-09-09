@@ -181,7 +181,7 @@ Ruff; both before/after Python ASTs were verified identical. All 198 checked fil
 now pass the formatter, repository-wide Ruff passes, and the combined 72
 equipment/news policy tests pass. No execution behavior changed.
 
-## Actual deployed checks and current entry blocker
+## Actual deployed checks and separately reviewed source flag
 
 Same-image probe `job-dagekv15efls73a8h7qg` verified migration
 `0012_market_data_totals`, database connectivity, zero missing reporting metadata,
@@ -206,10 +206,10 @@ unresolved local order, cohort order link, broker position or open order existed
 See [the fresh projection](../research/results/news-paper-20260909-source-review.json)
 and [exact scope](../research/results/news-paper-20260909-scope.json).
 
-**The prior cohort's acknowledgement was not transferred.** This new cohort's
-pause is still R1 and requires separately authorized, audited compare-and-set
-acknowledgement before the later preflight could accept it. No generic rule or
-risk control has been cleared to force an order. The source projection's first
+**The prior cohort's acknowledgement was not transferred.** The source projection
+captured this new cohort's R1 pause before the separately approved acknowledgement
+recorded below. No generic rule or risk control was cleared to force an order.
+The source projection's first
 diagnostic exceeded Render's 100,000-character log-line bound; that truncated
 evidence is retained, and a new read-only bounded/chunk-verified projection—not
 another broker/order operation—provided the complete result.
@@ -240,8 +240,8 @@ The root's one-time **September 9 09:35 ET** automation was updated at
 `2026-09-09T05:21:25.573Z` to the actual reviewed role pins, new cohort/config and
 new preflight command. Its first 1,800 seconds remain strictly read-only, with
 every incident gate retained. Only a later passing scoped preflight can permit
-equipment followed by at most one genuine news entry; the unresolved new-cohort
-R1 remains an explicit blocker. The automation requires follow-through on actual
+equipment followed by at most one genuine news entry; unresolved or new R1 risks
+remain explicit blockers. The automation requires follow-through on actual
 fills/exits/notifier acceptance and later finite-window supervision, not a
 deployment-based success claim.
 
@@ -250,3 +250,40 @@ includes exact pins/config/scope, job receipts, file hashes and remaining blocke
 Final post-soak broker readback at **01:24:28 ET** remained ACTIVE/unblocked,
 zero positions/open orders; at **01:25:25 ET** readiness still showed the same
 fresh owner/lease and unchanged global/R1 pauses.
+
+## Newly approved scoped acknowledgement — no entry authorization
+
+After the parent's **separate, explicit approval at 01:28:35.403 ET**, job
+`job-dagevhf40ujc73etbra0` atomically changed **only this cohort's pause** from R1
+to `OPERATOR_PAUSE` at **01:34:16.069284 ET / 05:34:16.069284 UTC**.
+New immutable `event_operator_risk_review` audit
+**`9a5a4c22-e122-54b1-a245-b0c897911e5f`** and its reporting metadata sidecar were
+written in the **same transaction**.
+
+The operation freshly revalidated the exact three source/R1/decision IDs,
+content/raw hashes and rejected, empty-fact state. It also confirmed no new
+primary-source risk, waiting local news, unresolved local order, cohort order
+history, broker position or open order. All controls were locked and compared;
+the pause update compared both its original value and exact timestamp. Any
+concurrent change, new risk or stale lookup would abort before committing.
+
+Global kill remained `active` with its **original**
+`2026-09-08T23:33:26.789305Z` timestamp. Every other control and old cohort remained
+unchanged, including in the immediate post-commit readback. No certificate,
+news authorization, terminal marker, order, threshold, source-code or deployment
+change was made. A separate readiness read at **01:35:27 ET** verified the same
+fresh worker/lease/deployment and exact persistent operator/global pauses.
+
+See the [atomic receipt](../research/results/news-paper-20260909-R1-ack.json),
+[job](../research/results/news-paper-20260909-R1-ack-job.json), and
+[independent readiness](../research/results/news-paper-20260909-R1-ack-ready.json).
+Original R1 events, unknown publication, rejected decisions and source hashes are
+preserved. **Future R1 or revisions require a new fresh review and authority;
+this is not an automatic whitelist or permission to replay this one-use operation.**
+
+The root automation was updated again at `2026-09-09T05:36:39.550Z` to record
+only this newly verified acknowledgement. Its persisted next wake remains
+**09:35 ET / 13:35 UTC**, with unchanged read-only 1,800-second incident acceptance
+first and the later explicit news-paper preflight still mandatory. Preparation
+is complete; actual live market acceptance, equipment fills, any genuinely
+eligible news trade and lifecycle/round-trip provider acceptance remain pending.

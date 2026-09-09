@@ -1,0 +1,124 @@
+{
+  "all_other_controls_unchanged_in_transaction": true,
+  "audit_event": {
+    "event_id": "9a5a4c22-e122-54b1-a245-b0c897911e5f",
+    "event_type": "event_operator_risk_review",
+    "occurred_at": "2026-09-09 05:34:16.069284+00:00",
+    "payload": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "authority": "NEW separate parent-approved exact-evidence acknowledgement",
+      "basis": {
+        "candidates": "all rejected",
+        "classification": "Three unchanged metadata/cache-only Pusheen source versions",
+        "economic_facts": [],
+        "event_type": "unclassified",
+        "explicit_correction_or_retraction": false,
+        "hypothesis": null,
+        "no_position_or_queued_news_context_affected": true,
+        "publication": "unknown; unchanged",
+        "source_and_raw_hashes_match_fresh_review": true
+      },
+      "broker_checked_at": "2026-09-09T05:34:16.064386+00:00",
+      "broker_clock": {
+        "is_open": false,
+        "next_close": "2026-09-09T16:00:00-04:00",
+        "next_open": "2026-09-09T09:30:00-04:00",
+        "timestamp": "2026-09-09T01:34:16.030050-04:00"
+      },
+      "broker_open_orders": 0,
+      "broker_positions": 0,
+      "broker_status": "ACTIVE",
+      "certificate_issued": false,
+      "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+      "cohort_id": "v20-news-paper-20260909-r1",
+      "config_hash": "77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43",
+      "content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+      "controls_before_sha256": "ce574e1a12f634caaeb011df306961c9089e6a0769937db7db6ae030acd17e50",
+      "evidence_artifact_sha256": "ddf370482fdd2206ff16ac723e9bbe47c68bd2382cc422577ec7601df577c01b",
+      "evidence_ids": [
+        "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+        "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+        "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c"
+      ],
+      "future_R1_requires_separate_fresh_review": true,
+      "global_kill_unchanged": [
+        "active",
+        "2026-09-08T23:33:26.789305+00:00"
+      ],
+      "incident_acceptance_and_explicit_news_approval_still_required": true,
+      "locked_frozen_state": {
+        "R1_pause_event_ids": [
+          "7ae45781-e323-4c97-85bf-405679db3c54",
+          "9bb264f9-b83f-4812-b41d-a3c7db0b7d06",
+          "8d17b392-f07e-45a9-9a23-3bf93395b080"
+        ],
+        "review_decisions_sha256": "79c2c28363c42cba5f91bb1c34680085db6f0aabed28603dffc4f6d33dde8248",
+        "source_payloads_sha256": "dd39fb9e5ba14ca75ad0a0586f5a8a938adbc90c1b11226eac5733b1d8d41bb4"
+      },
+      "news_authorization_issued": false,
+      "operation_expiry": "2026-09-09T06:30:00Z",
+      "orders_submitted": 0,
+      "parent_approved_at": "2026-09-09T01:28:35.403-04:00",
+      "pause_after": "OPERATOR_PAUSE",
+      "pause_before": [
+        "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "2026-09-09T05:11:00.649221+00:00"
+      ],
+      "planned_session_date": "2026-09-09",
+      "prior_cohort_acknowledgement_inherited": false,
+      "publication_and_decisions_unchanged": true,
+      "review_id": "9a5a4c22-e122-54b1-a245-b0c897911e5f",
+      "reviewed_at": "2026-09-09T05:34:16.069284+00:00",
+      "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+      "source_versions": [
+        {
+          "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+          "raw_document_sha256": "f5d2eb4afeabf1d2a416fb9a399e321902e33326c98fd0eb16aaf533a306cf6b",
+          "revision_of": null,
+          "source_version": "2b75783126615a4a54f41dffa4cfbb98caf41917bfbb0ad968063b7b9db63987"
+        },
+        {
+          "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+          "raw_document_sha256": "e31897f89b018ac85caa1c956acc59407404917c11c5364feb65952001098c81",
+          "revision_of": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+          "source_version": "09df58f62f67150c370243f0a4af73410f6138827fe26a45ff6645c1c9044a3f"
+        },
+        {
+          "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+          "raw_document_sha256": "b58e6867d1bfe4ee7bf182ad424fc03298ec1d51bab0138c93e7a64f44842b38",
+          "revision_of": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+          "source_version": "f33bda861f53c9cf7b0e5e77c97d56d5603779747d3d2c9b14085115b21271a8"
+        }
+      ],
+      "unresolved_local_intents": 0,
+      "waiting_local_news_candidates": 0
+    },
+    "recorded_at": "2026-09-09 05:34:16.069284+00:00",
+    "trace_id": "v20-news-paper-20260909-r1"
+  },
+  "cohort_authority_or_certificate_exists": false,
+  "committed": true,
+  "global_kill": [
+    "active",
+    "2026-09-08 23:33:26.789305+00:00"
+  ],
+  "orders_submitted": 0,
+  "pause": [
+    "OPERATOR_PAUSE",
+    "2026-09-09 05:34:16.069284+00:00"
+  ],
+  "post_commit_global_unchanged": true,
+  "post_commit_other_control_changes": [],
+  "post_commit_pause_matches": true,
+  "post_commit_verified_at": "2026-09-09T05:34:16.080985+00:00",
+  "reporting_metadata": {
+    "event_id": "9a5a4c22-e122-54b1-a245-b0c897911e5f",
+    "payload": {
+      "scope": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "planned_session_date": "2026-09-09"
+      }
+    },
+    "projection_version": 1
+  }
+}
