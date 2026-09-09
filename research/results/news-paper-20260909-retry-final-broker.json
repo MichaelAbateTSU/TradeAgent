@@ -1,0 +1,105 @@
+{
+  "job_id": "job-dagqchm1egvs73b0o39g",
+  "result": {
+    "observed_at": "2026-09-09T18:32:56.945936+00:00",
+    "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+    "read_only": true,
+    "market_history_scanned": false,
+    "orders_submitted": 0,
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "status": "ACTIVE",
+      "trading_blocked": false,
+      "account_blocked": false,
+      "positions": 0,
+      "open_orders": 0,
+      "clock": {
+        "timestamp": "2026-09-09T14:32:57.459805-04:00",
+        "is_open": true,
+        "next_open": "2026-09-10T09:30:00-04:00",
+        "next_close": "2026-09-09T16:00:00-04:00"
+      }
+    },
+    "controls": [
+      {
+        "control_key": "v20-news-paper-20260909-r1:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-09 14:30:33.286983+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:broker-account",
+        "control_value": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "updated_at": "2026-09-09 05:10:37.974973+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:session-plan",
+        "control_value": "{\"session_date\":\"2026-09-09\",\"session_open\":\"2026-09-09T13:30:00Z\",\"session_close\":\"2026-09-09T20:00:00Z\",\"previous_session_close\":\"2026-09-08T20:00:00Z\",\"verified_at\":\"2026-09-09T05:10:39.772962Z\",\"calendar_source\":\"https://paper-api.alpaca.markets/v2/calendar\"}",
+        "updated_at": "2026-09-09 05:10:39.845120+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:day:2026-09-09",
+        "control_value": "10000",
+        "updated_at": "2026-09-09 05:10:41.346266+00:00"
+      },
+      {
+        "control_key": "kill_switch",
+        "control_value": "active",
+        "updated_at": "2026-09-08 23:33:26.789305+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-09 05:34:16.069284+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:high-watermark",
+        "control_value": "10000",
+        "updated_at": "2026-09-09 18:32:54.234983+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:news-terminal",
+        "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+        "updated_at": "2026-09-09 14:30:24.386665+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:source_watermark",
+        "control_value": "2026-09-09T18:32:19.425548+00:00",
+        "updated_at": "2026-09-09 18:32:54.697750+00:00"
+      }
+    ],
+    "unresolved_local_orders": [],
+    "all_account_day_orders": [
+      {
+        "id": "dd9ba5c8-8319-4466-83c0-af3cc9911c73",
+        "client_order_id": "ta-probe-20260909-0020-aapl",
+        "side": "buy",
+        "symbol": "AAPL",
+        "status": "canceled",
+        "filled_qty": "0",
+        "filled_at": null,
+        "submitted_at": "2026-09-09T04:37:09.535181Z"
+      },
+      {
+        "id": "385947be-92ac-4215-98f4-54380075a145",
+        "client_order_id": "ta-crypto-test-20260909-0151-buy",
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "status": "filled",
+        "filled_qty": "0.000247676",
+        "filled_at": "2026-09-09T06:20:49.378751Z",
+        "submitted_at": "2026-09-09T06:20:49.376591Z"
+      },
+      {
+        "id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+        "client_order_id": "ta-crypto-test-20260909-0151-s0",
+        "side": "sell",
+        "symbol": "BTC/USD",
+        "status": "filled",
+        "filled_qty": "0.000247056",
+        "filled_at": "2026-09-09T06:21:28.132488Z",
+        "submitted_at": "2026-09-09T06:21:28.130083Z"
+      }
+    ],
+    "account_day_orders_complete": true
+  }
+}

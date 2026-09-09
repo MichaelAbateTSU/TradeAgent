@@ -586,6 +586,28 @@ zero open orders and zero unresolved local intents. The original global/pause
 timestamps, worker-owned news terminal and zero-attempt MISSED result persisted.
 See [handoff evidence](../research/results/news-paper-20260909-handoff-readback.json).
 
+## Later owner-approved upgrade and recorder correction
+
+The owner subsequently requested an afternoon rerun and explicitly approved the
+PostgreSQL-only **$13/month** capacity increase. The actual database is now
+`0.5c-1g`, with its original identity, 15 GB disk and empty public allowlist.
+The reviewed `pg-1gb-v1` acceptance profile does not reinterpret the original
+256 MB failures.
+
+Actual physical probing then exposed cross-day provider trade-ID collisions.
+Migration 0013 and recorder release `68c2e8f` preserve historical data while
+correcting new raw-trade identity. The final 30-minute recorder/load/per-symbol
+checks passed, with no new queue loss and maximum commit lag 0.614 seconds.
+The notifier-only outcome fix `37e7a72` sent the MISSED alert and the distinct
+owner-requested retry result once each, with provider acceptance verified.
+
+This is **not full news-paper product acceptance**: the frozen event image
+`29cf232` still has the old generic trade-history method and needs an approved
+immutable release transition. Today's two account-day BUY submissions were
+already used; the original terminal/pauses remain, and no additional order was
+authorized. Sparse IEX minute coverage and the operator-history accounting gap
+remain explicit. See the [complete afternoon record and actual email proofs](PAPER_RETRY_20260909.md).
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)

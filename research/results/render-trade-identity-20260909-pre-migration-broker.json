@@ -1,0 +1,72 @@
+{
+  "job_id": "job-dagpcs2jnfac73d8pppg",
+  "result": {
+    "observed_at": "2026-09-09T17:25:23.766583+00:00",
+    "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+    "read_only": true,
+    "market_history_scanned": false,
+    "orders_submitted": 0,
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "status": "ACTIVE",
+      "trading_blocked": false,
+      "account_blocked": false,
+      "positions": 0,
+      "open_orders": 0,
+      "clock": {
+        "timestamp": "2026-09-09T13:25:24.274534-04:00",
+        "is_open": true,
+        "next_open": "2026-09-10T09:30:00-04:00",
+        "next_close": "2026-09-09T16:00:00-04:00"
+      }
+    },
+    "controls": [
+      {
+        "control_key": "v20-news-paper-20260909-r1:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-09 14:30:33.286983+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:broker-account",
+        "control_value": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "updated_at": "2026-09-09 05:10:37.974973+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:session-plan",
+        "control_value": "{\"session_date\":\"2026-09-09\",\"session_open\":\"2026-09-09T13:30:00Z\",\"session_close\":\"2026-09-09T20:00:00Z\",\"previous_session_close\":\"2026-09-08T20:00:00Z\",\"verified_at\":\"2026-09-09T05:10:39.772962Z\",\"calendar_source\":\"https://paper-api.alpaca.markets/v2/calendar\"}",
+        "updated_at": "2026-09-09 05:10:39.845120+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:day:2026-09-09",
+        "control_value": "10000",
+        "updated_at": "2026-09-09 05:10:41.346266+00:00"
+      },
+      {
+        "control_key": "kill_switch",
+        "control_value": "active",
+        "updated_at": "2026-09-08 23:33:26.789305+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:high-watermark",
+        "control_value": "10000",
+        "updated_at": "2026-09-09 17:25:12.812330+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-09 05:34:16.069284+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:news-terminal",
+        "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+        "updated_at": "2026-09-09 14:30:24.386665+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:source_watermark",
+        "control_value": "2026-09-09T17:25:12.881204+00:00",
+        "updated_at": "2026-09-09 17:25:14.314213+00:00"
+      }
+    ],
+    "unresolved_local_orders": []
+  }
+}

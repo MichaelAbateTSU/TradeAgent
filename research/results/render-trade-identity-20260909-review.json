@@ -1,0 +1,38 @@
+{
+  "candidate_commit": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+  "independent_review": {
+    "agent": "practice-review",
+    "turns": [55, 56],
+    "result": "No significant issues found; candidate, private fixture and wrapper ready"
+  },
+  "validation": {
+    "full_passed": 1102,
+    "skipped": 2,
+    "coverage_percent": 87.41,
+    "ruff": "passed",
+    "format": "passed",
+    "mypy": "passed"
+  },
+  "physical_validator_commit": "37473be0556845d882337e4b148d50b266325621",
+  "physical_validator_review": "Chronology finding resolved; 18 targeted tests passed",
+  "postgresql_fixture_job": "job-dagpqndg1s2s73fa3t60",
+  "postgresql_fixture_verified": true,
+  "postgresql_fixture_rolled_back": true,
+  "postgresql_fixture_actual_commits": 0,
+  "actual_migration_deployment": "dep-dagps3dbedkc739omglg",
+  "post_migration_readback_job": "job-dagptdgn74is739iait0",
+  "actual_revision": "0013_trade_event_identity",
+  "table_oid_preserved": 16549,
+  "nine_counter_trigger_oids_preserved": true,
+  "sampled_historical_rows_preserved": 20,
+  "historical_sample_sha256": "f32e03e8d683dde1297819e921c5639f315cff79886eb197781402615073fa38",
+  "selected_safety_controls_preserved": true,
+  "historical_backfill_performed": false,
+  "trading_authorization_created": false,
+  "remaining_limitations": [
+    "Full post-deployment observation and all-symbol physical proof must finish",
+    "Frozen event29 still uses the old generic writer; recorder success is not all-writer acceptance",
+    "Today's two total account-day BUY submissions are already consumed",
+    "A new immutable event-role transition was not authorized while owner was unavailable"
+  ]
+}

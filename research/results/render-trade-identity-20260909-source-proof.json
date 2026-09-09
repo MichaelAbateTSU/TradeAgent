@@ -1,0 +1,11 @@
+{
+  "job_id": "job-dagpuoijnfac73db1sb0",
+  "result": {
+    "image": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+    "hashes": {
+      "persistence": "e39ec2883866be3edb48f9056154bf9dfc3fd32da3a69adb4999f5dcbf2e8802",
+      "shadow_recorder": "96679b8a6d8db325b9742de785790543139a409a3e5badc4e7ced767bfd326c0"
+    },
+    "no_database_or_broker_calls": true
+  }
+}

@@ -134,6 +134,91 @@ ordinary sections remained 200, followed by a real **4,413,743-byte report** in
 observation is retained as lossless gzip with its uncompressed SHA256 in the
 summary.
 
+## Data-preserving trade-identity correction
+
+Candidate `68c2e8fe086af06c548e7064014c8f1d927ff952` changes identity to
+`(symbol, feed_source, provider_trade_id, exchange, event_at)`. Price, quantity,
+receipt and processing fields remain outside the key, so replaying the same
+packet retains its first original. The schema retains the old three-column
+index prefix for existing lookups. Existing microsecond timestamp precision is
+unchanged; no nanoseconds or missing records are invented.
+
+Migration `0013_trade_event_identity` builds the replacement PostgreSQL index
+concurrently, then swaps constraints in a short transaction. It does not rewrite
+or delete historical rows, rebuild the PostgreSQL table, change the nine counter
+triggers or repair old audit results. Index-build lock/statement limits are
+two/300 seconds; final-swap limits are two/ten seconds. Unsafe downgrade refuses
+to collapse newly distinct records. Real PostgreSQL fixture and migration results
+must be recorded separately from local validation.
+
+The exact candidate passed independent review and full validation (1,102 passed,
+two skipped, 87.41% coverage). The real PostgreSQL private-schema fixture
+`job-dagpqndg1s2s73fa3t60` then passed and rolled back, including the reproduced
+old loss, cross-day/venue writes, original-record retention, late-batch rollback
+and unsafe downgrade refusal. That fixture did not claim to test a concurrent
+index build or a durable commit.
+
+Recorder deployment `dep-dagps3dbedkc739omglg` applied the actual migration through
+its normal pre-deploy command. A separate **18:00:53 UTC** readback verified
+schema 0013, the exact five-field constraint, unchanged table OID **16549**,
+all nine unchanged trigger OIDs, the unchanged hash of all 20 sampled historical
+QQQ rows, and unchanged selected trading controls. No REST backfill was performed.
+The replacement recorder owner `srv-dadn8son74is73apqcc0-58d84df74b-r47rd`
+acquired its lease naturally and demonstrated healthy durable progress.
+A fresh complete post-migration observation is required and is being retained
+separately from the earlier physical failure.
+
+**Remaining frozen-news-worker limitation:** the old event image `29cf232` also
+calls the generic trade writer, whose application-side three-field precheck is
+defective. A schema/recorder correction cannot fix that old application method.
+The new method is fixed in the candidate library, but deploying it under the
+existing morning cohort would violate its immutable code/config fingerprint.
+Permission for a new shadow-only collection cohort was requested; the owner was
+unavailable. The conservative choice is to preserve the old event image and
+its existing pauses/terminal, not silently replace the cohort.
+
+Therefore a corrected five-symbol recorder must **not** be described as fixing
+every active trade-history writer or qualifying the complete news-paper product.
+A separately reviewed event-role transition remains required. No trading cohort,
+budget reset, old R1 acknowledgement transfer or new entry authority is created.
+
+After schema 0013 is applied, older images can still read the unchanged columns
+and continue running, but their old `alembic upgrade head` pre-deploy command
+cannot resolve a revision absent from their checkout. Do not redeploy an old
+image blindly or downgrade the schema to accommodate it; review a compatible
+release transition first.
+
+## Final retry outcome
+
+The corrected recorder's complete **18:01:53.468854-18:31:56.921440 UTC**
+observation passed the reviewed capacity/load and per-symbol physical checks:
+**1,803.453 seconds, 2,366 HTTP requests, zero HTTP errors, zero new queue drops
+or recorder gaps, maximum commit lag 0.614 seconds**, and PostgreSQL peak
+**382.211 MiB**. Every application stayed below 400 MiB. QQQ trade counts in the
+fixed physical window advanced **5 to 251**; quotes, trades and bars advanced
+for all five required symbols. No historical backfill was used.
+
+The exhaustive 2,073-record database log check found no termination/recovery/
+FATAL/PANIC and retained 112 known duplicate-evidence-key SQL errors. The real
+post-migration full report returned 200 in 2.750 seconds after explicit 429
+admission control; ordinary sections stayed 200. Incomplete sparse IEX minute
+buckets remain visible, so no complete derived-frame or qualification claim is made.
+
+**No additional order was authorized or placed.** At broker clock
+**14:32:57 Eastern**, the account was ACTIVE/unblocked and flat, with no open
+orders or unresolved local intents. Its complete account-day list still contained
+only the two prior BUY submissions and the BTC exit. The morning MISSED/terminal
+and original entry pauses remained intact. The frozen event-writer transition
+and operator-history accounting gap remain blockers to full news-paper readiness.
+
+The existing Render notifier sent the separate requested retry summary once at
+**14:36:16 Eastern**. Notification
+`42474d68-9355-566c-be98-ecb23463ca41` is `sent`, attempts **1**, provider ID
+**`18cef6dd-bcac-4659-8df4-f01f6501e844`**. Transient log-read failures were retried
+as reads only; neither email nor job was resubmitted. Provider acceptance is
+verified, not inbox delivery. The 15:45 Eastern read-only close watch remains
+scheduled; through-close flatness is not yet claimed.
+
 ## Evidence
 
 - [Approved resize request and response](../research/results/render-db-upgrade-20260909.json)
@@ -148,3 +233,12 @@ summary.
 - [Upgraded observation summary: capacity pass, physical failure](../research/results/render-db-upgrade-20260909-summary.json)
 - [Complete compressed upgraded observation](../research/results/render-db-upgrade-20260909-full-soak.json.gz)
 - [Upgraded interval database log check](../research/results/render-db-upgrade-20260909-pg-logs.json)
+- [Actual private PostgreSQL migration fixture](../research/results/render-trade-identity-20260909-pg-fixture.json)
+- [Pre-migration historical/constraint snapshot](../research/results/render-trade-identity-20260909-before.json)
+- [Actual migrated schema and preserved originals](../research/results/render-trade-identity-20260909-after.json)
+- [Recorder migration deployment](../research/results/render-trade-identity-20260909-deploy.json)
+- [Final corrected-recorder summary and remaining product blockers](../research/results/render-trade-identity-20260909-summary.json)
+- [Complete compressed post-migration observation](../research/results/render-trade-identity-20260909-soak.json.gz)
+- [All-symbol post-migration physical progression](../research/results/render-trade-identity-20260909-physical-proof.json)
+- [Final broker and account-day orders](../research/results/news-paper-20260909-retry-final-broker.json)
+- [Final retry-summary email acceptance](../research/results/news-paper-20260909-retry-result-email-proof.json)

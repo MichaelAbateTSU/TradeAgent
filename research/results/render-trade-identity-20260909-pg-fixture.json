@@ -1,0 +1,33 @@
+{
+  "job_id": "job-dagpqndg1s2s73fa3t60",
+  "proof": {
+    "deployed_image": "645714bf4c21aa8a9cbd73849f94119dc0b563a6",
+    "reviewed_candidate": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+    "bundle_sha256": "d9091d0daeaa5b8fd2b4284974e6ec2431f1e23d917e30631774e0670bf86289",
+    "candidate_file_hashes": {
+      "migrations/versions/0012_market_data_totals.py": "dad2fc5fc0aa4435af57ce0c5965ecc925da8619ced02888ae37c7a12e372fc1",
+      "migrations/versions/0013_trade_event_identity.py": "7e7eea8741b521b1ccefc63010c554f6e06bccab0825a3a50acd7cc867490fd1",
+      "src/tradeagent/persistence.py": "e39ec2883866be3edb48f9056154bf9dfc3fd32da3a69adb4999f5dcbf2e8802",
+      "tests/trade_identity_pg_fixture.py": "914b428fa59ac292f15ffbf78605d82b4b8fee3fcd804f8ab692a8dcf51149f3"
+    },
+    "ephemeral_job_only": true,
+    "live_worker_files_modified": false,
+    "result": {
+      "verified": true,
+      "rolled_back": true,
+      "schema": "trade_identity_probe_147fa6b2cc3b4a53a84b004a99ed78b0",
+      "stages": [
+        "old_global_id_constraint_reproduces_cross_day_loss",
+        "transactional_index_and_constraint_swap_roll_back_without_data_changes",
+        "idempotent_swap_preserves_table_oid_nine_triggers_totals_audits_sidecars",
+        "cross_day_venue_time_writes_and_first_original_retries_are_exact",
+        "late_batch_failure_rolls_back_raw_counter_audit_metadata",
+        "unsafe_downgrade_refused_without_collapsing_history"
+      ],
+      "actual_commits": 0,
+      "concurrent_index_build_exercised": false,
+      "concurrent_index_build_requires_separate_reviewed_migration": true,
+      "not_a_live_data_acceptance_or_backfill": true
+    }
+  }
+}

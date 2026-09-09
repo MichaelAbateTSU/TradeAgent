@@ -1,0 +1,71 @@
+{
+  "job_id": "job-dagqdt15efls7385a4f0",
+  "readbacks": [
+    {
+      "observed_at": "2026-09-09T18:36:13.855404+00:00",
+      "row": {
+        "notification_id": "42474d68-9355-566c-be98-ecb23463ca41",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] Afternoon retry result: no new trade",
+          "text": "Your requested afternoon retry has completed its permitted checks. No additional paper or live order was authorized.\n\nDATABASE: PostgreSQL is now 0.5 CPU / 1 GB at $19/month, the separately approved $13/month increase. Database identity, storage and private access were retained.\n\nRECORDER: The trade-ID collision fix is deployed (68c2e8f, schema0013). The 1803.5-second actual live run had 2366 HTTP requests, zero HTTP errors, zero new queue drops/gaps and maximum commit lag 0.614 seconds. Physical quotes, trades and bars advanced for all five required symbols, including QQQ. No historical backfill or replay was used.\n\nWHY NO NEW TRADE: The account already submitted two BUY orders today: the overnight AAPL diagnostic (accepted then canceled, zero fills) and the BTC/USD operator test (filled, subsequently sold). Cancellations after submission do not restore an attempt. I did not raise your two-BUY cap, reset its budget, create a replacement trading cohort, or clear the original MISSED/terminal controls. The normal OMS counter omits those operator paths; that omission was not treated as permission to trade.\n\nREMAINING LIMITATION: The frozen news worker29cf still has the old generic trade-history precheck. The new library fixes it, but updating that worker requires a separately approved immutable cohort transition. It remains paused; the complete news-paper product is NOT accepted/qualified. Sparse IEX minute buckets are not fabricated, and profitability is unproven.\n\nBROKER CHECK: At 2026-09-09T14:32:57.459805-04:00, the pinned paper account was ACTIVE/unblocked, with zero positions, zero open orders and no unresolved local intents. The account-day order list is unchanged; no new BUY was added by this retry.\n\nEMAIL: The missing operational notification trigger is fixed. The running Render notifier automatically sent the morning MISSED alert once at12:50:56ET (provider8028c160-8139-4211-bc35-3c59e278d066). This message is the separate requested retry result, not a resend of that alert. Provider acceptance does not prove inbox delivery.\n\nFOLLOW-UP: The15:45ET read-only close/recovery watch remains scheduled through16:05. The normal18:00ET daily email is unchanged. No further entries are authorized today under the current limit.\n",
+          "cohort_id": "v20-news-paper-20260909-r1",
+          "workflow_request_at": "2026-09-09T12:18:31.188-04:00",
+          "operational_status": "BLOCKED_NO_NEW_ENTRIES",
+          "new_order_authorization": false,
+          "new_orders_submitted_by_retry": 0,
+          "paper_only": true,
+          "qualification_eligible": false,
+          "recorder_checks_passed": true,
+          "full_news_paper_product_accepted": false,
+          "account_day_buy_submissions": 2,
+          "broker_observed_at": "2026-09-09T14:32:57.459805-04:00",
+          "source_summary_sha256": "8ea99b1a21061b1bbe0f5033f1852dcbe0c6d82d4a4c3284aa461046fff5e5db",
+          "created_by": "operator orchestration from actual Render readback evidence",
+          "created_at": "2026-09-09T18:35:09.155576+00:00"
+        },
+        "status": "pending",
+        "attempts": 0,
+        "provider_message_id": null,
+        "created_at": "2026-09-09 18:36:13.770843+00:00",
+        "sent_at": null,
+        "claimed_at": null
+      }
+    },
+    {
+      "observed_at": "2026-09-09T18:36:18.858534+00:00",
+      "row": {
+        "notification_id": "42474d68-9355-566c-be98-ecb23463ca41",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] Afternoon retry result: no new trade",
+          "text": "Your requested afternoon retry has completed its permitted checks. No additional paper or live order was authorized.\n\nDATABASE: PostgreSQL is now 0.5 CPU / 1 GB at $19/month, the separately approved $13/month increase. Database identity, storage and private access were retained.\n\nRECORDER: The trade-ID collision fix is deployed (68c2e8f, schema0013). The 1803.5-second actual live run had 2366 HTTP requests, zero HTTP errors, zero new queue drops/gaps and maximum commit lag 0.614 seconds. Physical quotes, trades and bars advanced for all five required symbols, including QQQ. No historical backfill or replay was used.\n\nWHY NO NEW TRADE: The account already submitted two BUY orders today: the overnight AAPL diagnostic (accepted then canceled, zero fills) and the BTC/USD operator test (filled, subsequently sold). Cancellations after submission do not restore an attempt. I did not raise your two-BUY cap, reset its budget, create a replacement trading cohort, or clear the original MISSED/terminal controls. The normal OMS counter omits those operator paths; that omission was not treated as permission to trade.\n\nREMAINING LIMITATION: The frozen news worker29cf still has the old generic trade-history precheck. The new library fixes it, but updating that worker requires a separately approved immutable cohort transition. It remains paused; the complete news-paper product is NOT accepted/qualified. Sparse IEX minute buckets are not fabricated, and profitability is unproven.\n\nBROKER CHECK: At 2026-09-09T14:32:57.459805-04:00, the pinned paper account was ACTIVE/unblocked, with zero positions, zero open orders and no unresolved local intents. The account-day order list is unchanged; no new BUY was added by this retry.\n\nEMAIL: The missing operational notification trigger is fixed. The running Render notifier automatically sent the morning MISSED alert once at12:50:56ET (provider8028c160-8139-4211-bc35-3c59e278d066). This message is the separate requested retry result, not a resend of that alert. Provider acceptance does not prove inbox delivery.\n\nFOLLOW-UP: The15:45ET read-only close/recovery watch remains scheduled through16:05. The normal18:00ET daily email is unchanged. No further entries are authorized today under the current limit.\n",
+          "cohort_id": "v20-news-paper-20260909-r1",
+          "workflow_request_at": "2026-09-09T12:18:31.188-04:00",
+          "operational_status": "BLOCKED_NO_NEW_ENTRIES",
+          "new_order_authorization": false,
+          "new_orders_submitted_by_retry": 0,
+          "paper_only": true,
+          "qualification_eligible": false,
+          "recorder_checks_passed": true,
+          "full_news_paper_product_accepted": false,
+          "account_day_buy_submissions": 2,
+          "broker_observed_at": "2026-09-09T14:32:57.459805-04:00",
+          "source_summary_sha256": "8ea99b1a21061b1bbe0f5033f1852dcbe0c6d82d4a4c3284aa461046fff5e5db",
+          "created_by": "operator orchestration from actual Render readback evidence",
+          "created_at": "2026-09-09T18:35:09.155576+00:00"
+        },
+        "status": "sent",
+        "attempts": 1,
+        "provider_message_id": "18cef6dd-bcac-4659-8df4-f01f6501e844",
+        "created_at": "2026-09-09 18:36:13.770843+00:00",
+        "sent_at": "2026-09-09 18:36:16.629280+00:00",
+        "claimed_at": "2026-09-09 18:36:16.415564+00:00"
+      }
+    }
+  ],
+  "provider_acceptance_verified": true,
+  "inbox_delivery_verified": false
+}

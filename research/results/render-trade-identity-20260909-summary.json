@@ -1,0 +1,80 @@
+{
+  "started_at": "2026-09-09T18:01:53.468854+00:00",
+  "finished_at": "2026-09-09T18:31:56.921440+00:00",
+  "duration_seconds": 1803.452586,
+  "http_requests": 2366,
+  "http_failures": 0,
+  "maximum_http_seconds": 2.86,
+  "observer_failures": [],
+  "physical_failures": [],
+  "recorder_capacity_and_physical_checks_passed": true,
+  "full_news_paper_product_accepted": false,
+  "remaining_product_blockers": [
+    "Frozen event29 still uses old generic trade precheck; separate immutable event-role transition required",
+    "Two account-day BUY submissions already consumed; no new authority",
+    "Sparse IEX minute buckets remain incomplete; no qualification or profitability established"
+  ],
+  "database_profile": "pg-1gb-v1",
+  "maximum_memory": [
+    {
+      "resource": "srv-dadoa3740ujc73cb09c0",
+      "maximum_mib": 264.27734375
+    },
+    {
+      "resource": "srv-dadnn6mq1p3s73ef7ef0",
+      "maximum_mib": 111.26562118530273
+    },
+    {
+      "resource": "srv-dae4tr7qj5pc73a9e0k0",
+      "maximum_mib": 173.91406059265137
+    },
+    {
+      "resource": "dpg-dadn7nht0dsc73f9jja0-a",
+      "maximum_mib": 382.21092224121094
+    },
+    {
+      "resource": "srv-dadn8son74is73apqcc0",
+      "maximum_mib": 122.16796875
+    }
+  ],
+  "new_queue_drops": 0,
+  "new_recorder_gaps": 0,
+  "maximum_commit_lag_seconds": 0.613974,
+  "maximum_queue": 125,
+  "derived_end": {
+    "state": "awaiting_complete_frame",
+    "healthy": false,
+    "frame_age_seconds": null,
+    "last_usable_frame_at": null,
+    "unusable_frame_events": 6,
+    "last_unusable_frame": {
+      "bucket_start": "2026-09-09T18:25:00+00:00",
+      "frame_at": "2026-09-09T18:30:00+00:00",
+      "reason": "incomplete_five_minute_bucket",
+      "discovered_event_at": "2026-09-09T18:30:00+00:00",
+      "missing_minutes": {
+        "GLD": [
+          "2026-09-09T18:27:00+00:00"
+        ],
+        "IWM": [],
+        "QQQ": [],
+        "SPY": [],
+        "TLT": [
+          "2026-09-09T18:26:00+00:00",
+          "2026-09-09T18:27:00+00:00",
+          "2026-09-09T18:28:00+00:00",
+          "2026-09-09T18:29:00+00:00"
+        ]
+      },
+      "usable": false
+    },
+    "pending_minutes": 5,
+    "duplicate_minutes": 0,
+    "ignored_out_of_order_quotes": 0,
+    "evidence_epoch": "0b8c1e27-4719-42a7-8d4f-65546141cb8e",
+    "cumulative_evidence_complete": false
+  },
+  "raw_sha256": "f75a27458e33cee9d60919d078201f19084de1a4517263c517b625669a9226a6",
+  "archive": "render-trade-identity-20260909-soak.json.gz",
+  "new_order_authorization": false
+}

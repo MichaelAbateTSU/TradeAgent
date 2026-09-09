@@ -1,0 +1,22 @@
+{
+  "job_id": "job-dagpui67bikc73a9fkhg",
+  "context": "Schema0013 postdeploy report admission; no email",
+  "result": {
+    "observed_at": "2026-09-09T18:02:56.085255+00:00",
+    "read_only": true,
+    "busy_status": 429,
+    "busy_seconds": 0.08518124895635992,
+    "retry_after": "5",
+    "light_sections": {
+      "/health": 200,
+      "/ready": 200,
+      "/api/status": 200
+    },
+    "report_status": 200,
+    "report_seconds": 2.750473900930956,
+    "report_bytes": 5256995,
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "session_state": "UNRESOLVED_OR_IN_PROGRESS",
+    "report_id": "7c98567e-154d-5ea0-8a5a-4e4270324443"
+  }
+}

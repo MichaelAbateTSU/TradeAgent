@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "createdAt": "2026-09-09T17:45:51Z",
+    "id": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+    "message": "Scope persisted trade identity to venue and event time\n\nPreserve originals while accepting provider IDs reused on another day or venue. Add bounded concurrent-index migration, atomic conflict-aware generic writes, cross-session regressions and a private rollback-only PostgreSQL fixture. No historical backfill or trading-risk changes.\n\nCo-authored-by: Copilot App \u003c223556219+Copilot@users.noreply.github.com\u003e"
+  },
+  "createdAt": "2026-09-09T17:57:34.004393Z",
+  "id": "dep-dagps3dbedkc739omglg",
+  "startedAt": "2026-09-09T17:57:34.002443Z",
+  "status": "build_in_progress",
+  "trigger": "api",
+  "updatedAt": "2026-09-09T17:57:34.004393Z"
+}
