@@ -569,11 +569,22 @@ as **MISSED with zero attempts**, latched a durable news terminal, and retained
 the original entry pauses. See the [actual scoped outcome](PAPER_NEWS_20260909.md#actual-september-9-expiry-no-authorized-entries).
 No late preflight, replay or replacement cohort is permitted.
 
-The live writer remains the reviewed `645714b`. A test-only, isolated,
-rollback-only PostgreSQL ingestion comparison is being prepared to determine
-whether another bounded implementation can help without adding compute cost.
-It is not a deployed fix or acceptance claim; no additional production path
-will be adopted merely because a local prototype looks faster.
+The live writer remains the reviewed `645714b`. The test-only, isolated,
+rollback-only PostgreSQL ingestion fixture at `c3a8e39` has passed independent
+review and local checks; **it has not been executed on PostgreSQL or deployed**.
+Its default is only a guarded, throttled 50-row smoke, always explicitly
+inconclusive rather than a performance acceptance. Execution is deferred until
+after the 15:45-16:05 Eastern read-only close watch, and only with freshly verified
+closed/flat broker state and spare database capacity. See the
+[execution restrictions](../infra/render/SHADOW_COPY_BENCHMARK.md) and
+[exact review/hash record](../research/results/render-incident-20260909-copy-review.json).
+No production path will be adopted merely because a local prototype looks faster.
+
+At **11:38:19 Eastern**, a further light, event-image readback (no market-history
+scan) again verified the pinned broker account ACTIVE/unblocked, zero positions,
+zero open orders and zero unresolved local intents. The original global/pause
+timestamps, worker-owned news terminal and zero-attempt MISSED result persisted.
+See [handoff evidence](../research/results/news-paper-20260909-handoff-readback.json).
 
 ## Evidence files
 

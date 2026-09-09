@@ -1,0 +1,48 @@
+{
+  "reviewed_commit": "c3a8e3902431a4d7bd26c3b3648dba510c012037",
+  "fixture_path": "tests/shadow_copy_pg_fixture.py",
+  "fixture_sha256": "26c17c4a0d6cefd58e61ba0ea969f0257084d4b9e918ab5600b7191d85a07439",
+  "production_writer_commit": "645714bf4c21aa8a9cbd73849f94119dc0b563a6",
+  "production_writer_sha256": "96679b8a6d8db325b9742de785790543139a409a3e5badc4e7ced767bfd326c0",
+  "independent_review": {
+    "agent": "practice-review",
+    "turn": 48,
+    "result": "No significant issues found; ready for the test-only prototype",
+    "offline_checks_passed": 16,
+    "canonical_hashes_matched": true
+  },
+  "local_validation": {
+    "parent_recorder_tests_passed": 33,
+    "agent_focused_tests_passed": 141,
+    "ruff": "passed",
+    "format": "passed",
+    "production_writer_unchanged": true
+  },
+  "actual_postgresql_execution_performed": false,
+  "production_path_enabled": false,
+  "production_candidate_accepted": false,
+  "disposition": "DEFERRED_UNTIL_AFTER_CLOSE_AND_VERIFIED_HEADROOM",
+  "earliest_after_close_watch_utc": "2026-09-09T20:05:00Z",
+  "admission_runbook": "infra/render/SHADOW_COPY_BENCHMARK.md",
+  "initial_smoke_only": {
+    "guard_required": true,
+    "pairs": 1,
+    "page_rows": 25,
+    "planned_raw_attempts": 50,
+    "pause_seconds": 2,
+    "statement_timeout_seconds": 2,
+    "lock_timeout_seconds": 0.5,
+    "deadline_seconds": 90,
+    "max_raw_rows": 750,
+    "exercise_faults": false,
+    "normal_completion_status": "inconclusive",
+    "normal_completion_reason": "single_pair_smoke_only"
+  },
+  "limitations": [
+    "No actual PostgreSQL correctness or performance result yet",
+    "Data isolation is not CPU or memory isolation",
+    "Private small indexes and savepoints do not prove production COMMIT behavior",
+    "Default smoke cannot establish statistical performance or live acceptance",
+    "No deployment, compute upgrade, late paper authorization or threshold relaxation"
+  ]
+}
