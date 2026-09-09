@@ -31,6 +31,7 @@ from tradeagent.persistence import (
 
 raw_already_recorded: ContextVar[bool] = ContextVar("shadow_raw_already_recorded", default=False)
 logger = logging.getLogger(__name__)
+_INSERT_PAGE_SIZE = 500
 
 
 class ShadowRecorderSettings(BaseSettings):
@@ -138,11 +139,14 @@ def persist_shadow_batch(
         insert = pg_insert if connection.dialect.name == "postgresql" else sqlite_insert
         for table, values in rows.items():
             if values:
+                # Parameter batches avoid rebuilding thousands of SQL expressions
+                # per flush; insertmanyvalues retains bulk RETURNING/conflict semantics.
                 result = connection.execute(
                     insert(table)
-                    .values(values)
                     .on_conflict_do_nothing()
-                    .returning(next(iter(table.primary_key.columns)))
+                    .returning(next(iter(table.primary_key.columns))),
+                    values,
+                    execution_options={"insertmanyvalues_page_size": _INSERT_PAGE_SIZE},
                 )
                 inserted += len(result.fetchall())
         audit = list(notices)
@@ -177,10 +181,9 @@ def persist_shadow_batch(
             for row in audit:
                 audit_by_id.setdefault(str(row["event_id"]), row)
             created_ids = connection.scalars(
-                insert(events)
-                .values(list(audit_by_id.values()))
-                .on_conflict_do_nothing()
-                .returning(events.c.event_id)
+                insert(events).on_conflict_do_nothing().returning(events.c.event_id),
+                list(audit_by_id.values()),
+                execution_options={"insertmanyvalues_page_size": _INSERT_PAGE_SIZE},
             ).all()
             for event_id in created_ids:
                 original = audit_by_id[str(event_id)]

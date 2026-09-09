@@ -10,7 +10,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import select
+from sqlalchemy import event, select
 from sqlalchemy.exc import OperationalError
 
 from tradeagent.alpaca_stream import MarketQuote, MarketTrade, ReceivedStreamEvent
@@ -113,6 +113,128 @@ def test_bulk_rows_preserve_exchange_receipt_processing_and_first_append(reposit
     payload = repository.latest_event_payload("shadow_recorder_batch")
     assert payload["received"] == 3
     assert payload["execution_enabled"] is False
+
+
+def test_parameter_batches_bound_sql_pages_and_count_conflicts_exactly(repository):
+    original_receipt = _receipt(0, NOW + timedelta(milliseconds=35))
+    persist_shadow_batch(
+        repository,
+        [original_receipt],
+        [],
+        str(uuid4()),
+        clock=lambda: NOW + timedelta(seconds=1),
+    )
+    receipts = [_receipt(index) for index in range(1001)]
+    receipts.extend(
+        ReceivedStreamEvent(receipts[index].event, NOW + timedelta(seconds=30))
+        for index in (500, 700)
+    )
+    templates = []
+    quote_pages = []
+
+    @event.listens_for(repository._database.engine, "before_execute")
+    def observe_template(_connection, statement, parameters, _params, options):
+        if getattr(statement, "is_insert", False) and statement.table in (market_quotes, events):
+            templates.append(
+                (
+                    statement.table.name,
+                    len(parameters) or int(bool(_params)),
+                    statement._multi_values,
+                    options.get("insertmanyvalues_page_size"),
+                )
+            )
+
+    @event.listens_for(repository._database.engine, "before_cursor_execute")
+    def observe_page(_connection, _cursor, statement, parameters, _context, _executemany):
+        if statement.startswith(f"INSERT INTO {market_quotes.name} "):
+            assert "ON CONFLICT DO NOTHING RETURNING" in statement
+            quote_pages.append(len(parameters) // len(market_quotes.columns))
+
+    batch_id = str(uuid4())
+    result = persist_shadow_batch(
+        repository,
+        receipts,
+        [],
+        batch_id,
+        clock=lambda: NOW + timedelta(seconds=31),
+        instance_id="paged-recorder",
+    )
+    assert (result.inserted, result.duplicates) == (1000, 3)
+    assert templates == [
+        (market_quotes.name, 1003, (), 500),
+        (events.name, 1, (), 500),
+    ]
+    assert quote_pages == [500, 500, 3]
+    assert repository.market_data_counts() == (0, 1001, 0)
+    with repository._database.begin() as connection:
+        for index, expected in ((0, original_receipt), (500, receipts[500])):
+            received_at = connection.scalar(
+                select(market_quotes.c.received_at).where(
+                    market_quotes.c.event_at == receipts[index].event.timestamp
+                )
+            )
+            assert received_at.replace(tzinfo=UTC) == expected.received_at
+        payload = connection.scalar(select(events.c.payload).where(events.c.event_id == batch_id))
+        assert payload["received"] == 1003
+        assert payload["inserted"] == 1000
+        assert payload["duplicates"] == 3
+        assert payload["instance_id"] == "paged-recorder"
+        projection = connection.scalar(
+            select(event_reporting_metadata.c.payload).where(
+                event_reporting_metadata.c.event_id == batch_id
+            )
+        )
+        assert projection == event_reporting_projection("shadow_recorder_batch", payload)
+    retry = persist_shadow_batch(repository, receipts, [], batch_id)
+    assert retry == result
+    assert quote_pages == [500, 500, 3]
+
+
+@pytest.mark.parametrize("failure_table", [market_quotes.name, events.name])
+def test_partial_parameter_page_failure_rolls_back_and_retries_atomically(
+    repository,
+    failure_table,
+):
+    receipts = [_receipt(index) for index in range(1001)]
+    notices = [_notice(str(uuid4()), {"state": "subscribed"}) for _ in range(500)]
+    batch_id = str(uuid4())
+    pages = 0
+
+    def fail_second_page(_connection, _cursor, statement, _parameters, _context, _executemany):
+        nonlocal pages
+        if statement.startswith(f"INSERT INTO {failure_table} "):
+            pages += 1
+            if pages == 2:
+                raise OperationalError("insert page", {}, RuntimeError("lost connection"))
+
+    event.listen(repository._database.engine, "before_cursor_execute", fail_second_page)
+    try:
+        with pytest.raises(OperationalError, match="lost connection"):
+            persist_shadow_batch(repository, receipts, notices, batch_id)
+    finally:
+        event.remove(repository._database.engine, "before_cursor_execute", fail_second_page)
+    assert pages == 2
+    assert repository.market_data_counts() == (0, 0, 0)
+    assert repository.event_count() == 0
+    with repository._database.begin() as connection:
+        assert connection.execute(select(event_reporting_metadata)).all() == []
+
+    result = persist_shadow_batch(
+        repository,
+        receipts,
+        notices,
+        batch_id,
+        clock=lambda: NOW + timedelta(seconds=12),
+    )
+    assert (result.inserted, result.duplicates) == (1001, 0)
+    assert repository.market_data_counts() == (0, 1001, 0)
+    assert repository.event_count() == 501
+    with repository._database.begin() as connection:
+        assert len(connection.scalars(select(event_reporting_metadata.c.event_id)).all()) == 501
+    retry = persist_shadow_batch(repository, receipts, notices, batch_id)
+    assert retry == result
+    assert repository.market_data_counts() == (0, 1001, 0)
+    assert repository.event_count() == 501
 
 
 def test_slow_database_does_not_block_receipt_and_overflow_is_durable(

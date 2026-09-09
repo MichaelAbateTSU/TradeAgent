@@ -1,0 +1,23 @@
+{
+  "retrieved_at": "2026-09-09T13:49:54.8518857Z",
+  "job_id": "job-dagm34u1egvs73bkjlbg",
+  "scope": "Original read-only September9 gate; no report email or persistence requested",
+  "result": {
+    "observed_at": "2026-09-09T09:39:48.689224-04:00",
+    "read_only": true,
+    "busy_status": 429,
+    "busy_seconds": 0.4042565559502691,
+    "retry_after": "5",
+    "light_sections": {
+      "/health": 200,
+      "/ready": 200,
+      "/api/status": 200
+    },
+    "report_status": 200,
+    "report_seconds": 9.946975748986006,
+    "report_bytes": 3367678,
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "session_state": "UNRESOLVED_OR_IN_PROGRESS",
+    "report_id": "06e6e24c-7422-5fe3-b1da-2f3bdd4e2d36"
+  }
+}

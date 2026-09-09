@@ -1,0 +1,73 @@
+{
+  "baseline": {
+    "path": "data\\shadow-performance-20260909\\baseline-329fdf09b6e54e9ab74aa5bd4b2719b0.db",
+    "wall_seconds": [
+      0.13117850001435727,
+      0.09282530000200495,
+      0.09053079999284819,
+      0.10787760000675917,
+      0.08461269998224452,
+      0.09159890003502369,
+      0.09799520001979545,
+      0.08994899998651817,
+      0.103709599992726,
+      0.09763550001662225,
+      0.09178929997142404,
+      0.10574590001488104
+    ],
+    "cpu_seconds": [
+      0.125,
+      0.09375,
+      0.078125,
+      0.0625,
+      0.0625,
+      0.078125,
+      0.0625,
+      0.078125,
+      0.078125,
+      0.078125,
+      0.078125,
+      0.078125
+    ],
+    "profile": "         237638 function calls (231108 primitive calls) in 0.183 seconds\n\n   Ordered by: cumulative time\n   List reduced from 328 to 12 due to restriction <12>\n\n   ncalls  tottime  percall  cumtime  percall filename:lineno(function)\n        1    0.001    0.001    0.183    0.183 shadow_recorder.py:62(persist_shadow_batch)\n        4    0.000    0.000    0.139    0.035 elements.py:517(_execute_on_connection)\n        4    0.000    0.000    0.139    0.035 base.py:1593(_execute_clauseelement)\n        3    0.000    0.000    0.138    0.046 base.py:1377(execute)\n        4    0.000    0.000    0.116    0.029 elements.py:679(_compile_w_cache)\n        3    0.000    0.000    0.116    0.039 elements.py:317(_compiler)\n        3    0.000    0.000    0.116    0.039 compiler.py:1373(__init__)\n        3    0.000    0.000    0.108    0.036 compiler.py:859(__init__)\n      8/3    0.000    0.000    0.108    0.036 compiler.py:947(process)\n   6019/3    0.006    0.000    0.108    0.036 visitors.py:126(_compiler_dispatch)\n        3    0.000    0.000    0.107    0.036 compiler.py:5908(visit_insert)\n        3    0.000    0.000    0.104    0.035 crud.py:115(_get_crud_params)\n\n\n",
+    "median_wall_seconds": 0.09282530000200495,
+    "median_cpu_seconds": 0.078125
+  },
+  "parameterized": {
+    "path": "data\\shadow-performance-20260909\\parameterized-6e5ec85604bb43719443e1b7f2caf43e.db",
+    "wall_seconds": [
+      0.024414799991063774,
+      0.019157800008542836,
+      0.03421159996651113,
+      0.025059000006876886,
+      0.03367729997262359,
+      0.03490359999705106,
+      0.03339400002732873,
+      0.03041010000742972,
+      0.034849699994083494,
+      0.034479100024327636,
+      0.030818299972452223,
+      0.043674100015778095
+    ],
+    "cpu_seconds": [
+      0.015625,
+      0.015625,
+      0.015625,
+      0.015625,
+      0.03125,
+      0.03125,
+      0.03125,
+      0.03125,
+      0.015625,
+      0.015625,
+      0.015625,
+      0.015625
+    ],
+    "profile": "         12949 function calls (12907 primitive calls) in 0.055 seconds\n\n   Ordered by: cumulative time\n   List reduced from 336 to 12 due to restriction <12>\n\n   ncalls  tottime  percall  cumtime  percall filename:lineno(function)\n        1    0.001    0.001    0.055    0.055 parameter-batch-probe:62(persist_shadow_batch)\n        3    0.000    0.000    0.025    0.008 {built-in method builtins.next}\n        2    0.000    0.000    0.025    0.013 base.py:3234(begin)\n        1    0.000    0.000    0.025    0.025 contextlib.py:145(__exit__)\n        1    0.000    0.000    0.025    0.025 util.py:129(__exit__)\n        1    0.000    0.000    0.025    0.025 base.py:2625(commit)\n        1    0.000    0.000    0.025    0.025 base.py:2742(_do_commit)\n        1    0.000    0.000    0.025    0.025 base.py:2717(_connection_commit_impl)\n        1    0.000    0.000    0.025    0.025 base.py:1134(_commit_impl)\n        1    0.000    0.000    0.025    0.025 default.py:714(do_commit)\n        1    0.025    0.025    0.025    0.025 {method 'commit' of 'sqlite3.Connection' objects}\n        4    0.000    0.000    0.024    0.006 elements.py:517(_execute_on_connection)\n\n\n",
+    "median_wall_seconds": 0.03367729997262359,
+    "median_cpu_seconds": 0.015625
+  },
+  "derived_median_seconds_per_500": 0.006884099973831326,
+  "source_sha256": "65ca8bd87b9ca2f2366b4024dacc1920290c6fb630700345670a2069bd40929f",
+  "speedup_wall": 2.75631657162133
+}

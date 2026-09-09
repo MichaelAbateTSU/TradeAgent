@@ -439,6 +439,54 @@ or drops. Actual report `52222c2b-53f4-5513-b1c3-403f7e06756c` was present, reco
 at 22:16:42 UTC during the load test. One Render log retrieval transiently failed
 with Loki504/HTTP503; only the log read was retried, not the job or email.
 
+## September 9 regular-session continuation
+
+The requested 1,800-second **read-only** observation started at approximately
+13:36:30 UTC (09:36:30 Eastern), using event `29cf232`, recorder/dashboard
+`5e728c5`, and notifier `3bbe3eb`. Entry pauses remained active; neither the
+overnight completed BTC operator test nor the canceled AAPL diagnostic is
+substituted for this acceptance or for the morning equipment experiment.
+
+The initial live recorder was already degraded: at 13:36:23 UTC it had received
+245,803 events, committed 234,509, queued 10,600 with 500 in flight, and recorded
+194 drops and four gaps. Durable commit lag was approximately 20.3 seconds, despite
+receive lag of approximately 0.035 seconds. The 194 losses/four gaps predated that
+sample and must not be described as newly occurring later in the observation.
+The stale/degraded initial observations nevertheless fail full acceptance.
+
+An independently measured 143.409-second interval received 470.326 events/second
+and committed 474.168/second while carrying substantial backlog. A 500-row batch
+had taken approximately 1.094 seconds. PostgreSQL was repeatedly near its
+0.1-CPU allocation. These observations identify insufficient effective service
+headroom during the opening burst, not a proven universal database-memory cause.
+The original full run is retained rather than replaced with its later healthy
+HTTP samples or lower arrival rate.
+
+A narrow corrective writer patch replaces per-batch SQL expression trees with
+parameterized SQLAlchemy inserts, explicitly paged at 500 rows. Raw records,
+audit originals and metadata still commit atomically; conflict/RETURNING and
+ambiguous-commit retry semantics, receipt times, queue limits, gaps and freshness
+rules are unchanged. No schema or trading-policy change is included.
+
+Local file-SQLite alternating 500-quote measurements improved median wall time
+from 92.83 to 33.68 milliseconds. Separate phase measurements locate most savings
+in application SQL construction/compilation (72.317 to 11.569 milliseconds),
+not driver execution (5.840 to 5.268 milliseconds). Those local measurements
+are **not** proof of deployed PostgreSQL throughput or memory. Paging, conflicts,
+partial-page rollback, immutable retry and existing bounded-queue regressions
+passed in the 124-test focused validation. Actual corrective deployment and a
+new complete market-load acceptance are still required.
+
+The real report-admission job `job-dagm34u1egvs73bkjlbg` returned HTTP429 in
+0.404 seconds while health/ready/status returned HTTP200. After slot release,
+the full new-cohort report returned HTTP200 in 9.947 seconds (3,367,678 bytes).
+The job did not persist/email another report. Transient log-read failures were
+retried as reads, not as duplicate jobs or email sends.
+
+No approval window is extended to accommodate the repair. The September 9
+news-paper policy remains conditional on passing the complete incident gate
+before its original 10:30 Eastern deadline.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)
@@ -466,6 +514,9 @@ with Loki504/HTTP503; only the log read was retried, not the job or email.
 - [Actual normal 18:00 report and send](../research/results/render-incident-20260908-normal-daily-verification.json)
 - [Final broker, pauses, stream, report and schema snapshot](../research/results/render-incident-20260908-r5-final-snapshot.json)
 - [Post-rollout database recovery-log check](../research/results/render-incident-20260908-r5-pg-final-check.json)
+- [September 9 actual report admission](../research/results/render-incident-20260909-report-admission.json)
+- [September 9 local writer measurements](../research/results/render-incident-20260909-writer-local-measurements.json)
+- [September 9 local writer phase measurements](../research/results/render-incident-20260909-writer-local-phases.json)
 
 The historical r3 record and user-owned Tuesday-readiness edits are not rewritten.
 Incident recovery acceptance is recorded separately after actual sustained tests.
