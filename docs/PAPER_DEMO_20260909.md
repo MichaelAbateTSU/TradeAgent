@@ -112,3 +112,51 @@ Release, review, after-hours deployed checks, and the later actual outcome are
 recorded separately in `research/results/paper-demo-20260909-deployed.json`.
 Preparation alone leaves actual trade proof and full market-load acceptance
 **pending**.
+
+## Reviewed deployment and current additional blocker
+
+The initial `0999428` review found a final-dispatch timing defect; it was fixed
+before any deployment. Exact release
+`b354bf8f925d76ee33205735736ec4cf36ff54ce` received clean follow-up review,
+including independent deadline, quote-age, concurrent-kill and no-I/O-after-clock
+checks. Validation: **941 passed, 2 skipped, 87.35% coverage**, Ruff `--no-cache`
+and mypy passed. Event-only deployment `dep-dag9q8h5efls73a212lg` became live
+September 8 at 23:42:43 UTC. Normal old-lease expiry and Render restart backoff
+delayed actual new-worker ownership until 23:49:30 UTC; the overlap/restarts
+are retained, not mislabeled as a clean acceptance interval.
+
+The same-image read-only probe at 23:49:38 UTC confirmed the exact account,
+ACTIVE/unblocked, **zero positions/open orders and zero linked demo orders**,
+the frozen configuration
+`5a0acf612ce4fc886e342656cab2e9b2ea0295882fb7fbe731e65fc44f44cf65`,
+paper order stream authenticated/subscribed without gaps/drops, and a successful
+44,080-byte report build without email. No demo authorization exists.
+
+**Additional real blocker:** source evaluation changed the new cohort pause
+to `R1_EVENT_REQUIRES_POSITION_REVIEW`; global kill remains active. The special
+approval deliberately refuses this stricter pause. Preserve its evidence in
+`paper-demo-20260909-risk-detail.json`; do not overwrite it with
+`OPERATOR_PAUSE` or clear it merely to produce a trade. If unresolved tomorrow,
+the demo must remain **blocked/no orders**, even if the separate incident
+market-flow acceptance succeeds. Actual trade proof is still outstanding.
+
+The root session's existing **September 9 13:35 UTC** wake is retained. It now
+specifies the new event pin, preserves the entire read-only incident gate, and
+adds only the separate conditional demo continuation and reconciliation/
+notification/flat-account proof requirements. It explicitly preserves this R1
+blocker rather than scheduling an unconditional order.
+
+After the handoff, a **662.93-second / 882-request** after-hours observation
+finished at September 9 00:00:56 UTC with zero HTTP errors and no new ownership,
+restart, gap or drop failures. Peak application RSS was 201.86 MiB; PostgreSQL
+peaked at 210.05 MiB. The full acceptance result remains **failed/pending**:
+closed-market recorder quotes/trades/bars and durable exchange timestamps did
+not advance, and the recorder/feed correctly remained degraded. No thresholds
+were waived. A bounded PostgreSQL log sample retained duplicate-evidence key
+errors but no termination/recovery/fatal signatures; this is not an exhaustive
+claim of error-free database logs. Nine enabled market-counter triggers were
+independently enumerated.
+
+The final same-image broker probe at 19:57:46 Eastern still showed the same
+ACTIVE/unblocked paper account, zero positions/open orders, no demo orders or
+authorization, global kill active and the stricter R1 pause unchanged.

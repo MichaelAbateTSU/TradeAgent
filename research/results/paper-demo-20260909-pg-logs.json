@@ -1,0 +1,1909 @@
+{
+  "observed_at": "2026-09-08T23:58:59.310150+00:00",
+  "window_start": "2026-09-08T23:49:45Z",
+  "records": [
+    {
+      "id": "ee0d160e-d1fd-44cb-abe5-7ad4a53bd23f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\ttuples: 145 removed, 155 remain, 0 are dead but not yet removable",
+      "timestamp": "2026-09-08T23:56:40.876787203Z"
+    },
+    {
+      "id": "29c95b67-fdc0-4900-9f9d-fa645bc8c699",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tremovable cutoff: 503067, which was 0 XIDs old when operation ended",
+      "timestamp": "2026-09-08T23:56:40.876790313Z"
+    },
+    {
+      "id": "5fa68c60-e43d-469b-a56a-5ceab7d1e2e9",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tfrozen: 0 pages from table (0.00% of total) had 0 tuples frozen",
+      "timestamp": "2026-09-08T23:56:40.876793423Z"
+    },
+    {
+      "id": "17430f2f-be57-404c-810a-de5c5f432c0e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex scan needed: 37 pages from table (12.98% of total) had 145 dead item identifiers removed",
+      "timestamp": "2026-09-08T23:56:40.876796983Z"
+    },
+    {
+      "id": "0ba0b58d-1d00-4b5e-b236-0b3c3ea1be9d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex \"pg_toast_16568_index\": pages: 11 in total, 0 newly deleted, 4 currently deleted, 4 reusable",
+      "timestamp": "2026-09-08T23:56:40.876800363Z"
+    },
+    {
+      "id": "fd0b37ce-5aea-4f56-b760-5929d50ae5c6",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 0.000 MB/s",
+      "timestamp": "2026-09-08T23:56:40.876803524Z"
+    },
+    {
+      "id": "96076471-9ca9-47d5-b0fc-df0e5255b036",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 187 hits, 0 misses, 0 dirtied",
+      "timestamp": "2026-09-08T23:56:40.876807394Z"
+    },
+    {
+      "id": "9e646bd2-ef6b-4d8b-b3cf-34ca31adcc82",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tWAL usage: 113 records, 0 full page images, 6991 bytes",
+      "timestamp": "2026-09-08T23:56:40.876810924Z"
+    },
+    {
+      "id": "e1c6a73e-1942-4ad5-af17-22dca7a4133c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.09 s",
+      "timestamp": "2026-09-08T23:56:40.876813894Z"
+    },
+    {
+      "id": "876f3236-855b-49fd-a6f9-25079610f325",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0b6.7bec7-4] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  disconnection: session time: 0:00:03.099 user=postgres database=tradeagent host=10.31.45.203 port=60854",
+      "timestamp": "2026-09-08T23:56:41.780413565Z"
+    },
+    {
+      "id": "6d530509-590e-4ff7-bd87-00592110c313",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "error"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-43] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+      "timestamp": "2026-09-08T23:56:42.685846631Z"
+    },
+    {
+      "id": "a63657be-61f9-4f1d-9f02-4e0800403f96",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-44] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,DETAIL:  Key (evidence_id)=(57a2750929ae4dee35e913a05b583b3e8ceef9dd499160dfc2cf8394e7080dbb) already exists.",
+      "timestamp": "2026-09-08T23:56:42.685880691Z"
+    },
+    {
+      "id": "6b2756d0-c8a0-43b4-b839-219e8a76d843",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-45] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,STATEMENT: [SQL payload omitted; duplicate evidence insert]",
+      "timestamp": "2026-09-08T23:56:42.685884752Z"
+    },
+    {
+      "id": "d76ecb88-19ea-4955-8c3a-d78f23db761b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "error"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-46] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+      "timestamp": "2026-09-08T23:57:15.881182107Z"
+    },
+    {
+      "id": "141f2e0e-52f4-4dd6-9b5c-b5252f07fcc5",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-47] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,DETAIL:  Key (evidence_id)=(57a2750929ae4dee35e913a05b583b3e8ceef9dd499160dfc2cf8394e7080dbb) already exists.",
+      "timestamp": "2026-09-08T23:57:15.881212618Z"
+    },
+    {
+      "id": "1eec7b3f-db5b-45da-9b20-effccccb7997",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-48] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,STATEMENT: [SQL payload omitted; duplicate evidence insert]",
+      "timestamp": "2026-09-08T23:57:15.881217458Z"
+    },
+    {
+      "id": "62de5794-632f-4bd1-b192-9b2b78826169",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0e5.7bf2d-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=51814",
+      "timestamp": "2026-09-08T23:57:25.311528879Z"
+    },
+    {
+      "id": "496308a0-0e76-43fd-a468-4b651bc9b43f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0e5.7bf2e-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=51816",
+      "timestamp": "2026-09-08T23:57:25.312183835Z"
+    },
+    {
+      "id": "39393ece-6342-4e28-9c64-6d010606bb8b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0e5.7bf2f-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=51832",
+      "timestamp": "2026-09-08T23:57:25.779588608Z"
+    },
+    {
+      "id": "c189cf75-ce37-4f0a-b2ba-f13d66c0800b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0e5.7bf2f-2] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authenticated: identity=\"postgres\" method=md5 (/pgdata/dpg-dadn7nht0dsc73f9jja0-a/pg_hba.conf:88)",
+      "timestamp": "2026-09-08T23:57:25.782631031Z"
+    },
+    {
+      "id": "09ca97a0-91c0-433e-8a5f-cd7979d6c90f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0e5.7bf2f-3] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authorized: user=postgres database=tradeagent SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)",
+      "timestamp": "2026-09-08T23:57:25.782644892Z"
+    },
+    {
+      "id": "72c37968-fe41-439e-b7d7-837f14b79d58",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0e5.7bf2f-4] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  disconnection: session time: 0:00:03.098 user=postgres database=tradeagent host=10.31.45.203 port=51832",
+      "timestamp": "2026-09-08T23:57:28.8774792Z"
+    },
+    {
+      "id": "987196a3-aaca-402b-9e6b-06602ac48935",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f1.7bf38-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=46090",
+      "timestamp": "2026-09-08T23:57:37.859294064Z"
+    },
+    {
+      "id": "6e97fd66-b0e5-4b2e-a4d9-63a27485071a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f1.7bf39-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=46092",
+      "timestamp": "2026-09-08T23:57:37.859712904Z"
+    },
+    {
+      "id": "9bedc3ea-8a56-48d0-87fc-ea6203c77216",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f2.7bf3a-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=46094",
+      "timestamp": "2026-09-08T23:57:38.185464024Z"
+    },
+    {
+      "id": "67ff06f8-a33d-4503-ba56-536cf072fb41",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f2.7bf3a-2] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authenticated: identity=\"postgres\" method=md5 (/pgdata/dpg-dadn7nht0dsc73f9jja0-a/pg_hba.conf:88)",
+      "timestamp": "2026-09-08T23:57:38.279437359Z"
+    },
+    {
+      "id": "bbb8f99e-38af-4135-8368-b2da46b775f7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f2.7bf3a-3] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authorized: user=postgres database=tradeagent SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)",
+      "timestamp": "2026-09-08T23:57:38.279465279Z"
+    },
+    {
+      "id": "6b6851b6-b7df-4db8-84a7-a9bb6a12d766",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f4.7bf3b-1] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.public.heartbeats\": index scans: 1",
+      "timestamp": "2026-09-08T23:57:40.777389835Z"
+    },
+    {
+      "id": "5ddf96a2-0bf0-40bb-bbec-f9329225da08",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tpages: 0 removed, 27 remain, 27 scanned (100.00% of total)",
+      "timestamp": "2026-09-08T23:57:40.777407346Z"
+    },
+    {
+      "id": "a7b38659-1b33-4d3f-8a9d-afb2cd568acb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\ttuples: 59 removed, 8 remain, 0 are dead but not yet removable",
+      "timestamp": "2026-09-08T23:57:40.777410816Z"
+    },
+    {
+      "id": "46aa37fc-fb90-4f63-bc78-40db1da220f2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tremovable cutoff: 503180, which was 0 XIDs old when operation ended",
+      "timestamp": "2026-09-08T23:57:40.777414766Z"
+    },
+    {
+      "id": "de684066-8413-4b5c-88d1-304a88edd14a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tfrozen: 0 pages from table (0.00% of total) had 0 tuples frozen",
+      "timestamp": "2026-09-08T23:57:40.777418946Z"
+    },
+    {
+      "id": "6f4b6469-82b5-46fc-889f-de6602be7afa",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex scan needed: 6 pages from table (22.22% of total) had 6 dead item identifiers removed",
+      "timestamp": "2026-09-08T23:57:40.777424746Z"
+    },
+    {
+      "id": "3a8539d4-ec48-40f2-b08b-a7cc1b3f2bbb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex \"heartbeats_pkey\": pages: 2 in total, 0 newly deleted, 0 currently deleted, 0 reusable",
+      "timestamp": "2026-09-08T23:57:40.777429756Z"
+    },
+    {
+      "id": "85807890-7947-477c-83b5-cd8203601fae",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 0.000 MB/s",
+      "timestamp": "2026-09-08T23:57:40.777434926Z"
+    },
+    {
+      "id": "22923709-5cbb-423d-86b8-ce6adddc438c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 111 hits, 0 misses, 0 dirtied",
+      "timestamp": "2026-09-08T23:57:40.777453357Z"
+    },
+    {
+      "id": "fda0cd84-7b33-446c-b8ed-03a8cffa8410",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tWAL usage: 21 records, 0 full page images, 1446 bytes",
+      "timestamp": "2026-09-08T23:57:40.777455717Z"
+    },
+    {
+      "id": "316d6136-0593-41e9-87e6-94c6e3815b6e",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-08T23:57:40.777457707Z"
+    },
+    {
+      "id": "e6672972-9215-4437-b003-faec1fc7d65a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f4.7bf3b-2] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-08T23:57:40.78215092Z"
+    },
+    {
+      "id": "8949ba62-73ba-4b0d-b83c-69b7e88fcd4c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 0.000 MB/s",
+      "timestamp": "2026-09-08T23:57:40.78216248Z"
+    },
+    {
+      "id": "1d23522e-2419-412b-96d2-db869156da87",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 328 hits, 0 misses, 0 dirtied",
+      "timestamp": "2026-09-08T23:57:40.78216564Z"
+    },
+    {
+      "id": "5ba29209-4c87-4206-a2a2-d80a37aea5b4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-08T23:57:40.782168311Z"
+    },
+    {
+      "id": "00b244b4-8dcb-44bb-80d7-1f8f2c943a51",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f4.7bf3b-3] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.worker_locks\"",
+      "timestamp": "2026-09-08T23:57:40.783319318Z"
+    },
+    {
+      "id": "c986972c-c164-4088-8037-092f611c2b0a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 0.000 MB/s",
+      "timestamp": "2026-09-08T23:57:40.783329128Z"
+    },
+    {
+      "id": "fb046f90-681b-4ed5-be15-a8158796dc68",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 52 hits, 0 misses, 0 dirtied",
+      "timestamp": "2026-09-08T23:57:40.783332649Z"
+    },
+    {
+      "id": "f6a37f06-7194-4458-a9d4-ae6130ae0ec8",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-08T23:57:40.783335859Z"
+    },
+    {
+      "id": "b4386d7d-cf7d-4dc7-84d0-a3f2b8472dab",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f4.7bf3b-4] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-08T23:57:40.786876044Z"
+    },
+    {
+      "id": "fe1af650-512b-4e9a-9c8b-52c8eda0cf6a",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tpages: 0 removed, 285 remain, 82 scanned (28.77% of total)",
+      "timestamp": "2026-09-08T23:57:40.786884304Z"
+    },
+    {
+      "id": "e606b174-1915-4e37-940d-dba3072114e0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\ttuples: 290 removed, 148 remain, 0 are dead but not yet removable",
+      "timestamp": "2026-09-08T23:57:40.786886694Z"
+    },
+    {
+      "id": "01166020-4799-4b63-b2f8-628d7487e458",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tremovable cutoff: 503182, which was 0 XIDs old when operation ended",
+      "timestamp": "2026-09-08T23:57:40.786888764Z"
+    },
+    {
+      "id": "0d707226-502f-44fe-bb6b-e9b8cbca279c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tfrozen: 0 pages from table (0.00% of total) had 0 tuples frozen",
+      "timestamp": "2026-09-08T23:57:40.786890744Z"
+    },
+    {
+      "id": "7ed6a7d0-9676-425e-8e2f-afe3142b4372",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex scan needed: 73 pages from table (25.61% of total) had 290 dead item identifiers removed",
+      "timestamp": "2026-09-08T23:57:40.786893874Z"
+    },
+    {
+      "id": "f4ac345d-e8ab-46f6-b097-6062124a2544",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex \"pg_toast_16568_index\": pages: 11 in total, 0 newly deleted, 4 currently deleted, 4 reusable",
+      "timestamp": "2026-09-08T23:57:40.786896044Z"
+    },
+    {
+      "id": "8e7f1443-d165-4cf3-810a-39c06dbb0985",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 0.000 MB/s",
+      "timestamp": "2026-09-08T23:57:40.786898074Z"
+    },
+    {
+      "id": "97fbc64d-bf9a-4579-b57b-73e73316f1b2",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 295 hits, 0 misses, 0 dirtied",
+      "timestamp": "2026-09-08T23:57:40.786900185Z"
+    },
+    {
+      "id": "006a6b65-0ab9-4dc6-b869-e5922ea4cb99",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tWAL usage: 221 records, 0 full page images, 13585 bytes",
+      "timestamp": "2026-09-08T23:57:40.786902974Z"
+    },
+    {
+      "id": "9f4e4eec-5a28-48f9-addd-e8acc7c385b1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-08T23:57:40.786906335Z"
+    },
+    {
+      "id": "096102d3-767d-4270-bb49-fea4484c5a16",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f2.7bf3a-4] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  disconnection: session time: 0:00:03.096 user=postgres database=tradeagent host=10.31.45.203 port=46094",
+      "timestamp": "2026-09-08T23:57:41.282005326Z"
+    },
+    {
+      "id": "b5ba91af-4eec-4f10-828d-be55a483edfc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f8.7bf45-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.95.96,LOG:  connection received: host=10.31.95.96 port=41242",
+      "timestamp": "2026-09-08T23:57:44.451279651Z"
+    },
+    {
+      "id": "aa858f60-400c-425f-9e9c-9de8175ad27b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f8.7bf45-2] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.96,LOG:  connection authenticated: identity=\"tradeagent\" method=md5 (/pgdata/dpg-dadn7nht0dsc73f9jja0-a/pg_hba.conf:88)",
+      "timestamp": "2026-09-08T23:57:44.45910862Z"
+    },
+    {
+      "id": "2a49dcc6-ee7c-48a5-a1c0-c4572a5a0d03",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f8.7bf45-3] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.96,LOG:  connection authorized: user=tradeagent database=tradeagent SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)",
+      "timestamp": "2026-09-08T23:57:44.459134571Z"
+    },
+    {
+      "id": "cd33e323-bd21-40c3-89a2-2d3ab0e3bd8f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a0f8.7bf45-4] user=tradeagent,db=tradeagent,app=[unknown],client=10.31.95.96,LOG:  disconnection: session time: 0:00:02.146 user=tradeagent database=tradeagent host=10.31.95.96 port=41242",
+      "timestamp": "2026-09-08T23:57:46.597264387Z"
+    },
+    {
+      "id": "5ee2cfac-0d75-4b84-872d-e1701f9e6bcd",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "error"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-49] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+      "timestamp": "2026-09-08T23:57:48.877205762Z"
+    },
+    {
+      "id": "f308fe98-8a6f-4e04-a96d-a5a2aec1ac85",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-50] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,DETAIL:  Key (evidence_id)=(57a2750929ae4dee35e913a05b583b3e8ceef9dd499160dfc2cf8394e7080dbb) already exists.",
+      "timestamp": "2026-09-08T23:57:48.877222322Z"
+    },
+    {
+      "id": "5096c814-b14d-4c29-ab37-1db7065ab1a0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-51] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,STATEMENT: [SQL payload omitted; duplicate evidence insert]",
+      "timestamp": "2026-09-08T23:57:48.877227142Z"
+    },
+    {
+      "id": "8f111725-2e2e-4e68-8375-190896eeff9d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-97] user=,db=,app=,client=,LOG:  checkpoint starting: time",
+      "timestamp": "2026-09-08T23:58:03.951312575Z"
+    },
+    {
+      "id": "006bb3ea-3b39-46f4-a505-11d62baa12da",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "error"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-52] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+      "timestamp": "2026-09-08T23:58:22.676689516Z"
+    },
+    {
+      "id": "41bacc1b-c85e-4514-8dd0-6e7e96368888",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-53] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,DETAIL:  Key (evidence_id)=(57a2750929ae4dee35e913a05b583b3e8ceef9dd499160dfc2cf8394e7080dbb) already exists.",
+      "timestamp": "2026-09-08T23:58:22.676710207Z"
+    },
+    {
+      "id": "52aa2ead-9611-4710-9dae-c4ae2c0384ba",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-54] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,STATEMENT: [SQL payload omitted; duplicate evidence insert]",
+      "timestamp": "2026-09-08T23:58:22.676724667Z"
+    },
+    {
+      "id": "d882e3cb-fb41-46de-a2a0-9c7ac092fbfe",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a121.7bf6c-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=56710",
+      "timestamp": "2026-09-08T23:58:25.311685242Z"
+    },
+    {
+      "id": "93f20fa4-0b58-4031-960b-07f8f593bdca",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a121.7bf6d-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=56718",
+      "timestamp": "2026-09-08T23:58:25.312205055Z"
+    },
+    {
+      "id": "31c36a64-ba90-4060-bc9d-62855cf4ff84",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a121.7bf6e-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=56732",
+      "timestamp": "2026-09-08T23:58:25.779476987Z"
+    },
+    {
+      "id": "31efbc48-c50a-478a-9fa1-a617a9b160f1",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a121.7bf6e-2] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authenticated: identity=\"postgres\" method=md5 (/pgdata/dpg-dadn7nht0dsc73f9jja0-a/pg_hba.conf:88)",
+      "timestamp": "2026-09-08T23:58:25.782692364Z"
+    },
+    {
+      "id": "85f00d02-bd2d-4459-9437-51fa8214c674",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a121.7bf6e-3] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authorized: user=postgres database=tradeagent SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)",
+      "timestamp": "2026-09-08T23:58:25.782702725Z"
+    },
+    {
+      "id": "0e769ab8-23d2-4a8f-b572-96264b8aa516",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a121.7bf6e-4] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  disconnection: session time: 0:00:03.006 user=postgres database=tradeagent host=10.31.45.203 port=56732",
+      "timestamp": "2026-09-08T23:58:28.788103351Z"
+    },
+    {
+      "id": "8455394e-4f53-4fe4-bb73-78fcd2032efc",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a12d.7bf78-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=55444",
+      "timestamp": "2026-09-08T23:58:37.859027344Z"
+    },
+    {
+      "id": "8bb13a7f-1518-48fc-866a-77ca08ecde3d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a12d.7bf79-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=55458",
+      "timestamp": "2026-09-08T23:58:37.859691449Z"
+    },
+    {
+      "id": "6b889dd7-2cb8-4cbd-82a9-8bce61e89bc0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a12e.7bf7a-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.45.203,LOG:  connection received: host=10.31.45.203 port=55472",
+      "timestamp": "2026-09-08T23:58:38.379907308Z"
+    },
+    {
+      "id": "fe3909a2-a37b-4e0f-bea2-fe3c282bbc3b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a12e.7bf7a-2] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authenticated: identity=\"postgres\" method=md5 (/pgdata/dpg-dadn7nht0dsc73f9jja0-a/pg_hba.conf:88)",
+      "timestamp": "2026-09-08T23:58:38.383379932Z"
+    },
+    {
+      "id": "1c478b7b-b7f9-423c-8a5c-0920b31fa957",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a12e.7bf7a-3] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  connection authorized: user=postgres database=tradeagent SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)",
+      "timestamp": "2026-09-08T23:58:38.383395032Z"
+    },
+    {
+      "id": "805d5c27-4fac-4b74-a3b9-cf44ef77bf4f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a130.7bf7b-1] user=,db=,app=,client=,LOG:  automatic analyze of table \"tradeagent.public.heartbeats\"",
+      "timestamp": "2026-09-08T23:58:40.810584725Z"
+    },
+    {
+      "id": "65bf05f8-2d74-489e-852d-b32b0d3bbd98",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 4.688 MB/s",
+      "timestamp": "2026-09-08T23:58:40.810608626Z"
+    },
+    {
+      "id": "2b698955-5765-4601-91b2-aa243a8e870b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 362 hits, 0 misses, 3 dirtied",
+      "timestamp": "2026-09-08T23:58:40.810612606Z"
+    },
+    {
+      "id": "cd03a492-9dfb-4570-a6f5-b367cc594e07",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s",
+      "timestamp": "2026-09-08T23:58:40.810616896Z"
+    },
+    {
+      "id": "117a732e-2e93-49f9-a399-e5d6671618be",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a130.7bf7b-2] user=,db=,app=,client=,LOG:  automatic vacuum of table \"tradeagent.pg_toast.pg_toast_16568\": index scans: 1",
+      "timestamp": "2026-09-08T23:58:40.830255879Z"
+    },
+    {
+      "id": "87d7498d-a4b8-45f5-828d-f8de85e34954",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tpages: 0 removed, 285 remain, 82 scanned (28.77% of total)",
+      "timestamp": "2026-09-08T23:58:40.830278949Z"
+    },
+    {
+      "id": "2382296e-bba9-4e80-abc9-21f3c3a5ad85",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\ttuples: 290 removed, 143 remain, 0 are dead but not yet removable",
+      "timestamp": "2026-09-08T23:58:40.83028431Z"
+    },
+    {
+      "id": "e6b4ab98-a4b9-48c5-9481-3bad5a19b071",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tremovable cutoff: 503297, which was 0 XIDs old when operation ended",
+      "timestamp": "2026-09-08T23:58:40.83028887Z"
+    },
+    {
+      "id": "13ea34aa-4509-445c-8d6a-36d2c40bb634",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tfrozen: 0 pages from table (0.00% of total) had 0 tuples frozen",
+      "timestamp": "2026-09-08T23:58:40.83029336Z"
+    },
+    {
+      "id": "76104eb2-47a6-438c-94c3-3b736b51598b",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex scan needed: 73 pages from table (25.61% of total) had 290 dead item identifiers removed",
+      "timestamp": "2026-09-08T23:58:40.83029815Z"
+    },
+    {
+      "id": "4c8e86f4-8127-4af8-9e3a-a46476fcfa56",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tindex \"pg_toast_16568_index\": pages: 11 in total, 0 newly deleted, 4 currently deleted, 4 reusable",
+      "timestamp": "2026-09-08T23:58:40.83031421Z"
+    },
+    {
+      "id": "26d7774d-cf8c-4a4e-9351-1ff1a913d5e7",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tavg read rate: 0.000 MB/s, avg write rate: 32.883 MB/s",
+      "timestamp": "2026-09-08T23:58:40.830317141Z"
+    },
+    {
+      "id": "bd3cf090-a92a-43aa-926b-0843482ceeb8",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tbuffer usage: 295 hits, 0 misses, 77 dirtied",
+      "timestamp": "2026-09-08T23:58:40.83032011Z"
+    },
+    {
+      "id": "6fcf77d8-4002-4813-90d1-e93d6d2b06ef",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tWAL usage: 258 records, 38 full page images, 324063 bytes",
+      "timestamp": "2026-09-08T23:58:40.830322501Z"
+    },
+    {
+      "id": "3fbe9284-0211-46ef-af32-59230fdc1bf4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\tsystem usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.01 s",
+      "timestamp": "2026-09-08T23:58:40.830324961Z"
+    },
+    {
+      "id": "e75c3f91-28af-40d9-b494-11e99b78d3de",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0a12e.7bf7a-4] user=postgres,db=tradeagent,app=[unknown],client=10.31.45.203,LOG:  disconnection: session time: 0:00:03.006 user=postgres database=tradeagent host=10.31.45.203 port=55472",
+      "timestamp": "2026-09-08T23:58:41.386441365Z"
+    },
+    {
+      "id": "3a219246-8703-4d87-8131-304b8fe38274",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa0689f.76ef2-98] user=,db=,app=,client=,LOG:  checkpoint complete: wrote 436 buffers (5.3%); 0 WAL file(s) added, 0 removed, 1 recycled; write=43.921 s, sync=0.007 s, total=43.944 s; sync files=32, longest=0.004 s, average=0.001 s; distance=16388 kB, estimate=25694 kB; lsn=5/FB2B2818, redo lsn=5/FB1AF598",
+      "timestamp": "2026-09-08T23:58:47.89446637Z"
+    },
+    {
+      "id": "ac0d7d30-0cd5-4c51-a69a-f16dc6be44b3",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "error"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-55] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+      "timestamp": "2026-09-08T23:58:55.878414524Z"
+    },
+    {
+      "id": "ddd49f98-a4b8-4610-8b5c-3a1a11facf14",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-56] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,DETAIL:  Key (evidence_id)=(57a2750929ae4dee35e913a05b583b3e8ceef9dd499160dfc2cf8394e7080dbb) already exists.",
+      "timestamp": "2026-09-08T23:58:55.878435025Z"
+    },
+    {
+      "id": "ce82044e-017a-40e3-b519-86812e75fca0",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "dpg-dadn7nht0dsc73f9jja0-a"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "[6aa09eef.7bc70-57] user=tradeagent,db=tradeagent,app=[unknown],client=10.29.133.181,STATEMENT: [SQL payload omitted; duplicate evidence insert]",
+      "timestamp": "2026-09-08T23:58:55.878441485Z"
+    }
+  ],
+  "critical_records": [],
+  "bounded_latest_records_only": true,
+  "duplicate_evidence_constraint_errors": 5
+}

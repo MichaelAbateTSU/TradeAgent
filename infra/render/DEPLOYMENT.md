@@ -8,6 +8,21 @@ and the [mandatory post-deployment acceptance procedure](POSTDEPLOY_ACCEPTANCE.m
 Every corrective deployment requires sustained dependency, data-progress, memory
 and failure-event tests; a successful `/health` response is not sufficient.
 
+### Subsequent one-demo preparation (September 8 evening)
+
+The separately requested equipment-only demo is documented in
+[its September 9 protocol](../../docs/PAPER_DEMO_20260909.md). Only the event
+worker was deployed to reviewed `b354bf8f925d76ee33205735736ec4cf36ff54ce`;
+recorder/dashboard remain `5e728c5b29fb9330df61d8f3bae95ca8a34ca53b` and notifier
+remains `3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f`. Auto-deploy is still disabled.
+The new `v20-manual-demo-20260909-r1` cohort permits at most one conditional
+AAPL paper equipment entry and zero strategy entries. It has **no approval or
+orders**, global kill remains active, and an actual
+`R1_EVENT_REQUIRES_POSITION_REVIEW` pause blocks activation. Prior pauses and
+the September 8 MISSED record are preserved. The original 09:35 September 9
+read-only incident acceptance remains required before any separate demo action.
+After-hours deployment checks are not proof of an executed trade.
+
 ## Project organization
 
 All TradeAgent resources are grouped under **Trade agent**

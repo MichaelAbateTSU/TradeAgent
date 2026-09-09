@@ -1,0 +1,174 @@
+{
+  "status": "preparation_verified_deployed_paused_R1_blocked_regular_session_acceptance_pending",
+  "actual_trade_proven": false,
+  "actual_demo_orders_submitted": 0,
+  "authority": {
+    "request_received_local": "2026-09-08T19:16:00-04:00",
+    "scope": "one <=25 USD AAPL paper equipment round trip, not general strategy rearm",
+    "incident_acceptance_is_separate": true,
+    "approval_issued": false,
+    "protocol": "manual-paper-demo-v1"
+  },
+  "release": {
+    "implementation_commit": "0999428fb16f02f5ae0e669080774bc053dabc30",
+    "reviewed_deployed_commit": "b354bf8f925d76ee33205735736ec4cf36ff54ce",
+    "review": {
+      "reviewer": "practice-review",
+      "initial_result": "High: demo authorization I/O occurred after final timing sample; never deployed",
+      "fix_result": "Clean explicit review confirmation for b354bf8; initial finding closed",
+      "independent_checks": [
+        "10:29:59 plus two-second authorization delay expires without POST",
+        "four-second quote plus two-second authorization delay expires without POST",
+        "kill switch changed during authorization is honored",
+        "no SQL/control/account I/O after final broker clock on successful dispatch"
+      ]
+    },
+    "validation": {
+      "pytest_passed": 941,
+      "pytest_skipped": 2,
+      "coverage_percent": 87.35,
+      "required_coverage_percent": 85,
+      "ruff_all_no_cache": "passed",
+      "mypy_src_tradeagent": "passed, 85 source files",
+      "full_test_output": "paper-demo-20260909-test-run.txt"
+    },
+    "deploy_id": "dep-dag9q8h5efls73a212lg",
+    "deploy_live_at": "2026-09-08T23:42:43.031748Z",
+    "worker_handoff_confirmed_at": "2026-09-08T23:49:30.198638Z",
+    "worker_owner": "srv-dae4tr7qj5pc73a9e0k0-77cd68b859-6tv9w",
+    "handoff_notes": "Old heartbeat stopped at23:43:39; 180s lease and Render backoff caused pre-acceptance startup failures/restarts. Waited naturally; no lease deletion/stealing or additional deployment.",
+    "auto_deploy": "no",
+    "service_plan": "starter",
+    "service_instances": 1,
+    "pre_deploy_command": "alembic upgrade head",
+    "start_command": "tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-09 --cohort-id v20-manual-demo-20260909-r1 --entry-policy equipment-only-demo --demo-account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --max-entries-per-session 1 --symbols AAPL",
+    "environment_modified": false,
+    "other_services_deployed": false
+  },
+  "role_pins": {
+    "event": "b354bf8f925d76ee33205735736ec4cf36ff54ce",
+    "recorder": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+    "dashboard": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+    "notifier": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f"
+  },
+  "test": {
+    "cohort_id": "v20-manual-demo-20260909-r1",
+    "purpose": "iex-practice",
+    "entry_policy": "equipment-only-demo",
+    "config_hash": "5a0acf612ce4fc886e342656cab2e9b2ea0295882fb7fbe731e65fc44f44cf65",
+    "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+    "paper_host": "https://paper-api.alpaca.markets",
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "session_date": "2026-09-09",
+    "entry_start": "2026-09-09T10:10:00-04:00",
+    "entry_end_exclusive": "2026-09-09T10:30:00-04:00",
+    "maximum_entry_attempts": 1,
+    "maximum_entry_usd": "25",
+    "symbols": ["AAPL"],
+    "maximum_news_strategy_entries": 0,
+    "qualification_eligible": false,
+    "unfilled_cancel_target_seconds": 30,
+    "owned_exit_target_seconds": 60,
+    "targets_are_not_guarantees": true,
+    "recovery_until_actual_flat": true
+  },
+  "deployed_checks": {
+    "pause_only_preparation_job": "job-dag9mdjl550s73admq6g",
+    "same_image_readonly_probe_job": "job-dag9u015efls73a2gvb0",
+    "same_image_risk_detail_job": "job-dag9unbl550s73aeotag",
+    "final_readonly_probe_job": "job-daga1ptbedkc73894ro0",
+    "final_broker_checked_at": "2026-09-08T19:57:46.559949-04:00",
+    "snapshot_at": "2026-09-08T23:49:38.181834Z",
+    "broker_active_unblocked": true,
+    "broker_market_open": false,
+    "broker_positions": 0,
+    "broker_open_orders": 0,
+    "linked_demo_orders": 0,
+    "demo_authorization_exists": false,
+    "paper_order_stream": "authenticated, subscribed, one connection, zero errors/gaps/drops",
+    "schema": "0012_market_data_totals",
+    "reporting_metadata_missing": 0,
+    "enabled_market_counter_triggers": 9,
+    "trigger_probe_correction": "The initial diagnostic LIKE market_%_totals_% returned0 because real names begin trg_. Separate pg_trigger table-scoped enumeration confirms9 enabled triggers; no DB changes.",
+    "report_build_bytes": 44080,
+    "report_build_seconds": 0.6692412681877613,
+    "report_job_peak_rss_bytes": 138940416,
+    "report_email_sent": false,
+    "normal_daily_schedule_changed": false,
+    "old_cohort_pauses_and_MISSED_preserved": true,
+    "original_tuesday_missed_at": "2026-09-08T14:00:34.987478+00:00",
+    "final_ready_at": "2026-09-09T00:02:00.288759Z",
+    "final_ready_http": 200,
+    "raw_evidence": [
+      "paper-demo-20260909-deploy-initial.json",
+      "paper-demo-20260909-deployed-probe.json",
+      "paper-demo-20260909-risk-detail.json",
+      "paper-demo-20260909-final-probe.json",
+      "paper-demo-20260909-final-ready.json",
+      "paper-demo-20260909-pg-logs.json"
+    ]
+  },
+  "blocking_risk": {
+    "global_kill": "active",
+    "new_cohort_pause": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+    "observed_at": "2026-09-08T23:49:29.174960Z",
+    "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+    "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+    "decision": "abstain; position_review_required=true",
+    "reasons_include": [
+      "correction_requires_review",
+      "related_correction_or_retraction",
+      "known_correction_or_retraction",
+      "publication_time_unknown",
+      "source_expired"
+    ],
+    "action_taken": "Preserved stricter pause; no approval or guard relaxation",
+    "tomorrow_if_unresolved": "BLOCKED, no orders, even if incident acceptance passes"
+  },
+  "afterhours_soak": {
+    "status": "complete_partial_operational_checks_passed_full_acceptance_failed_closed_market",
+    "planned_seconds": 660,
+    "actual_seconds": 662.934202,
+    "started_at": "2026-09-08T23:49:53.390682Z",
+    "finished_at": "2026-09-09T00:00:56.324884Z",
+    "http_requests": 882,
+    "http_errors": 0,
+    "maximum_http_seconds": 1.855,
+    "application_peak_mib": {
+      "event": 149.617,
+      "recorder": 112.152,
+      "notifier": 192.445,
+      "dashboard": 201.855
+    },
+    "postgres_peak_mib": 210.051,
+    "new_restart_gap_drop_or_lease_failures_during_observation": 0,
+    "postgres_log_observation": "Bounded latest100 records contained no termination/recovery/fatal signatures, but did contain caught duplicate event_evidence key insert errors. This is not an exhaustive clean-database-log claim; preserve these diagnostics.",
+    "full_acceptance_passed": false,
+    "acceptance_failures": [
+      "recorder:committed_exchange_time_not_advancing",
+      "recorder:market_bars_not_advancing",
+      "recorder:market_quotes_not_advancing",
+      "recorder:market_trades_not_advancing",
+      "recorder:unhealthy_or_dropped_packets",
+      "tradeagent-shadow-market-feed:stale_or_unhealthy",
+      "tradeagent-shadow-recorder:stale_or_unhealthy"
+    ],
+    "artifact": "paper-demo-20260909-afterhours-soak.json",
+    "full_regular_session_acceptance": "pending; closed-market observations cannot pass it"
+  },
+  "automation": {
+    "root_session_id": "d889264f-50d4-4da4-be00-be99b5089546",
+    "next_run_at": "2026-09-09T13:35:00Z",
+    "updated_at": "2026-09-08T23:51:39.605Z",
+    "original_readonly_1800s_incident_gate_preserved": true,
+    "new_reviewed_event_pin_updated": true,
+    "separate_conditional_1010_to_1030_demo_appended": true,
+    "R1_pause_explicitly_preserved_not_cleared_to_force_trade": true,
+    "actual_order_ids_fills_flat_state_notification_proof_required": true
+  },
+  "remaining": [
+    "Pass actual regular-session incident acceptance",
+    "Resolve any legitimate risk blockers without bypassing guards; otherwise record blocked/no trade",
+    "Only if all gates pass: scoped approval, one actual equipment attempt, broker reconciliation and normal notification acceptance"
+  ]
+}
