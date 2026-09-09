@@ -1,0 +1,616 @@
+{
+  "observed_at": "2026-09-09T16:29:39.562175+00:00",
+  "events": {
+    "event": [
+      {
+        "event": {
+          "details": {
+            "jobId": "job-dagoidn40ujc7383l9q0",
+            "status": "succeeded"
+          },
+          "id": "evt-dagoig2jnfac73af06jg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:28:48.962057Z",
+          "type": "job_run_ended"
+        },
+        "cursor": "9CobfMjtEDVpZzJqbmZhYzczYWYwNmpn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-72hsr",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagoiaajnfac73af04mg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:28:25.454845Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVpYWFqbmZhYzczYWYwNG1n"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagoi8ajnfac73af03vg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:28:17.377235Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVpOGFqbmZhYzczYWYwM3Zn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-72hsr",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohu2jnfac73aevum0",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:27:36.206161Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVodTJqbmZhYzczYWV2dW0w"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohs2jnfac73aevts0",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:27:28.111981Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoczJqbmZhYzczYWV2dHMw"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-72hsr",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohlajnfac73aevpsg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:27:01.012868Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVobGFqbmZhYzczYWV2cHNn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohjajnfac73aevosg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:26:53.853024Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoamFqbmZhYzczYWV2b3Nn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-72hsr",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohfajnfac73aevn40",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:26:37.754734Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoZmFqbmZhYzczYWV2bjQw"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohbqjnfac73aevlpg",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:26:23.61267Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoYnFqbmZhYzczYWV2bHBn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dae4tr7qj5pc73a9e0k0-72hsr",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohbijnfac73aevll0",
+          "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+          "timestamp": "2026-09-09T16:26:22.615884Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoYmlqbmZhYzczYWV2bGww"
+      }
+    ],
+    "recorder": [
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagoiaqjnfac73af04tg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:28:27.582619Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVpYXFqbmZhYzczYWYwNHRn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadn8son74is73apqcc0-97mvv",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagoi0ijnfac73aevvgg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:27:46.395243Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVpMGlqbmZhYzczYWV2dmdn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohu2jnfac73aevun0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:27:36.325105Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVodTJqbmZhYzczYWV2dW4w"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadn8son74is73apqcc0-97mvv",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohn2jnfac73aevreg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:27:08.23466Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVobjJqbmZhYzczYWV2cmVn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohkijnfac73aevp5g",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:26:58.176995Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoa2lqbmZhYzczYWV2cDVn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadn8son74is73apqcc0-97mvv",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohhijnfac73aevoa0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:26:46.102079Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoaGlqbmZhYzczYWV2b2Ew"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohfajnfac73aevn00",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:26:37.258492Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoZmFqbmZhYzczYWV2bjAw"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadn8son74is73apqcc0-97mvv",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohf2jnfac73aevmt0",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T16:26:36.060727Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoZjJqbmZhYzczYWV2bXQw"
+      },
+      {
+        "event": {
+          "details": {
+            "jobId": "job-dagmj3qjnfac73e76jkg",
+            "status": "succeeded"
+          },
+          "id": "evt-dagmjcijnfac73adtvkg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T14:14:10.961471Z",
+          "type": "job_run_ended"
+        },
+        "cursor": "kms_uRGc0ZtqY2lqbmZhYzczYWR0dmtn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagmidijnfac73adtisg",
+          "serviceId": "srv-dadn8son74is73apqcc0",
+          "timestamp": "2026-09-09T14:12:06.15333Z",
+          "type": "server_available"
+        },
+        "cursor": "kms_uRGc0ZtpZGlqbmZhYzczYWR0aXNn"
+      }
+    ],
+    "notifier": [
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagoioijnfac73af0akg",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:29:22.124463Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVpb2lqbmZhYzczYWYwYWtn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-tnb26",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagoi1ijnfac73af000g",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:27:50.58739Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVpMWlqbmZhYzczYWYwMDBn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohvqjnfac73aevv80",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:27:43.569843Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVodnFqbmZhYzczYWV2djgw"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-tnb26",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohlijnfac73aevqlg",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:27:02.406687Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVobGlqbmZhYzczYWV2cWxn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohjqjnfac73aevp10",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:26:55.352678Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoanFqbmZhYzczYWV2cDEw"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-tnb26",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagohdijnfac73aevme0",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:26:30.212445Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoZGlqbmZhYzczYWV2bWUw"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagohbqjnfac73aevln0",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:26:23.168681Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoYnFqbmZhYzczYWV2bG4w"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-tnb26",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagoh8ijnfac73aevkdg",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:26:10.1757Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoOGlqbmZhYzczYWV2a2Rn"
+      },
+      {
+        "event": {
+          "details": {},
+          "id": "evt-dagoh6qjnfac73aevjgg",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:26:03.078641Z",
+          "type": "server_available"
+        },
+        "cursor": "9CobfMjtEDVoNnFqbmZhYzczYWV2amdn"
+      },
+      {
+        "event": {
+          "details": {
+            "instanceID": "srv-dadnn6mq1p3s73ef7ef0-tnb26",
+            "reason": {
+              "evicted": false,
+              "nonZeroExit": 1
+            }
+          },
+          "id": "evt-dagoh6ijnfac73aevjdg",
+          "serviceId": "srv-dadnn6mq1p3s73ef7ef0",
+          "timestamp": "2026-09-09T16:26:02.089633Z",
+          "type": "server_failed"
+        },
+        "cursor": "9CobfMjtEDVoNmlqbmZhYzczYWV2amRn"
+      }
+    ],
+    "dashboard": [
+      {
+        "event": {
+          "details": {
+            "jobId": "job-dag8klpt0dsc73ed3rm0",
+            "status": "succeeded"
+          },
+          "id": "evt-dag8krajnfac73a756r0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T22:21:33.512512Z",
+          "type": "job_run_ended"
+        },
+        "cursor": "Pu57Bfo59J5rcmFqbmZhYzczYTc1NnIw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag8gd6k1f9s738f7hpg",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag8gtlfa08c73cbnor0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T22:13:10.511833Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "Pu57Bfo59J5ndGxmYTA4YzczY2Jub3Iw"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag8gd6k1f9s738f7hqg",
+            "buildStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag8go4709cc73bmcpsg",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T22:12:48.519303Z",
+          "type": "build_ended"
+        },
+        "cursor": "Pu57Bfo59J5nbzQ3MDljYzczYm1jcHNn"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag8gd6k1f9s738f7hpg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag8gd4709cc73bmciug",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T22:12:04.803509Z",
+          "type": "deploy_started"
+        },
+        "cursor": "Pu57Bfo59J5nZDQ3MDljYzczYm1jaXVn"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag8gd6k1f9s738f7hqg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag8gdh9t58s7391p6v0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T22:12:04.798267Z",
+          "type": "build_started"
+        },
+        "cursor": "Pu57Bfo59J5nZGg5dDU4czczOTFwNnYw"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag5kn5bedkc73flgteg",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag5l7esse4s73bi8b9g",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T18:57:33.717896Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "TY3KSl-hy65sN2Vzc2U0czczYmk4Yjln"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag5kn5bedkc73flgtf0",
+            "buildStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag5l1gluo3c738tf3og",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T18:57:10.044766Z",
+          "type": "build_ended"
+        },
+        "cursor": "TY3KSl-hy65sMWdsdW8zYzczOHRmM29n"
+      },
+      {
+        "event": {
+          "details": {
+            "buildId": "bld-dag5kn5bedkc73flgtf0",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag5knhqd4ss738l8kng",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T18:56:29.291775Z",
+          "type": "build_started"
+        },
+        "cursor": "TY3KSl-hy65rbmhxZDRzczczOGw4a25n"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag5kn5bedkc73flgteg",
+            "trigger": {
+              "clearCache": false,
+              "deployedByRender": false,
+              "envUpdated": false,
+              "firstBuild": false,
+              "manual": false,
+              "rollback": false,
+              "user": {
+                "email": "michaelabate819@gmail.com",
+                "id": "usr-d9dqrkr7uimc73c2e2b0"
+              }
+            }
+          },
+          "id": "evt-dag5knb53hus738fq4og",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T18:56:29.282857Z",
+          "type": "deploy_started"
+        },
+        "cursor": "TY3KSl-hy65rbmI1M2h1czczOGZxNG9n"
+      },
+      {
+        "event": {
+          "details": {
+            "deployId": "dep-dag4bvh42hec7393bnc0",
+            "deployStatus": "succeeded",
+            "reason": {},
+            "status": 2
+          },
+          "id": "evt-dag4cm1qd4ss738k5na0",
+          "serviceId": "srv-dadoa3740ujc73cb09c0",
+          "timestamp": "2026-09-08T17:31:04.864154Z",
+          "type": "deploy_ended"
+        },
+        "cursor": "NUWHnb8wADVjbTFxZDRzczczOGs1bmEw"
+      }
+    ]
+  },
+  "database": {
+    "connectionPool": "none",
+    "createdAt": "2026-09-05T01:43:58.415023Z",
+    "dashboardUrl": "https://dashboard.render.com/d/dpg-dadn7nht0dsc73f9jja0-a",
+    "databaseName": "tradeagent",
+    "databaseUser": "tradeagent",
+    "diskAutoscalingEnabled": false,
+    "diskSizeGB": 15,
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "highAvailabilityEnabled": false,
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "ipAllowList": [],
+    "name": "tradeagent-postgres",
+    "owner": {
+      "email": "michaelabate819@gmail.com",
+      "id": "tea-d9dqrkr7uimc73c2e240",
+      "name": "Trade Agent",
+      "type": "team"
+    },
+    "plan": "0.5c-1g",
+    "readReplicas": [],
+    "region": "oregon",
+    "role": "primary",
+    "status": "available",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "updatedAt": "2026-09-09T16:25:58.12949Z",
+    "version": "17"
+  }
+}

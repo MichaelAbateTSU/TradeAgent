@@ -1,0 +1,21 @@
+{
+  "owner_approval_at": "2026-09-09T12:23:39.363-04:00",
+  "database_id": "dpg-dadn7nht0dsc73f9jja0-a",
+  "approved_plan": "0.5c-1g",
+  "reviewed_commit": "ab4e5e9f7fa96e71d1a70e8d54b76525d7829a81",
+  "reviewer": "practice-review",
+  "review_turn": 50,
+  "review_result": "No significant issues found; code-review ready",
+  "local_targeted_tests_passed": 10,
+  "additional_reviewer_profile_checks_passed": 18,
+  "profile": "pg-1gb-v1",
+  "minimum_observation_seconds": 1800,
+  "database_memory_strict_upper_bound_mib": 800,
+  "application_memory_strict_upper_bound_mib": 400,
+  "database_plan_checked_before_and_after": true,
+  "database_public_allowlist_required": [],
+  "historical_256mb_failures_reinterpreted": false,
+  "risk_or_order_budget_changed": false,
+  "orders_authorized_by_profile": false,
+  "remaining": "Actual sustained market-load, physical data, reports, database logs, owner/lease and broker checks"
+}

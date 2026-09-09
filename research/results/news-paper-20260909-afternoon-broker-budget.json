@@ -1,0 +1,122 @@
+{
+  "job_id": "job-dagoidn40ujc7383l9q0",
+  "result": {
+    "observed_at": "2026-09-09T16:28:45.527847+00:00",
+    "read_only": true,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "orders": [
+      {
+        "id": "dd9ba5c8-8319-4466-83c0-af3cc9911c73",
+        "client_order_id": "ta-probe-20260909-0020-aapl",
+        "symbol": "AAPL",
+        "side": "buy",
+        "status": "canceled",
+        "created_at": "2026-09-09T04:37:09.535181Z",
+        "submitted_at": "2026-09-09T04:37:09.535181Z",
+        "filled_at": null,
+        "canceled_at": "2026-09-09T04:37:09.716008Z",
+        "filled_qty": "0",
+        "filled_avg_price": null,
+        "qty": "0.1",
+        "notional": null
+      },
+      {
+        "id": "385947be-92ac-4215-98f4-54380075a145",
+        "client_order_id": "ta-crypto-test-20260909-0151-buy",
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "status": "filled",
+        "created_at": "2026-09-09T06:20:49.376591Z",
+        "submitted_at": "2026-09-09T06:20:49.376591Z",
+        "filled_at": "2026-09-09T06:20:49.378751Z",
+        "canceled_at": null,
+        "filled_qty": "0.000247676",
+        "filled_avg_price": "79217.31",
+        "qty": null,
+        "notional": "20"
+      },
+      {
+        "id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+        "client_order_id": "ta-crypto-test-20260909-0151-s0",
+        "symbol": "BTC/USD",
+        "side": "sell",
+        "status": "filled",
+        "created_at": "2026-09-09T06:21:28.130083Z",
+        "submitted_at": "2026-09-09T06:21:28.130083Z",
+        "filled_at": "2026-09-09T06:21:28.132488Z",
+        "canceled_at": null,
+        "filled_qty": "0.000247056",
+        "filled_avg_price": "79103.5",
+        "qty": "0.000247056",
+        "notional": null
+      }
+    ],
+    "activities": [
+      {
+        "id": "20260909000000000::2e623c8a-debb-4226-a4e9-d7a676de7d17",
+        "activity_type": "CFEE",
+        "date": "2026-09-09",
+        "created_at": "2026-09-09T06:21:31.935539Z",
+        "net_amount": "-0.05",
+        "description": "Coin Pair Transaction Fee (USD)",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260909000000000::bd134c62-19dd-49d7-bde3-9a150857a1ca",
+        "activity_type": "CFEE",
+        "date": "2026-09-09",
+        "created_at": "2026-09-09T06:20:49.923271Z",
+        "net_amount": "0",
+        "description": "Coin Pair Transaction Fee (Non USD)",
+        "symbol": "BTCUSD",
+        "cusip": "BTC123456",
+        "qty": "-0.00000062",
+        "price": "79217.31",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260909022049378::b81c2780-1ead-43e5-b749-5be3feac0a81",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-09T06:20:49.378751Z",
+        "type": "fill",
+        "price": "79217.31",
+        "qty": "0.000247676",
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "385947be-92ac-4215-98f4-54380075a145",
+        "cum_qty": "0.000247676",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260909022128132::64e75807-3bc9-45a9-adc5-0931565da312",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-09T06:21:28.132488Z",
+        "type": "fill",
+        "price": "79103.5",
+        "qty": "0.000247056",
+        "side": "sell",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+        "cum_qty": "0.000247056",
+        "order_status": "filled",
+        "swap_rate": "1"
+      }
+    ],
+    "order_list_complete": true,
+    "activity_list_complete": true,
+    "positions": 0,
+    "open_orders": 0,
+    "clock": {
+      "timestamp": "2026-09-09T12:28:45.721845-04:00",
+      "is_open": true,
+      "next_open": "2026-09-10T09:30:00-04:00",
+      "next_close": "2026-09-09T16:00:00-04:00"
+    },
+    "orders_submitted": 0
+  }
+}

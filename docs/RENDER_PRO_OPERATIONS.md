@@ -83,6 +83,16 @@ PostgreSQL memory. Application CPU improved, but the 0.1-core database still
 reached its allocation. Further bounded ingestion measurements are separate
 from the Pro configuration; no paid compute upgrade is being implied or applied.
 
+## Subsequently approved database upgrade
+
+At **12:23:39 Eastern on September 9**, the owner separately approved the
+specific **$13/month** database compute increase. PostgreSQL was then resized
+from `0.1c-256mb` to `0.5c-1g` ($19/month), retaining its 15 GB disk, resource ID
+and empty public allowlist. This was an explicit compute purchase, **not**
+capacity included in Pro. All application plans remained unchanged.
+See the [afternoon retry record](PAPER_RETRY_20260909.md). The earlier paragraphs
+describe the Pro-only changes before this later approval.
+
 ## Official references
 
 - [Projects, protection and network boundaries](https://render.com/docs/projects)
