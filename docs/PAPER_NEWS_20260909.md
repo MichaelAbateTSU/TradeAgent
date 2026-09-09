@@ -287,3 +287,41 @@ only this newly verified acknowledgement. Its persisted next wake remains
 first and the later explicit news-paper preflight still mandatory. Preparation
 is complete; actual live market acceptance, equipment fills, any genuinely
 eligible news trade and lifecycle/round-trip provider acceptance remain pending.
+
+## Actual September 9 expiry: no authorized entries
+
+The 09:35 continuation ran. Its full 1,803.653-second market-open incident
+observation **failed** on recorder loss/freshness and PostgreSQL memory.
+No preflight, certificate, news authorization or order was issued. A corrective
+recorder rollout and another complete observation cannot extend the original
+10:30 Eastern deadline.
+
+The **existing event worker**, not an operator write, latched `news-terminal`
+at **14:30:24.386665 UTC / 10:30:24 Eastern**, with
+`SESSION_FINISHED_OR_EQUIPMENT_FAILED` and `entries_disabled: true`. It recorded
+equipment **MISSED at 14:30:33.183229 UTC**, with **zero entry attempts** and
+`NEWS_AUTHORIZATION_REQUIRED`. This is a missed, unattempted equipment window,
+not a rejected or filled trade.
+
+The read-only Render job `job-dagmr4gu01pc738j3dhg` then exhaustively read all
+cohort-prefixed controls. The actual `news-authorization` and certificate were
+absent; the original `OPERATOR_PAUSE` and global kill timestamps were unchanged.
+At broker clock **10:31:06 Eastern**, the pinned paper account was ACTIVE and
+unblocked, with **zero positions, zero open orders and no unresolved local
+intents**. See the [actual cutoff readback](../research/results/news-paper-20260909-cutoff.json).
+
+Earlier limited physical-probe projections selected `news-paper-authorization`,
+which is not the actual authorization key. Those original artifacts are retained,
+but their limited key lists must not be used alone as proof of authorization
+absence. The later exhaustive read resolves that observation gap without changing
+any control.
+
+Consequently there was **no stock equipment fill, no subsequent news entry and
+no new trade lifecycle email triggered by this scope**. The prior overnight BTC
+operator round trip and canceled AAPL diagnostic remain separate and are not
+counted as this equipment test or strategy qualification. The normal notifier
+schedule and all previously accepted messages remain untouched.
+
+A same-session **15:45 Eastern read-only close/recovery follow-up** is scheduled.
+Through-close flatness remains to be observed; later infrastructure repairs do
+not reopen this expired cohort or authorize another date, cohort or entry.
