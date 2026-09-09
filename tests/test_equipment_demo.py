@@ -135,12 +135,18 @@ def test_demo_one_entry_recovers_then_flattens_and_cannot_repeat(make_runtime, p
     assert runtime.broker.submissions == 1
     buy = runtime.store.linked_orders(runtime.settings.cohort_id)[0]
     assert buy["quantity"] * 100 <= 25
-    assert buy["link"]["equipment_test_id"] == demo_scope(
-        runtime.settings, runtime.config_hash, runtime.code_sha
-    )["equipment_test_id"]
+    assert (
+        buy["link"]["equipment_test_id"]
+        == demo_scope(runtime.settings, runtime.config_hash, runtime.code_sha)["equipment_test_id"]
+    )
     restarted = EventRuntime(
-        runtime.store, runtime.settings, runtime.source, runtime.market, runtime.broker,
-        instance_id="fixture", code_sha=runtime.code_sha,
+        runtime.store,
+        runtime.settings,
+        runtime.source,
+        runtime.market,
+        runtime.broker,
+        instance_id="fixture",
+        code_sha=runtime.code_sha,
     )
     restarted.context_client.close()
     restarted.context_client = Context()
@@ -193,8 +199,12 @@ def test_demo_oms_blocks_news_and_lease_free_jobs(make_runtime):
     ]
     assert runtime._entry(None, None, DEMO_AT)["reasons"] == ["DEMO_NO_STRATEGY_ENTRIES"]
     local = ExperimentalOrderManager(
-        runtime.store, runtime.broker, runtime.settings, runtime.app,
-        runtime.config_hash, runtime.code_sha,
+        runtime.store,
+        runtime.broker,
+        runtime.settings,
+        runtime.app,
+        runtime.config_hash,
+        runtime.code_sha,
     )
     assert local.submit_entry(**args)["reasons"] == ["DEMO_AUTHORIZATION_REQUIRED"]
     assert runtime.broker.submissions == 0
@@ -309,10 +319,13 @@ def test_demo_cli_requires_separate_post_acceptance_confirmation(
     monkeypatch.setenv("ALPACA_SECRET_KEY", "synthetic-secret")
     monkeypatch.setenv("EVENT_SYMBOLS", "AAPL")
     diagnostics = {
-        "broker_healthy": True, "live_credential_environment_present": False,
-        "broker_positions": 0, "broker_open_orders": 0,
+        "broker_healthy": True,
+        "live_credential_environment_present": False,
+        "broker_positions": 0,
+        "broker_open_orders": 0,
         "market_data": {"iex_latest_quote": {"accessible": True}},
-        "active_execution_feed": "iex", "assets": [{"fractionable": True, "tradable": True}],
+        "active_execution_feed": "iex",
+        "assets": [{"fractionable": True, "tradable": True}],
     }
     monkeypatch.setattr(event_cli, "source_capabilities", lambda: diagnostics)
     monkeypatch.setattr(event_cli, "code_identity", lambda: runtime.code_sha)
@@ -322,16 +335,23 @@ def test_demo_cli_requires_separate_post_acceptance_confirmation(
         "tradeagent.alpaca_paper.AlpacaPaperClient", lambda settings: nullcontext(runtime.broker)
     )
     args = argparse.Namespace(
-        command="paper-preflight", output=None, cohort_id=runtime.settings.cohort_id,
-        purpose="iex-practice", practice_start_date=NOW.date(), **POLICY,
-        confirm_experimental_paper=True, confirm_equipment_only_demo=confirmed,
-        demo_acceptance_sha256="a" * 64, demo_reviewed_code_sha=runtime.code_sha,
+        command="paper-preflight",
+        output=None,
+        cohort_id=runtime.settings.cohort_id,
+        purpose="iex-practice",
+        practice_start_date=NOW.date(),
+        **POLICY,
+        confirm_experimental_paper=True,
+        confirm_equipment_only_demo=confirmed,
+        demo_acceptance_sha256="a" * 64,
+        demo_reviewed_code_sha=runtime.code_sha,
     )
     assert event_cli.handle_event_command(args)
     result = json.loads(capsys.readouterr().out)
     assert result["operational_certificate_issued"] is confirmed, result["blockers"]
     assert runtime.repo.get_control("kill_switch") == ("inactive" if confirmed else "active")
-    assert bool(runtime.repo.get_control(
-        f"{runtime.settings.cohort_id}:demo-authorization"
-    )) is confirmed
+    assert (
+        bool(runtime.repo.get_control(f"{runtime.settings.cohort_id}:demo-authorization"))
+        is confirmed
+    )
     assert runtime.broker.submissions == 0

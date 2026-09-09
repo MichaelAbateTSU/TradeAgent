@@ -103,9 +103,7 @@ def terminate_demo(store: EventStore, cohort: str, reason: str, now: datetime) -
             _write_control(connection, "kill_switch", "active", now)
 
 
-def demo_scope(
-    settings: ExperimentalSettings, config_hash: str, code_sha: str
-) -> dict[str, Any]:
+def demo_scope(settings: ExperimentalSettings, config_hash: str, code_sha: str) -> dict[str, Any]:
     if settings.entry_policy != "equipment-only-demo":
         raise ValueError("not an equipment-only demo")
     if settings.demo_account_digest is None or settings.practice_start_date is None:

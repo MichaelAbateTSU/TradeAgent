@@ -168,3 +168,9 @@ Deployment requires explicit remote handoff and clean review. The unchanged
 09:35–10:05 Eastern read-only incident acceptance remains the first morning gate.
 Only a subsequent, passing, explicitly scoped preflight may authorize this new
 policy; no existing cohort acknowledgement transfers or waives future risks.
+
+The additional repository-wide formatter gate found two formatting-only failures
+in the earlier equipment-demo source/test files. Formatting was normalized with
+Ruff; both before/after Python ASTs were verified identical. All 198 checked files
+now pass the formatter, repository-wide Ruff passes, and the combined 72
+equipment/news policy tests pass. No execution behavior changed.
