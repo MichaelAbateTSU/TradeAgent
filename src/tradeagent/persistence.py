@@ -292,7 +292,9 @@ market_trades = Table(
         "symbol",
         "feed_source",
         "provider_trade_id",
-        name="uq_market_trade_provider_id",
+        "exchange",
+        "event_at",
+        name="uq_market_trade_event_identity",
     ),
 )
 Index("ix_market_trades_symbol_time", market_trades.c.symbol, market_trades.c.event_at)
@@ -598,18 +600,19 @@ class ProductionRepository:
         tape: str | None = None,
         feed_source: str = "iex",
     ) -> bool:
+        from sqlalchemy.dialects.postgresql import insert as postgresql_insert
+        from sqlalchemy.dialects.sqlite import insert as sqlite_insert
+
+        # Provider IDs are scoped to a venue/day, not a symbol's entire history.
+        # Keep payload/receipt fields outside identity so retries preserve the original.
         with self._database.begin() as connection:
-            existing = connection.scalar(
-                select(market_trades.c.market_trade_id).where(
-                    market_trades.c.symbol == symbol,
-                    market_trades.c.feed_source == feed_source,
-                    market_trades.c.provider_trade_id == provider_trade_id,
-                )
+            statement = (
+                postgresql_insert(market_trades)
+                if connection.dialect.name == "postgresql"
+                else sqlite_insert(market_trades)
             )
-            if existing is not None:
-                return False
-            connection.execute(
-                insert(market_trades).values(
+            created = connection.scalar(
+                statement.values(
                     market_trade_id=str(uuid4()),
                     provider_trade_id=provider_trade_id,
                     symbol=symbol,
@@ -623,8 +626,18 @@ class ProductionRepository:
                     conditions=list(conditions),
                     tape=tape,
                 )
+                .on_conflict_do_nothing(
+                    index_elements=[
+                        market_trades.c.symbol,
+                        market_trades.c.feed_source,
+                        market_trades.c.provider_trade_id,
+                        market_trades.c.exchange,
+                        market_trades.c.event_at,
+                    ]
+                )
+                .returning(market_trades.c.market_trade_id)
             )
-        return True
+        return created is not None
 
     def market_data_counts(self) -> tuple[int, int, int]:
         with self._database.begin() as connection:

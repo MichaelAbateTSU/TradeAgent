@@ -170,6 +170,7 @@ def test_normalized_market_data_is_idempotent(tmp_path: Path) -> None:
             received_at=now,
             price=Decimal("100.5"),
             size=Decimal("5"),
+            exchange="V",
         )
 
         assert first_bar and not duplicate_bar
