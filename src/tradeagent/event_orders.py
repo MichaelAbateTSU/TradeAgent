@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
+from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_DOWN, ROUND_UP, Decimal
 from hashlib import sha256
@@ -12,6 +13,7 @@ from zoneinfo import ZoneInfo
 import httpx
 from sqlalchemy import insert, select, update
 
+from tradeagent import event_news_policy
 from tradeagent.alpaca_paper import (
     AlpacaPaperAccount,
     AlpacaPaperOrder,
@@ -21,7 +23,9 @@ from tradeagent.alpaca_paper import (
 )
 from tradeagent.config import AppConfig
 from tradeagent.domain import OrderRequest, OrderType, Side
+from tradeagent.event_account_risk import account_risk
 from tradeagent.event_demo import demo_authorized, terminate_demo
+from tradeagent.event_order_notifications import enqueue_lifecycle
 from tradeagent.event_performance import allocation_ledgers
 from tradeagent.event_research import DEFAULT_EVENT_POLICY, EventQuote
 from tradeagent.event_session import (
@@ -84,6 +88,7 @@ class ExperimentalOrderManager:
         owner_id: str | None = None,
         *,
         recovery_only: bool = False,
+        quote_provider: Callable[[str], EventQuote] | None = None,
     ):
         self.store, self.broker, self.settings = store, broker, settings
         self.app, self.config_hash, self.code_sha = app, config_hash, code_sha
@@ -91,6 +96,7 @@ class ExperimentalOrderManager:
         self.calendar = NyseSessionCalendar(app.intraday)
         self.owner_id = owner_id
         self.recovery_only = recovery_only
+        self.quote_provider = quote_provider
         self._recoveries: dict[str, ExperimentalOrderManager] = {}
         self._unverified_cohorts: set[str] = set()
 
@@ -141,6 +147,7 @@ class ExperimentalOrderManager:
                 manifest["code_sha"],
                 self.owner_id,
                 recovery_only=True,
+                quote_provider=self.quote_provider,
             )
         manager = self._recoveries[cohort_id]
         if not self.recovery_only:
@@ -339,6 +346,33 @@ class ExperimentalOrderManager:
             self.calendar,
         )
 
+    def news_authorized(self, now: datetime) -> bool:
+        return event_news_policy.authorized(
+            self.repo,
+            self.settings,
+            self.config_hash,
+            self.code_sha,
+            sha256(self.broker.account().id.encode()).hexdigest(),
+            now,
+            self.calendar,
+        )
+
+    def equipment_completed(self) -> bool:
+        budget = self.session_budget() or {}
+        client_id = budget.get("equipment_client_order_id")
+        rows = self.scoped_orders()
+        return bool(
+            client_id
+            and any(
+                row["client_order_id"] == client_id
+                and row["side"] == "buy"
+                and Decimal(str(row["filled_quantity"])) > 0
+                for row in rows
+            )
+            and all(row["status"] in FINAL for row in rows)
+            and not self.inventory(rows)
+        )
+
     def session_budget(self) -> dict[str, Any] | None:
         if self.settings.purpose != "iex-practice" or self.settings.practice_start_date is None:
             return None
@@ -378,6 +412,11 @@ class ExperimentalOrderManager:
         drawdown = min(self.settings.drawdown_fraction, self.app.risk.max_drawdown)
         if equity <= day_start * (1 - loss) or equity <= peak * (1 - drawdown):
             self.pause("ECONOMIC_LOSS_LIMIT", now)
+        if self.settings.entry_policy == "news-paper":
+            shared = account_risk(self.store, self.settings, marks, now)
+            report["account_risk"] = shared
+            if shared["blocked"]:
+                self.pause("ACCOUNT_ECONOMIC_LOSS_OR_VALUATION_LIMIT", now)
         self.store.audit("performance", report, now, self.settings.cohort_id)
         return report
 
@@ -410,6 +449,16 @@ class ExperimentalOrderManager:
                 return {"state": "risk_rejected", "reasons": ["DEMO_NO_STRATEGY_ENTRIES"]}
             if self.owner_id is None or not self.demo_authorized(now):
                 return {"state": "risk_rejected", "reasons": ["DEMO_AUTHORIZATION_REQUIRED"]}
+        if self.settings.entry_policy == "news-paper":
+            if self.owner_id is None or not self.news_authorized(now):
+                return {"state": "risk_rejected", "reasons": ["NEWS_AUTHORIZATION_REQUIRED"]}
+            if entry_kind == "strategy" and (
+                not self.equipment_completed()
+                or not event_news_policy.valid_ticket(
+                    self.store, self.settings.cohort_id, decision_ticket
+                )
+            ):
+                return {"state": "risk_rejected", "reasons": ["EQUIPMENT_AND_VALID_NEWS_REQUIRED"]}
         reconciliation = self.reconcile(now)
         if not reconciliation["healthy"]:
             errors.append("ACCOUNT_SESSION_RECONCILIATION_REQUIRED")
@@ -458,6 +507,10 @@ class ExperimentalOrderManager:
             < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
         ):
             errors.append("CALIBRATION_NOT_AUTHORIZED")
+        if self.settings.entry_policy == "news-paper" and (
+            gate.session_open is None or now < gate.session_open + timedelta(minutes=40)
+        ):
+            errors.append("NEWS_SESSION_NOT_STARTED")
         if not eligible_at <= now <= expires_at:
             errors.append("EVENT_NOT_EXECUTABLE_NOW")
         if not source_valid:
@@ -694,6 +747,11 @@ class ExperimentalOrderManager:
                     if entry_kind == "calibration" and budget is not None
                     else None,
                     "decision_ticket": decision_ticket,
+                    **(
+                        {"protection": event_news_policy.protection(limit)}
+                        if self.settings.entry_policy == "news-paper"
+                        else {}
+                    ),
                 },
             )
             self.store.audit(
@@ -811,6 +869,29 @@ class ExperimentalOrderManager:
                 )
             )
         )
+        unauthorized_news = (
+            request.side is Side.BUY
+            and self.settings.entry_policy == "news-paper"
+            and (
+                self.owner_id is None
+                or link.get("entry_kind") not in {"calibration", "strategy"}
+                or (
+                    link.get("entry_kind") == "strategy"
+                    and not event_news_policy.valid_ticket(
+                        self.store, self.settings.cohort_id, link.get("decision_ticket")
+                    )
+                )
+                or not event_news_policy.authorized(
+                    self.repo,
+                    self.settings,
+                    self.config_hash,
+                    self.code_sha,
+                    digest,
+                    now,
+                    self.calendar,
+                )
+            )
+        )
         paused = self.repo.get_control("kill_switch") == "active" or self.repo.get_control(
             f"{self.settings.cohort_id}:pause"
         )
@@ -827,8 +908,7 @@ class ExperimentalOrderManager:
                 or not gate.session_open
                 + timedelta(minutes=self.settings.calibration_window_minutes[0])
                 <= clock.timestamp
-                < gate.session_open
-                + timedelta(minutes=self.settings.calibration_window_minutes[1])
+                < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
             )
             insufficient_news_horizon = link.get("entry_kind") == "strategy" and (
                 gate.session_close is None
@@ -849,6 +929,16 @@ class ExperimentalOrderManager:
                 or clock.timestamp > datetime.fromisoformat(link["expires_at"])
                 or expired_calibration
                 or unauthorized_demo
+                or unauthorized_news
+                or (
+                    self.settings.entry_policy == "news-paper"
+                    and (
+                        gate.session_open is None
+                        or clock.timestamp < gate.session_open + timedelta(minutes=40)
+                        or clock.timestamp.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
+                        != self.settings.practice_start_date
+                    )
+                )
                 or insufficient_news_horizon
                 or paused
             ):
@@ -856,6 +946,39 @@ class ExperimentalOrderManager:
                     request.client_order_id, clock.timestamp, claimed_in_this_dispatch=True
                 )
                 return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
+            now = clock.timestamp
+        elif self.settings.entry_policy == "news-paper":
+            clock = self.broker.clock()
+            gate = self.calendar.gate(clock.timestamp)
+            if (
+                not clock.is_open
+                or gate.session_open is None
+                or gate.session_close is None
+                or not gate.session_open <= clock.timestamp < gate.session_close
+                or not timedelta(0)
+                <= clock.timestamp - request.submitted_at
+                <= timedelta(seconds=5)
+            ):
+                with self.store.database.begin() as connection:
+                    connection.execute(
+                        update(orders)
+                        .where(
+                            orders.c.client_order_id == request.client_order_id,
+                            orders.c.status == "reconciliation_required",
+                        )
+                        .values(status="expired", updated_at=clock.timestamp)
+                    )
+                    self.store.audit(
+                        "exit_expired_unsent",
+                        {
+                            "client_order_id": request.client_order_id,
+                            "reason": "regular_session_or_fresh_dispatch_required",
+                        },
+                        clock.timestamp,
+                        self.settings.cohort_id,
+                        connection,
+                    )
+                return {"state": "expired", "reasons": ["EXIT_SUBMISSION_REVALIDATION_FAILED"]}
             now = clock.timestamp
         # No database/control work may occur between these guards and the broker call.
         # The durable prepared UNKNOWN state covers a crash before acknowledgement.
@@ -940,6 +1063,17 @@ class ExperimentalOrderManager:
                         self.settings.cohort_id,
                         connection,
                     )
+                    if self.settings.entry_policy == "news-paper":
+                        enqueue_lifecycle(
+                            connection,
+                            cohort=self.settings.cohort_id,
+                            client_id=request.client_order_id,
+                            symbol=request.symbol,
+                            side=request.side.value,
+                            status="rejected",
+                            link={**current_link, "rejection": rejection},
+                            now=now,
+                        )
                 return {
                     "state": "rejected",
                     "client_order_id": request.client_order_id,
@@ -1110,6 +1244,16 @@ class ExperimentalOrderManager:
             )
             link = dict(link_value)
             link["broker"] = response.model_dump(mode="json")
+            if (
+                self.settings.entry_policy == "news-paper"
+                and current["side"] == "buy"
+                and response.filled_quantity > 0
+                and response.filled_average_price is not None
+            ):
+                link["protection"] = {
+                    **event_news_policy.protection(response.filled_average_price),
+                    "basis": "actual_broker_cumulative_filled_vwap",
+                }
             connection.execute(
                 update(event_order_links)
                 .where(event_order_links.c.client_order_id == client_id)
@@ -1122,6 +1266,17 @@ class ExperimentalOrderManager:
                 self.settings.cohort_id + ":" + client_id,
                 connection,
             )
+            if self.settings.entry_policy == "news-paper":
+                enqueue_lifecycle(
+                    connection,
+                    cohort=self.settings.cohort_id,
+                    client_id=client_id,
+                    symbol=current["symbol"],
+                    side=current["side"],
+                    status=incoming_state,
+                    link=link,
+                    now=now,
+                )
 
     def reconcile_stream_update(self, payload: dict[str, Any], now: datetime) -> None:
         self.assert_owner(now)
@@ -1207,6 +1362,69 @@ class ExperimentalOrderManager:
             self.settings.cohort_id,
         )
 
+    def _protection_triggers(self, now: datetime) -> dict[str, dict[str, Any]]:
+        if self.settings.entry_policy != "news-paper":
+            return {}
+        rows = self.store.linked_orders(self.settings.cohort_id)
+        active: dict[str, list[dict[str, Any]]] = {}
+        quantities: defaultdict[str, Decimal] = defaultdict(Decimal)
+        for row in rows:
+            symbol = row["symbol"]
+            filled = Decimal(str(row["filled_quantity"]))
+            quantities[symbol] += filled * (1 if row["side"] == "buy" else -1)
+            if row["side"] == "buy" and filled > 0:
+                active.setdefault(symbol, []).append(row)
+            if quantities[symbol] == 0:
+                active.pop(symbol, None)
+        triggered = {}
+        for symbol, buys in active.items():
+            row = buys[-1]
+            prior = row["link"].get("protection_trigger")
+            if prior:
+                triggered[symbol] = prior
+                continue
+            reason = None
+            quote = None
+            plan = row["link"].get("protection") or {}
+            try:
+                if (
+                    self.quote_provider is None
+                    or plan.get("basis") != "actual_broker_cumulative_filled_vwap"
+                ):
+                    raise ValueError("protective quote provider/fill basis missing")
+                quote = self.quote_provider(symbol)
+                checked_at = self.broker.clock().timestamp
+                if (
+                    quote.symbol != symbol
+                    or quote.feed != self.settings.execution_feed
+                    or not quote.timestamp <= quote.received_at <= checked_at
+                    or not timedelta(0) <= checked_at - quote.timestamp <= timedelta(seconds=5)
+                    or quote.bid <= 0
+                    or quote.ask < quote.bid
+                ):
+                    raise ValueError("protective quote stale/invalid")
+                if quote.bid <= Decimal(plan["stop_price"]):
+                    reason = "local_stop_loss"
+                elif quote.bid >= Decimal(plan["take_profit_price"]):
+                    reason = "local_take_profit"
+            except (httpx.HTTPError, ValueError, KeyError, ArithmeticError):
+                reason = "local_protection_unavailable_risk_exit"
+                self.pause("LOCAL_PROTECTION_UNAVAILABLE", now)
+            if reason:
+                trigger = {
+                    "reason": reason,
+                    "observed_at": now.isoformat(),
+                    "protection": plan,
+                    "quote": quote.model_dump(mode="json") if quote else None,
+                    "broker_native": False,
+                }
+                self.store.update_link(
+                    row["client_order_id"], {**row["link"], "protection_trigger": trigger}
+                )
+                self.store.audit("protection_trigger", trigger, now, self.settings.cohort_id)
+                triggered[symbol] = trigger
+        return triggered
+
     def supervise(self, now: datetime, *, feed_healthy: bool) -> None:
         """Always called before event ingestion, including outages and operational pauses."""
         self.assert_owner(now)
@@ -1237,6 +1455,41 @@ class ExperimentalOrderManager:
             self.reconcile(now)
         if self.settings.cohort_id in self._unverified_cohorts:
             return
+        if self.settings.entry_policy == "news-paper":
+            bounds = (
+                self.calendar.session_bounds(self.settings.practice_start_date)
+                if self.settings.practice_start_date
+                else None
+            )
+            own = self.store.linked_orders(self.settings.cohort_id)
+            news_attempted = any(
+                row["side"] == "buy" and row["link"].get("entry_kind") == "strategy" for row in own
+            )
+            equipment_failed = any(
+                row["side"] == "buy"
+                and row["link"].get("entry_kind") == "calibration"
+                and row["status"] in FINAL
+                and not row["filled_quantity"]
+                for row in own
+            )
+            if (
+                (bounds and now >= bounds[1])
+                or equipment_failed
+                or (
+                    news_attempted
+                    and all(row["status"] in FINAL for row in own)
+                    and not self.inventory(own)
+                )
+                or (
+                    bounds
+                    and now >= bounds[0] + timedelta(minutes=60)
+                    and not (self.session_budget() or {}).get("equipment_client_order_id")
+                )
+            ):
+                event_news_policy.terminate(
+                    self.store, self.settings.cohort_id, "SESSION_FINISHED_OR_EQUIPMENT_FAILED", now
+                )
+        protection_triggers = self._protection_triggers(now)
         rows = self.store.linked_orders(self.settings.cohort_id)
         gate = self.calendar.gate(now)
         for row in rows:
@@ -1245,7 +1498,13 @@ class ExperimentalOrderManager:
                 paused = self.repo.get_control(f"{self.settings.cohort_id}:pause") or (
                     self.repo.get_control("kill_switch") == "active"
                 )
-                if not feed_healthy or now >= expiry or gate.must_flatten or paused:
+                if (
+                    not feed_healthy
+                    or now >= expiry
+                    or gate.must_flatten
+                    or paused
+                    or row["symbol"] in protection_triggers
+                ):
                     if row["broker_order_id"]:
                         if row["status"] != "cancel_pending":
                             self._cancel(row, now)
@@ -1284,6 +1543,7 @@ class ExperimentalOrderManager:
                 or not feed_healthy
                 or self.repo.get_control(f"{self.settings.cohort_id}:pause")
                 or self.repo.get_control("kill_switch") == "active"
+                or symbol in protection_triggers
             ):
                 continue
             if owned <= 0 or broker_positions.get(symbol) != owned:
@@ -1339,7 +1599,9 @@ class ExperimentalOrderManager:
                     request,
                     sha256(key.encode()).hexdigest(),
                     {
-                        "reason": "time_or_risk_exit",
+                        "reason": protection_triggers.get(symbol, {}).get(
+                            "reason", "time_or_risk_exit"
+                        ),
                         "entry_kind": buys[-1]["link"].get("entry_kind", "strategy"),
                         "purpose": self.settings.purpose,
                         "qualification_eligible": self.settings.purpose != "iex-practice",
@@ -1350,8 +1612,10 @@ class ExperimentalOrderManager:
                         "session_id": buys[-1]["link"].get("session_id"),
                         "equipment_test_id": buys[-1]["link"].get("equipment_test_id"),
                         "decision_ticket": buys[-1]["link"].get("decision_ticket"),
+                        "protection": buys[-1]["link"].get("protection"),
                         "exit_decision": {
                             "decided_at": now.isoformat(),
+                            "protective_trigger": protection_triggers.get(symbol),
                             "holding_deadline_reached": now >= due,
                             "flatten_required": gate.must_flatten,
                             "feed_unhealthy": not feed_healthy,

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from tradeagent import event_news_policy
 from tradeagent.config import AppConfig
 from tradeagent.event_context import OfficialContextClient
 from tradeagent.event_demo import activate_demo, demo_control_state
@@ -47,8 +48,11 @@ def register_event_commands(subparsers: Any) -> None:
         parser.add_argument("--cohort-id")
         parser.add_argument("--purpose", choices=["research", "iex-practice"])
         parser.add_argument("--practice-start-date", type=date.fromisoformat)
-        parser.add_argument("--entry-policy", choices=["event-strategy", "equipment-only-demo"])
+        parser.add_argument(
+            "--entry-policy", choices=["event-strategy", "equipment-only-demo", "news-paper"]
+        )
         parser.add_argument("--demo-account-digest")
+        parser.add_argument("--news-account-digest")
         parser.add_argument("--max-entries-per-session", type=int)
         parser.add_argument("--symbols")
         if name == "run":
@@ -69,6 +73,9 @@ def register_event_commands(subparsers: Any) -> None:
             parser.add_argument("--confirm-equipment-only-demo", action="store_true")
             parser.add_argument("--demo-acceptance-sha256")
             parser.add_argument("--demo-reviewed-code-sha")
+            parser.add_argument("--confirm-news-paper", action="store_true")
+            parser.add_argument("--news-acceptance-sha256")
+            parser.add_argument("--news-reviewed-code-sha")
 
 
 def handle_event_command(args: argparse.Namespace) -> bool:
@@ -82,6 +89,7 @@ def handle_event_command(args: argparse.Namespace) -> bool:
             "practice_start_date",
             "entry_policy",
             "demo_account_digest",
+            "news_account_digest",
             "max_entries_per_session",
             "symbols",
         )
@@ -175,7 +183,8 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                     calendar_error = str(error)
         demo_checks: dict[str, bool] = {}
         demo_controls: dict[str, tuple[Any, Any]] = {}
-        if experimental.entry_policy == "equipment-only-demo":
+        news_policy = experimental.entry_policy == "news-paper"
+        if experimental.entry_policy in {"equipment-only-demo", "news-paper"}:
             with (
                 Database(AppConfig().database_url.get_secret_value()) as database,
                 AlpacaPaperClient(AlpacaPaperSettings.model_validate({})) as demo_broker,
@@ -183,7 +192,11 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                 from tradeagent.event_orders import ExperimentalOrderManager
 
                 repository = ProductionRepository(database)
-                demo_controls = demo_control_state(EventStore(database), settings.cohort_id)
+                demo_controls = (
+                    event_news_policy.control_state(EventStore(database), settings.cohort_id)
+                    if news_policy
+                    else demo_control_state(EventStore(database), settings.cohort_id)
+                )
                 heartbeat = repository.latest_heartbeat("tradeagent-event-worker")
                 budget = ExperimentalOrderManager(
                     EventStore(database), demo_broker, experimental, AppConfig(), digest, sha
@@ -191,15 +204,40 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                 clock = demo_broker.clock()
                 current_account = demo_broker.account()
                 demo_checks = {
-                    "explicit_equipment_only_confirmation": bool(
-                        getattr(args, "confirm_equipment_only_demo", False)
-                        and re.fullmatch(
-                            r"[0-9a-f]{64}", getattr(args, "demo_acceptance_sha256", None) or ""
+                    (
+                        "explicit_news_paper_confirmation"
+                        if news_policy
+                        else "explicit_equipment_only_confirmation"
+                    ): bool(
+                        getattr(
+                            args,
+                            "confirm_news_paper" if news_policy else "confirm_equipment_only_demo",
+                            False,
                         )
-                        and getattr(args, "demo_reviewed_code_sha", None) == sha
+                        and re.fullmatch(
+                            r"[0-9a-f]{64}",
+                            getattr(
+                                args,
+                                "news_acceptance_sha256"
+                                if news_policy
+                                else "demo_acceptance_sha256",
+                                None,
+                            )
+                            or "",
+                        )
+                        and getattr(
+                            args,
+                            "news_reviewed_code_sha" if news_policy else "demo_reviewed_code_sha",
+                            None,
+                        )
+                        == sha
                     ),
                     "pinned_demo_account": sha256(account.id.encode()).hexdigest()
-                    == experimental.demo_account_digest,
+                    == (
+                        experimental.news_account_digest
+                        if news_policy
+                        else experimental.demo_account_digest
+                    ),
                     "demo_broker_currently_ready": (
                         demo_broker.broker_host == "https://paper-api.alpaca.markets"
                         and current_account.id == account.id
@@ -213,7 +251,8 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                     ),
                     "demo_post_acceptance_authorization_interval": bool(
                         plan
-                        and plan.session_open + timedelta(minutes=35) <= now
+                        and plan.session_open + timedelta(minutes=35)
+                        <= now
                         < plan.session_open + timedelta(minutes=60)
                     ),
                     "demo_paused_and_unused": (
@@ -223,6 +262,17 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                         and repository.get_control(f"{settings.cohort_id}:demo-terminal") is None
                         and repository.get_control(f"{settings.cohort_id}:demo-authorization")
                         is None
+                        and (
+                            not news_policy
+                            or (
+                                repository.get_control(f"{settings.cohort_id}:news-authorization")
+                                is None
+                                and repository.get_control(f"{settings.cohort_id}:news-terminal")
+                                is None
+                                and repository.get_control(f"{settings.cohort_id}:certificate")
+                                is None
+                            )
+                        )
                         and bool(
                             budget
                             and budget["total_entries_reserved"] == 0
@@ -235,9 +285,15 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                         and heartbeat[2].get("code_sha") == sha
                         and heartbeat[2].get("config_hash") == digest
                         and heartbeat[2].get("cohort_id") == settings.cohort_id
-                        and heartbeat[2].get("entry_policy") == "equipment-only-demo"
+                        and heartbeat[2].get("entry_policy") == experimental.entry_policy
                     ),
                 }
+                if news_policy:
+                    from tradeagent.event_account_risk import account_risk
+
+                    demo_checks["shared_account_economic_limits"] = not account_risk(
+                        EventStore(database), experimental, {}, now
+                    )["blocked"]
         proof = certificate(
             experimental,
             config_hash=digest,
@@ -320,6 +376,15 @@ def handle_event_command(args: argparse.Namespace) -> bool:
                             experimental,
                             proof,
                             args.demo_acceptance_sha256,
+                            demo_controls,
+                            now,
+                        )
+                    elif experimental.entry_policy == "news-paper":
+                        event_news_policy.activate(
+                            store,
+                            experimental,
+                            proof,
+                            args.news_acceptance_sha256,
                             demo_controls,
                             now,
                         )

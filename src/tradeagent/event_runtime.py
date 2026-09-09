@@ -16,6 +16,7 @@ import httpx
 from pydantic import ValidationError
 from sqlalchemy import select
 
+from tradeagent import event_news_policy
 from tradeagent.alpaca import AlpacaDataSettings
 from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
 from tradeagent.config import AppConfig
@@ -234,6 +235,27 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
             demo_account_digest=settings.demo_account_digest,
             authority="separate post-incident-acceptance approval; startup never arms entries",
         )
+    if settings.entry_policy == "news-paper":
+        manifest.update(
+            session_protocol_version=event_news_policy.PROTOCOL,
+            policy_change=(
+                "Explicit bounded equipment then genuine news paper session with local protection"
+            ),
+            protective_exits=event_news_policy.protection(Decimal(100)),
+            protection_reference=(
+                "Illustration only; actual per-position thresholds use broker filled VWAP"
+            ),
+            signal_confidence="validated deterministic H1/H2 category, not calibrated probability",
+            maximum_news_entries_per_session=1,
+            news_requires_completed_equipment_round_trip=True,
+            account_risk_scope=(
+                "persistent shared account economic daily/weekly/high-watermark limits"
+            ),
+            news_poll_seconds=settings.poll_seconds,
+            poll_rationale=(
+                "Retain 30-second freshness and risk supervision; do not slow to 5-15 minutes"
+            ),
+        )
     return digest, manifest
 
 
@@ -262,7 +284,14 @@ class EventRuntime:
             settings.cohort_id, self.config_hash, manifest, settings.mode, datetime.now(UTC)
         )
         self.oms = ExperimentalOrderManager(
-            store, broker, settings, self.app, self.config_hash, code_sha, owner_id=instance_id
+            store,
+            broker,
+            settings,
+            self.app,
+            self.config_hash,
+            code_sha,
+            owner_id=instance_id,
+            quote_provider=self._protective_quote,
         )
         self.market_states: dict[str, EventMarketState] = {}
         self.first_bar_receipts: dict[tuple[str, datetime], datetime] = {}
@@ -869,6 +898,13 @@ class EventRuntime:
     ) -> dict[str, Any]:
         if self.settings.entry_policy == "equipment-only-demo":
             return {"state": "risk_rejected", "reasons": ["DEMO_NO_STRATEGY_ENTRIES"]}
+        if self.settings.entry_policy == "news-paper" and (
+            not self.oms.news_authorized(now) or not self.oms.equipment_completed()
+        ):
+            return {
+                "state": "risk_rejected",
+                "reasons": ["AUTHORIZED_COMPLETED_EQUIPMENT_REQUIRED"],
+            }
         if self.cert is None or decision.symbol is None:
             return {"state": "risk_rejected", "reasons": ["OPERATIONAL_CERTIFICATE_REQUIRED"]}
         if self._calibration_waiting(now):
@@ -1218,6 +1254,10 @@ class EventRuntime:
             "consensus": None,
             "expected_net_return_bps": None,
             "probability_of_profit": None,
+            "confidence_category": "validated_deterministic_rule"
+            if decision.action == "eligible"
+            else "insufficient_validated_evidence",
+            "confidence_is_calibrated_probability": False,
             "rule_observations": self._rule_observations(decision, event),
             "pre_event_market_snapshot": pre_context.get(decision.symbol) if pre_context else None,
             "market_data_sources": {
@@ -1244,8 +1284,16 @@ class EventRuntime:
                     "existing R1 primary-risk review, feed/reconciliation pause, "
                     "allocation loss/drawdown or session flatten"
                 ),
-                "price_stop": None,
-                "profit_target": None,
+                "price_stop": str(limit * (1 - event_news_policy.STOP_FRACTION))
+                if self.settings.entry_policy == "news-paper"
+                else None,
+                "profit_target": str(limit * (1 + event_news_policy.TARGET_FRACTION))
+                if self.settings.entry_policy == "news-paper"
+                else None,
+                "protective_execution": "local; rebased to actual cumulative filled VWAP"
+                if self.settings.entry_policy == "news-paper"
+                else "existing time/risk exits",
+                "broker_native_protection": False,
                 "holding_deadline": (
                     decision.decided_at + timedelta(minutes=self.settings.max_holding_minutes)
                 ).isoformat(),
@@ -1328,6 +1376,11 @@ class EventRuntime:
             ask_exchange=str(state.raw_quote.get("ax", "")),
         )
         return state
+
+    def _protective_quote(self, symbol: str) -> EventQuote:
+        if symbol not in self.market_states:
+            self.market_states[symbol] = self.market.state(symbol, datetime.now(UTC))
+        return _execution_quote(self._refresh_quote(symbol))
 
     def _calibration_waiting(self, now: datetime) -> bool:
         if self.settings.purpose != "iex-practice":
@@ -1441,6 +1494,8 @@ class EventRuntime:
             now
         ):
             return {"state": "blocked", "reasons": ["DEMO_AUTHORIZATION_REQUIRED"]}
+        if self.settings.entry_policy == "news-paper" and not self.oms.news_authorized(now):
+            return {"state": "blocked", "reasons": ["NEWS_AUTHORIZATION_REQUIRED"]}
         if self.context is None:
             return {"state": "blocked", "reasons": ["OFFICIAL_CONTEXT_REQUIRED"]}
         reasons = [*self.context.errors, *self.context.blocking_reasons(now=now)]

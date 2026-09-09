@@ -39,8 +39,9 @@ class ExperimentalSettings(BaseSettings):
     )
     mode: ExperimentMode = "shadow"
     purpose: Literal["research", "iex-practice"] = "research"
-    entry_policy: Literal["event-strategy", "equipment-only-demo"] = "event-strategy"
+    entry_policy: Literal["event-strategy", "equipment-only-demo", "news-paper"] = "event-strategy"
     demo_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    news_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     practice_start_date: date | None = None
     # Evidence traces reserve 77 of the 128 characters for the hash and suffix.
     cohort_id: str = Field(default="v20-event-cohort-001", min_length=1, max_length=51)
@@ -50,6 +51,7 @@ class ExperimentalSettings(BaseSettings):
     max_entries_per_session: int = Field(default=2, ge=1, le=2)
     daily_loss_fraction: Decimal = Field(default=Decimal("0.005"), gt=0, le=Decimal("0.005"))
     drawdown_fraction: Decimal = Field(default=Decimal("0.015"), gt=0, le=Decimal("0.015"))
+    weekly_loss_fraction: Decimal = Field(default=Decimal("0.005"), gt=0, le=Decimal("0.005"))
     max_holding_minutes: int = Field(default=60, ge=1, le=60)
     poll_seconds: int = Field(default=30, ge=10, le=60)
     initial_lookback_minutes: int = Field(default=60, ge=15, le=1440)
@@ -87,6 +89,15 @@ class ExperimentalSettings(BaseSettings):
                 )
         elif self.demo_account_digest is not None:
             raise ValueError("demo account pin requires the equipment-only policy")
+        if self.entry_policy == "news-paper":
+            if (
+                self.purpose != "iex-practice"
+                or self.max_entries_per_session != 2
+                or self.news_account_digest is None
+            ):
+                raise ValueError("news paper requires IEX, two bounded entries and account pin")
+        elif self.news_account_digest is not None:
+            raise ValueError("news account pin requires the news-paper policy")
         return self
 
     @property
@@ -95,7 +106,7 @@ class ExperimentalSettings(BaseSettings):
 
     @property
     def calibration_window_minutes(self) -> tuple[int, int]:
-        return (40, 60) if self.entry_policy == "equipment-only-demo" else (0, 30)
+        return (40, 60) if self.entry_policy in {"equipment-only-demo", "news-paper"} else (0, 30)
 
     def effective_notional(self, app: AppConfig) -> Decimal:
         return min(
