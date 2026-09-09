@@ -1,0 +1,64 @@
+{
+  "job_id": "job-dagmj3qjnfac73e76jkg",
+  "retrieved_at": "2026-09-09T14:15:22.7981460Z",
+  "result": {
+    "code_sha": "645714bf4c21aa8a9cbd73849f94119dc0b563a6",
+    "python": "3.13.7 (main, Jul 14 2026, 17:30:13) [GCC 12.2.0]",
+    "psycopg": "3.3.5",
+    "writer_sha256": "96679b8a6d8db325b9742de785790543139a409a3e5badc4e7ced767bfd326c0",
+    "prepared_cache": {
+      "verified": true,
+      "read_only": true,
+      "rolled_back": true,
+      "shapes": 16,
+      "executions_per_shape": 7,
+      "prepared_max": 4,
+      "server_budget": 8,
+      "verification_scope": "sequential and warmed-key promotion workloads; not a universal cache or RSS bound",
+      "prepare_threshold": 5,
+      "observed_prepared_counts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "burst_prepared_baseline": 4,
+      "burst_warmed_shapes": 4,
+      "burst_first_count": 8,
+      "burst_second_count": 7,
+      "new_key_cleanup_counts": [
+        6,
+        5,
+        4,
+        4
+      ],
+      "observed_peak": 8,
+      "inspection_semantics": "A new inspection-query key may schedule eviction after its count snapshot; first, second and explicit new-key cleanup observations are recorded separately."
+    },
+    "isolated_rollback_counters": {
+      "verified": true,
+      "rolled_back": true,
+      "stages": [
+        "existing_rows_initialized",
+        "multirow_insert_conflicts_and_updates_exact",
+        "insert_delete_rollback_atomic",
+        "multirow_and_empty_delete_exact",
+        "truncate_and_rollback_exact",
+        "missing_and_negative_counters_fail_closed",
+        "nine_statement_level_transition_triggers"
+      ]
+    }
+  }
+}

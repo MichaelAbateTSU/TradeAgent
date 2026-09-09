@@ -487,6 +487,55 @@ No approval window is extended to accommodate the repair. The September 9
 news-paper policy remains conditional on passing the complete incident gate
 before its original 10:30 Eastern deadline.
 
+### Completed original morning gate and scoped corrective rollout
+
+The unchanged original run completed **13:36:27.643701-14:06:31.296953 UTC**,
+covering **1,803.653 seconds and 2,156 requests**, with zero HTTP errors. It
+**failed**: the recorder accumulated **22,292 additional dropped events and
+25 additional gaps**, reached its unchanged 20,000-item queue capacity, and
+recorded a maximum commit lag of **94.386 seconds**. PostgreSQL peaked at
+**234.703 MiB**, above the original 230 MiB gate. Application peaks were recorder
+170.08, event 159.72, notifier 192.38 and dashboard 236.39 MiB. Nothing was
+rearmed or ordered.
+
+An exhaustive 2,189-record PostgreSQL log retrieval for that complete interval
+found no backend termination/recovery/FATAL/PANIC records, but did contain
+89 known `event_evidence_pkey` duplicate errors. These are not hidden behind a
+claim that every SQL operation succeeded. Complete logs are retained in session
+artifacts; the committed projection records counts and the raw-log hash.
+
+Both physical endpoint snapshots found actual market rows. The second had
+quotes, trades and 15 bars for every one of SPY/QQQ/IWM/TLT/GLD in the fixed
+window, but the snapshot took approximately 56 seconds overall and concurrent
+commits again lagged substantially. Increasing counts alone did not pass
+freshness, loss, memory or capacity acceptance.
+
+The exact recorder correction **`645714bf4c21aa8a9cbd73849f94119dc0b563a6`**
+passed independent review and the mandatory validation (1,016 passed, two skipped,
+87.32% coverage, Ruff/format/mypy). It was pushed and deployed only after the
+original read-only observation finished. Deployment
+`dep-dagmh2mk1f9s73diissg` finished at **14:10:48 UTC**. By **14:12:47 UTC**,
+new recorder owner `srv-dadn8son74is73apqcc0-846d9b5d44-97mvv` held its matching
+fresh lease and had real committed data; no lease was stolen. Its new
+instance-local counters do not erase the prior owner's lost data.
+
+The actual-image job `job-dagmj3qjnfac73e76jkg` confirmed Python 3.13.7,
+psycopg 3.3.5, the exact Git writer-source hash, prepared-cache configuration four
+with observed peak eight, and rollback-only isolated counter correctness.
+The actual raw data stayed untouched by that counter fixture. A later test-only
+commit strengthens all-conflict-page coverage but does not replace the deployed
+`645714b` pin.
+
+Event/news remains `29cf232`, dashboard `5e728c5`, notifier `3bbe3eb`, all
+auto-deploys remain disabled, and all compute plans are unchanged. The
+[included Pro protections](RENDER_PRO_OPERATIONS.md) were applied separately
+after the first read-only interval. A **new complete 30-minute read-only run**
+is in progress on these exact pins. Its physical probes use a fixed recent
+window with three-minute endpoint separation to bound diagnostic query work;
+the original long-window failure is retained. No threshold or trading window
+is relaxed, and the required repeat cannot finish before today's 10:30
+authorization deadline.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)
@@ -517,6 +566,12 @@ before its original 10:30 Eastern deadline.
 - [September 9 actual report admission](../research/results/render-incident-20260909-report-admission.json)
 - [September 9 local writer measurements](../research/results/render-incident-20260909-writer-local-measurements.json)
 - [September 9 local writer phase measurements](../research/results/render-incident-20260909-writer-local-phases.json)
+- [September 9 original full market-open observation](../research/results/render-incident-20260909-market-open-soak.json)
+- [September 9 failed gate summary](../research/results/render-incident-20260909-market-open-summary.json)
+- [September 9 original fixed-window physical snapshots](../research/results/render-incident-20260909-physical-snapshots.json)
+- [September 9 complete PostgreSQL log check](../research/results/render-incident-20260909-pg-log-check.json)
+- [September 9 exact corrective release and owner handoff](../research/results/render-incident-20260909-writer-deployed.json)
+- [September 9 actual corrective-image PostgreSQL fixtures](../research/results/render-incident-20260909-writer-pg-fixtures.json)
 
 The historical r3 record and user-owned Tuesday-readiness edits are not rewritten.
 Incident recovery acceptance is recorded separately after actual sustained tests.

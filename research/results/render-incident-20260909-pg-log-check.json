@@ -1,0 +1,13 @@
+{
+  "start": "2026-09-09T13:36:27.643701Z",
+  "end": "2026-09-09T14:06:31.296953Z",
+  "retrieved_at": "2026-09-09T14:12:58.007194+00:00",
+  "complete": true,
+  "pages": 3,
+  "log_records": 2189,
+  "termination_or_recovery_records": [],
+  "sql_error_count": 89,
+  "known_duplicate_evidence_error_count": 89,
+  "raw_log_sha256": "106c0d425134bc8da8b8d921c15a019ad8974a6747b28229c704d4cfed67d691",
+  "raw_logs_retained_in_session_artifacts": true
+}
