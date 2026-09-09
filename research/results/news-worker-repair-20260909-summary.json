@@ -1,0 +1,67 @@
+{
+  "started_at": "2026-09-09T18:59:52.985346+00:00",
+  "finished_at": "2026-09-09T19:29:55.852013+00:00",
+  "duration_seconds": 1802.866667,
+  "http_requests": 2366,
+  "http_failures": 0,
+  "observer_failures": [],
+  "physical_failures": [],
+  "stock_trade_progress": {
+    "AAPL": {
+      "first_count": 2,
+      "last_count": 36,
+      "latest_exchange_at": "2026-09-09 19:20:20.727289+00:00"
+    },
+    "MSFT": {
+      "first_count": 2,
+      "last_count": 35,
+      "latest_exchange_at": "2026-09-09 19:20:17.581104+00:00"
+    },
+    "NVDA": {
+      "first_count": 2,
+      "last_count": 36,
+      "latest_exchange_at": "2026-09-09 19:20:15.058000+00:00"
+    }
+  },
+  "source_first_success_at": "2026-09-09T18:59:28.404960+00:00",
+  "source_last_success_at": "2026-09-09T19:29:42.507840+00:00",
+  "event_owner": "srv-dae4tr7qj5pc73a9e0k0-866dc8455f-kqghg",
+  "cohort_id": "iex-trade-repair-20260909",
+  "mode": "shadow",
+  "config_hash": "607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8",
+  "maximum_memory": [
+    {
+      "resource": "srv-dae4tr7qj5pc73a9e0k0",
+      "maximum_mib": 212.24609375
+    },
+    {
+      "resource": "srv-dadoa3740ujc73cb09c0",
+      "maximum_mib": 292.07420349121094
+    },
+    {
+      "resource": "srv-dadnn6mq1p3s73ef7ef0",
+      "maximum_mib": 111.34374618530273
+    },
+    {
+      "resource": "dpg-dadn7nht0dsc73f9jja0-a",
+      "maximum_mib": 374.25390243530273
+    },
+    {
+      "resource": "srv-dadn8son74is73apqcc0",
+      "maximum_mib": 123.34765434265137
+    }
+  ],
+  "new_recorder_drops": 0,
+  "new_recorder_gaps": 0,
+  "maximum_recorder_lag_seconds": 0.566929,
+  "raw_sha256": "99c0ffbc83360939fbf1e6020d2733956459516a1f6b18c1f11ef5bbfc45ec7c",
+  "archive": "news-worker-repair-20260909-soak.json.gz",
+  "trading_authorized": false,
+  "qualification_eligible": false,
+  "remaining": "Trading disabled: shadow mode, global/R1 pauses and consumed daily BUY cap. Operator-history risk integration and strategy qualification remain separate prerequisites.",
+  "operational_shadow_worker_accepted": true,
+  "old_cohort_controls_budget_orders_preserved": true,
+  "final_broker_at": "2026-09-09T15:31:23.681659-04:00",
+  "no_new_orders": true,
+  "database_termination_or_recovery": false
+}

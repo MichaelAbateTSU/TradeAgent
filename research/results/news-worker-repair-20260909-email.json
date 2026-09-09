@@ -1,0 +1,17 @@
+{
+  "notification_id": "1ca73746-fb64-5a5b-90e2-7375b4e4cc3c",
+  "payload": {
+    "subject": "[TradeAgent] News worker fixed - shadow only",
+    "text": "The frozen news worker is fixed and running the corrected release68c2e8f in SHADOW mode.\n\nNew collection cohort: iex-trade-repair-20260909\nConfig fingerprint:607deddd1a7b05178830fa4cd966de148e266e020905359555686a64042dcad8\n\nThe full 1802.9-second live check passed: 2366 HTTP requests, zero HTTP errors, no new recorder queue drops/gaps, fresh matching worker owners and continued configured-source polling. Physical quotes, trades and bars advanced for all recorder symbols.\nThe actual event/news worker now persists fresh stock trades using the corrected venue/time identity: AAPL2->36 rows, MSFT2->35, NVDA2->36 over the fixed observation window. The older application-side three-field precheck is no longer active.\n\nThe original morning cohort, its MISSED/terminal record, selected pauses and shared budget were preserved exactly. No old risk acknowledgement, certificate or operator command was transferred. No new orders were placed. Today's two prior BUY submissions remain consumed.\n\nThe paper account was still ACTIVE and flat, with zero open orders and no unresolved local intents at 2026-09-09T15:31:23.681659-04:00.\n\nTrading remains disabled by design. The new cohort's R1 risk pause remains recorded; it does not stop shadow collection. This is an operational repair, not a trading rearm, a filled-strategy demonstration, or profitability/qualification proof. IEX/source-coverage limitations and the separate operator-history risk-ledger work remain.\n\nThe15:45ET read-only close/recovery watch and normal18:00ET daily summary remain scheduled. This is a new completion notice, not a resend of either earlier message.\n",
+    "cohort_id": "iex-trade-repair-20260909",
+    "operational_status": "SHADOW_NEWS_WORKER_REPAIRED",
+    "mode": "shadow",
+    "trading_authorized": false,
+    "qualification_eligible": false,
+    "observed_at": "2026-09-09T19:33:37.343114+00:00",
+    "source_first_success_at": "2026-09-09T18:59:28.404960+00:00",
+    "source_last_success_at": "2026-09-09T19:29:42.507840+00:00",
+    "broker_observed_at": "2026-09-09T15:31:23.681659-04:00",
+    "old_records_and_budgets_preserved": true
+  }
+}

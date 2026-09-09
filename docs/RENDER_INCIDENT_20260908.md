@@ -608,6 +608,14 @@ already used; the original terminal/pauses remain, and no additional order was
 authorized. Sparse IEX minute coverage and the operator-history accounting gap
 remain explicit. See the [complete afternoon record and actual email proofs](PAPER_RETRY_20260909.md).
 
+The owner then authorized the [frozen news-worker repair](NEWS_WORKER_REPAIR_20260909.md).
+The event role now also runs `68c2e8f`, under new shadow-only cohort
+`iex-trade-repair-20260909`, while the old r1 manifest/terminal/budgets remain
+unchanged. Its complete 30-minute live/source/stock-write checks passed.
+The active old-writer defect is resolved; this does not clear risk flags or grant
+trading authority. The remaining operator-history accounting and research/data
+qualification limitations are separate from the repaired runtime.
+
 ## Evidence files
 
 - [Pre-repair Render events](../research/results/render-incident-20260908-before.json)

@@ -72,6 +72,43 @@ The real new-cohort report-admission test returned 429 while ordinary sections
 stayed 200, then generated the full 5,309,674-byte report successfully in
 1.227 seconds. No daily report or accepted prior notification was resent.
 
+## Completed live verification
+
+The full **18:59:52.985346-19:29:55.852013 UTC** run completed
+**1,802.867 seconds and 2,366 HTTP requests**, with zero HTTP errors, zero new
+recorder queue drops/gaps, stable matching owners and no deployment changes.
+The event worker stayed in shadow mode, and successful configured-source polling
+advanced from 18:59:28 to 19:29:42 UTC.
+
+Independent indexed stock-trade reads showed **AAPL 2 to 36**, **MSFT 2 to 35**,
+and **NVDA 2 to 36** actual persisted rows in the fixed window. All required
+SPY/QQQ/IWM/TLT/GLD quote/trade/bar series also advanced. This demonstrates the
+running event worker's corrected write path, not a test job inserting evidence.
+
+Peak application memory stayed below 400 MiB: event 212.25, dashboard 292.07,
+notifier 111.34 and recorder 123.35 MiB. PostgreSQL peaked at 374.25 MiB, below
+the reviewed 800 MiB ceiling. Its complete 2,024-record log check found no
+termination/recovery/FATAL/PANIC; 104 known duplicate-evidence-key SQL errors
+remain explicitly recorded.
+
+At **15:31:23 Eastern**, the actual paper account was ACTIVE and flat with no
+open or unresolved orders. The account-day order list, old cohort row hash,
+selected old controls and shared budget matched preflight exactly. The new
+cohort still had no trading certificate or authorization.
+
+**The frozen-worker operational defect is resolved.** Both active raw-trade
+producers now run the corrected library. This is not a trading rearm, complete
+market/source coverage, strategy qualification or profitability proof. The
+new R1 pause, global kill and consumed BUY budget remain in force; operator
+history must still be integrated into risk accounting before future entry
+authority. The 15:45 Eastern read-only close watch remains scheduled.
+
+The existing Render notifier sent the repair-completion email **once at
+15:34:15 Eastern**. Notification `1ca73746-fb64-5a5b-90e2-7375b4e4cc3c` is
+`sent`, attempts **1**, provider ID
+`7a64b8e8-2397-4b45-889e-45a4e9ff0ec3`. This is provider acceptance, not proof
+of inbox delivery. No earlier accepted message was resent.
+
 ## Evidence
 
 - [Fresh transition guards](../research/results/news-worker-repair-20260909-preflight.json)
@@ -80,3 +117,9 @@ stayed 200, then generated the full 5,309,674-byte report successfully in
 - [Actual owner handoff](../research/results/news-worker-repair-20260909-handoff.json)
 - [Recomputed manifest and preservation proof](../research/results/news-worker-repair-20260909-identity.json)
 - [Actual report admission and generation](../research/results/news-worker-repair-20260909-report-proof.json)
+- [Complete live summary](../research/results/news-worker-repair-20260909-summary.json)
+- [Lossless full observation](../research/results/news-worker-repair-20260909-soak.json.gz)
+- [Actual stock/recorder progression](../research/results/news-worker-repair-20260909-physical-proof.json)
+- [Final old-record, budget and broker preservation](../research/results/news-worker-repair-20260909-final-proof.json)
+- [Complete database-log check](../research/results/news-worker-repair-20260909-pg-logs.json)
+- [Repair-completion email acceptance](../research/results/news-worker-repair-20260909-email-proof.json)
