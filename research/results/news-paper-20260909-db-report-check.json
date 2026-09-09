@@ -1,0 +1,178 @@
+{
+  "job": {
+    "createdAt": "2026-09-09T05:18:17.734404Z",
+    "finishedAt": "2026-09-09T05:18:28Z",
+    "id": "job-dageo695efls73a8ud10",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+    "startCommand": "python -u -c \"import base64;exec(base64.b64decode('IiIiUmVhZC1vbmx5IGRlcGxveWVkLWVuZ2luZSBmaXh0dXJlIGFuZCBtYW5hZ2VkIHJlcG9ydC1hZG1pc3Npb24gdmVyaWZpY2F0aW9uLiIiIgppbXBvcnQganNvbgppbXBvcnQgb3MKaW1wb3J0IHJ1bnB5CmltcG9ydCB0aW1lCmZyb20gZGF0ZXRpbWUgaW1wb3J0IFVUQywgZGF0ZXRpbWUKCmltcG9ydCBodHRweAppbXBvcnQgcHN5Y29wZwpmcm9tIHNxbGFsY2hlbXkgaW1wb3J0IHRleHQKCmZyb20gdHJhZGVhZ2VudC5jb25maWcgaW1wb3J0IEFwcENvbmZpZwpmcm9tIHRyYWRlYWdlbnQucGVyc2lzdGVuY2UgaW1wb3J0IERhdGFiYXNlCmZyb20gdHJhZGVhZ2VudC5yZXBvcnRpbmdfcmVhZHMgaW1wb3J0IHJlcG9ydF9hZG1pc3Npb24KCmFzc2VydCBvcy5lbnZpcm9uWyJSRU5ERVJfR0lUX0NPTU1JVCJdID09ICIyOWNmMjMyN2U4MTQ1YWY1MTA3MzVmYWE1YTUxZDg1MmE3NDdhNDdiIgpiYXNlID0gImh0dHBzOi8vdHJhZGVhZ2VudC1ydW50aW1lLWRhc2hib2FyZC5vbnJlbmRlci5jb20iCnBhdGggPSAiL2FwaS9ldmVudC1zZXNzaW9uLXJlcG9ydD9jb2hvcnRfaWQ9djIwLW5ld3MtcGFwZXItMjAyNjA5MDktcjEmc2Vzc2lvbl9kYXRlPTIwMjYtMDktMDkiCnJlc3VsdCA9IHsib2JzZXJ2ZWRfYXQiOiBkYXRldGltZS5ub3coVVRDKS5pc29mb3JtYXQoKSwgInBzeWNvcGciOiBwc3ljb3BnLl9fdmVyc2lvbl9fLAogICAgICAgICAgIm9yZGVyc19zdWJtaXR0ZWQiOiAwLCAiZW1haWxzX2VucXVldWVkIjogMCwgInByb2R1Y3Rpb25fcm93c19tdXRhdGVkIjogRmFsc2V9CndpdGggRGF0YWJhc2UoQXBwQ29uZmlnKCkuZGF0YWJhc2VfdXJsLmdldF9zZWNyZXRfdmFsdWUoKSkgYXMgZGF0YWJhc2U6CiAgICBmaXh0dXJlID0gcnVucHkucnVuX3BhdGgoInRlc3RzL3ByZXBhcmVkX2NhY2hlX3BnX2ZpeHR1cmUucHkiKQogICAgcmVzdWx0WyJwcmVwYXJlZF9jYWNoZSJdID0gZml4dHVyZVsidmVyaWZ5X3Bvc3RncmVzcWxfcHJlcGFyZWRfY2FjaGUiXShkYXRhYmFzZS5lbmdpbmUpCiAgICB3aXRoIGRhdGFiYXNlLmJlZ2luKCkgYXMgY29ubmVjdGlvbjoKICAgICAgICBjb25uZWN0aW9uLmV4ZWN1dGUodGV4dCgiU0VUIFRSQU5TQUNUSU9OIFJFQUQgT05MWSIpKQogICAgICAgIHJlc3VsdFsiY291bnRlcl90cmlnZ2VycyJdID0gW2RpY3Qocm93KSBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSh0ZXh0KAogICAgICAgICAgICAiU0VMRUNUIHRnbmFtZSwgdGdlbmFibGVkLCAodGd0eXBlICYgMSk9MCBBUyBzdGF0ZW1lbnRfbGV2ZWwgIgogICAgICAgICAgICAiRlJPTSBwZ190cmlnZ2VyIFdIRVJFIE5PVCB0Z2lzaW50ZXJuYWwgIgogICAgICAgICAgICAiQU5EIHRnZm9pZD0nbWFpbnRhaW5fbWFya2V0X2RhdGFfdG90YWxzJzo6cmVncHJvYyBPUkRFUiBCWSB0Z25hbWUiCiAgICAgICAgKSkubWFwcGluZ3MoKV0KICAgICAgICByZXN1bHRbImV4YWN0X3RvdGFscyJdID0gW2RpY3Qocm93KSBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSh0ZXh0KAogICAgICAgICAgICAiU0VMRUNUIHRhYmxlX25hbWUscm93X2NvdW50LHVwZGF0ZWRfYXQgRlJPTSBtYXJrZXRfZGF0YV90b3RhbHMgT1JERVIgQlkgdGFibGVfbmFtZSIKICAgICAgICApKS5tYXBwaW5ncygpXQogICAgICAgIGFzc2VydCBsZW4ocmVzdWx0WyJjb3VudGVyX3RyaWdnZXJzIl0pID09IDkKICAgICAgICBhc3NlcnQgYWxsKHJvd1sidGdlbmFibGVkIl0gPT0gIk8iIGFuZCByb3dbInN0YXRlbWVudF9sZXZlbCJdCiAgICAgICAgICAgICAgICAgICBmb3Igcm93IGluIHJlc3VsdFsiY291bnRlcl90cmlnZ2VycyJdKQogICAgICAgIGFzc2VydCBsZW4ocmVzdWx0WyJleGFjdF90b3RhbHMiXSkgPT0gMwogICAgd2l0aCBodHRweC5DbGllbnQodGltZW91dD00NSkgYXMgY2xpZW50OgogICAgICAgIHdpdGggcmVwb3J0X2FkbWlzc2lvbihkYXRhYmFzZS5lbmdpbmUpOgogICAgICAgICAgICBzdGFydGVkID0gdGltZS5tb25vdG9uaWMoKQogICAgICAgICAgICBibG9ja2VkID0gY2xpZW50LmdldChiYXNlICsgcGF0aCkKICAgICAgICAgICAgcmVzdWx0WyJvdmVybGFwcGluZ19yZXBvcnQiXSA9IHsKICAgICAgICAgICAgICAgICJodHRwX3N0YXR1cyI6IGJsb2NrZWQuc3RhdHVzX2NvZGUsICJzZWNvbmRzIjogdGltZS5tb25vdG9uaWMoKSAtIHN0YXJ0ZWQKICAgICAgICAgICAgfQogICAgICAgICAgICBhc3NlcnQgYmxvY2tlZC5zdGF0dXNfY29kZSA9PSA0MjkKICAgICAgICAgICAgcmVzdWx0WyJvcmRpbmFyeV9kdXJpbmdfcmVwb3J0X2xvY2siXSA9IHsKICAgICAgICAgICAgICAgIHRhcmdldDogY2xpZW50LmdldChiYXNlICsgdGFyZ2V0KS5zdGF0dXNfY29kZQogICAgICAgICAgICAgICAgZm9yIHRhcmdldCBpbiAoIi9oZWFsdGgiLCAiL3JlYWR5IiwgIi9hcGkvc3RhdHVzIiwgIi9hcGkvZXZlbnQtcHJvZHVjdCIpCiAgICAgICAgICAgIH0KICAgICAgICAgICAgYXNzZXJ0IGFsbChjb2RlID09IDIwMCBmb3IgY29kZSBpbiByZXN1bHRbIm9yZGluYXJ5X2R1cmluZ19yZXBvcnRfbG9jayJdLnZhbHVlcygpKQogICAgICAgIHJlc3BvbnNlID0gY2xpZW50LmdldChiYXNlICsgcGF0aCkKICAgICAgICByZXN1bHRbInJlcG9ydF9hZnRlcl9yZWxlYXNlIl0gPSB7CiAgICAgICAgICAgICJodHRwX3N0YXR1cyI6IHJlc3BvbnNlLnN0YXR1c19jb2RlLCAiYnl0ZXMiOiBsZW4ocmVzcG9uc2UuY29udGVudCkKICAgICAgICB9CiAgICAgICAgYXNzZXJ0IHJlc3BvbnNlLnN0YXR1c19jb2RlID09IDIwMApwcmludCgiTkVXU19EQl9SRVBPUlRfQ0hFQ0sgIiArIGpzb24uZHVtcHMocmVzdWx0LCBkZWZhdWx0PXN0ciwgc29ydF9rZXlzPVRydWUpLCBmbHVzaD1UcnVlKQo='))\"",
+    "startedAt": "2026-09-09T05:18:17Z",
+    "status": "succeeded"
+  },
+  "logs": [
+    {
+      "id": "4a3a37ac-3276-42c8-9cb5-841f73d9ebac",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-dageo695efls73a8ud10"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "\u001b[32m\u001b[1m==>\u001b(B\u001b[m \u001b[1mRunning 'python -u -c \"import base64;exec(base64.b64decode('IiIiUmVhZC1vbmx5IGRlcGxveWVkLWVuZ2luZSBmaXh0dXJlIGFuZCBtYW5hZ2VkIHJlcG9ydC1hZG1pc3Npb24gdmVyaWZpY2F0aW9uLiIiIgppbXBvcnQganNvbgppbXBvcnQgb3MKaW1wb3J0IHJ1bnB5CmltcG9ydCB0aW1lCmZyb20gZGF0ZXRpbWUgaW1wb3J0IFVUQywgZGF0ZXRpbWUKCmltcG9ydCBodHRweAppbXBvcnQgcHN5Y29wZwpmcm9tIHNxbGFsY2hlbXkgaW1wb3J0IHRleHQKCmZyb20gdHJhZGVhZ2VudC5jb25maWcgaW1wb3J0IEFwcENvbmZpZwpmcm9tIHRyYWRlYWdlbnQucGVyc2lzdGVuY2UgaW1wb3J0IERhdGFiYXNlCmZyb20gdHJhZGVhZ2VudC5yZXBvcnRpbmdfcmVhZHMgaW1wb3J0IHJlcG9ydF9hZG1pc3Npb24KCmFzc2VydCBvcy5lbnZpcm9uWyJSRU5ERVJfR0lUX0NPTU1JVCJdID09ICIyOWNmMjMyN2U4MTQ1YWY1MTA3MzVmYWE1YTUxZDg1MmE3NDdhNDdiIgpiYXNlID0gImh0dHBzOi8vdHJhZGVhZ2VudC1ydW50aW1lLWRhc2hib2FyZC5vbnJlbmRlci5jb20iCnBhdGggPSAiL2FwaS9ldmVudC1zZXNzaW9uLXJlcG9ydD9jb2hvcnRfaWQ9djIwLW5ld3MtcGFwZXItMjAyNjA5MDktcjEmc2Vzc2lvbl9kYXRlPTIwMjYtMDktMDkiCnJlc3VsdCA9IHsib2JzZXJ2ZWRfYXQiOiBkYXRldGltZS5ub3coVVRDKS5pc29mb3JtYXQoKSwgInBzeWNvcGciOiBwc3ljb3BnLl9fdmVyc2lvbl9fLAogICAgICAgICAgIm9yZGVyc19zdWJtaXR0ZWQiOiAwLCAiZW1haWxzX2VucXVldWVkIjogMCwgInByb2R1Y3Rpb25fcm93c19tdXRhdGVkIjogRmFsc2V9CndpdGggRGF0YWJhc2UoQXBwQ29uZmlnKCkuZGF0YWJhc2VfdXJsLmdldF9zZWNyZXRfdmFsdWUoKSkgYXMgZGF0YWJhc2U6CiAgICBmaXh0dXJlID0gcnVucHkucnVuX3BhdGgoInRlc3RzL3ByZXBhcmVkX2NhY2hlX3BnX2ZpeHR1cmUucHkiKQogICAgcmVzdWx0WyJwcmVwYXJlZF9jYWNoZSJdID0gZml4dHVyZVsidmVyaWZ5X3Bvc3RncmVzcWxfcHJlcGFyZWRfY2FjaGUiXShkYXRhYmFzZS5lbmdpbmUpCiAgICB3aXRoIGRhdGFiYXNlLmJlZ2luKCkgYXMgY29ubmVjdGlvbjoKICAgICAgICBjb25uZWN0aW9uLmV4ZWN1dGUodGV4dCgiU0VUIFRSQU5TQUNUSU9OIFJFQUQgT05MWSIpKQogICAgICAgIHJlc3VsdFsiY291bnRlcl90cmlnZ2VycyJdID0gW2RpY3Qocm93KSBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSh0ZXh0KAogICAgICAgICAgICAiU0VMRUNUIHRnbmFtZSwgdGdlbmFibGVkLCAodGd0eXBlICYgMSk9MCBBUyBzdGF0ZW1lbnRfbGV2ZWwgIgogICAgICAgICAgICAiRlJPTSBwZ190cmlnZ2VyIFdIRVJFIE5PVCB0Z2lzaW50ZXJuYWwgIgogICAgICAgICAgICAiQU5EIHRnZm9pZD0nbWFpbnRhaW5fbWFya2V0X2RhdGFfdG90YWxzJzo6cmVncHJvYyBPUkRFUiBCWSB0Z25hbWUiCiAgICAgICAgKSkubWFwcGluZ3MoKV0KICAgICAgICByZXN1bHRbImV4YWN0X3RvdGFscyJdID0gW2RpY3Qocm93KSBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSh0ZXh0KAogICAgICAgICAgICAiU0VMRUNUIHRhYmxlX25hbWUscm93X2NvdW50LHVwZGF0ZWRfYXQgRlJPTSBtYXJrZXRfZGF0YV90b3RhbHMgT1JERVIgQlkgdGFibGVfbmFtZSIKICAgICAgICApKS5tYXBwaW5ncygpXQogICAgICAgIGFzc2VydCBsZW4ocmVzdWx0WyJjb3VudGVyX3RyaWdnZXJzIl0pID09IDkKICAgICAgICBhc3NlcnQgYWxsKHJvd1sidGdlbmFibGVkIl0gPT0gIk8iIGFuZCByb3dbInN0YXRlbWVudF9sZXZlbCJdCiAgICAgICAgICAgICAgICAgICBmb3Igcm93IGluIHJlc3VsdFsiY291bnRlcl90cmlnZ2VycyJdKQogICAgICAgIGFzc2VydCBsZW4ocmVzdWx0WyJleGFjdF90b3RhbHMiXSkgPT0gMwogICAgd2l0aCBodHRweC5DbGllbnQodGltZW91dD00NSkgYXMgY2xpZW50OgogICAgICAgIHdpdGggcmVwb3J0X2FkbWlzc2lvbihkYXRhYmFzZS5lbmdpbmUpOgogICAgICAgICAgICBzdGFydGVkID0gdGltZS5tb25vdG9uaWMoKQogICAgICAgICAgICBibG9ja2VkID0gY2xpZW50LmdldChiYXNlICsgcGF0aCkKICAgICAgICAgICAgcmVzdWx0WyJvdmVybGFwcGluZ19yZXBvcnQiXSA9IHsKICAgICAgICAgICAgICAgICJodHRwX3N0YXR1cyI6IGJsb2NrZWQuc3RhdHVzX2NvZGUsICJzZWNvbmRzIjogdGltZS5tb25vdG9uaWMoKSAtIHN0YXJ0ZWQKICAgICAgICAgICAgfQogICAgICAgICAgICBhc3NlcnQgYmxvY2tlZC5zdGF0dXNfY29kZSA9PSA0MjkKICAgICAgICAgICAgcmVzdWx0WyJvcmRpbmFyeV9kdXJpbmdfcmVwb3J0X2xvY2siXSA9IHsKICAgICAgICAgICAgICAgIHRhcmdldDogY2xpZW50LmdldChiYXNlICsgdGFyZ2V0KS5zdGF0dXNfY29kZQogICAgICAgICAgICAgICAgZm9yIHRhcmdldCBpbiAoIi9oZWFsdGgiLCAiL3JlYWR5IiwgIi9hcGkvc3RhdHVzIiwgIi9hcGkvZXZlbnQtcHJvZHVjdCIpCiAgICAgICAgICAgIH0KICAgICAgICAgICAgYXNzZXJ0IGFsbChjb2RlID09IDIwMCBmb3IgY29kZSBpbiByZXN1bHRbIm9yZGluYXJ5X2R1cmluZ19yZXBvcnRfbG9jayJdLnZhbHVlcygpKQogICAgICAgIHJlc3BvbnNlID0gY2xpZW50LmdldChiYXNlICsgcGF0aCkKICAgICAgICByZXN1bHRbInJlcG9ydF9hZnRlcl9yZWxlYXNlIl0gPSB7CiAgICAgICAgICAgICJodHRwX3N0YXR1cyI6IHJlc3BvbnNlLnN0YXR1c19jb2RlLCAiYnl0ZXMiOiBsZW4ocmVzcG9uc2UuY29udGVudCkKICAgICAgICB9CiAgICAgICAgYXNzZXJ0IHJlc3BvbnNlLnN0YXR1c19jb2RlID09IDIwMApwcmludCgiTkVXU19EQl9SRVBPUlRfQ0hFQ0sgIiArIGpzb24uZHVtcHMocmVzdWx0LCBkZWZhdWx0PXN0ciwgc29ydF9rZXlzPVRydWUpLCBmbHVzaD1UcnVlKQo='))\"'\u001b(B\u001b[m",
+      "timestamp": "2026-09-09T05:18:22.155077626Z"
+    },
+    {
+      "id": "6e6d96ea-36b4-4be8-900a-4c15f20b08bb",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-dageo695efls73a8ud10"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "NEWS_DB_REPORT_CHECK {\"counter_triggers\": [{\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_bars_totals_delete\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_bars_totals_insert\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_bars_totals_truncate\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_quotes_totals_delete\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_quotes_totals_insert\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_quotes_totals_truncate\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_trades_totals_delete\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_trades_totals_insert\"}, {\"statement_level\": true, \"tgenabled\": \"O\", \"tgname\": \"trg_market_trades_totals_truncate\"}], \"emails_enqueued\": 0, \"exact_totals\": [{\"row_count\": 1442, \"table_name\": \"market_bars\", \"updated_at\": \"2026-09-08 22:08:59.544338+00:00\"}, {\"row_count\": 2930890, \"table_name\": \"market_quotes\", \"updated_at\": \"2026-09-08 22:09:13.581582+00:00\"}, {\"row_count\": 28814, \"table_name\": \"market_trades\", \"updated_at\": \"2026-09-08 22:09:13.676798+00:00\"}], \"observed_at\": \"2026-09-09T05:18:24.247525+00:00\", \"orders_submitted\": 0, \"ordinary_during_report_lock\": {\"/api/event-product\": 200, \"/api/status\": 200, \"/health\": 200, \"/ready\": 200}, \"overlapping_report\": {\"http_status\": 429, \"seconds\": 0.09519405500032008}, \"prepared_cache\": {\"burst_first_count\": 8, \"burst_prepared_baseline\": 4, \"burst_second_count\": 7, \"burst_warmed_shapes\": 4, \"executions_per_shape\": 7, \"inspection_semantics\": \"A new inspection-query key may schedule eviction after its count snapshot; first, second and explicit new-key cleanup observations are recorded separately.\", \"new_key_cleanup_counts\": [6, 5, 4, 4], \"observed_peak\": 8, \"observed_prepared_counts\": [1, 2, 3, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], \"prepare_threshold\": 5, \"prepared_max\": 4, \"read_only\": true, \"rolled_back\": true, \"server_budget\": 8, \"shapes\": 16, \"verification_scope\": \"sequential and warmed-key promotion workloads; not a universal cache or RSS bound\", \"verified\": true}, \"production_rows_mutated\": false, \"psycopg\": \"3.3.5\", \"report_after_release\": {\"bytes\": 1226635, \"http_status\": 200}}",
+      "timestamp": "2026-09-09T05:18:25.568351114Z"
+    }
+  ],
+  "result": {
+    "counter_triggers": [
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_bars_totals_delete"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_bars_totals_insert"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_bars_totals_truncate"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_quotes_totals_delete"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_quotes_totals_insert"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_quotes_totals_truncate"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_trades_totals_delete"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_trades_totals_insert"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_trades_totals_truncate"
+      }
+    ],
+    "emails_enqueued": 0,
+    "exact_totals": [
+      {
+        "row_count": 1442,
+        "table_name": "market_bars",
+        "updated_at": "2026-09-08 22:08:59.544338+00:00"
+      },
+      {
+        "row_count": 2930890,
+        "table_name": "market_quotes",
+        "updated_at": "2026-09-08 22:09:13.581582+00:00"
+      },
+      {
+        "row_count": 28814,
+        "table_name": "market_trades",
+        "updated_at": "2026-09-08 22:09:13.676798+00:00"
+      }
+    ],
+    "observed_at": "2026-09-09T05:18:24.247525+00:00",
+    "orders_submitted": 0,
+    "ordinary_during_report_lock": {
+      "/api/event-product": 200,
+      "/api/status": 200,
+      "/health": 200,
+      "/ready": 200
+    },
+    "overlapping_report": {
+      "http_status": 429,
+      "seconds": 0.09519405500032008
+    },
+    "prepared_cache": {
+      "burst_first_count": 8,
+      "burst_prepared_baseline": 4,
+      "burst_second_count": 7,
+      "burst_warmed_shapes": 4,
+      "executions_per_shape": 7,
+      "inspection_semantics": "A new inspection-query key may schedule eviction after its count snapshot; first, second and explicit new-key cleanup observations are recorded separately.",
+      "new_key_cleanup_counts": [
+        6,
+        5,
+        4,
+        4
+      ],
+      "observed_peak": 8,
+      "observed_prepared_counts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "prepare_threshold": 5,
+      "prepared_max": 4,
+      "read_only": true,
+      "rolled_back": true,
+      "server_budget": 8,
+      "shapes": 16,
+      "verification_scope": "sequential and warmed-key promotion workloads; not a universal cache or RSS bound",
+      "verified": true
+    },
+    "production_rows_mutated": false,
+    "psycopg": "3.3.5",
+    "report_after_release": {
+      "bytes": 1226635,
+      "http_status": 200
+    }
+  }
+}

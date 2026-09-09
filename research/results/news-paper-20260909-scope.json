@@ -1,0 +1,30 @@
+{
+  "protocol": "news-paper-local-protection-v1",
+  "cohort_id": "v20-news-paper-20260909-r1",
+  "config_hash": "77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43",
+  "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+  "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+  "session_date": "2026-09-09",
+  "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA"
+  ],
+  "maximum_entries": 2,
+  "maximum_news_entries": 1,
+  "maximum_notional": "25",
+  "maximum_positions_including_pending": 1,
+  "protection": {
+    "policy_version": "news-paper-local-protection-v1",
+    "execution": "local_trigger_then_owned_quantity_market_exit",
+    "broker_native": false,
+    "reference_price": "100",
+    "stop_fraction": "0.005",
+    "target_fraction": "0.01",
+    "stop_price": "99.500",
+    "take_profit_price": "101.00",
+    "limits": "Requires running worker/fresh quote; gaps, outages and slippage can exceed trigger."
+  },
+  "qualification_eligible": false
+}

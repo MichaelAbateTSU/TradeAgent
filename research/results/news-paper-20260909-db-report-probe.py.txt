@@ -1,0 +1,56 @@
+"""Read-only deployed-engine fixture and managed report-admission verification."""
+import json
+import os
+import runpy
+import time
+from datetime import UTC, datetime
+
+import httpx
+import psycopg
+from sqlalchemy import text
+
+from tradeagent.config import AppConfig
+from tradeagent.persistence import Database
+from tradeagent.reporting_reads import report_admission
+
+assert os.environ["RENDER_GIT_COMMIT"] == "29cf2327e8145af510735faa5a51d852a747a47b"
+base = "https://tradeagent-runtime-dashboard.onrender.com"
+path = "/api/event-session-report?cohort_id=v20-news-paper-20260909-r1&session_date=2026-09-09"
+result = {"observed_at": datetime.now(UTC).isoformat(), "psycopg": psycopg.__version__,
+          "orders_submitted": 0, "emails_enqueued": 0, "production_rows_mutated": False}
+with Database(AppConfig().database_url.get_secret_value()) as database:
+    fixture = runpy.run_path("tests/prepared_cache_pg_fixture.py")
+    result["prepared_cache"] = fixture["verify_postgresql_prepared_cache"](database.engine)
+    with database.begin() as connection:
+        connection.execute(text("SET TRANSACTION READ ONLY"))
+        result["counter_triggers"] = [dict(row) for row in connection.execute(text(
+            "SELECT tgname, tgenabled, (tgtype & 1)=0 AS statement_level "
+            "FROM pg_trigger WHERE NOT tgisinternal "
+            "AND tgfoid='maintain_market_data_totals'::regproc ORDER BY tgname"
+        )).mappings()]
+        result["exact_totals"] = [dict(row) for row in connection.execute(text(
+            "SELECT table_name,row_count,updated_at FROM market_data_totals ORDER BY table_name"
+        )).mappings()]
+        assert len(result["counter_triggers"]) == 9
+        assert all(row["tgenabled"] == "O" and row["statement_level"]
+                   for row in result["counter_triggers"])
+        assert len(result["exact_totals"]) == 3
+    with httpx.Client(timeout=45) as client:
+        with report_admission(database.engine):
+            started = time.monotonic()
+            blocked = client.get(base + path)
+            result["overlapping_report"] = {
+                "http_status": blocked.status_code, "seconds": time.monotonic() - started
+            }
+            assert blocked.status_code == 429
+            result["ordinary_during_report_lock"] = {
+                target: client.get(base + target).status_code
+                for target in ("/health", "/ready", "/api/status", "/api/event-product")
+            }
+            assert all(code == 200 for code in result["ordinary_during_report_lock"].values())
+        response = client.get(base + path)
+        result["report_after_release"] = {
+            "http_status": response.status_code, "bytes": len(response.content)
+        }
+        assert response.status_code == 200
+print("NEWS_DB_REPORT_CHECK " + json.dumps(result, default=str, sort_keys=True), flush=True)

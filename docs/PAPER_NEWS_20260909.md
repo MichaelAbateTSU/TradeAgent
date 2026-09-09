@@ -8,10 +8,14 @@ This is a new policy, **`news-paper-local-protection-v1`**, not permission to
 silently broaden the old equipment-only cohort, loosen risk limits, fabricate
 confidence, use holdouts, reset the account, or enable live trading.
 
-Proposed new cohort: **`v20-news-paper-20260909-r1`**, session September 9 only.
-No deployment or remote control change is authorized until the parent hands
-back ownership after its separate submit/cancel diagnostic. That diagnostic
-is not a filled round trip and does not qualify a news strategy.
+Deployed cohort: **`v20-news-paper-20260909-r1`**, session September 9 only.
+After the parent's explicit remote handoff, the exact independently reviewed
+`29cf2327e8145af510735faa5a51d852a747a47b` was deployed event-only as
+`dep-dagei7142hec73bv1t70`. Natural lease handoff was verified at **01:11:07 ET**.
+Configuration is `77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43`.
+Global kill remained active with its original September 8 timestamp; no entry
+authorization was issued. The separate submit/cancel diagnostic is not a filled
+round trip and does not qualify a news strategy.
 
 The existing **09:35–10:05 ET, 1,800-second read-only incident acceptance** remains
 first. Preserve all market provenance/progression, physical quotes/trades/bars,
@@ -160,11 +164,13 @@ gate. The 40 policy-specific tests, repository-wide Ruff with `--no-cache`, and
 The [full validation output](../research/results/news-paper-20260909-tests.txt)
 is synthetic/offline evidence, not a real filled trade.
 
-An exact-pinned independent review is pending. This policy has not been deployed
-or authorized. The parent-owned, canceled after-hours diagnostic and its actual
+Independent review cleared the substantive `c116324` delta, then explicitly
+cleared final release `29cf232` after checking the formatting-only delta's ASTs.
+The policy is deployed but **not authorized to enter**. The parent-owned,
+canceled after-hours diagnostic and its actual
 notifier acceptance are documented separately in
 [the probe record](OPERATOR_PAPER_PROBE_20260909.md); its filled quantity is zero.
-Deployment requires explicit remote handoff and clean review. The unchanged
+Remote handoff and clean review are complete. The unchanged
 09:35–10:05 Eastern read-only incident acceptance remains the first morning gate.
 Only a subsequent, passing, explicitly scoped preflight may authorize this new
 policy; no existing cohort acknowledgement transfers or waives future risks.
@@ -174,3 +180,73 @@ in the earlier equipment-demo source/test files. Formatting was normalized with
 Ruff; both before/after Python ASTs were verified identical. All 198 checked files
 now pass the formatter, repository-wide Ruff passes, and the combined 72
 equipment/news policy tests pass. No execution behavior changed.
+
+## Actual deployed checks and current entry blocker
+
+Same-image probe `job-dagekv15efls73a8h7qg` verified migration
+`0012_market_data_totals`, database connectivity, zero missing reporting metadata,
+and the ACTIVE/unblocked pinned paper account with zero positions/open orders.
+Two snapshots used the actual deployed SHA. The daily report built in 1.24 seconds,
+320,232 serialized bytes, without email; the on-demand session-report API returned
+HTTP 200, 1,225,910 bytes, in 1.49 seconds. These are operational checks, not fills.
+
+The actual paper order stream was authenticated/subscribed on its paper endpoint,
+with zero errors, disconnects, gaps or dropped updates. Configured news/SEC/feed
+polls were healthy. Coverage remains limited to those sources: Microsoft's feed is
+the cloud blog, not full corporate/IR coverage, and its optional prior comparison
+document exceeded the existing size bound. Neither limitation was hidden or relaxed.
+
+The new cohort independently acquired `R1_EVENT_REQUIRES_POSITION_REVIEW`.
+Fresh exhaustive read-only projection `job-dagem8f40ujc73es35jg` found exactly the
+three previously investigated Pusheen evidence IDs, with every compared immutable
+field and raw-document hash unchanged. All had `facts=[]`, unclassified event type,
+no hypothesis, rejected decisions, no explicit correction/retraction and unknown
+publication. No new lineage version, pending primary revision, waiting news,
+unresolved local order, cohort order link, broker position or open order existed.
+See [the fresh projection](../research/results/news-paper-20260909-source-review.json)
+and [exact scope](../research/results/news-paper-20260909-scope.json).
+
+**The prior cohort's acknowledgement was not transferred.** This new cohort's
+pause is still R1 and requires separately authorized, audited compare-and-set
+acknowledgement before the later preflight could accept it. No generic rule or
+risk control has been cleared to force an order. The source projection's first
+diagnostic exceeded Render's 100,000-character log-line bound; that truncated
+evidence is retained, and a new read-only bounded/chunk-verified projection—not
+another broker/order operation—provided the complete result.
+
+The exact scope's protection reference of `$100` is a mathematical fingerprint
+template, not a current quote, intended entry price or executed fill. Actual
+protection uses the broker-confirmed filled VWAP.
+
+The post-handoff observation completed **662.39 seconds / 882 HTTP requests with
+zero HTTP failures**, stable role owners, zero dropped recorder events and no
+increase from the existing one recorder gap. Peak application memory was
+**217.68 MiB**; PostgreSQL peaked at **215.129 MiB**. Full acceptance remains
+**failed/pending regular-session flow**: committed exchange timestamps and physical
+quotes/trades/bars did not advance while the recorder/feed reported closed-market
+degradation. None of those gates was waived.
+
+Actual deployed-engine verification passed on psycopg 3.3.5: configuration 4,
+sequential/burst peak eight prepared statements, read-only rollback, nine enabled
+statement-level counter triggers and all three exact totals. Managed report
+contention produced HTTP 429 in 0.095 seconds while four ordinary sections stayed
+HTTP 200; releasing the slot restored full-report HTTP 200. No email was queued.
+PostgreSQL logs showed **38 real duplicate-key rejections** on `event_evidence_pkey`,
+the existing caught/verified duplicate-evidence path, and no matched backend
+termination, recovery, fatal, panic or out-of-memory event. These logged SQL errors
+are retained and are not mislabeled as zero SQL errors.
+
+The root's one-time **September 9 09:35 ET** automation was updated at
+`2026-09-09T05:21:25.573Z` to the actual reviewed role pins, new cohort/config and
+new preflight command. Its first 1,800 seconds remain strictly read-only, with
+every incident gate retained. Only a later passing scoped preflight can permit
+equipment followed by at most one genuine news entry; the unresolved new-cohort
+R1 remains an explicit blocker. The automation requires follow-through on actual
+fills/exits/notifier acceptance and later finite-window supervision, not a
+deployment-based success claim.
+
+The consolidated [deployment and acceptance record](../research/results/news-paper-20260909-deployed.json)
+includes exact pins/config/scope, job receipts, file hashes and remaining blockers.
+Final post-soak broker readback at **01:24:28 ET** remained ACTIVE/unblocked,
+zero positions/open orders; at **01:25:25 ET** readiness still showed the same
+fresh owner/lease and unchanged global/R1 pauses.

@@ -1,0 +1,502 @@
+{
+  "recorded_at": "2026-09-09T05:26:05.497706+00:00",
+  "code_review": {
+    "final_pin": "29cf2327e8145af510735faa5a51d852a747a47b",
+    "reviewer": "practice-review",
+    "result": "no significant issues found; explicit exact final pin clearance",
+    "confirmation_at": "2026-09-09T05:05:17.223Z",
+    "substantive_pin": "c116324007357278c0b35bf8e6d116202c514930",
+    "formatting_delta_ast_identical": true
+  },
+  "validation": {
+    "passed": 993,
+    "skipped": 2,
+    "branch_inclusive_coverage_percent": 87.49,
+    "minimum_coverage_unchanged": 85,
+    "ruff_no_cache": "passed",
+    "ruff_format_files": 198,
+    "mypy_source_files": 89,
+    "post_format_equipment_news_tests_passed": 72
+  },
+  "deployment": {
+    "id": "dep-dagei7142hec73bv1t70",
+    "commit": {
+      "id": "29cf2327e8145af510735faa5a51d852a747a47b",
+      "message": "Normalize related demo formatting for complete release gates\n\nAST-identical formatting only. All 198 files pass Ruff format, repository-wide Ruff passes, and 72 equipment/news tests pass.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+      "createdAt": "2026-09-09T04:59:50Z"
+    },
+    "status": "live",
+    "trigger": "api",
+    "createdAt": "2026-09-09T05:05:32.692725Z",
+    "updatedAt": "2026-09-09T05:06:49.904976Z",
+    "startedAt": "2026-09-09T05:05:32.691005Z",
+    "finishedAt": "2026-09-09T05:06:49.904723Z"
+  },
+  "service_config": {
+    "auto_deploy": "no",
+    "plan": "starter",
+    "buildCommand": "pip install .",
+    "preDeployCommand": "alembic upgrade head",
+    "startCommand": "tradeagent run --mode experimental-paper --purpose iex-practice --practice-start-date 2026-09-09 --cohort-id v20-news-paper-20260909-r1 --entry-policy news-paper --news-account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --max-entries-per-session 2 --symbols AAPL,MSFT,NVDA"
+  },
+  "scope": {
+    "protocol": "news-paper-local-protection-v1",
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "config_hash": "77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43",
+    "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "session_date": "2026-09-09",
+    "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+    "symbols": [
+      "AAPL",
+      "MSFT",
+      "NVDA"
+    ],
+    "maximum_entries": 2,
+    "maximum_news_entries": 1,
+    "maximum_notional": "25",
+    "maximum_positions_including_pending": 1,
+    "protection": {
+      "policy_version": "news-paper-local-protection-v1",
+      "execution": "local_trigger_then_owned_quantity_market_exit",
+      "broker_native": false,
+      "reference_price": "100",
+      "stop_fraction": "0.005",
+      "target_fraction": "0.01",
+      "stop_price": "99.500",
+      "take_profit_price": "101.00",
+      "limits": "Requires running worker/fresh quote; gaps, outages and slippage can exceed trigger."
+    },
+    "qualification_eligible": false
+  },
+  "natural_handoff_verified_at": "2026-09-09T05:11:07.800052+00:00",
+  "final_event_owner": "srv-dae4tr7qj5pc73a9e0k0-77cbfdb6d6-x44cr",
+  "unchanged_roles": {
+    "recorder": {
+      "id": "srv-dadn8son74is73apqcc0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "start_command": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD",
+      "predeploy_command": "alembic upgrade head",
+      "deployment": {
+        "id": "dep-dag8ecm7bikc7394cfgg",
+        "commit": {
+          "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+          "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T21:58:20Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T22:07:46.696522Z",
+        "updatedAt": "2026-09-08T22:09:31.359555Z",
+        "startedAt": "2026-09-08T22:07:46.694685Z",
+        "finishedAt": "2026-09-08T22:09:31.359283Z"
+      }
+    },
+    "notifier": {
+      "id": "srv-dadnn6mq1p3s73ef7ef0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "start_command": "tradeagent notifier",
+      "predeploy_command": "alembic upgrade head",
+      "deployment": {
+        "id": "dep-dag5kn740ujc73edg0og",
+        "commit": {
+          "id": "3bbe3eb589ba08ee7f57e30b63c45318f6f8ef8f",
+          "message": "fix: retry deferred end-of-day report persistence\n\nKeep broker completion facts independent from report persistence acknowledgement. Retry a missing snapshot after contention or failure, including across restarts, without turning report admission contention into an execution-worker fault.\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T18:53:55Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T18:56:28.671342Z",
+        "updatedAt": "2026-09-08T18:57:39.651563Z",
+        "startedAt": "2026-09-08T18:56:28.669329Z",
+        "finishedAt": "2026-09-08T18:57:39.651395Z"
+      }
+    },
+    "dashboard": {
+      "id": "srv-dadoa3740ujc73cb09c0",
+      "auto_deploy": "no",
+      "plan": "starter",
+      "start_command": "tradeagent serve --host 0.0.0.0 --port $PORT --production",
+      "predeploy_command": null,
+      "deployment": {
+        "id": "dep-dag8gd6k1f9s738f7hpg",
+        "commit": {
+          "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+          "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+          "createdAt": "2026-09-08T21:58:20Z"
+        },
+        "status": "live",
+        "trigger": "api",
+        "createdAt": "2026-09-08T22:12:04.554904Z",
+        "updatedAt": "2026-09-08T22:13:40.34932Z",
+        "startedAt": "2026-09-08T22:12:04.527277Z",
+        "finishedAt": "2026-09-08T22:13:10.396813Z"
+      }
+    }
+  },
+  "afterhours": {
+    "started_at": "2026-09-09T05:11:18.995726+00:00",
+    "finished_at": "2026-09-09T05:22:21.389471+00:00",
+    "duration_seconds": 662.393745,
+    "request_count": 882,
+    "http_failures": 0,
+    "peak_memory": {
+      "event": {
+        "samples": 12,
+        "peak_mib": 155.059
+      },
+      "recorder": {
+        "samples": 12,
+        "peak_mib": 112.203
+      },
+      "notifier": {
+        "samples": 12,
+        "peak_mib": 192.625
+      },
+      "dashboard": {
+        "samples": 12,
+        "peak_mib": 217.68
+      },
+      "postgres": {
+        "samples": 12,
+        "peak_mib": 215.129
+      }
+    },
+    "recorder_drop_values": [
+      0
+    ],
+    "recorder_gap_values": [
+      1
+    ],
+    "accepted": false,
+    "acceptance_failures": [
+      "recorder:committed_exchange_time_not_advancing",
+      "recorder:market_bars_not_advancing",
+      "recorder:market_quotes_not_advancing",
+      "recorder:market_trades_not_advancing",
+      "recorder:unhealthy_or_dropped_packets",
+      "tradeagent-shadow-market-feed:stale_or_unhealthy",
+      "tradeagent-shadow-recorder:stale_or_unhealthy"
+    ],
+    "final_controls": {
+      "cohort_id": "v20-news-paper-20260909-r1",
+      "kill_switch": {
+        "value": "active",
+        "updated_at": "2026-09-08T23:33:26.789305+00:00"
+      },
+      "cohort_pause": {
+        "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "updated_at": "2026-09-09T05:11:00.649221+00:00"
+      },
+      "missing_means": "not_recorded_not_inferred_inactive"
+    },
+    "log_counts": {
+      "postgres": 596,
+      "event": 0
+    },
+    "reviewed_log_classification": {
+      "real_logged_duplicate_evidence_errors": 38,
+      "unexplained_matched_errors": 0,
+      "backend_termination_or_recovery_matches": 0,
+      "basis": "Existing EventStore.evidence catches IntegrityError, verifies the retained evidence ID and returns False. These are actual logged database duplicate-key rejections, not HTTP errors or backend crashes; raw logs retained. No claim of zero SQL errors."
+    },
+    "market_flow_acceptance": "pending_regular_session"
+  },
+  "database_report_acceptance": {
+    "counter_triggers": [
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_bars_totals_delete"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_bars_totals_insert"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_bars_totals_truncate"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_quotes_totals_delete"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_quotes_totals_insert"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_quotes_totals_truncate"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_trades_totals_delete"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_trades_totals_insert"
+      },
+      {
+        "statement_level": true,
+        "tgenabled": "O",
+        "tgname": "trg_market_trades_totals_truncate"
+      }
+    ],
+    "emails_enqueued": 0,
+    "exact_totals": [
+      {
+        "row_count": 1442,
+        "table_name": "market_bars",
+        "updated_at": "2026-09-08 22:08:59.544338+00:00"
+      },
+      {
+        "row_count": 2930890,
+        "table_name": "market_quotes",
+        "updated_at": "2026-09-08 22:09:13.581582+00:00"
+      },
+      {
+        "row_count": 28814,
+        "table_name": "market_trades",
+        "updated_at": "2026-09-08 22:09:13.676798+00:00"
+      }
+    ],
+    "observed_at": "2026-09-09T05:18:24.247525+00:00",
+    "orders_submitted": 0,
+    "ordinary_during_report_lock": {
+      "/api/event-product": 200,
+      "/api/status": 200,
+      "/health": 200,
+      "/ready": 200
+    },
+    "overlapping_report": {
+      "http_status": 429,
+      "seconds": 0.09519405500032008
+    },
+    "prepared_cache": {
+      "burst_first_count": 8,
+      "burst_prepared_baseline": 4,
+      "burst_second_count": 7,
+      "burst_warmed_shapes": 4,
+      "executions_per_shape": 7,
+      "inspection_semantics": "A new inspection-query key may schedule eviction after its count snapshot; first, second and explicit new-key cleanup observations are recorded separately.",
+      "new_key_cleanup_counts": [
+        6,
+        5,
+        4,
+        4
+      ],
+      "observed_peak": 8,
+      "observed_prepared_counts": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "prepare_threshold": 5,
+      "prepared_max": 4,
+      "read_only": true,
+      "rolled_back": true,
+      "server_budget": 8,
+      "shapes": 16,
+      "verification_scope": "sequential and warmed-key promotion workloads; not a universal cache or RSS bound",
+      "verified": true
+    },
+    "production_rows_mutated": false,
+    "psycopg": "3.3.5",
+    "report_after_release": {
+      "bytes": 1226635,
+      "http_status": 200
+    }
+  },
+  "final_broker": {
+    "account_blocked": false,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "clock": {
+      "is_open": false,
+      "next_close": "2026-09-09T16:00:00-04:00",
+      "next_open": "2026-09-09T09:30:00-04:00",
+      "timestamp": "2026-09-09T01:24:28.630249-04:00"
+    },
+    "host": "https://paper-api.alpaca.markets",
+    "open_orders": 0,
+    "positions": 0,
+    "status": "ACTIVE",
+    "test_orders_submitted": 0,
+    "trading_blocked": false
+  },
+  "final_controls": {
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "kill_switch": {
+      "value": "active",
+      "updated_at": "2026-09-08T23:33:26.789305+00:00"
+    },
+    "cohort_pause": {
+      "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+      "updated_at": "2026-09-09T05:11:00.649221+00:00"
+    },
+    "missing_means": "not_recorded_not_inferred_inactive"
+  },
+  "entry_authorization_issued": false,
+  "orders_submitted_by_this_release_acceptance": 0,
+  "emails_enqueued_by_this_release_acceptance": 0,
+  "filled_roundtrip_proven": false,
+  "market_flow_acceptance": "pending_regular_session; never waived",
+  "new_cohort_risk_acknowledgement": {
+    "state": "NOT_AUTHORIZED_OR_EXECUTED",
+    "reason": "Fresh exact three unchanged metadata-only records reviewed read-only; previous cohort acknowledgement is not transferable. Await separately explicit parent scoped authority for atomic audited CAS.",
+    "R1_event_ids": [
+      "7ae45781-e323-4c97-85bf-405679db3c54",
+      "9bb264f9-b83f-4812-b41d-a3c7db0b7d06",
+      "8d17b392-f07e-45a9-9a23-3bf93395b080"
+    ],
+    "evidence_ids": [
+      "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+      "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+      "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef"
+    ],
+    "new_source_lineage_versions": false,
+    "waiting_candidates": 0,
+    "unresolved_local_orders": 0,
+    "cohort_order_links": 0,
+    "comparisons": [
+      {
+        "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+        "previously_reviewed_record": true,
+        "differing_immutable_fields": [],
+        "content_integrity_matches": true
+      },
+      {
+        "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+        "previously_reviewed_record": true,
+        "differing_immutable_fields": [],
+        "content_integrity_matches": true
+      },
+      {
+        "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+        "previously_reviewed_record": true,
+        "differing_immutable_fields": [],
+        "content_integrity_matches": true
+      }
+    ]
+  },
+  "root_automation": {
+    "session_id": "d889264f-50d4-4da4-be00-be99b5089546",
+    "interval": "once",
+    "next_run_at": "2026-09-09T13:35:00.000Z",
+    "updated_at": "2026-09-09T05:21:25.573Z",
+    "verified_by": "save_session_automation returned persisted exact nextRunAt and complete updated prompt",
+    "first_gate": "unchanged strictly read-only1800-second market-load incident acceptance09:35-10:05ET",
+    "second_gate": "new explicitly scoped news-paper preflight only after passing incident and allriskguards; currentnewR1 remainsblocking",
+    "preflight_window_et": "10:05 inclusive to10:30 exclusive",
+    "equipment_window_et": "10:10 inclusive to10:30 exclusive",
+    "remaining_day": "atmostone genuine H1/H2 news entry after actual equipment completion; finitewindow, localprotection, actuallifecycleemailproof and recoveryuntilflat; schedulefollowup by15:45 onlyafter09:35wake runs"
+  },
+  "preserved": {
+    "user_dirty_readiness_doc": true,
+    "all_prior_cohorts_and_pauses": true,
+    "tuesday_MISSED": true,
+    "operator_probe_controls_audit_outbox": true,
+    "global_kill_original_timestamp": true,
+    "no_new_service_plan_account_recipient_or_dependency": true
+  },
+  "evidence_files": {
+    "news-paper-20260909-afterhours-logs.json": {
+      "bytes": 330531,
+      "sha256": "e9e7376862a5ca58dfab77e3f37650870064719df4e0dd3e6e47ec7bdc0ac72e"
+    },
+    "news-paper-20260909-afterhours-summary.json": {
+      "bytes": 28405,
+      "sha256": "ad887e2c65eedf820225a35791c5d8ac80719042fd212da8d95ba9b5be6ed3e7"
+    },
+    "news-paper-20260909-afterhours.json": {
+      "bytes": 6316269,
+      "sha256": "834dd0391def0e92c539b78d9611897a1965a090727062873fa7ce5aeab51665"
+    },
+    "news-paper-20260909-before-probe.json": {
+      "bytes": 76702,
+      "sha256": "acf14a785c4aa1afe368163ac1851bb7617ced7da88e27d86d985236cdcf68b6"
+    },
+    "news-paper-20260909-before.json": {
+      "bytes": 11905,
+      "sha256": "2b89d4ec8fe8e5c10fa8724a0310ba14e1e8507596170748336b1fffe64dc326"
+    },
+    "news-paper-20260909-db-report-check.json": {
+      "bytes": 14782,
+      "sha256": "dd2f88464a878bfd133a14f97393e77a185b0ff8b7420c36606dc4b1e7edeb9a"
+    },
+    "news-paper-20260909-db-report-job.json": {
+      "bytes": 4081,
+      "sha256": "bc953cda2677c44977a0e9093aaccf1e1de9317a5091c438f561e48ec8a16e7f"
+    },
+    "news-paper-20260909-db-report-probe.py.txt": {
+      "bytes": 2914,
+      "sha256": "f11b163b08b958b27afbfb3a2da9e639ac509c3a9c3adc47a5d35be28530789e"
+    },
+    "news-paper-20260909-final-probe.json": {
+      "bytes": 49045,
+      "sha256": "bdfebc3f929b01709fff5a544dbf9f12ad48b093cb2f84c4e032ddc47698d27b"
+    },
+    "news-paper-20260909-handoff.json": {
+      "bytes": 134232,
+      "sha256": "d3206bd3c1da2c9340a251e6495d9c6bdb4f169be64d3e5cbc49c5ab00b89c66"
+    },
+    "news-paper-20260909-http-report.json": {
+      "bytes": 1665890,
+      "sha256": "6a9178f2708275228df130cd4af843acecffb19cd22f12b40536980ea35b0488"
+    },
+    "news-paper-20260909-probe.json": {
+      "bytes": 158430,
+      "sha256": "36d1a98274db811b71856f381be876f1f7e84c3f2dea929dc8f530c4e5442414"
+    },
+    "news-paper-20260909-scope.json": {
+      "bytes": 1122,
+      "sha256": "b1cc95d096e177b543170fda57d233a7c17c4b153964390643091e3d2264e310"
+    },
+    "news-paper-20260909-source-job-logs.json": {
+      "bytes": 110223,
+      "sha256": "aba1f5d8d3cc6435382f53f1d70e966c048c7d3a1ec68f194080f9eb664b4777"
+    },
+    "news-paper-20260909-source-job.json": {
+      "bytes": 8745,
+      "sha256": "6b2517c5d01179e176a0647262f25ed1cb8e1dad100dc5ad491da2080bc601a7"
+    },
+    "news-paper-20260909-source-probe.py.txt": {
+      "bytes": 7473,
+      "sha256": "6211b0b6d44c5a25aafdf98d4a5291127fbde8561b0cc0238227e953b19c4465"
+    },
+    "news-paper-20260909-source-projection-job.json": {
+      "bytes": 10033,
+      "sha256": "8bca73b957ac46313d93f358f220b618f8f0729495dba9808af06da474d8cafb"
+    },
+    "news-paper-20260909-source-review.json": {
+      "bytes": 39243,
+      "sha256": "ddf370482fdd2206ff16ac723e9bbe47c68bd2382cc422577ec7601df577c01b"
+    },
+    "news-paper-20260909-tests.txt": {
+      "bytes": 15323,
+      "sha256": "473e471a144cbc7af715e714fcba6db2c74fad9b4a3a2a68eb429da328e3fa78"
+    }
+  }
+}

@@ -1,0 +1,923 @@
+{
+  "started_at": "2026-09-09T05:11:18.995726+00:00",
+  "finished_at": "2026-09-09T05:22:21.389471+00:00",
+  "duration_seconds": 662.393745,
+  "request_count": 882,
+  "http_failures": 0,
+  "peak_memory": {
+    "event": {
+      "samples": 12,
+      "peak_mib": 155.059
+    },
+    "recorder": {
+      "samples": 12,
+      "peak_mib": 112.203
+    },
+    "notifier": {
+      "samples": 12,
+      "peak_mib": 192.625
+    },
+    "dashboard": {
+      "samples": 12,
+      "peak_mib": 217.68
+    },
+    "postgres": {
+      "samples": 12,
+      "peak_mib": 215.129
+    }
+  },
+  "owners": {
+    "tradeagent-event-worker": [
+      "srv-dae4tr7qj5pc73a9e0k0-77cbfdb6d6-x44cr"
+    ],
+    "tradeagent-shadow-recorder": [
+      "srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b"
+    ],
+    "tradeagent-notifier": [
+      "srv-dadnn6mq1p3s73ef7ef0-c7fd8dd89-tnb26"
+    ],
+    "tradeagent-news-worker": [
+      "srv-dae4tr7qj5pc73a9e0k0-77cbfdb6d6-x44cr"
+    ],
+    "tradeagent-shadow-market-feed": [
+      "srv-dadn8son74is73apqcc0-c67d8f6c5-l5w9b-market-feed"
+    ]
+  },
+  "recorder_drop_values": [
+    0
+  ],
+  "recorder_gap_values": [
+    1
+  ],
+  "accepted": false,
+  "acceptance_failures": [
+    "recorder:committed_exchange_time_not_advancing",
+    "recorder:market_bars_not_advancing",
+    "recorder:market_quotes_not_advancing",
+    "recorder:market_trades_not_advancing",
+    "recorder:unhealthy_or_dropped_packets",
+    "tradeagent-shadow-market-feed:stale_or_unhealthy",
+    "tradeagent-shadow-recorder:stale_or_unhealthy"
+  ],
+  "final_controls": {
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "kill_switch": {
+      "value": "active",
+      "updated_at": "2026-09-08T23:33:26.789305+00:00"
+    },
+    "cohort_pause": {
+      "value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+      "updated_at": "2026-09-09T05:11:00.649221+00:00"
+    },
+    "missing_means": "not_recorded_not_inferred_inactive"
+  },
+  "log_counts": {
+    "postgres": 596,
+    "event": 0
+  },
+  "critical_log_matches": [
+    {
+      "role": "postgres",
+      "record": {
+        "id": "f7dede70-6262-4c20-9b69-a34d4cf3b09d",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-16] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:11:35.977437352Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "7461817f-2d35-4a60-8c32-2007b989175e",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-19] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:11:36.381424863Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "46c20382-df1d-4689-ba54-ac44d5d00e7d",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-22] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:12:11.685690962Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "b997bdd8-c006-488a-861d-83682175131a",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-25] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:12:12.179846316Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "3e53dac8-df4d-4f31-8835-9aa1e82a0eea",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-28] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:12:47.076500879Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "5eb7a6dd-96b0-49c6-8d36-a3c71ff71c7c",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-31] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:12:47.476755943Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "15223729-3148-4021-950a-597b2563063e",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-34] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:13:21.980886365Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "8f9dace8-bb6d-42ec-a1ed-8e09ce7b7e40",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-37] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:13:22.378498013Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "37dab021-b0b0-49dc-984d-dc81aed72c5c",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-40] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:13:55.885491514Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "2019c2d0-bacd-44f2-a313-049ab30bedb3",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-43] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:13:56.379589337Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "fa55bfbb-478b-40b9-8945-0ed308db2f73",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-46] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:14:31.18350003Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "132da5cb-ae0d-4552-8f35-66a1148a0f9c",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-49] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:14:31.581393799Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "5f8b59f3-6277-45c8-9270-02747c3e2700",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-52] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:15:05.382426381Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "0f1cd583-ec52-42f3-8824-4463037726e3",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-55] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:15:05.787684277Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "c3281956-8d6a-46a8-a473-edd4985ffd6c",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-58] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:15:40.885911284Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "9de1f200-449d-4b0d-b1e8-4fee9c9e1322",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-61] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:15:41.2834446Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "ee39ff39-04c9-4ba4-ab72-ddac68d0819a",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-64] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:16:14.883457188Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "66fc3994-b3cd-474f-990a-f1bcf6bd45fb",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-67] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:16:15.280305371Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "c14f9786-21f2-40c2-848d-ded7afe876e2",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-70] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:16:50.282314238Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "bb112aa0-bc53-40fe-983e-753107b566a5",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-73] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:16:50.676674068Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "7b734f35-b765-446c-9889-374fbcb45b51",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-76] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:17:24.181017665Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "c5e6501f-0902-431d-b7dc-d52edba0ac9c",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-79] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:17:24.88423623Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "8a6b4977-af43-4547-9f6d-dd5d6c9ab8ea",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-82] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:17:59.977926259Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "807c9d25-3eeb-426d-a088-100e985da72a",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-85] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:18:00.383100036Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "13bb679d-21cd-4451-9cc5-1f29c9dacda9",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-88] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:18:34.47995032Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "d49ba5a8-c508-4edc-88e0-a3c330737479",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-91] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:18:35.277453619Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "74fb9ffd-e5ea-4b41-9895-54a5110d7a12",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-94] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:19:10.477165626Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "0a85d44f-33e8-4ebf-aad1-591f3fc6acef",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-97] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:19:10.882340829Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "400dfd19-9db5-4aa3-89a9-c10e14940e21",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-100] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:19:44.786049805Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "d775dd4b-06b0-4bc1-ad9e-7c2be26fef62",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-103] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:19:45.182695881Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "0400841f-ef4a-4f7a-9ed1-e9546e830eb6",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-106] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:20:19.777754097Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "5919ab59-a8aa-46ee-ba7c-0e0002175881",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-109] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:20:20.087680209Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "0e615bbe-8cfa-4d12-939f-8a35df34837e",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-112] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:20:53.383145Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "ae1bc16a-7ca7-4141-ac70-9e80b4ad4699",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-115] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:20:53.782355445Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "b04d3934-ed3e-4562-a9ae-abe75c6f4f1d",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-118] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:21:28.877732663Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "70d681a0-4e88-4af7-91d6-33805dfd541a",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-121] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:21:29.28163359Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "f78f357b-6087-4646-b875-5ec0d726447e",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-124] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:22:03.978361181Z"
+      }
+    },
+    {
+      "role": "postgres",
+      "record": {
+        "id": "6b2faebf-8743-40e5-95ba-eecaf3f1d923",
+        "labels": [
+          {
+            "name": "resource",
+            "value": "dpg-dadn7nht0dsc73f9jja0-a"
+          },
+          {
+            "name": "level",
+            "value": "error"
+          },
+          {
+            "name": "type",
+            "value": "app"
+          }
+        ],
+        "message": "[6aa0ea4c.82398-127] user=tradeagent,db=tradeagent,app=[unknown],client=10.30.12.187,ERROR:  duplicate key value violates unique constraint \"event_evidence_pkey\"",
+        "timestamp": "2026-09-09T05:22:04.58401819Z"
+      }
+    }
+  ],
+  "reviewed_log_classification": {
+    "real_logged_duplicate_evidence_errors": 38,
+    "unexplained_matched_errors": 0,
+    "backend_termination_or_recovery_matches": 0,
+    "basis": "Existing EventStore.evidence catches IntegrityError, verifies the retained evidence ID and returns False. These are actual logged database duplicate-key rejections, not HTTP errors or backend crashes; raw logs retained. No claim of zero SQL errors."
+  },
+  "market_flow_acceptance": "pending_regular_session"
+}

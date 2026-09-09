@@ -1,0 +1,604 @@
+{
+  "job": {
+    "createdAt": "2026-09-09T05:14:09.723188Z",
+    "finishedAt": "2026-09-09T05:14:21Z",
+    "id": "job-dagem8f40ujc73es35jg",
+    "planId": "plan-srv-006",
+    "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+    "startCommand": "python -u -c \"import base64;exec(base64.b64decode('IiIiUmVhZC1vbmx5IGRlcGxveWVkLWNvaG9ydC9zb3VyY2UgcmV2aWV3OyBubyBjb250cm9sLCBicm9rZXIgb3Igb3V0Ym94IHdyaXRlcy4iIiIKaW1wb3J0IGhhc2hsaWIKaW1wb3J0IGJhc2U2NAppbXBvcnQganNvbgppbXBvcnQgb3MKZnJvbSBkYXRldGltZSBpbXBvcnQgVVRDLCBkYXRldGltZQoKZnJvbSBzcWxhbGNoZW15IGltcG9ydCBzZWxlY3QsIHRleHQKCmZyb20gdHJhZGVhZ2VudC5hbHBhY2FfcGFwZXIgaW1wb3J0IEFscGFjYVBhcGVyQ2xpZW50LCBBbHBhY2FQYXBlclNldHRpbmdzCmZyb20gdHJhZGVhZ2VudC5jb25maWcgaW1wb3J0IEFwcENvbmZpZwpmcm9tIHRyYWRlYWdlbnQuZXZlbnRfb3JkZXJzIGltcG9ydCBGSU5BTApmcm9tIHRyYWRlYWdlbnQuZXZlbnRfc3RvcmUgaW1wb3J0ICgKICAgIGV2ZW50X2NhbmRpZGF0ZV9zdGF0ZXMsCiAgICBldmVudF9jb2hvcnRzLAogICAgZXZlbnRfZGVjaXNpb25zLAogICAgZXZlbnRfZXZpZGVuY2UsCiAgICBldmVudF9vcmRlcl9saW5rcywKKQpmcm9tIHRyYWRlYWdlbnQucGVyc2lzdGVuY2UgaW1wb3J0IERhdGFiYXNlLCBjb250cm9scywgZXZlbnRzLCBvcmRlcnMKClBJTiA9ICIyOWNmMjMyN2U4MTQ1YWY1MTA3MzVmYWE1YTUxZDg1MmE3NDdhNDdiIgpDT0hPUlQgPSAidjIwLW5ld3MtcGFwZXItMjAyNjA5MDktcjEiCmFzc2VydCBvcy5lbnZpcm9uWyJSRU5ERVJfR0lUX0NPTU1JVCJdID09IFBJTgpvdXQgPSB7CiAgICAib2JzZXJ2ZWRfYXQiOiBkYXRldGltZS5ub3coVVRDKS5pc29mb3JtYXQoKSwKICAgICJjb2RlX3NoYSI6IFBJTiwKICAgICJjb2hvcnRfaWQiOiBDT0hPUlQsCiAgICAicmVhZF9vbmx5IjogVHJ1ZSwKICAgICJvcmRlcnNfc3VibWl0dGVkIjogMCwKfQp3aXRoIERhdGFiYXNlKEFwcENvbmZpZygpLmRhdGFiYXNlX3VybC5nZXRfc2VjcmV0X3ZhbHVlKCkpIGFzIGRhdGFiYXNlOgogICAgd2l0aCBkYXRhYmFzZS5iZWdpbigpIGFzIGNvbm5lY3Rpb246CiAgICAgICAgY29ubmVjdGlvbi5leGVjdXRlKHRleHQoIlNFVCBUUkFOU0FDVElPTiBSRUFEIE9OTFkiKSkKICAgICAgICBjb25uZWN0aW9uLmV4ZWN1dGUodGV4dCgiU0VUIExPQ0FMIHN0YXRlbWVudF90aW1lb3V0ID0gJzE1cyciKSkKICAgICAgICBvdXRbImNvaG9ydCJdID0gZGljdChjb25uZWN0aW9uLmV4ZWN1dGUoCiAgICAgICAgICAgIHNlbGVjdChldmVudF9jb2hvcnRzKS53aGVyZShldmVudF9jb2hvcnRzLmMuY29ob3J0X2lkID09IENPSE9SVCkKICAgICAgICApLm1hcHBpbmdzKCkub25lKCkpCiAgICAgICAgb3V0WyJjb250cm9scyJdID0gW2RpY3Qocm93KSBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSgKICAgICAgICAgICAgc2VsZWN0KGNvbnRyb2xzKS53aGVyZSgKICAgICAgICAgICAgICAgIChjb250cm9scy5jLmNvbnRyb2xfa2V5ID09ICJraWxsX3N3aXRjaCIpCiAgICAgICAgICAgICAgICB8IGNvbnRyb2xzLmMuY29udHJvbF9rZXkuc3RhcnRzd2l0aChDT0hPUlQgKyAiOiIpCiAgICAgICAgICAgICAgICB8IGNvbnRyb2xzLmMuY29udHJvbF9rZXkuc3RhcnRzd2l0aCgicGFwZXItcmlzazoiKQogICAgICAgICAgICAgICAgfCBjb250cm9scy5jLmNvbnRyb2xfa2V5LnN0YXJ0c3dpdGgoInBhcGVyLXNlc3Npb246IikKICAgICAgICAgICAgKS5vcmRlcl9ieShjb250cm9scy5jLmNvbnRyb2xfa2V5KQogICAgICAgICkubWFwcGluZ3MoKV0KICAgICAgICBvdXRbImFsbF9jb2hvcnRfUjFfcGF1c2VfZXZlbnRzIl0gPSBbZGljdChyb3cpIGZvciByb3cgaW4gY29ubmVjdGlvbi5leGVjdXRlKAogICAgICAgICAgICBzZWxlY3QoZXZlbnRzKS53aGVyZSgKICAgICAgICAgICAgICAgIGV2ZW50cy5jLnRyYWNlX2lkID09IENPSE9SVCwKICAgICAgICAgICAgICAgIGV2ZW50cy5jLmV2ZW50X3R5cGUgPT0gImV2ZW50X3BhdXNlIiwKICAgICAgICAgICAgICAgIGV2ZW50cy5jLnBheWxvYWRbInJlYXNvbiJdLmFzX3N0cmluZygpID09ICJSMV9FVkVOVF9SRVFVSVJFU19QT1NJVElPTl9SRVZJRVciLAogICAgICAgICAgICApLm9yZGVyX2J5KGV2ZW50cy5jLm9jY3VycmVkX2F0KQogICAgICAgICkubWFwcGluZ3MoKV0KICAgICAgICBkZWNpc2lvbnMgPSBbZGljdChyb3cpIGZvciByb3cgaW4gY29ubmVjdGlvbi5leGVjdXRlKAogICAgICAgICAgICBzZWxlY3QoZXZlbnRfZGVjaXNpb25zLCBldmVudF9jYW5kaWRhdGVfc3RhdGVzLmMuc3RhdHVzLmxhYmVsKCJjYW5kaWRhdGVfc3RhdHVzIikpCiAgICAgICAgICAgIC5vdXRlcmpvaW4oZXZlbnRfY2FuZGlkYXRlX3N0YXRlcywKICAgICAgICAgICAgICAgICAgICAgICBldmVudF9jYW5kaWRhdGVfc3RhdGVzLmMuZGVjaXNpb25faWQgPT0gZXZlbnRfZGVjaXNpb25zLmMuZGVjaXNpb25faWQpCiAgICAgICAgICAgIC53aGVyZShldmVudF9kZWNpc2lvbnMuYy5jb2hvcnRfaWQgPT0gQ09IT1JUKQogICAgICAgICkubWFwcGluZ3MoKV0KICAgICAgICBvdXRbInRvdGFsX2RlY2lzaW9ucyJdID0gbGVuKGRlY2lzaW9ucykKICAgICAgICByZXZpZXdzID0gW3JvdyBmb3Igcm93IGluIGRlY2lzaW9ucyBpZiByb3dbInBheWxvYWQiXS5nZXQoInBvc2l0aW9uX3Jldmlld19yZXF1aXJlZCIpXQogICAgICAgIG91dFsiYWxsX3Bvc2l0aW9uX3Jldmlld19kZWNpc2lvbnMiXSA9IFsKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgKip7a2V5OiByb3dba2V5XSBmb3Iga2V5IGluICgKICAgICAgICAgICAgICAgICAgICAiZGVjaXNpb25faWQiLCAiY29ob3J0X2lkIiwgImV2aWRlbmNlX2lkIiwgImRlY2lkZWRfYXQiLCAiY2FuZGlkYXRlX3N0YXR1cyIsCiAgICAgICAgICAgICAgICApfSwKICAgICAgICAgICAgICAgICoqe2tleTogcm93WyJwYXlsb2FkIl0uZ2V0KGtleSkgZm9yIGtleSBpbiAoCiAgICAgICAgICAgICAgICAgICAgImFjdGlvbiIsICJoeXBvdGhlc2lzIiwgInJlYXNvbnMiLCAicG9zaXRpb25fcmV2aWV3X3JlcXVpcmVkIiwKICAgICAgICAgICAgICAgICl9LAogICAgICAgICAgICAgICAgImV2ZW50X3R5cGUiOiByb3dbInBheWxvYWQiXS5nZXQoImV4dHJhY3Rpb24iLCB7fSkuZ2V0KCJldmVudF90eXBlIiksCiAgICAgICAgICAgICAgICAiZmFjdHMiOiByb3dbInBheWxvYWQiXS5nZXQoImV4dHJhY3Rpb24iLCB7fSkuZ2V0KCJmYWN0cyIpLAogICAgICAgICAgICB9CiAgICAgICAgICAgIGZvciByb3cgaW4gcmV2aWV3cwogICAgICAgIF0KICAgICAgICBvdXRbIndhaXRpbmdfY2FuZGlkYXRlcyJdID0gWwogICAgICAgICAgICB7a2V5OiByb3dba2V5XSBmb3Iga2V5IGluICgiZGVjaXNpb25faWQiLCAiZXZpZGVuY2VfaWQiLCAiY2FuZGlkYXRlX3N0YXR1cyIpfQogICAgICAgICAgICBmb3Igcm93IGluIGRlY2lzaW9ucyBpZiByb3dbImNhbmRpZGF0ZV9zdGF0dXMiXSA9PSAid2FpdGluZyIKICAgICAgICBdCiAgICAgICAgaWRzID0ge3Jvd1siZXZpZGVuY2VfaWQiXSBmb3Igcm93IGluIHJldmlld3N9CiAgICAgICAgdmVyc2lvbnMgPSBbXQogICAgICAgIHVybHMgPSBzZXQoKQogICAgICAgIGZvciByb3cgaW4gY29ubmVjdGlvbi5leGVjdXRlKAogICAgICAgICAgICBzZWxlY3QoZXZlbnRfZXZpZGVuY2UpLndoZXJlKGV2ZW50X2V2aWRlbmNlLmMuZXZpZGVuY2VfaWQuaW5fKGlkcykpCiAgICAgICAgKS5tYXBwaW5ncygpOgogICAgICAgICAgICBwYXlsb2FkID0gcm93WyJwYXlsb2FkIl0KICAgICAgICAgICAgdXJscy5hZGQocGF5bG9hZC5nZXQoInNvdXJjZV91cmwiKSkKICAgICAgICAgICAgcmF3ID0ganNvbi5sb2FkcyhwYXlsb2FkLmdldCgicmF3X21ldGFkYXRhX2pzb24iKSBvciAie30iKS5nZXQoInJhd19kb2N1bWVudCIpCiAgICAgICAgICAgIHZlcnNpb25zLmFwcGVuZCh7CiAgICAgICAgICAgICAgICAiZXZpZGVuY2VfaWQiOiByb3dbImV2aWRlbmNlX2lkIl0sCiAgICAgICAgICAgICAgICAiZGF0YWJhc2VfcmVjZWl2ZWRfYXQiOiByb3dbInJlY2VpdmVkX2F0Il0sCiAgICAgICAgICAgICAgICAqKntrZXk6IHBheWxvYWQuZ2V0KGtleSkgZm9yIGtleSBpbiAoCiAgICAgICAgICAgICAgICAgICAgInNvdXJjZV91cmwiLCAic291cmNlX3ZlcnNpb24iLCAiaGVhZGxpbmUiLCAiY29udGVudF9zaGEyNTYiLAogICAgICAgICAgICAgICAgICAgICJyZXZpc2lvbl9vZiIsICJwdWJsaXNoZWRfYXQiLCAicHJvdmlkZXJfY3JlYXRlZF9hdCIsICJwcm92aWRlcl91cGRhdGVkX2F0IiwKICAgICAgICAgICAgICAgICAgICAiZmlyc3RfcmVjZWl2ZWRfYXQiLCAiY29udGVudF9hdmFpbGFibGVfYXQiLCAiaXNfcHJpbWFyeV9zb3VyY2UiLAogICAgICAgICAgICAgICAgICAgICJpc19jb3JyZWN0aW9uIiwgImlzX3JldHJhY3Rpb24iLCAicmF3X3BheWxvYWRfc2hhMjU2IiwKICAgICAgICAgICAgICAgICl9LAogICAgICAgICAgICAgICAgImFjdHVhbF9jb250ZW50X3NoYTI1NiI6IGhhc2hsaWIuc2hhMjU2KAogICAgICAgICAgICAgICAgICAgIHBheWxvYWQuZ2V0KCJjb250ZW50IiwgIiIpLmVuY29kZSgpCiAgICAgICAgICAgICAgICApLmhleGRpZ2VzdCgpLAogICAgICAgICAgICAgICAgInJhd19kb2N1bWVudF9zaGEyNTYiOiBoYXNobGliLnNoYTI1NihyYXcuZW5jb2RlKCkpLmhleGRpZ2VzdCgpIGlmIHJhdyBlbHNlIE5vbmUsCiAgICAgICAgICAgICAgICAiY29udGVudF9sZW5ndGgiOiBsZW4ocGF5bG9hZC5nZXQoImNvbnRlbnQiLCAiIikpLAogICAgICAgICAgICB9KQogICAgICAgIG91dFsidmVyc2lvbnMiXSA9IHZlcnNpb25zCiAgICAgICAgb3V0WyJhbGxfc291cmNlX2xpbmVhZ2VfaWRzIl0gPSBbCiAgICAgICAgICAgIHJvdy5ldmlkZW5jZV9pZCBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSgKICAgICAgICAgICAgICAgIHNlbGVjdChldmVudF9ldmlkZW5jZS5jLmV2aWRlbmNlX2lkKS53aGVyZSgKICAgICAgICAgICAgICAgICAgICBldmVudF9ldmlkZW5jZS5jLnBheWxvYWRbInNvdXJjZV91cmwiXS5hc19zdHJpbmcoKS5pbl8odXJscykKICAgICAgICAgICAgICAgICkKICAgICAgICAgICAgKQogICAgICAgIF0KICAgICAgICBkZWNpZGVkID0gc2VsZWN0KGV2ZW50X2RlY2lzaW9ucy5jLmV2aWRlbmNlX2lkKS53aGVyZSgKICAgICAgICAgICAgZXZlbnRfZGVjaXNpb25zLmMuY29ob3J0X2lkID09IENPSE9SVAogICAgICAgICkKICAgICAgICBvdXRbInBlbmRpbmdfcHJpbWFyeV9yZXZpc2lvbl9pZHMiXSA9IFsKICAgICAgICAgICAgcm93LmV2aWRlbmNlX2lkIGZvciByb3cgaW4gY29ubmVjdGlvbi5leGVjdXRlKAogICAgICAgICAgICAgICAgc2VsZWN0KGV2ZW50X2V2aWRlbmNlLmMuZXZpZGVuY2VfaWQpLndoZXJlKAogICAgICAgICAgICAgICAgICAgIGV2ZW50X2V2aWRlbmNlLmMuZXZpZGVuY2VfaWQubm90X2luKGRlY2lkZWQpLAogICAgICAgICAgICAgICAgICAgIGV2ZW50X2V2aWRlbmNlLmMucGF5bG9hZFsiaXNfcHJpbWFyeV9zb3VyY2UiXS5hc19ib29sZWFuKCkuaXNfKFRydWUpLAogICAgICAgICAgICAgICAgICAgIChldmVudF9ldmlkZW5jZS5jLnBheWxvYWRbImlzX2NvcnJlY3Rpb24iXS5hc19ib29sZWFuKCkuaXNfKFRydWUpCiAgICAgICAgICAgICAgICAgICAgIHwgZXZlbnRfZXZpZGVuY2UuYy5wYXlsb2FkWyJpc19yZXRyYWN0aW9uIl0uYXNfYm9vbGVhbigpLmlzXyhUcnVlKQogICAgICAgICAgICAgICAgICAgICB8IGV2ZW50X2V2aWRlbmNlLmMucGF5bG9hZFsicmV2aXNpb25fb2YiXS5hc19zdHJpbmcoKS5pc19ub3QoTm9uZSkpLAogICAgICAgICAgICAgICAgKQogICAgICAgICAgICApCiAgICAgICAgXQogICAgICAgIG91dFsiYWxsX3VucmVzb2x2ZWRfbG9jYWxfb3JkZXJzIl0gPSBbZGljdChyb3cpIGZvciByb3cgaW4gY29ubmVjdGlvbi5leGVjdXRlKAogICAgICAgICAgICBzZWxlY3Qob3JkZXJzLmMuY2xpZW50X29yZGVyX2lkLCBvcmRlcnMuYy5zeW1ib2wsIG9yZGVycy5jLnNpZGUsIG9yZGVycy5jLnN0YXR1cykKICAgICAgICAgICAgLndoZXJlKG9yZGVycy5jLnN0YXR1cy5ub3RfaW4oRklOQUwpKQogICAgICAgICkubWFwcGluZ3MoKV0KICAgICAgICBvdXRbImNvaG9ydF9vcmRlcl9saW5rcyJdID0gW2RpY3Qocm93KSBmb3Igcm93IGluIGNvbm5lY3Rpb24uZXhlY3V0ZSgKICAgICAgICAgICAgc2VsZWN0KGV2ZW50X29yZGVyX2xpbmtzKS53aGVyZShldmVudF9vcmRlcl9saW5rcy5jLmNvaG9ydF9pZCA9PSBDT0hPUlQpCiAgICAgICAgKS5tYXBwaW5ncygpXQp3aXRoIEFscGFjYVBhcGVyQ2xpZW50KEFscGFjYVBhcGVyU2V0dGluZ3MubW9kZWxfdmFsaWRhdGUoe30pKSBhcyBicm9rZXI6CiAgICBhY2NvdW50ID0gYnJva2VyLmFjY291bnQoKQogICAgb3V0WyJicm9rZXIiXSA9IHsKICAgICAgICAib2JzZXJ2ZWRfYXQiOiBkYXRldGltZS5ub3coVVRDKS5pc29mb3JtYXQoKSwKICAgICAgICAiaG9zdCI6ICJodHRwczovL3BhcGVyLWFwaS5hbHBhY2EubWFya2V0cyIsCiAgICAgICAgImFjY291bnRfZGlnZXN0IjogaGFzaGxpYi5zaGEyNTYoc3RyKGFjY291bnQuaWQpLmVuY29kZSgpKS5oZXhkaWdlc3QoKSwKICAgICAgICAic3RhdHVzIjogc3RyKGFjY291bnQuc3RhdHVzKSwKICAgICAgICAiYWNjb3VudF9ibG9ja2VkIjogYWNjb3VudC5hY2NvdW50X2Jsb2NrZWQsCiAgICAgICAgInRyYWRpbmdfYmxvY2tlZCI6IGFjY291bnQudHJhZGluZ19ibG9ja2VkLAogICAgICAgICJwb3NpdGlvbnMiOiBbcm93Lm1vZGVsX2R1bXAobW9kZT0ianNvbiIpIGZvciByb3cgaW4gYnJva2VyLnBvc2l0aW9ucygpXSwKICAgICAgICAib3Blbl9vcmRlcnMiOiBbcm93Lm1vZGVsX2R1bXAobW9kZT0ianNvbiIpIGZvciByb3cgaW4gYnJva2VyLm9wZW5fb3JkZXJzKCldLAogICAgICAgICJjbG9jayI6IGJyb2tlci5jbG9jaygpLm1vZGVsX2R1bXAobW9kZT0ianNvbiIpLAogICAgfQplbmNvZGVkID0gYmFzZTY0LmI2NGVuY29kZShqc29uLmR1bXBzKG91dCwgZGVmYXVsdD1zdHIsIHNvcnRfa2V5cz1UcnVlKS5lbmNvZGUoKSkuZGVjb2RlKCkKcGllY2VzID0gW2VuY29kZWRbc3RhcnQ6c3RhcnQgKyA2MDAwXSBmb3Igc3RhcnQgaW4gcmFuZ2UoMCwgbGVuKGVuY29kZWQpLCA2MDAwKV0KZm9yIGluZGV4LCBwaWVjZSBpbiBlbnVtZXJhdGUocGllY2VzKToKICAgIHByaW50KCJORVdTX1NPVVJDRV9DSFVOSyAiICsganNvbi5kdW1wcyh7CiAgICAgICAgImluZGV4IjogaW5kZXgsICJ0b3RhbCI6IGxlbihwaWVjZXMpLCAiZGF0YSI6IHBpZWNlLAogICAgICAgICJzaGEyNTYiOiBoYXNobGliLnNoYTI1NihlbmNvZGVkLmVuY29kZSgpKS5oZXhkaWdlc3QoKSwKICAgIH0pLCBmbHVzaD1UcnVlKQo='))\"",
+    "startedAt": "2026-09-09T05:14:09Z",
+    "status": "succeeded"
+  },
+  "projection_sha256": "513951d290f82c55d55db8dbe8bc10b3b39560239a642d8a408cf9982e5a5356",
+  "projection_chunks": 5,
+  "source_review": {
+    "all_cohort_R1_pause_events": [
+      {
+        "event_id": "7ae45781-e323-4c97-85bf-405679db3c54",
+        "event_type": "event_pause",
+        "occurred_at": "2026-09-09 05:10:54.072169+00:00",
+        "payload": {
+          "reason": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+        },
+        "recorded_at": "2026-09-09 05:10:54.308378+00:00",
+        "trace_id": "v20-news-paper-20260909-r1"
+      },
+      {
+        "event_id": "9bb264f9-b83f-4812-b41d-a3c7db0b7d06",
+        "event_type": "event_pause",
+        "occurred_at": "2026-09-09 05:10:57.366549+00:00",
+        "payload": {
+          "reason": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+        },
+        "recorded_at": "2026-09-09 05:10:57.455243+00:00",
+        "trace_id": "v20-news-paper-20260909-r1"
+      },
+      {
+        "event_id": "8d17b392-f07e-45a9-9a23-3bf93395b080",
+        "event_type": "event_pause",
+        "occurred_at": "2026-09-09 05:11:00.563564+00:00",
+        "payload": {
+          "reason": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+        },
+        "recorded_at": "2026-09-09 05:11:00.652814+00:00",
+        "trace_id": "v20-news-paper-20260909-r1"
+      }
+    ],
+    "all_position_review_decisions": [
+      {
+        "action": "abstain",
+        "candidate_status": "rejected",
+        "cohort_id": "v20-news-paper-20260909-r1",
+        "decided_at": "2026-09-09 05:10:54.072169+00:00",
+        "decision_id": "9c0af07dfcc193d9a989514f32be90cf92c06438c47541d83e9952d9658f7cb1",
+        "event_type": "unclassified",
+        "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+        "facts": [],
+        "hypothesis": null,
+        "position_review_required": true,
+        "reasons": [
+          "supported_quantitative_event",
+          "known_correction_or_retraction",
+          "publication_time_unknown",
+          "source_expired",
+          "outside_verified_regular_session",
+          "completed_post_availability_observation_missing",
+          "processing_latency_not_elapsed",
+          "quote_not_causal_or_fresh",
+          "spread_exceeds_policy",
+          "pre_event_chase_reference_missing",
+          "unsupported_event_hypothesis"
+        ]
+      },
+      {
+        "action": "abstain",
+        "candidate_status": "rejected",
+        "cohort_id": "v20-news-paper-20260909-r1",
+        "decided_at": "2026-09-09 05:10:57.366549+00:00",
+        "decision_id": "439a67b378908e084f8aedf173e73c144f84aeb4d23f6d90f94f106f0289c1f3",
+        "event_type": "unclassified",
+        "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+        "facts": [],
+        "hypothesis": null,
+        "position_review_required": true,
+        "reasons": [
+          "correction_requires_review",
+          "related_correction_or_retraction",
+          "supported_quantitative_event",
+          "known_correction_or_retraction",
+          "publication_time_unknown",
+          "source_expired",
+          "outside_verified_regular_session",
+          "completed_post_availability_observation_missing",
+          "processing_latency_not_elapsed",
+          "quote_not_causal_or_fresh",
+          "spread_exceeds_policy",
+          "pre_event_chase_reference_missing",
+          "unsupported_event_hypothesis"
+        ]
+      },
+      {
+        "action": "abstain",
+        "candidate_status": "rejected",
+        "cohort_id": "v20-news-paper-20260909-r1",
+        "decided_at": "2026-09-09 05:11:00.563564+00:00",
+        "decision_id": "1c5d8147e3bbccf831b1dbfe278abf310c82bfdf693170fbf00a73935e5e6e8a",
+        "event_type": "unclassified",
+        "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+        "facts": [],
+        "hypothesis": null,
+        "position_review_required": true,
+        "reasons": [
+          "correction_requires_review",
+          "related_correction_or_retraction",
+          "supported_quantitative_event",
+          "known_correction_or_retraction",
+          "publication_time_unknown",
+          "source_expired",
+          "outside_verified_regular_session",
+          "completed_post_availability_observation_missing",
+          "processing_latency_not_elapsed",
+          "quote_not_causal_or_fresh",
+          "spread_exceeds_policy",
+          "pre_event_chase_reference_missing",
+          "unsupported_event_hypothesis"
+        ]
+      }
+    ],
+    "all_source_lineage_ids": [
+      "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+      "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+      "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef"
+    ],
+    "all_unresolved_local_orders": [],
+    "broker": {
+      "account_blocked": false,
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "clock": {
+        "is_open": false,
+        "next_close": "2026-09-09T16:00:00-04:00",
+        "next_open": "2026-09-09T09:30:00-04:00",
+        "timestamp": "2026-09-09T01:14:18.451474-04:00"
+      },
+      "host": "https://paper-api.alpaca.markets",
+      "observed_at": "2026-09-09T05:14:18.267237+00:00",
+      "open_orders": [],
+      "positions": [],
+      "status": "ACTIVE",
+      "trading_blocked": false
+    },
+    "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+    "cohort": {
+      "cohort_id": "v20-news-paper-20260909-r1",
+      "config_hash": "77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43",
+      "created_at": "2026-09-09 05:10:37.619741+00:00",
+      "manifest": {
+        "account_risk_scope": "persistent shared account economic daily/weekly/high-watermark limits",
+        "attempt_budget": {
+          "ablations": [
+            "price",
+            "structured",
+            "text",
+            "structured_text",
+            "overlay"
+          ],
+          "controls": [
+            "shuffled_association",
+            "stale_versions",
+            "delays_1_5_15_next_open"
+          ],
+          "entry_variants": 2,
+          "maximum_per_family": 3
+        },
+        "calibration": {
+          "entry_expiry_seconds": 30,
+          "existing_entry_warmup_preserved": true,
+          "exit_after_seconds": 60,
+          "maximum_entry_attempts": 1,
+          "maximum_notional_usd": "25",
+          "missed_or_rejected_fill": "record honestly; no forced replacement",
+          "session_date": "2026-09-09",
+          "start_minutes_after_open": 40,
+          "symbol": "AAPL",
+          "window_minutes_after_open": 60
+        },
+        "candidate_selection_rule": "latest-primary-receipt_then_symbol_then_evidence-id",
+        "code_sha": "29cf2327e8145af510735faa5a51d852a747a47b",
+        "config_hash": "77de8996940471aa1767d9c4a8101d22b6379032a9c78119010ffdac626cef43",
+        "cost_assumptions": {
+          "additional_spread_deduction": "0",
+          "base": {
+            "additional_spread_deduction": "0",
+            "minimum_fee_per_filled_sell_order_usd": "0.01",
+            "price_baseline": "broker-confirmed cumulative fill VWAP",
+            "residual_execution_rate_each_side": "0.00005",
+            "sell_per_share_fee": "0.000195",
+            "sell_value_fee_rate": "0.00002060"
+          },
+          "baseline": "actual cumulative broker-paper fill VWAP, not a midpoint or quote-path return",
+          "benchmarks": {
+            "cash": {
+              "capital_basis": "same allocated strategy capital",
+              "declaration": "zero-interest cash baseline",
+              "pnl": "0",
+              "timing_basis": "same reported evaluation interval"
+            },
+            "passive": {
+              "capital_basis": "same allocated strategy capital",
+              "declaration": "only an instrument and allocation predeclared in the cohort",
+              "instrument": null,
+              "pnl": null,
+              "retrospective_selection_permitted": false,
+              "status": "unknown without a declared instrument and comparable observations",
+              "timing_basis": "same reported evaluation interval"
+            }
+          },
+          "limitations": [
+            "Reserves are assumptions, not observed commissions or reconciled broker fees.",
+            "Residual friction approximates omitted latency, queue position and market impact.",
+            "No second spread deduction: the execution-price baseline already includes the fills."
+          ],
+          "minimum_fee_per_filled_sell_order": "0.01",
+          "partial_fill_method": "Cumulative filled quantity times broker VWAP once per client order ID; unfilled remainder incurs no modeled execution cost. Fee floor applies per sell order.",
+          "reference": "https://docs.alpaca.markets/us/docs/paper-trading",
+          "residual_slippage_rate_each_side": "0.00005",
+          "sell_per_share_fee": "0.000195",
+          "sell_value_fee_rate": "0.00002060",
+          "stress_method": "Existing 1.5x/2x/3x scenarios multiply residual execution friction only; the same fee reserve is retained. Stress results never replace the base estimate.",
+          "stress_scenarios": {
+            "1.5x": {
+              "additional_spread_deduction": "0",
+              "regulatory_fee_multiplier": "1",
+              "residual_cost_multiplier": "1.5",
+              "separate_from_base": true
+            },
+            "2x": {
+              "additional_spread_deduction": "0",
+              "regulatory_fee_multiplier": "1",
+              "residual_cost_multiplier": "2",
+              "separate_from_base": true
+            },
+            "3x": {
+              "additional_spread_deduction": "0",
+              "regulatory_fee_multiplier": "1",
+              "residual_cost_multiplier": "3",
+              "separate_from_base": true
+            }
+          },
+          "version": "v20-paper-residual-20260906-v1"
+        },
+        "entry_session_only": "2026-09-09",
+        "equipment_classification": "EQUIPMENT_TEST",
+        "equipment_identity_scope": "paper account and planned session, not deployment",
+        "evidence_clock": "excluded from all research qualification clocks",
+        "evidence_use": "operational_practice_only",
+        "execution_feed": "iex",
+        "extraction": {
+          "implementation_hash": "afa03c7580fe07ca0fbae275d7c524bf7f81e1f821210b8d14d4d0f7dd8f7678",
+          "model_prompt": "source-span numeric grammar; no LLM",
+          "prior_comparisons": "verified observed pre-event issuer evidence only",
+          "provider": "deterministic-only"
+        },
+        "forecast": "expected net return unknown; explicit experimental rule, not a profitability gate",
+        "formal_forward_evaluation_started": false,
+        "hypotheses": [
+          "H1 comparable quantitative guidance",
+          "H2 valued contract",
+          "R1 risk overlay"
+        ],
+        "maximum_news_entries_per_session": 1,
+        "news_age_is_independent_of_collection_window": true,
+        "news_poll_seconds": 30,
+        "news_requires_completed_equipment_round_trip": true,
+        "news_scope": "preceding broker regular-session close through session updates",
+        "operational_settings": {
+          "intraday": {
+            "bar_max_age_seconds": 90,
+            "context_bar_minutes": 15,
+            "enabled": false,
+            "entry_start": "09:35:00",
+            "flatten_start": "15:50:00",
+            "hard_flatten_deadline": "15:55:00",
+            "heartbeat_max_age_seconds": 60,
+            "maximum_gross_exposure": "0.01",
+            "maximum_order_notional": "25",
+            "maximum_position_exposure": "0.005",
+            "maximum_positions": 2,
+            "maximum_round_trips_per_day": 2,
+            "minimum_expected_edge_bps": "15",
+            "minimum_order_notional": "10",
+            "no_new_entries_after": "15:30:00",
+            "primary_bar_minutes": 5,
+            "quote_max_age_seconds": 10,
+            "reconciliation_interval_seconds": 60,
+            "regular_session_close": "16:00:00",
+            "symbol_cooldown_minutes": 30,
+            "timezone": "America/New_York"
+          },
+          "risk": {
+            "allow_leverage": false,
+            "allow_shorting": false,
+            "max_daily_loss": "0.01",
+            "max_data_age_seconds": 120,
+            "max_drawdown": "0.015",
+            "max_gross_exposure": "0.50",
+            "max_order_exposure": "0.02",
+            "max_orders_per_hour": 20,
+            "max_position_exposure": "0.05",
+            "max_positions": 10,
+            "max_volume_participation": "0.01"
+          }
+        },
+        "policy": {
+          "allow_iex_experimental_paper": true,
+          "allow_overnight": false,
+          "entry_expiry_seconds": 30,
+          "flatten_before_close_minutes": 10,
+          "h1_min_guidance_increase_fraction": "0.01",
+          "h1_variant": "comparable-guidance-v1",
+          "h2_min_contract_to_annual_revenue": "0.05",
+          "h2_variant": "valued-contract-scale-v1",
+          "horizon_minutes": 60,
+          "live_execution_enabled": false,
+          "macro_blackout_minutes": 30,
+          "max_absolute_chase_fraction": "0.02",
+          "max_contract_months": 60,
+          "max_entry_notional_usd": "25",
+          "max_open_positions": 1,
+          "max_publication_to_receipt_seconds": 900,
+          "max_quote_age_seconds": 5,
+          "max_reference_age_days": 550,
+          "max_source_age_seconds": 1800,
+          "max_spread_bps": "10",
+          "max_volatility_chase_multiple": "1",
+          "minimum_liquidity_sessions": 20,
+          "minimum_median_daily_dollar_volume": "50000000",
+          "minimum_price": "5",
+          "observation_seconds": 300,
+          "policy_id": "event-v20.1",
+          "processing_latency_seconds": 2
+        },
+        "policy_change": "Explicit bounded equipment then genuine news paper session with local protection",
+        "poll_rationale": "Retain 30-second freshness and risk supervision; do not slow to 5-15 minutes",
+        "primary_outcome": "order handling, reconciliation and safety; not economic alpha",
+        "prior_research": "failed and/or superseded; never promoted",
+        "protection_reference": "Illustration only; actual per-position thresholds use broker filled VWAP",
+        "protective_exits": {
+          "broker_native": false,
+          "execution": "local_trigger_then_owned_quantity_market_exit",
+          "limits": "Requires running worker/fresh quote; gaps, outages and slippage can exceed trigger.",
+          "policy_version": "news-paper-local-protection-v1",
+          "reference_price": "100",
+          "stop_fraction": "0.005",
+          "stop_price": "99.500",
+          "take_profit_price": "101.00",
+          "target_fraction": "0.01"
+        },
+        "purpose": "iex-practice",
+        "qualification_eligible": false,
+        "review": "operational practice only; no 60-session/60-round-trip qualification",
+        "runtime_module_hashes": {
+          "alpaca_paper.py": "c44ba07e6af8badaf3da177d935b08750fce1ab12e8953a24a01b423bc506911",
+          "config.py": "238f25d2377a4fdc3bfaa1bdc72cfa7ecb593f01710c750a8d5e32195195278a",
+          "domain.py": "4bc3e71c9393d68487b279633f01670cbfe56411dcdcb157ecea585163aec3d2",
+          "event_account_risk.py": "e0f3c161305d6fc87c57cdf7213ccff6ee338da438eddfbcf2c7619ded99d730",
+          "event_brief.py": "1a685f02835ee29076fb13440b90f34416638bd1436717616b4d9c341861482e",
+          "event_cli.py": "7da03f3e5caee0c2eea2b05dbbd650aeb98d3384b04410008e46f34998b26665",
+          "event_context.py": "6367bf7375c1f289aaf5c8fb75f4f0e0840c748738ea16024dcbc667e9290ed8",
+          "event_demo.py": "5508bb0d59d4384ba060b74999eca5130f654c609bbb64443562f0303b3657f2",
+          "event_doctor.py": "89a2c4760fe40fc14893b1fdd2d611431f80e27a2aa7ba36d5c2c7f64ec99357",
+          "event_market.py": "53b98889565843616c846f851c8f55b797d8ce0659fb1dd88c92c929e531efaf",
+          "event_news_policy.py": "3a4ac8d0099382312655b75596708eba2204eab65c841931599002013f731b3f",
+          "event_operator_probe.py": "09e4d4d55114c20580dd8cdfdab06fdc256cb431bf17179125a3e90bfffa3f39",
+          "event_order_notifications.py": "d14aacd683f18dafbc89d65d2b2b381f40778525adb9539df0e894aaedf87d00",
+          "event_order_stream.py": "8ff3116d6094e11363824e03e4d442c001e6523d49dbe45fd05921eda134a636",
+          "event_orders.py": "5ffc2f18b3a3c6349961856e79ca840c0c6be42be4983d01e27e736c7b68f514",
+          "event_outcomes.py": "0181f6905de259a6ca8a30114b839e513424c36fd1295d9d8680bd131fa5c8d0",
+          "event_performance.py": "a6f0f5d689d23f02563fd22cb4742e18038fada0f772eb6b18161071ab9ab930",
+          "event_replay.py": "92eb46ca796c3adadce8fc1ca94af25957bb4b0684e3547e18568c9110673286",
+          "event_reporting.py": "aa1b8945c3c24b712270e7edbc567371dc703db0bba57993442d87e2d1a35d69",
+          "event_research.py": "afa03c7580fe07ca0fbae275d7c524bf7f81e1f821210b8d14d4d0f7dd8f7678",
+          "event_runtime.py": "6de1157bb9b790e18757c10ebc9375a12604cb02fc0cabe4c03de9efbf2c364c",
+          "event_session.py": "c2c7059bba7e6293276e9fdb86064a6d9bc0f32c11da5cf07fded70367274b34",
+          "event_session_report.py": "1a4ab1c0e6c603ba02dd7f7c02840c23e97b94d1f8775e4d56ac16bb6a5bbdaf",
+          "event_sources.py": "cb1b69d4afb061bba801ca1f545bf1dbd29bb62e806e65b9ce225861f438396c",
+          "event_store.py": "7ce0ccbacbe5b949969e13be887a62de4c7f65d0ab40ae4830b5b873fc721934",
+          "experimental_policy.py": "5fb27f528b2286a3bedae97b764154a786864a32a0e29d24d90675254f42a11c",
+          "intraday.py": "109c122af5a857fb29905aec5dc816308cfbe577f83647ad879a654e8bbf85d7",
+          "order_state.py": "0e983196b2ff4e6174021401d3abb928ad681143ee48f284f6736c42f4be2c64",
+          "persistence.py": "311d5fe8ffe882ecd9aabcd8fd36b6e81d776f5e940ce9f0b6c973efea420b43"
+        },
+        "sec_contact_configured": true,
+        "service_cost_budget": {
+          "fixed_monthly_usd": null,
+          "inference_calls_per_day": 0,
+          "new_paid_services": 0
+        },
+        "session_protocol_version": "news-paper-local-protection-v1",
+        "settings": {
+          "cohort_id": "v20-news-paper-20260909-r1",
+          "daily_loss_fraction": "0.005",
+          "demo_account_digest": null,
+          "drawdown_fraction": "0.015",
+          "entry_policy": "news-paper",
+          "estimated_fixed_monthly_usd": null,
+          "inference_provider": "deterministic-only",
+          "initial_lookback_minutes": 60,
+          "max_entries_per_session": 2,
+          "max_entry_notional": "25",
+          "max_holding_minutes": 60,
+          "max_inference_calls_daily": 0,
+          "max_positions": 1,
+          "minimum_round_trips": 60,
+          "minimum_sessions": 60,
+          "mode": "experimental-paper",
+          "news_account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+          "poll_seconds": 30,
+          "practice_start_date": "2026-09-09",
+          "primary_urls": {},
+          "purpose": "iex-practice",
+          "symbols": "AAPL,MSFT,NVDA",
+          "virtual_equity": "10000",
+          "weekly_loss_fraction": "0.005"
+        },
+        "signal_confidence": "validated deterministic H1/H2 category, not calibrated probability",
+        "source_limitations": [
+          "historical receipt not reconstructed",
+          "consensus unavailable",
+          "IEX is not NBBO",
+          "macro and halt completeness checked independently"
+        ],
+        "source_set": {
+          "SEC": "issuer-verified submissions, filings, EX-99 and older comparison documents",
+          "configured_primary_urls": {},
+          "consensus": "unavailable",
+          "licensed_news": "Alpaca/Benzinga v1beta1 news; metadata retention",
+          "market_observations": {
+            "daily_liquidity_and_volatility": "historical SIP, raw adjustment",
+            "execution_quotes_and_intraday_bars": "iex",
+            "latest_REST_quote_sizes": "shares; verified endpoint schema",
+            "paper_fill_basis": "Alpaca NBBO simulation, not observed IEX execution"
+          },
+          "official_issuer_feeds": {
+            "AAPL": "https://www.apple.com/newsroom/rss-feed.rss",
+            "MSFT": "https://www.microsoft.com/en-us/microsoft-cloud/blog/feed/",
+            "NVDA": "https://nvidianews.nvidia.com/rss.xml"
+          },
+          "publication_policy": "explicit aware original publication; acceptance/updated times are not substituted"
+        },
+        "statistical_gates": {
+          "dsr_min": "0.95",
+          "family_pbo_max": "0.20",
+          "undefined": "inconclusive, never favorable default"
+        }
+      },
+      "mode": "experimental-paper"
+    },
+    "cohort_id": "v20-news-paper-20260909-r1",
+    "cohort_order_links": [],
+    "controls": [
+      {
+        "control_key": "kill_switch",
+        "control_value": "active",
+        "updated_at": "2026-09-08 23:33:26.789305+00:00"
+      },
+      {
+        "control_key": "paper-risk:b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "control_value": "{\"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"capital\": \"10000\", \"daily_limit\": \"50\", \"drawdown_limit\": \"150\", \"observed_at\": \"2026-09-09T05:13:55.532073+00:00\", \"peak\": \"10000\", \"weekly_limit\": \"50\"}",
+        "updated_at": "2026-09-09 05:13:55.532073+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:broker-account",
+        "control_value": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "updated_at": "2026-09-09 05:10:37.974973+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:calibration_status",
+        "control_value": "{\"state\": \"waiting_for_regular_entry_window\"}",
+        "updated_at": "2026-09-09 05:11:02.098037+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:day:2026-09-09",
+        "control_value": "10000",
+        "updated_at": "2026-09-09 05:10:41.346266+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:high-watermark",
+        "control_value": "10000",
+        "updated_at": "2026-09-09 05:13:55.536658+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:pause",
+        "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "updated_at": "2026-09-09 05:11:00.649221+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:session-plan",
+        "control_value": "{\"session_date\":\"2026-09-09\",\"session_open\":\"2026-09-09T13:30:00Z\",\"session_close\":\"2026-09-09T20:00:00Z\",\"previous_session_close\":\"2026-09-08T20:00:00Z\",\"verified_at\":\"2026-09-09T05:10:39.772962Z\",\"calendar_source\":\"https://paper-api.alpaca.markets/v2/calendar\"}",
+        "updated_at": "2026-09-09 05:10:39.845120+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:source_watermark",
+        "control_value": "2026-09-09T05:13:20.839693+00:00",
+        "updated_at": "2026-09-09 05:13:56.380826+00:00"
+      }
+    ],
+    "observed_at": "2026-09-09T05:14:17.548878+00:00",
+    "orders_submitted": 0,
+    "pending_primary_revision_ids": [],
+    "read_only": true,
+    "total_decisions": 76,
+    "versions": [
+      {
+        "actual_content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+        "content_available_at": "2026-09-08T14:01:12.220176Z",
+        "content_length": 10958,
+        "content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+        "database_received_at": "2026-09-08 14:01:12.220176+00:00",
+        "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+        "first_received_at": "2026-09-08T14:01:12.220176Z",
+        "headline": "The internet\u2019s favorite cat comes to Apple Arcade with Pusheen\u2019s Place",
+        "is_correction": false,
+        "is_primary_source": true,
+        "is_retraction": false,
+        "provider_created_at": null,
+        "provider_updated_at": "2026-09-08T13:59:40.685000Z",
+        "published_at": null,
+        "raw_document_sha256": "f5d2eb4afeabf1d2a416fb9a399e321902e33326c98fd0eb16aaf533a306cf6b",
+        "raw_payload_sha256": "f5d2eb4afeabf1d2a416fb9a399e321902e33326c98fd0eb16aaf533a306cf6b",
+        "revision_of": null,
+        "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+        "source_version": "2b75783126615a4a54f41dffa4cfbb98caf41917bfbb0ad968063b7b9db63987"
+      },
+      {
+        "actual_content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+        "content_available_at": "2026-09-08T16:29:35.546193Z",
+        "content_length": 10958,
+        "content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+        "database_received_at": "2026-09-08 16:29:35.546193+00:00",
+        "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+        "first_received_at": "2026-09-08T16:29:35.546193Z",
+        "headline": "The internet\u2019s favorite cat comes to Apple Arcade with Pusheen\u2019s Place",
+        "is_correction": false,
+        "is_primary_source": true,
+        "is_retraction": false,
+        "provider_created_at": null,
+        "provider_updated_at": "2026-09-08T13:59:40.685000Z",
+        "published_at": null,
+        "raw_document_sha256": "e31897f89b018ac85caa1c956acc59407404917c11c5364feb65952001098c81",
+        "raw_payload_sha256": "e31897f89b018ac85caa1c956acc59407404917c11c5364feb65952001098c81",
+        "revision_of": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+        "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+        "source_version": "09df58f62f67150c370243f0a4af73410f6138827fe26a45ff6645c1c9044a3f"
+      },
+      {
+        "actual_content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+        "content_available_at": "2026-09-08T19:01:52.840562Z",
+        "content_length": 10958,
+        "content_sha256": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+        "database_received_at": "2026-09-08 19:01:52.840562+00:00",
+        "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+        "first_received_at": "2026-09-08T19:01:52.840562Z",
+        "headline": "The internet\u2019s favorite cat comes to Apple Arcade with Pusheen\u2019s Place",
+        "is_correction": false,
+        "is_primary_source": true,
+        "is_retraction": false,
+        "provider_created_at": null,
+        "provider_updated_at": "2026-09-08T13:59:40.685000Z",
+        "published_at": null,
+        "raw_document_sha256": "b58e6867d1bfe4ee7bf182ad424fc03298ec1d51bab0138c93e7a64f44842b38",
+        "raw_payload_sha256": "b58e6867d1bfe4ee7bf182ad424fc03298ec1d51bab0138c93e7a64f44842b38",
+        "revision_of": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+        "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+        "source_version": "f33bda861f53c9cf7b0e5e77c97d56d5603779747d3d2c9b14085115b21271a8"
+      }
+    ],
+    "waiting_candidates": [],
+    "prior_record_comparison": [
+      {
+        "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+        "previously_reviewed_record": true,
+        "differing_immutable_fields": [],
+        "content_integrity_matches": true
+      },
+      {
+        "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+        "previously_reviewed_record": true,
+        "differing_immutable_fields": [],
+        "content_integrity_matches": true
+      },
+      {
+        "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+        "previously_reviewed_record": true,
+        "differing_immutable_fields": [],
+        "content_integrity_matches": true
+      }
+    ],
+    "previous_acknowledgement_not_transferred": true
+  },
+  "initial_diagnostic_log_truncated": {
+    "job_id": "job-dagelh0u01pc73fhfl5g",
+    "retained_log_bytes": 100000,
+    "corrective_probe": "new read-only bounded projection, no order/control/email mutation"
+  }
+}

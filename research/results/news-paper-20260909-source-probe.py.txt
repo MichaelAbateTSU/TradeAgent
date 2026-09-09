@@ -1,0 +1,151 @@
+"""Read-only deployed-cohort/source review; no control, broker or outbox writes."""
+import hashlib
+import base64
+import json
+import os
+from datetime import UTC, datetime
+
+from sqlalchemy import select, text
+
+from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
+from tradeagent.config import AppConfig
+from tradeagent.event_orders import FINAL
+from tradeagent.event_store import (
+    event_candidate_states,
+    event_cohorts,
+    event_decisions,
+    event_evidence,
+    event_order_links,
+)
+from tradeagent.persistence import Database, controls, events, orders
+
+PIN = "29cf2327e8145af510735faa5a51d852a747a47b"
+COHORT = "v20-news-paper-20260909-r1"
+assert os.environ["RENDER_GIT_COMMIT"] == PIN
+out = {
+    "observed_at": datetime.now(UTC).isoformat(),
+    "code_sha": PIN,
+    "cohort_id": COHORT,
+    "read_only": True,
+    "orders_submitted": 0,
+}
+with Database(AppConfig().database_url.get_secret_value()) as database:
+    with database.begin() as connection:
+        connection.execute(text("SET TRANSACTION READ ONLY"))
+        connection.execute(text("SET LOCAL statement_timeout = '15s'"))
+        out["cohort"] = dict(connection.execute(
+            select(event_cohorts).where(event_cohorts.c.cohort_id == COHORT)
+        ).mappings().one())
+        out["controls"] = [dict(row) for row in connection.execute(
+            select(controls).where(
+                (controls.c.control_key == "kill_switch")
+                | controls.c.control_key.startswith(COHORT + ":")
+                | controls.c.control_key.startswith("paper-risk:")
+                | controls.c.control_key.startswith("paper-session:")
+            ).order_by(controls.c.control_key)
+        ).mappings()]
+        out["all_cohort_R1_pause_events"] = [dict(row) for row in connection.execute(
+            select(events).where(
+                events.c.trace_id == COHORT,
+                events.c.event_type == "event_pause",
+                events.c.payload["reason"].as_string() == "R1_EVENT_REQUIRES_POSITION_REVIEW",
+            ).order_by(events.c.occurred_at)
+        ).mappings()]
+        decisions = [dict(row) for row in connection.execute(
+            select(event_decisions, event_candidate_states.c.status.label("candidate_status"))
+            .outerjoin(event_candidate_states,
+                       event_candidate_states.c.decision_id == event_decisions.c.decision_id)
+            .where(event_decisions.c.cohort_id == COHORT)
+        ).mappings()]
+        out["total_decisions"] = len(decisions)
+        reviews = [row for row in decisions if row["payload"].get("position_review_required")]
+        out["all_position_review_decisions"] = [
+            {
+                **{key: row[key] for key in (
+                    "decision_id", "cohort_id", "evidence_id", "decided_at", "candidate_status",
+                )},
+                **{key: row["payload"].get(key) for key in (
+                    "action", "hypothesis", "reasons", "position_review_required",
+                )},
+                "event_type": row["payload"].get("extraction", {}).get("event_type"),
+                "facts": row["payload"].get("extraction", {}).get("facts"),
+            }
+            for row in reviews
+        ]
+        out["waiting_candidates"] = [
+            {key: row[key] for key in ("decision_id", "evidence_id", "candidate_status")}
+            for row in decisions if row["candidate_status"] == "waiting"
+        ]
+        ids = {row["evidence_id"] for row in reviews}
+        versions = []
+        urls = set()
+        for row in connection.execute(
+            select(event_evidence).where(event_evidence.c.evidence_id.in_(ids))
+        ).mappings():
+            payload = row["payload"]
+            urls.add(payload.get("source_url"))
+            raw = json.loads(payload.get("raw_metadata_json") or "{}").get("raw_document")
+            versions.append({
+                "evidence_id": row["evidence_id"],
+                "database_received_at": row["received_at"],
+                **{key: payload.get(key) for key in (
+                    "source_url", "source_version", "headline", "content_sha256",
+                    "revision_of", "published_at", "provider_created_at", "provider_updated_at",
+                    "first_received_at", "content_available_at", "is_primary_source",
+                    "is_correction", "is_retraction", "raw_payload_sha256",
+                )},
+                "actual_content_sha256": hashlib.sha256(
+                    payload.get("content", "").encode()
+                ).hexdigest(),
+                "raw_document_sha256": hashlib.sha256(raw.encode()).hexdigest() if raw else None,
+                "content_length": len(payload.get("content", "")),
+            })
+        out["versions"] = versions
+        out["all_source_lineage_ids"] = [
+            row.evidence_id for row in connection.execute(
+                select(event_evidence.c.evidence_id).where(
+                    event_evidence.c.payload["source_url"].as_string().in_(urls)
+                )
+            )
+        ]
+        decided = select(event_decisions.c.evidence_id).where(
+            event_decisions.c.cohort_id == COHORT
+        )
+        out["pending_primary_revision_ids"] = [
+            row.evidence_id for row in connection.execute(
+                select(event_evidence.c.evidence_id).where(
+                    event_evidence.c.evidence_id.not_in(decided),
+                    event_evidence.c.payload["is_primary_source"].as_boolean().is_(True),
+                    (event_evidence.c.payload["is_correction"].as_boolean().is_(True)
+                     | event_evidence.c.payload["is_retraction"].as_boolean().is_(True)
+                     | event_evidence.c.payload["revision_of"].as_string().is_not(None)),
+                )
+            )
+        ]
+        out["all_unresolved_local_orders"] = [dict(row) for row in connection.execute(
+            select(orders.c.client_order_id, orders.c.symbol, orders.c.side, orders.c.status)
+            .where(orders.c.status.not_in(FINAL))
+        ).mappings()]
+        out["cohort_order_links"] = [dict(row) for row in connection.execute(
+            select(event_order_links).where(event_order_links.c.cohort_id == COHORT)
+        ).mappings()]
+with AlpacaPaperClient(AlpacaPaperSettings.model_validate({})) as broker:
+    account = broker.account()
+    out["broker"] = {
+        "observed_at": datetime.now(UTC).isoformat(),
+        "host": "https://paper-api.alpaca.markets",
+        "account_digest": hashlib.sha256(str(account.id).encode()).hexdigest(),
+        "status": str(account.status),
+        "account_blocked": account.account_blocked,
+        "trading_blocked": account.trading_blocked,
+        "positions": [row.model_dump(mode="json") for row in broker.positions()],
+        "open_orders": [row.model_dump(mode="json") for row in broker.open_orders()],
+        "clock": broker.clock().model_dump(mode="json"),
+    }
+encoded = base64.b64encode(json.dumps(out, default=str, sort_keys=True).encode()).decode()
+pieces = [encoded[start:start + 6000] for start in range(0, len(encoded), 6000)]
+for index, piece in enumerate(pieces):
+    print("NEWS_SOURCE_CHUNK " + json.dumps({
+        "index": index, "total": len(pieces), "data": piece,
+        "sha256": hashlib.sha256(encoded.encode()).hexdigest(),
+    }), flush=True)
