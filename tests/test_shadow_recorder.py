@@ -1,17 +1,36 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import threading
 import time
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from itertools import pairwise
 from pathlib import Path
+from types import SimpleNamespace
 from uuid import uuid4
 
+import psycopg
 import pytest
+from shadow_copy_pg_fixture import (
+    COLUMNS,
+    BorrowedConnection,
+    ProbeBudget,
+    ProbeInconclusiveError,
+    SavepointDatabase,
+    bounded_statement,
+    compare_shadow_copy,
+    copy_row,
+    copy_statements,
+    raw_page_count,
+    validate_options,
+)
 from sqlalchemy import event, select
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.exc import DBAPIError, OperationalError
+from sqlalchemy.schema import CreateTable
 
 from tradeagent.alpaca_stream import MarketQuote, MarketTrade, ReceivedStreamEvent
 from tradeagent.domain import MarketBar
@@ -771,3 +790,366 @@ def test_batch_owner_is_immutable_on_retry(repository):
     original = repository.latest_event_payload("shadow_recorder_batch")
     assert original["instance_id"] == "first-recorder"
     assert repository.market_data_counts() == (0, 1, 0)
+
+
+def _probe_quote_row(index):
+    receipt = _receipt(index)
+    row = receipt.event.model_dump()
+    row["event_at"] = row.pop("timestamp")
+    return {
+        **row,
+        "quote_id": str(index),
+        "received_at": receipt.received_at,
+        "processed_at": NOW + timedelta(minutes=1),
+    }
+
+
+class _ProbeCursor:
+    def __init__(self, results, *, fail_row=None):
+        self.results = iter(results)
+        self.returned = []
+        self.pages = []
+        self.queries = []
+        self.total_rows = 0
+        self.fail_row = fail_row
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return None
+
+    @contextmanager
+    def copy(self, statement):
+        self.queries.append(statement.as_string())
+        self.pages.append([])
+        yield self
+
+    def write_row(self, row):
+        self.total_rows += 1
+        if self.total_rows == self.fail_row:
+            raise psycopg.DataError("isolated injected COPY failure")
+        self.pages[-1].append(row)
+
+    def execute(self, statement):
+        self.queries.append(statement.as_string())
+        self.returned = next(self.results)
+
+    def fetchall(self):
+        return self.returned
+
+
+class _ProbeConnection:
+    def __init__(self, cursor, schema):
+        self.connection = SimpleNamespace(driver_connection=SimpleNamespace(cursor=lambda: cursor))
+        self.dialect = postgresql.dialect()
+        self.schema = schema
+        self.actions = []
+
+    def in_transaction(self):
+        return True
+
+    def get_execution_options(self):
+        return {"schema_translate_map": {None: self.schema}}
+
+    @contextmanager
+    def begin_nested(self):
+        self.actions.append("savepoint")
+        try:
+            yield
+        except BaseException:
+            self.actions.append("rollback_savepoint")
+            raise
+        else:
+            self.actions.append("release_savepoint")
+
+
+@pytest.mark.parametrize(
+    "schema", ["public", "pg_temp", "other_schema", 'x";DROP SCHEMA public;--']
+)
+def test_copy_probe_rejects_nonprivate_schema_before_sql(schema):
+    with pytest.raises(ValueError, match="private"):
+        copy_statements(schema, market_quotes)
+
+
+def test_copy_probe_is_not_a_sqlite_or_automatic_connection_benchmark(monkeypatch):
+    with Database("sqlite:///:memory:") as database:
+
+        def forbidden():
+            pytest.fail("Probe must fail before opening a non-PG connection")
+
+        monkeypatch.setattr(database.engine, "connect", forbidden)
+        with pytest.raises(ValueError, match="PostgreSQL/psycopg"):
+            compare_shadow_copy(database.engine)
+
+
+def test_copy_probe_fixed_columns_codec_and_ordered_atomic_stage_consumption():
+    schema = f"shadow_copy_probe_{uuid4().hex}"
+    for table in (market_bars, market_quotes, market_trades):
+        copy, merge = (statement.as_string() for statement in copy_statements(schema, table))
+        assert "pg_temp" in copy and " FROM STDIN" in copy
+        assert f'"{schema}"."{table.name}"' in merge
+        assert 'ORDER BY "_ordinal" ON CONFLICT DO NOTHING RETURNING' in merge
+        assert "DELETE FROM" in merge and "RETURNING" in merge
+        assert not any(word in merge for word in ("DISTINCT", "TRUNCATE", "CREATE", "public"))
+    row = _probe_quote_row(0)
+    packed = copy_row(market_quotes, row, 7)
+    assert packed[-1] == 7
+    for index, name in enumerate(COLUMNS[market_quotes.name]):
+        assert packed[index] is row[name]
+    trade = {name: None for name in COLUMNS[market_trades.name]}
+    trade.update(price=Decimal("100.123456789012"), conditions=["@", "\t", "\\", '"', "é"])
+    packed = copy_row(market_trades, trade, 0)
+    assert (
+        json.loads(packed[COLUMNS[market_trades.name].index("conditions")]) == trade["conditions"]
+    )
+    assert packed[COLUMNS[market_trades.name].index("price")] is trade["price"]
+    assert packed[COLUMNS[market_trades.name].index("tape")] is None
+    with pytest.raises(ValueError, match="exactly"):
+        copy_row(market_quotes, {**row, "unexpected": "must not disappear"}, 0)
+    ddl = str(
+        CreateTable(event_reporting_metadata).compile(
+            dialect=postgresql.dialect(),
+            schema_translate_map={None: schema},
+            render_schema_translate=True,
+        )
+    )
+    assert f"REFERENCES {schema}.events_v2" in ddl
+    assert "public" not in ddl
+
+
+def test_copy_probe_preserves_every_input_row_and_exact_driver_returned_ids_across_pages():
+    schema = f"shadow_copy_probe_{uuid4().hex}"
+    cursor = _ProbeCursor([[], [("500",)], [("1000",)]])
+    connection = _ProbeConnection(cursor, schema)
+    borrowed = BorrowedConnection(connection, schema, use_copy=True)
+    database = SavepointDatabase(borrowed)
+    values = [_probe_quote_row(index) for index in range(1001)]
+    with database.begin() as adapter:
+        result = adapter.execute(
+            recorder_insert := postgresql.insert(market_quotes)
+            .on_conflict_do_nothing()
+            .returning(market_quotes.c.quote_id),
+            values,
+        )
+    assert result.fetchall() == [("500",), ("1000",)]
+    assert borrowed.raw_ids == ["500", "1000"]
+    assert [len(page) for page in cursor.pages] == [500, 500, 1]
+    assert [row[-1] for row in cursor.pages[0]] == list(range(500))
+    assert cursor.pages[1][0][-1] == cursor.pages[2][0][-1] == 0
+    copied_ids = [row[0] for page in cursor.pages for row in page]
+    assert copied_ids == [str(index) for index in range(1001)]
+    assert connection.actions == ["savepoint", "release_savepoint"]
+    assert "savepoint_release" in borrowed.metrics and "commit" not in borrowed.metrics
+    with pytest.raises(ValueError, match="1500"):
+        borrowed.execute(recorder_insert, values * 2)
+
+
+def test_copy_probe_native_error_rolls_back_borrowed_savepoint_and_never_commits():
+    schema = f"shadow_copy_probe_{uuid4().hex}"
+    cursor = _ProbeCursor([[("first",)]], fail_row=501)
+    connection = _ProbeConnection(cursor, schema)
+    borrowed = BorrowedConnection(connection, schema, use_copy=True)
+    with (
+        pytest.raises(DBAPIError, match="isolated injected COPY failure"),
+        SavepointDatabase(borrowed).begin(),
+    ):
+        borrowed.copy_insert(market_quotes, [_probe_quote_row(index) for index in range(1001)])
+    assert connection.actions == ["savepoint", "rollback_savepoint"]
+    assert "savepoint_rollback" in borrowed.metrics
+    assert not borrowed.raw_ids
+
+
+def test_copy_probe_requires_existing_transaction_and_schema_mapping():
+    schema = f"shadow_copy_probe_{uuid4().hex}"
+    connection = _ProbeConnection(_ProbeCursor([]), schema)
+    for page_rows in (0, 501, True):
+        with pytest.raises(ValueError, match="500-row cap"):
+            BorrowedConnection(connection, schema, use_copy=True, page_rows=page_rows)
+    connection.schema = "public"
+    with pytest.raises(ValueError, match="private schema mapping"):
+        BorrowedConnection(connection, schema, use_copy=True)
+
+
+def test_copy_probe_deadline_never_blocks_rollback_and_cannot_commit():
+    deadline = time.monotonic() + 5
+    assert (
+        bounded_statement("SET LOCAL statement_timeout = '30s'", deadline=deadline)
+        == "SET LOCAL statement_timeout = '2s'"
+    )
+    assert (
+        bounded_statement("SET LOCAL lock_timeout = '5s'", deadline=deadline)
+        == "SET LOCAL lock_timeout = '500ms'"
+    )
+    with pytest.raises(TimeoutError):
+        bounded_statement("SELECT 1", deadline=0)
+    assert bounded_statement("ROLLBACK TO SAVEPOINT probe", deadline=0).startswith("ROLLBACK")
+    assert bounded_statement("SELECT cleanup", deadline=0, cleanup=True) == "SELECT cleanup"
+    for statement in ("COMMIT", "COMMIT;", "END", "COMMIT AND CHAIN"):
+        with pytest.raises(RuntimeError, match="NEVER commit"):
+            bounded_statement(statement, deadline=deadline, cleanup=True)
+
+
+def test_copy_probe_lost_savepoint_ack_is_not_mislabeled_as_real_commit():
+    schema = f"shadow_copy_probe_{uuid4().hex}"
+    connection = _ProbeConnection(_ProbeCursor([]), schema)
+    database = SavepointDatabase(BorrowedConnection(connection, schema, use_copy=True))
+    database.lose_release_ack_once = True
+    with pytest.raises(OperationalError, match="NOT COMMIT"), database.begin():
+        pass
+    assert connection.actions == ["savepoint", "release_savepoint"]
+    with database.begin():
+        pass
+    assert connection.actions == ["savepoint", "release_savepoint"] * 2
+
+
+def test_copy_probe_budget_paces_pages_and_stops_before_excess_rows():
+    clock = [0.0]
+
+    def sleep(delay):
+        clock[0] += delay
+
+    budget = ProbeBudget(
+        lambda: True,
+        max_rows=50,
+        pause_seconds=2,
+        deadline_seconds=10,
+        clock=lambda: clock[0],
+        sleep=sleep,
+    )
+    budget.reserve_page(25)
+    budget.reserve_page(25)
+    assert clock[0] == 2
+    assert budget.rows == 50 and budget.pages == 2
+    assert budget.guard_checks >= 3
+    with pytest.raises(ProbeInconclusiveError, match="raw_row_budget"):
+        budget.reserve_page(1)
+    assert budget.rows == 50
+    budget = ProbeBudget(
+        lambda: True,
+        max_rows=100,
+        pause_seconds=2,
+        deadline_seconds=1,
+        clock=lambda: clock[0],
+        sleep=sleep,
+    )
+    budget.reserve_page(25)
+    with pytest.raises(ProbeInconclusiveError, match="deadline"):
+        budget.reserve_page(25)
+    assert budget.rows == 25
+
+
+def test_copy_probe_small_defaults_and_hard_option_caps():
+    assert validate_options(1, 25, 2, 90, 750, "quotes", False) == 50
+    assert validate_options(1, 25, 2, 90, 750, "quotes", True) == 564
+    assert validate_options(2, 500, 2, 90, 2000, "quotes", False) == 2000
+    for options in (
+        (4, 25, 2, 90, 750, "quotes", False),
+        (1, 501, 2, 90, 2000, "quotes", False),
+        (1, 25, 0, 90, 750, "quotes", False),
+        (1, 25, 2, 91, 750, "quotes", False),
+        (1, 25, 2, float("inf"), 750, "quotes", False),
+        (1, 25, float("nan"), 90, 750, "quotes", False),
+        (1, 25, 2, 90, 2001, "quotes", False),
+        (1, 500, 2, 90, 750, "quotes", False),
+        (1, 500, 2, 90, 2000, "quotes", True),
+    ):
+        with pytest.raises(ValueError):
+            validate_options(*options)
+
+
+def test_copy_probe_counts_each_baseline_parameter_page_for_shared_budget():
+    schema = f"shadow_copy_probe_{uuid4().hex}"
+    assert (
+        raw_page_count(
+            schema, f"INSERT INTO {schema}.market_quotes (...) VALUES (...)", [None] * (25 * 12)
+        )
+        == 25
+    )
+    assert (
+        raw_page_count(
+            schema,
+            f'INSERT INTO "{schema}"."market_quotes" (...) VALUES (...)',
+            [None] * (500 * 12),
+        )
+        == 500
+    )
+    with pytest.raises(ProbeInconclusiveError, match="parameter_shape"):
+        raw_page_count(schema, f"INSERT INTO {schema}.market_quotes (...)", [None] * 13)
+    assert raw_page_count(schema, "INSERT INTO event_reporting_metadata ...", [None]) is None
+
+
+@pytest.mark.parametrize("timeout", [False, True])
+def test_copy_probe_guard_abort_after_schema_creation_always_rolls_back(monkeypatch, timeout):
+    import shadow_copy_pg_fixture as fixture
+
+    class Connection:
+        dialect = SimpleNamespace(server_version_info=(16, 0))
+        connection = SimpleNamespace(
+            driver_connection=SimpleNamespace(autocommit=False, prepared_max=4)
+        )
+
+        def __init__(self):
+            self.commands = []
+            self.schema = None
+            self.outer_rollbacks = 0
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def begin(self):
+            return SimpleNamespace(rollback=self.outer_rollback)
+
+        def outer_rollback(self):
+            self.outer_rollbacks += 1
+            self.schema = None
+
+        def rollback(self):
+            self.commands.append("READ TRANSACTION ROLLBACK")
+
+        def exec_driver_sql(self, statement):
+            self.commands.append(statement)
+            if statement.startswith("CREATE SCHEMA"):
+                self.schema = statement.split('"')[1]
+
+        def scalar(self, statement, parameters=None):
+            if "current_schema" in str(statement):
+                return self.schema
+            assert self.outer_rollbacks == 1
+            return None
+
+        def execution_options(self, **_options):
+            return self
+
+    connection = Connection()
+    engine = SimpleNamespace(
+        dialect=SimpleNamespace(name="postgresql", driver="psycopg"),
+        connect=lambda: connection,
+    )
+    monkeypatch.setattr(fixture.event, "listen", lambda *_args, **_kwargs: None)
+    calls = 0
+
+    def guard():
+        nonlocal calls
+        calls += 1
+        if calls < 3:
+            return True
+        if timeout:
+            raise TimeoutError("bounded parent read timed out")
+        return False
+
+    result = compare_shadow_copy(engine, guard=guard)
+    assert result["status"] == "inconclusive"
+    assert result["reason"] == (
+        "live_guard_error:TimeoutError" if timeout else "live_guard_rejected"
+    )
+    assert result["rolled_back"] and result["rollback_verified"]
+    assert result["temporary_tables_rollback_verified"]
+    assert result["raw_rows_attempted"] == 0
+    assert result["write_transactions"] == 1
+    assert connection.outer_rollbacks == 1
+    assert "SET TRANSACTION READ ONLY" in connection.commands
+    assert not any("COMMIT" in command for command in connection.commands)
