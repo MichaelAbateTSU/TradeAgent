@@ -1,0 +1,291 @@
+"""One-use operator acknowledgement; loaded with reviewed evidence in EXPECTED."""
+import hashlib
+import json
+import os
+import time
+from datetime import UTC, date, datetime
+from uuid import NAMESPACE_URL, uuid5
+
+import httpx
+from sqlalchemy import insert, select, text, update
+
+from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
+from tradeagent.config import AppConfig
+from tradeagent.event_orders import FINAL
+from tradeagent.event_session import session_control_key
+from tradeagent.event_store import (
+    event_candidate_states,
+    event_cohorts,
+    event_decisions,
+    event_evidence,
+    event_order_links,
+)
+from tradeagent.persistence import (
+    Database,
+    append_reporting_metadata,
+    controls,
+    event_reporting_metadata,
+    events,
+    orders,
+)
+
+COHORT = "v20-manual-demo-20260909-r1"
+CODE = "b354bf8f925d76ee33205735736ec4cf36ff54ce"
+CONFIG = "5a0acf612ce4fc886e342656cab2e9b2ea0295882fb7fbe731e65fc44f44cf65"
+ACCOUNT = "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f"
+CONTENT = "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03"
+PAUSE = COHORT + ":pause"
+R1 = "R1_EVENT_REQUIRES_POSITION_REVIEW"
+AUDIT_ID = str(uuid5(NAMESPACE_URL, "tradeagent:" + COHORT + ":R1-metadata-review-20260908"))
+URL = EXPECTED["versions"][0]["source_url"]
+IDS = {x["evidence_id"] for x in EXPECTED["versions"]}
+APPROVED_IDS = {
+    "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+    "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+    "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+}
+
+
+def require(condition, reason):
+    if not condition:
+        raise RuntimeError("ACK_ABORTED: " + reason)
+
+
+def digest(value):
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, default=str, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def control_snapshot(connection):
+    return {
+        row.control_key: (row.control_value, row.updated_at)
+        for row in connection.execute(select(controls).order_by(controls.c.control_key))
+    }
+
+
+def validate_controls(state):
+    require(state.get("kill_switch", (None,))[0] == "active", "global kill not active")
+    require(state.get(PAUSE, (None,))[0] == R1, "pause is no longer reviewed R1")
+    for suffix in ("demo-authorization", "certificate", "demo-terminal"):
+        require(COHORT + ":" + suffix not in state, "demo authority/terminal exists")
+    budget = state.get(session_control_key(ACCOUNT, date(2026, 9, 9)))
+    if budget:
+        value = json.loads(budget[0])
+        require(
+            value["account_digest"] == ACCOUNT
+            and value["planned_session_date"] == "2026-09-09"
+            and value["total_entries_reserved"] == 0
+            and value["news_entries_reserved"] == 0
+            and value["equipment_client_order_id"] is None,
+            "account session reservation exists",
+        )
+
+
+def validate_evidence(connection):
+    versions = {
+        row.evidence_id: row.payload
+        for row in connection.execute(
+            select(event_evidence).where(event_evidence.c.payload["source_url"].as_string() == URL)
+        )
+    }
+    require(set(versions) == IDS, "source lineage contains new/unreviewed version")
+    for frozen in EXPECTED["versions"]:
+        payload = versions[frozen["evidence_id"]]
+        for key in (
+            "source_url", "source_version", "headline", "content_sha256",
+            "revision_of", "published_at", "provider_created_at", "provider_updated_at",
+            "first_received_at", "content_available_at", "is_primary_source",
+            "is_correction", "is_retraction", "raw_payload_sha256",
+        ):
+            require(payload.get(key) == frozen.get(key), "source field changed: " + key)
+        require(payload["content_sha256"] == CONTENT, "unreviewed content hash")
+        require(hashlib.sha256(payload["content"].encode()).hexdigest() == CONTENT,
+                "stored content no longer matches reviewed hash")
+        raw = json.loads(payload["raw_metadata_json"])["raw_document"]
+        require(hashlib.sha256(raw.encode()).hexdigest() == frozen["raw_document_sha256"],
+                "retained HTML differs from reviewed document")
+        require(payload["published_at"] is None, "publication unexpectedly changed")
+        require(not payload["is_correction"] and not payload["is_retraction"],
+                "explicit correction/retraction appeared")
+    decisions = list(connection.execute(
+        select(event_decisions, event_candidate_states.c.status.label("candidate_status"))
+        .outerjoin(event_candidate_states,
+                   event_candidate_states.c.decision_id == event_decisions.c.decision_id)
+        .where(event_decisions.c.cohort_id == COHORT)
+    ).mappings())
+    reviews = [row for row in decisions if row["payload"].get("position_review_required")]
+    require({row["evidence_id"] for row in reviews} == IDS and len(reviews) == 3,
+            "new/unreviewed position-review decision")
+    for row in reviews:
+        payload = row["payload"]
+        frozen = next(x for x in EXPECTED["cohort_decisions"]
+                      if x["evidence_id"] == row["evidence_id"])
+        require(row["decision_id"] == frozen["decision_id"]
+                and row["candidate_status"] == "rejected", "candidate identity/state changed")
+        for key in ("action", "hypothesis", "reasons", "position_review_required", "extraction"):
+            require(payload.get(key) == frozen.get(key), "frozen decision changed: " + key)
+        require(payload["extraction"]["facts"] == []
+                and payload["extraction"]["event_type"] == "unclassified"
+                and payload["hypothesis"] is None
+                and payload["action"] == "abstain", "economic decision differs")
+    waiting = connection.scalar(select(event_candidate_states.c.decision_id).where(
+        event_candidate_states.c.cohort_id == COHORT,
+        event_candidate_states.c.status == "waiting",
+    ).limit(1))
+    require(waiting is None, "waiting demo news candidate")
+    decided = select(event_decisions.c.evidence_id).where(event_decisions.c.cohort_id == COHORT)
+    unreviewed = connection.scalar(select(event_evidence.c.evidence_id).where(
+        event_evidence.c.evidence_id.not_in(decided),
+        event_evidence.c.payload["is_primary_source"].as_boolean().is_(True),
+        (event_evidence.c.payload["is_correction"].as_boolean().is_(True)
+         | event_evidence.c.payload["is_retraction"].as_boolean().is_(True)
+         | event_evidence.c.payload["revision_of"].as_string().is_not(None)),
+    ).limit(1))
+    require(unreviewed is None, "pending unreviewed primary-source risk")
+    pauses = list(connection.execute(select(events).where(
+        events.c.trace_id == COHORT, events.c.event_type == "event_pause",
+        events.c.payload["reason"].as_string() == R1,
+    ).order_by(events.c.occurred_at)).mappings())
+    require({x["event_id"] for x in pauses}
+            == {x["event_id"] for x in EXPECTED["cohort_pause_events"]}
+            and len(pauses) == 3, "R1 trigger set changed")
+    require(all(x["payload"] == {"reason": R1} for x in pauses), "R1 payload changed")
+    latest_pause = connection.execute(select(events).where(
+        events.c.trace_id == COHORT, events.c.event_type == "event_pause",
+    ).order_by(events.c.occurred_at.desc()).limit(1)).mappings().one()
+    require(latest_pause["event_id"] == pauses[-1]["event_id"], "newer unrelated pause")
+    return {"source_payloads_sha256": digest(versions),
+            "review_decisions_sha256": digest([dict(x) for x in reviews]),
+            "R1_pause_event_ids": [x["event_id"] for x in pauses]}
+
+
+require(os.environ.get("RENDER_GIT_COMMIT") == CODE, "deployed image mismatch")
+require(IDS == APPROVED_IDS and len(EXPECTED["versions"]) == 3, "unapproved evidence scope")
+with Database(AppConfig().database_url.get_secret_value()) as database:
+    with database.begin() as connection:
+        baseline = control_snapshot(connection)
+        validate_controls(baseline)
+        require(baseline[PAUSE][1] <= datetime.fromisoformat(EXPECTED["observed_at"]),
+                "pause was updated after retained source review")
+    with httpx.Client(timeout=2) as client:
+        broker = AlpacaPaperClient(AlpacaPaperSettings.model_validate({}), client=client)
+        with database.begin() as connection:
+            connection.execute(text("SET LOCAL lock_timeout = '1s'"))
+            connection.execute(text("SET LOCAL statement_timeout = '8s'"))
+            connection.execute(text("SET LOCAL idle_in_transaction_session_timeout = '12s'"))
+            # NOWAIT bounds impact; table locks close insert/phantom races as well as row races.
+            connection.execute(text(
+                "LOCK TABLE controls_v2, events_v2, event_evidence, event_decisions, "
+                "event_candidate_states, event_order_links, orders, event_cohorts "
+                "IN SHARE ROW EXCLUSIVE MODE NOWAIT"
+            ))
+            locked_at = time.monotonic()
+            current = control_snapshot(connection)
+            require(current == baseline, "control value/timestamp changed before lock")
+            connection.execute(select(controls).where(
+                controls.c.control_key.in_([PAUSE, "kill_switch"])
+            ).with_for_update()).all()
+            cohort = connection.execute(select(event_cohorts).where(
+                event_cohorts.c.cohort_id == COHORT
+            ).with_for_update()).mappings().one()
+            require(cohort["config_hash"] == CONFIG, "cohort configuration changed")
+            require(connection.scalar(select(events.c.event_id).where(
+                events.c.event_id == AUDIT_ID)) is None, "acknowledgement already exists")
+            reviewed_state = validate_evidence(connection)
+            require(connection.scalar(select(orders.c.order_id).where(
+                orders.c.status.not_in(FINAL)).limit(1)) is None, "unresolved local intent")
+            require(connection.scalar(select(event_order_links.c.client_order_id).where(
+                event_order_links.c.cohort_id == COHORT).limit(1)) is None,
+                "demo already has order history")
+            account = broker.account()
+            positions = broker.positions()
+            open_orders = broker.open_orders()
+            clock = broker.clock()
+            broker_at = datetime.now(UTC)
+            require(hashlib.sha256(str(account.id).encode()).hexdigest() == ACCOUNT,
+                    "actual broker account differs")
+            require(account.status == "ACTIVE" and not account.account_blocked
+                    and not account.trading_blocked and not positions and not open_orders,
+                    "broker is not active/unblocked/flat/unreserved")
+            require(not clock.is_open, "operation is restricted to paused after-hours review")
+            require(time.monotonic() - locked_at < 5, "review transaction exceeded freshness bound")
+            now = connection.scalar(text("SELECT clock_timestamp()"))
+            payload = {
+                "review_id": AUDIT_ID,
+                "cohort_id": COHORT,
+                "code_sha": CODE,
+                "config_hash": CONFIG,
+                "account_digest": ACCOUNT,
+                "reviewed_at": now.isoformat(),
+                "parent_approved_at": "2026-09-08T20:15:12.382-04:00",
+                "authority": "Parent approved only exact-evidence operator acknowledgement",
+                "evidence_ids": sorted(IDS),
+                "content_sha256": CONTENT,
+                "source_versions": [
+                    {key: item[key] for key in (
+                        "evidence_id", "source_version", "raw_document_sha256", "revision_of"
+                    )} for item in EXPECTED["versions"]
+                ],
+                "source_url": URL,
+                "basis": EXPECTED["review_conclusion"],
+                "evidence_artifact_sha256": EXPECTED["artifact_sha256"],
+                "locked_frozen_state": reviewed_state,
+                "broker_checked_at": broker_at.isoformat(),
+                "broker_clock": clock.model_dump(mode="json"),
+                "broker_status": account.status,
+                "broker_positions": 0,
+                "broker_open_orders": 0,
+                "unresolved_local_intents": 0,
+                "waiting_demo_news_candidates": 0,
+                "controls_before_sha256": digest(baseline),
+                "pause_before": [baseline[PAUSE][0], baseline[PAUSE][1].isoformat()],
+                "pause_after": "OPERATOR_PAUSE",
+                "global_kill_unchanged": [
+                    baseline["kill_switch"][0], baseline["kill_switch"][1].isoformat()
+                ],
+                "demo_authorization_issued": False,
+                "orders_submitted": 0,
+                "future_R1_requires_separate_fresh_review": True,
+                "publication_and_decisions_unchanged": True,
+                "incident_acceptance_and_explicit_demo_approval_still_required": True,
+            }
+            result = connection.execute(update(controls).where(
+                controls.c.control_key == PAUSE,
+                controls.c.control_value == baseline[PAUSE][0],
+                controls.c.updated_at == baseline[PAUSE][1],
+            ).values(control_value="OPERATOR_PAUSE", updated_at=now))
+            require(result.rowcount == 1, "pause compare-and-set failed")
+            connection.execute(insert(events).values(
+                event_id=AUDIT_ID, occurred_at=now, recorded_at=now,
+                event_type="event_operator_risk_review", trace_id=COHORT, payload=payload,
+            ))
+            append_reporting_metadata(connection, AUDIT_ID, "event_operator_risk_review", payload)
+            after = control_snapshot(connection)
+            require({k: v for k, v in after.items() if k != PAUSE}
+                    == {k: v for k, v in baseline.items() if k != PAUSE},
+                    "another control changed")
+            require(connection.scalar(select(event_reporting_metadata.c.event_id).where(
+                event_reporting_metadata.c.event_id == AUDIT_ID)) == AUDIT_ID,
+                "atomic reporting sidecar missing")
+            require(time.monotonic() - locked_at < 5, "atomic review exceeded time bound")
+    with database.begin() as connection:
+        stored = dict(connection.execute(select(events).where(
+            events.c.event_id == AUDIT_ID)).mappings().one())
+        after = control_snapshot(connection)
+        require(after[PAUSE] == ("OPERATOR_PAUSE", now), "post-commit pause changed")
+        require(after["kill_switch"] == baseline["kill_switch"], "global kill changed")
+        require(all(COHORT + ":" + suffix not in after
+                    for suffix in ("certificate", "demo-authorization", "demo-terminal")),
+                "post-commit demo authority appeared")
+        metadata_row = dict(connection.execute(select(event_reporting_metadata).where(
+            event_reporting_metadata.c.event_id == AUDIT_ID)).mappings().one())
+    print("DEMO_R1_ACK " + json.dumps({
+        "committed": True, "audit_event": stored, "reporting_metadata": metadata_row,
+        "post_commit_verified_at": datetime.now(UTC).isoformat(),
+        "pause": after[PAUSE], "global_kill": after["kill_switch"],
+        "all_other_controls_unchanged": {
+            k: v for k, v in after.items() if k != PAUSE
+        } == {k: v for k, v in baseline.items() if k != PAUSE},
+        "demo_authorization_exists": False, "orders_submitted": 0,
+    }, default=str, sort_keys=True), flush=True)

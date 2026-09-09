@@ -1,0 +1,137 @@
+{
+  "all_cohort_R1_pause_events": [
+    {
+      "event_id": "b4b120f1-a5d9-4ca4-ae33-387e81d036ef",
+      "occurred_at": "2026-09-08 23:49:21.610470+00:00",
+      "payload": {
+        "reason": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+      }
+    },
+    {
+      "event_id": "af19f96f-dcfb-4dea-8d76-58eb4a1bfbb3",
+      "occurred_at": "2026-09-08 23:49:25.262336+00:00",
+      "payload": {
+        "reason": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+      }
+    },
+    {
+      "event_id": "1a78414c-6d5e-4868-a29d-24725d1e7c64",
+      "occurred_at": "2026-09-08 23:49:29.174960+00:00",
+      "payload": {
+        "reason": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+      }
+    }
+  ],
+  "all_cohort_position_review_decisions": [
+    {
+      "action": "abstain",
+      "candidate_status": "rejected",
+      "decided_at": "2026-09-08 23:49:21.610470+00:00",
+      "event_type": "unclassified",
+      "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+      "facts": [],
+      "first_received_at": "2026-09-08T14:01:12.220176Z",
+      "hypothesis": null,
+      "is_correction": false,
+      "is_retraction": false,
+      "provider_updated_at": "2026-09-08T13:59:40.685000Z",
+      "published_at": null,
+      "reasons": [
+        "supported_quantitative_event",
+        "known_correction_or_retraction",
+        "publication_time_unknown",
+        "source_expired",
+        "outside_verified_regular_session",
+        "completed_post_availability_observation_missing",
+        "processing_latency_not_elapsed",
+        "quote_not_causal_or_fresh",
+        "spread_exceeds_policy",
+        "pre_event_chase_reference_missing",
+        "unsupported_event_hypothesis"
+      ],
+      "revision_of": null,
+      "source_content_hash": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+      "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+      "stored_decision_id": "c191a311cdcd03a1c3dfec875a5ad0e09cc2a44022670edd53b0035edb5a180d"
+    },
+    {
+      "action": "abstain",
+      "candidate_status": "rejected",
+      "decided_at": "2026-09-08 23:49:25.262336+00:00",
+      "event_type": "unclassified",
+      "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+      "facts": [],
+      "first_received_at": "2026-09-08T16:29:35.546193Z",
+      "hypothesis": null,
+      "is_correction": false,
+      "is_retraction": false,
+      "provider_updated_at": "2026-09-08T13:59:40.685000Z",
+      "published_at": null,
+      "reasons": [
+        "correction_requires_review",
+        "related_correction_or_retraction",
+        "supported_quantitative_event",
+        "known_correction_or_retraction",
+        "publication_time_unknown",
+        "source_expired",
+        "outside_verified_regular_session",
+        "completed_post_availability_observation_missing",
+        "processing_latency_not_elapsed",
+        "quote_not_causal_or_fresh",
+        "spread_exceeds_policy",
+        "pre_event_chase_reference_missing",
+        "unsupported_event_hypothesis"
+      ],
+      "revision_of": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+      "source_content_hash": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+      "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+      "stored_decision_id": "d4f6e6ae12929dc9f63d94bc7422105f36bf437f4647295c2c51f11b4a4f123f"
+    },
+    {
+      "action": "abstain",
+      "candidate_status": "rejected",
+      "decided_at": "2026-09-08 23:49:29.174960+00:00",
+      "event_type": "unclassified",
+      "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+      "facts": [],
+      "first_received_at": "2026-09-08T19:01:52.840562Z",
+      "hypothesis": null,
+      "is_correction": false,
+      "is_retraction": false,
+      "provider_updated_at": "2026-09-08T13:59:40.685000Z",
+      "published_at": null,
+      "reasons": [
+        "correction_requires_review",
+        "related_correction_or_retraction",
+        "supported_quantitative_event",
+        "known_correction_or_retraction",
+        "publication_time_unknown",
+        "source_expired",
+        "outside_verified_regular_session",
+        "completed_post_availability_observation_missing",
+        "processing_latency_not_elapsed",
+        "quote_not_causal_or_fresh",
+        "spread_exceeds_policy",
+        "pre_event_chase_reference_missing",
+        "unsupported_event_hypothesis"
+      ],
+      "revision_of": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+      "source_content_hash": "bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03",
+      "source_url": "https://www.apple.com/newsroom/2026/09/the-internets-favorite-cat-comes-to-apple-arcade-with-pusheens-place/",
+      "stored_decision_id": "a988e606ed8f394a836338b03073d0745e6c5c4be958201287949c936a388528"
+    }
+  ],
+  "all_unresolved_event_order_intents": [],
+  "broker": {
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "open_orders": [],
+    "positions": []
+  },
+  "cohort_waiting_news_candidates": [],
+  "controls": {
+    "kill_switch": "active",
+    "v20-manual-demo-20260909-r1:pause": "R1_EVENT_REQUIRES_POSITION_REVIEW"
+  },
+  "observed_at": "2026-09-09T00:12:33.380503+00:00",
+  "read_only": true
+}

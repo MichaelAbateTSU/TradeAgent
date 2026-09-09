@@ -1,0 +1,9 @@
+{
+  "id": "job-dagabe67bikc73fue7ng",
+  "serviceId": "srv-dae4tr7qj5pc73a9e0k0",
+  "status": "succeeded",
+  "startedAt": "2026-09-09T00:18:01Z",
+  "finishedAt": "2026-09-09T00:18:34Z",
+  "createdAt": "2026-09-09T00:18:00.528414Z",
+  "planId": "plan-srv-006"
+}

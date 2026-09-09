@@ -1,0 +1,71 @@
+{
+  "all_equal_after_removing_only_dateModified": false,
+  "observed_at": "2026-09-09T00:09:41.705038+00:00",
+  "read_only": true,
+  "versions": [
+    {
+      "dateModified_replacements": 1,
+      "evidence_id": "edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c",
+      "html_hash_ignoring_only_dateModified": "84412d58ec7f50a3009e7d59c424ad17f90cc7be9b9d29d1b9c1d9ff31a41453",
+      "raw_bytes": 172826
+    },
+    {
+      "change_contexts": [
+        {
+          "new": "ns-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:site\" con",
+          "offset": 3026,
+          "old": "ns-Place-key-art-lp.jpg.og.jpg?202609081400\"/>\n    <meta name=\"twitter:site\" con"
+        },
+        {
+          "new": "s-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:site\" cont",
+          "offset": 3027,
+          "old": "s-Place-key-art-lp.jpg.og.jpg?202609081400\"/>\n    <meta name=\"twitter:site\" cont"
+        },
+        {
+          "new": "-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:site\" conte",
+          "offset": 3028,
+          "old": "-Place-key-art-lp.jpg.og.jpg?202609081400\"/>\n    <meta name=\"twitter:site\" conte"
+        },
+        {
+          "new": "ns-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:card\" con",
+          "offset": 3301,
+          "old": "ns-Place-key-art-lp.jpg.og.jpg?202609081400\"/>\n    <meta name=\"twitter:card\" con"
+        }
+      ],
+      "changed_character_count": 26,
+      "dateModified_replacements": 1,
+      "evidence_id": "6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a",
+      "html_hash_ignoring_only_dateModified": "a38f512a4518cbbc7190ceb82ddaaa241bb30e81acb067f9e82906d3ccc09da0",
+      "raw_bytes": 172826
+    },
+    {
+      "change_contexts": [
+        {
+          "new": "ns-Place-key-art-lp.jpg.og.jpg?202609081401\"/>\n    <meta name=\"twitter:site\" con",
+          "offset": 3026,
+          "old": "ns-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:site\" con"
+        },
+        {
+          "new": "s-Place-key-art-lp.jpg.og.jpg?202609081401\"/>\n    <meta name=\"twitter:site\" cont",
+          "offset": 3027,
+          "old": "s-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:site\" cont"
+        },
+        {
+          "new": "-Place-key-art-lp.jpg.og.jpg?202609081401\"/>\n    <meta name=\"twitter:site\" conte",
+          "offset": 3028,
+          "old": "-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:site\" conte"
+        },
+        {
+          "new": "ns-Place-key-art-lp.jpg.og.jpg?202609081401\"/>\n    <meta name=\"twitter:card\" con",
+          "offset": 3301,
+          "old": "ns-Place-key-art-lp.jpg.og.jpg?202609081359\"/>\n    <meta name=\"twitter:card\" con"
+        }
+      ],
+      "changed_character_count": 26,
+      "dateModified_replacements": 1,
+      "evidence_id": "4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef",
+      "html_hash_ignoring_only_dateModified": "5b1a31082000a323ae49242bd03edbf9d54a5f2acea3f0d13a1e55545ce8c494",
+      "raw_bytes": 172826
+    }
+  ]
+}

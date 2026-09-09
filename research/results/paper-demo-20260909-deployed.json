@@ -1,5 +1,5 @@
 {
-  "status": "preparation_verified_deployed_paused_R1_blocked_regular_session_acceptance_pending",
+  "status": "preparation_verified_deployed_operator_paused_exact_R1_review_acknowledged_regular_session_acceptance_pending",
   "actual_trade_proven": false,
   "actual_demo_orders_submitted": 0,
   "authority": {
@@ -122,8 +122,28 @@
       "publication_time_unknown",
       "source_expired"
     ],
-    "action_taken": "Preserved stricter pause; no approval or guard relaxation",
-    "tomorrow_if_unresolved": "BLOCKED, no orders, even if incident acceptance passes"
+    "action_taken": "Historical R1 preserved; exact three-version operator acknowledgement restored only demo OPERATOR_PAUSE at 2026-09-09T00:18:24.133135Z. No approval or guard relaxation.",
+    "current_cohort_pause": "OPERATOR_PAUSE",
+    "operator_risk_review_event_id": "b0a5c5a0-6817-540c-adcb-500a77e5668f",
+    "acknowledgement_artifact": "paper-demo-20260909-R1-ack.json",
+    "acknowledgement_job": "job-dagabe67bikc73fue7ng",
+    "acknowledgement_job_status": "succeeded",
+    "acknowledgement_job_status_artifact": "paper-demo-20260909-R1-ack-job-status.json",
+    "post_ack_http_ready": 200,
+    "post_ack_ready_at": "2026-09-09T00:19:48.039357Z",
+    "post_ack_ready_artifact": "paper-demo-20260909-R1-ack-ready.json",
+    "post_ack_same_event_owner_pin_and_lease_fresh": true,
+    "review_artifacts": [
+      "paper-demo-20260909-R1-source-review.json",
+      "paper-demo-20260909-R1-all-triggers.json",
+      "paper-demo-20260909-R1-html-diff.json",
+      "paper-demo-20260909-R1-normalized-html.json"
+    ],
+    "global_kill_value_and_timestamp_unchanged": true,
+    "other_cohort_controls_unchanged": true,
+    "demo_approval_or_certificate_issued": false,
+    "future_R1_requires_separate_fresh_review": true,
+    "tomorrow_if_any_new_unresolved_risk": "BLOCKED, no orders, even if incident acceptance passes"
   },
   "afterhours_soak": {
     "status": "complete_partial_operational_checks_passed_full_acceptance_failed_closed_market",
@@ -159,11 +179,12 @@
   "automation": {
     "root_session_id": "d889264f-50d4-4da4-be00-be99b5089546",
     "next_run_at": "2026-09-09T13:35:00Z",
-    "updated_at": "2026-09-08T23:51:39.605Z",
+    "updated_at": "2026-09-09T00:19:37.764Z",
     "original_readonly_1800s_incident_gate_preserved": true,
     "new_reviewed_event_pin_updated": true,
     "separate_conditional_1010_to_1030_demo_appended": true,
-    "R1_pause_explicitly_preserved_not_cleared_to_force_trade": true,
+    "exact_three_R1_flags_reviewed_with_audited_parent_approved_acknowledgement": true,
+    "future_R1_flags_must_not_be_automatically_cleared": true,
     "actual_order_ids_fills_flat_state_notification_proof_required": true
   },
   "remaining": [

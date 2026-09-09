@@ -113,7 +113,7 @@ recorded separately in `research/results/paper-demo-20260909-deployed.json`.
 Preparation alone leaves actual trade proof and full market-load acceptance
 **pending**.
 
-## Reviewed deployment and current additional blocker
+## Reviewed deployment and scoped source-risk acknowledgement
 
 The initial `0999428` review found a final-dispatch timing defect; it was fixed
 before any deployment. Exact release
@@ -132,19 +132,56 @@ the frozen configuration
 paper order stream authenticated/subscribed without gaps/drops, and a successful
 44,080-byte report build without email. No demo authorization exists.
 
-**Additional real blocker:** source evaluation changed the new cohort pause
-to `R1_EVENT_REQUIRES_POSITION_REVIEW`; global kill remains active. The special
-approval deliberately refuses this stricter pause. Preserve its evidence in
-`paper-demo-20260909-risk-detail.json`; do not overwrite it with
-`OPERATOR_PAUSE` or clear it merely to produce a trade. If unresolved tomorrow,
-the demo must remain **blocked/no orders**, even if the separate incident
-market-flow acceptance succeeds. Actual trade proof is still outstanding.
+Source evaluation initially changed the new cohort pause to
+`R1_EVENT_REQUIRES_POSITION_REVIEW`. The original pause events, publication
+uncertainty and rejected decisions remain immutable in the evidence below.
+After explicit parent approval, a scoped operator review on September 8 at
+**20:18:24.133135 ET** atomically changed **only this cohort's pause** to
+`OPERATOR_PAUSE`. Immutable audit
+`b0a5c5a0-6817-540c-adcb-500a77e5668f` (`event_operator_risk_review`) and its
+reporting metadata sidecar were inserted in the same transaction.
+
+The acknowledgement covers only these three retained Apple/Pusheen versions:
+
+- `edf981a4e18b2ab7e79aa4307a533085902671b747b4fbb6faf80546ce7f800c`
+- `6d6f95f5a20155d0efb039a3f6c609db6760527b3df3af08423f188b69a50c1a`
+- `4554e950fe27994318dc707650fca38753fefe6d67e05ffab0fa9d36b65bf8ef`
+
+All share content SHA-256
+`bd75634768bf211283a527e6550d56d98a558ab80076ffbfa9cd56451641bb03`.
+Frozen facts are empty, event types unclassified, hypotheses absent and
+candidates rejected. Exact normalized text/headlines were unchanged; all 26
+changed HTML characters per adjacent revision were cache/metadata timestamps,
+not revised economic facts. Explicit correction/retraction flags were false.
+Publication remains unknown; no exact time was inferred from the date-only field.
+
+The operation revalidated the complete three-trigger/three-decision set, exact
+retained HTML/content hashes, no unreviewed pending primary-source revision,
+no waiting demo news candidate, and the actual ACTIVE/unblocked paper account
+with zero positions, open orders or unresolved local intents. It locked and
+compared the pause value **and timestamp**, closing concurrent insert/change
+races, and aborted on any changed state. Every other control was unchanged,
+including global kill `active` with timestamp **23:33:26.789305 UTC September 8**.
+**No approval, certificate, order, rule change or deployment occurred.**
+
+See `research/results/paper-demo-20260909-R1-source-review.json`,
+`paper-demo-20260909-R1-all-triggers.json`, both retained HTML-diff artifacts,
+and `paper-demo-20260909-R1-ack.json` for the source review and actual committed
+acknowledgement. The one-use operation is retained as
+`paper-demo-20260909-R1-ack-operation.py.txt`; it must not be reused for new risks.
+
+**This is not permission to ignore any future R1.** Any new revision, risk or
+stricter pause requires a separate fresh review and authority; no automatic
+clearing is authorized. Unresolved risks tomorrow mean **blocked/no orders**,
+even if incident market-flow acceptance succeeds. Full acceptance and the
+separate explicit one-demo approval are still required. Actual trade proof
+remains outstanding.
 
 The root session's existing **September 9 13:35 UTC** wake is retained. It now
 specifies the new event pin, preserves the entire read-only incident gate, and
 adds only the separate conditional demo continuation and reconciliation/
-notification/flat-account proof requirements. It explicitly preserves this R1
-blocker rather than scheduling an unconditional order.
+notification/flat-account proof requirements. Its scoped acknowledgement note
+does not authorize ignoring future R1 flags or scheduling an unconditional order.
 
 After the handoff, a **662.93-second / 882-request** after-hours observation
 finished at September 9 00:00:56 UTC with zero HTTP errors and no new ownership,
@@ -157,6 +194,6 @@ errors but no termination/recovery/fatal signatures; this is not an exhaustive
 claim of error-free database logs. Nine enabled market-counter triggers were
 independently enumerated.
 
-The final same-image broker probe at 19:57:46 Eastern still showed the same
+The pre-review same-image broker probe at 19:57:46 Eastern showed the same
 ACTIVE/unblocked paper account, zero positions/open orders, no demo orders or
 authorization, global kill active and the stricter R1 pause unchanged.
