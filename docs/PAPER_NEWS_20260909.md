@@ -149,3 +149,22 @@ tradeagent paper-preflight --purpose iex-practice --practice-start-date 2026-09-
 
 Only the already-running global lease owner submits through the existing OMS.
 No competing worker or direct local/raw broker order job is authorized.
+
+## Local validation and remaining release gates
+
+Implementation pin: `c116324007357278c0b35bf8e6d116202c514930`.
+On September 9 Eastern, the full existing suite passed **993 tests**, with
+two skipped, and **87.49% branch-inclusive coverage** against the unchanged 85%
+gate. The 40 policy-specific tests, repository-wide Ruff with `--no-cache`, and
+`mypy src\tradeagent` (89 source files) also passed.
+The [full validation output](../research/results/news-paper-20260909-tests.txt)
+is synthetic/offline evidence, not a real filled trade.
+
+An exact-pinned independent review is pending. This policy has not been deployed
+or authorized. The parent-owned, canceled after-hours diagnostic and its actual
+notifier acceptance are documented separately in
+[the probe record](OPERATOR_PAPER_PROBE_20260909.md); its filled quantity is zero.
+Deployment requires explicit remote handoff and clean review. The unchanged
+09:35–10:05 Eastern read-only incident acceptance remains the first morning gate.
+Only a subsequent, passing, explicitly scoped preflight may authorize this new
+policy; no existing cohort acknowledgement transfers or waives future risks.
