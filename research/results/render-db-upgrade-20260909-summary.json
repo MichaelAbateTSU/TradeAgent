@@ -1,0 +1,76 @@
+{
+  "started_at": "2026-09-09T16:51:21.705129+00:00",
+  "finished_at": "2026-09-09T17:21:25.160627+00:00",
+  "duration_seconds": 1803.455498,
+  "http_requests": 2366,
+  "http_failures": 0,
+  "maximum_http_seconds": 10.962,
+  "observer_failures": [],
+  "physical_failures": [
+    "physical:market_trades:QQQ:not_advancing"
+  ],
+  "generic_observer_passed": true,
+  "full_incident_accepted": false,
+  "database_profile": "pg-1gb-v1",
+  "maximum_memory": [
+    {
+      "resource": "srv-dadoa3740ujc73cb09c0",
+      "maximum_mib": 252.89453506469727
+    },
+    {
+      "resource": "srv-dadnn6mq1p3s73ef7ef0",
+      "maximum_mib": 110.92577934265137
+    },
+    {
+      "resource": "srv-dae4tr7qj5pc73a9e0k0",
+      "maximum_mib": 160.40234565734863
+    },
+    {
+      "resource": "dpg-dadn7nht0dsc73f9jja0-a",
+      "maximum_mib": 392.78125762939453
+    },
+    {
+      "resource": "srv-dadn8son74is73apqcc0",
+      "maximum_mib": 128.58983993530273
+    }
+  ],
+  "new_queue_drops": 0,
+  "new_recorder_gaps": 0,
+  "maximum_commit_lag_seconds": 0.519497,
+  "maximum_queue": 225,
+  "derived_end": {
+    "state": "awaiting_complete_frame",
+    "healthy": false,
+    "frame_age_seconds": null,
+    "last_usable_frame_at": null,
+    "unusable_frame_events": 9,
+    "last_unusable_frame": {
+      "bucket_start": "2026-09-09T17:15:00+00:00",
+      "frame_at": "2026-09-09T17:20:00+00:00",
+      "reason": "incomplete_five_minute_bucket",
+      "discovered_event_at": "2026-09-09T17:20:00+00:00",
+      "missing_minutes": {
+        "GLD": [
+          "2026-09-09T17:17:00+00:00",
+          "2026-09-09T17:18:00+00:00"
+        ],
+        "IWM": [],
+        "QQQ": [],
+        "SPY": [],
+        "TLT": [
+          "2026-09-09T17:19:00+00:00"
+        ]
+      },
+      "usable": false
+    },
+    "pending_minutes": 4,
+    "duplicate_minutes": 0,
+    "ignored_out_of_order_quotes": 0,
+    "evidence_epoch": "752bfffb-b74d-499c-84d4-63cfdb82336e",
+    "cumulative_evidence_complete": false
+  },
+  "raw_sha256": "98c1b74640a81b4718958833634fe084962f56201ba3a8cf92a2de5e9d8b7066",
+  "archive": "render-db-upgrade-20260909-full-soak.json.gz",
+  "preserved_failure": "QQQ daily provider IDs collide with prior-day rows; CPU/HTTP improvement is not full data acceptance",
+  "order_authorization": false
+}

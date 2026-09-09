@@ -115,6 +115,25 @@ implemented and must receive its own migration, exact review and full live
 acceptance. Old rows and all failed observations remain; no historical REST
 backfill or replay is being used to repair evidence into a pass.
 
+The full upgraded-capacity run completed **16:51:21.705129-17:21:25.160627 UTC**:
+**1,803.455 seconds, 2,366 HTTP requests, zero HTTP errors, zero new queue drops
+or recorder gaps**, and maximum commit lag **0.519497 seconds**. PostgreSQL
+peaked at **392.781 MiB**, below the reviewed 800 MiB bound. The highest
+application peak was dashboard **252.895 MiB**, below 400 MiB.
+
+The generic load observer passed, but the stricter physical validator returned
+`physical:market_trades:QQQ:not_advancing`; **full incident acceptance is false**.
+Incomplete GLD/TLT minute buckets also remain visible in derived-frame evidence,
+not filled with invented bars. The exhaustive 2,145-record PostgreSQL log read
+found no backend termination/recovery/FATAL/PANIC during this interval; it retained
+114 known duplicate-evidence-key SQL errors rather than claiming all SQL succeeded.
+
+The separate report-admission exercise returned 429 in **0.098 seconds** while
+ordinary sections remained 200, followed by a real **4,413,743-byte report** in
+**2.541 seconds**. That report was not resent as a daily email. The full raw
+observation is retained as lossless gzip with its uncompressed SHA256 in the
+summary.
+
 ## Evidence
 
 - [Approved resize request and response](../research/results/render-db-upgrade-20260909.json)
@@ -126,3 +145,6 @@ backfill or replay is being used to repair evidence into a pass.
 - [Actual notifier deployment](../research/results/render-notifier-outcomes-20260909-deploy.json)
 - [Natural notifier handoff](../research/results/render-notifier-outcomes-20260909-handoff.json)
 - [Actual QQQ provider-ID collisions across days](../research/results/render-db-upgrade-20260909-qqq-investigation.json)
+- [Upgraded observation summary: capacity pass, physical failure](../research/results/render-db-upgrade-20260909-summary.json)
+- [Complete compressed upgraded observation](../research/results/render-db-upgrade-20260909-full-soak.json.gz)
+- [Upgraded interval database log check](../research/results/render-db-upgrade-20260909-pg-logs.json)
