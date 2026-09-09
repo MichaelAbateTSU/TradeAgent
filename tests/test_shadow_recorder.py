@@ -237,6 +237,80 @@ def test_partial_parameter_page_failure_rolls_back_and_retries_atomically(
     assert repository.event_count() == 501
 
 
+def test_all_conflict_pages_preserve_exact_new_ids_and_first_receipts(repository, monkeypatch):
+    originals = [_receipt(index) for index in range(500)]
+    original_payload = {"session_date": "2026-09-08"}
+    notices = [_notice(str(uuid4()), original_payload) for _ in range(500)]
+    persist_shadow_batch(repository, originals, notices, str(uuid4()))
+    first_new = _receipt(500, NOW + timedelta(seconds=20))
+    final_new = _receipt(501, NOW + timedelta(seconds=22))
+    receipts = [ReceivedStreamEvent(item.event, NOW + timedelta(seconds=19)) for item in originals]
+    receipts.append(first_new)
+    receipts.extend(
+        ReceivedStreamEvent(first_new.event, NOW + timedelta(seconds=21)) for _ in range(499)
+    )
+    receipts.append(final_new)
+    new_notice_id, batch_id = str(uuid4()), str(uuid4())
+    retry_payload = {"session_date": "2026-09-09"}
+    incoming_notices = [_notice(row["event_id"], retry_payload) for row in notices]
+    incoming_notices.extend(
+        [
+            _notice(new_notice_id, retry_payload),
+            _notice(new_notice_id, {"session_date": "2099-09-09"}),
+        ]
+    )
+    created_ids = []
+
+    def record_metadata(connection, event_id, event_type, payload):
+        assert connection.in_transaction()
+        created_ids.append(event_id)
+        append_reporting_metadata(connection, event_id, event_type, payload)
+
+    monkeypatch.setattr("tradeagent.shadow_recorder.append_reporting_metadata", record_metadata)
+    result = persist_shadow_batch(
+        repository,
+        receipts,
+        incoming_notices,
+        batch_id,
+        clock=lambda: NOW + timedelta(seconds=23),
+    )
+    assert (result.inserted, result.duplicates) == (2, 999)
+    assert set(created_ids) == {new_notice_id, batch_id}
+    assert len(created_ids) == 2
+    assert repository.market_data_counts() == (0, 502, 0)
+    with repository._database.begin() as connection:
+        rows = connection.execute(
+            select(market_quotes.c.event_at, market_quotes.c.received_at).order_by(
+                market_quotes.c.event_at
+            )
+        ).all()
+        expected = [*originals, first_new, final_new]
+        assert len(rows) == len(expected)
+        for row, receipt in zip(rows, expected, strict=True):
+            assert row.event_at.replace(tzinfo=UTC) == receipt.event.timestamp
+            assert row.received_at.replace(tzinfo=UTC) == receipt.received_at
+        bodies = dict(connection.execute(select(events.c.event_id, events.c.payload)).all())
+        projections = dict(
+            connection.execute(
+                select(event_reporting_metadata.c.event_id, event_reporting_metadata.c.payload)
+            ).all()
+        )
+    for notice in notices:
+        assert bodies[notice["event_id"]] == original_payload
+        assert projections[notice["event_id"]] == event_reporting_projection(
+            "shadow_stream_status", original_payload
+        )
+    assert bodies[new_notice_id] == retry_payload
+    assert projections[new_notice_id] == event_reporting_projection(
+        "shadow_stream_status", retry_payload
+    )
+    assert projections[batch_id] == event_reporting_projection(
+        "shadow_recorder_batch", bodies[batch_id]
+    )
+    assert persist_shadow_batch(repository, receipts, incoming_notices, batch_id) == result
+    assert len(created_ids) == 2
+
+
 def test_slow_database_does_not_block_receipt_and_overflow_is_durable(
     repository, monkeypatch
 ) -> None:
