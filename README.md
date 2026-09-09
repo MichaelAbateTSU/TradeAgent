@@ -250,6 +250,7 @@ See the implementation guides:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - [`infra/azure/README.md`](infra/azure/README.md)
 - [`infra/render/README.md`](infra/render/README.md)
+- [`docs/RENDER_PRO_OPERATIONS.md`](docs/RENDER_PRO_OPERATIONS.md)
 
 Initialize the production-compatible schema locally:
 

@@ -1,0 +1,26 @@
+# Optional, manually managed preview Blueprint. Do not apply over production.
+# No broker, email, or production database credentials are included.
+previews:
+  generation: manual
+  expireAfterDays: 3
+
+services:
+  - type: web
+    name: tradeagent-readonly-preview
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install .
+    startCommand: tradeagent serve --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: "off"
+    numInstances: 1
+    previews:
+      # Render does not allow free preview instances; creation requires a compute budget.
+      plan: starter
+      numInstances: 1
+    envVars:
+      - key: TRADEAGENT_MODE
+        value: paper
+      - key: TRADEAGENT_INTRADAY__ENABLED
+        value: "false"
