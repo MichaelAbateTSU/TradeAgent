@@ -4,6 +4,28 @@ A Render `live` deployment and HTTP `/health` are **not** acceptance. September 
 showed dashboard OOMs between healthy probes, a stopped recorder with a misleading
 feed heartbeat, and a notifier failure that appeared only while generating a report.
 
+## Explicit capacity profiles
+
+The default `pg-256mb-v1` retains the original PostgreSQL **230 MiB** ceiling.
+Historical evidence without a profile keeps that same ceiling; never reclassify
+an old failed run against a larger instance.
+
+On September 9 at **12:23:39 Eastern**, the owner explicitly approved upgrading
+only PostgreSQL from `0.1c-256mb` ($6/month) to `0.5c-1g` ($19/month), an additional
+$13/month excluding unchanged storage/workspace charges. For that actual approved
+capacity, `--database-profile pg-1gb-v1` requires **at least 1,800 seconds** and
+PostgreSQL memory **below 800 MiB** (at least 224 MiB allocation headroom).
+The exact plan, availability and empty public allowlist are checked both before
+and after the observation. This is a new capacity experiment, not a relaxation
+of the failed 256 MiB experiment.
+
+Application memory remains below 400 MiB. Every original HTTP, owner/lease,
+committed exchange-progress, physical-data, loss/gap, schema, report, broker and
+trading-risk gate remains in force. Record the planned database-resize outage
+and any resulting worker reconnections separately; begin a new acceptance only
+after they settle. Never delete old loss records, reset account/day budgets or
+clear an expired cohort's terminal. A larger database does not authorize entries.
+
 ## Before changing a release
 
 1. Preserve the account/session order budget, immutable cohorts, existing incident

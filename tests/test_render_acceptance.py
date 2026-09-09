@@ -183,6 +183,46 @@ def test_acceptance_rejects_oom_restarts_changed_code_and_high_memory() -> None:
     assert "event:memory_above_400_mib_acceptance_bound" in acceptance_failures(bad)
 
 
+def test_upgraded_database_profile_requires_actual_plan_and_unchanged_safety_gates() -> None:
+    data = evidence()
+    data.update(database_profile="pg-1gb-v1", duration_seconds=1800)
+    data["database"]["plan"] = "0.5c-1g"
+    data["final_database"] = deepcopy(data["database"])
+    database_series = data["memory"][-1]
+    database_series["values"] = [{"value": 799 * 1024 * 1024} for _ in range(30)]
+    assert acceptance_failures(data) == []
+    database_series["values"][0]["value"] = 800 * 1024 * 1024
+    assert "database:missing_memory_or_above_800_mib_acceptance_bound" in acceptance_failures(data)
+    database_series["values"][0]["value"] = 799 * 1024 * 1024
+    for phase in ("database", "final_database"):
+        wrong = deepcopy(data)
+        wrong[phase]["plan"] = "0.1c-256mb"
+        assert any(
+            "capacity_or_availability_mismatch" in item for item in acceptance_failures(wrong)
+        )
+    short = {**data, "duration_seconds": 1799}
+    assert "database:upgraded_capacity_requires_thirty_minutes" in acceptance_failures(short)
+    missing_final = deepcopy(data)
+    del missing_final["final_database"]
+    assert "database:final_capacity_or_availability_mismatch" in acceptance_failures(missing_final)
+    dropped = deepcopy(data)
+    dropped["requests"][0]["payload"]["operational_status"]["roles"]["tradeagent-shadow-recorder"][
+        "reported"
+    ]["dropped_events"] = 1
+    assert "recorder:unhealthy_or_dropped_packets" in acceptance_failures(dropped)
+    assert "database:unknown_capacity_profile" in acceptance_failures(
+        {**data, "database_profile": "unreviewed"}
+    )
+
+
+def test_legacy_database_memory_bound_is_not_reinterpreted() -> None:
+    data = evidence()
+    data["memory"][-1]["values"][0]["value"] = 231 * 1024 * 1024
+    assert "database:missing_memory_or_above_230_mib_acceptance_bound" in acceptance_failures(data)
+    data["database"]["plan"] = "0.5c-1g"
+    assert "database:missing_memory_or_above_230_mib_acceptance_bound" in acceptance_failures(data)
+
+
 def test_scoped_release_still_checks_every_role_and_actual_event_code() -> None:
     data = evidence()
     data["expected_commits"] = {"recorder": "new-recorder"}

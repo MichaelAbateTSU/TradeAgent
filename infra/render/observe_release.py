@@ -22,6 +22,10 @@ SERVICES = {
 }
 DATABASE = "dpg-dadn7nht0dsc73f9jja0-a"
 BASE_URL = "https://tradeagent-runtime-dashboard.onrender.com"
+DATABASE_PROFILES = {
+    "pg-256mb-v1": {"plan": "0.1c-256mb", "maximum_memory_mib": 230},
+    "pg-1gb-v1": {"plan": "0.5c-1g", "maximum_memory_mib": 800},
+}
 PATHS = (
     "/health",
     "/ready",
@@ -117,6 +121,24 @@ def acceptance_failures(evidence: dict[str, Any]) -> list[str]:
             failures.append(f"{role}:unexpected_memory_unit")
         if values and max(values) >= 400 * 1024 * 1024:
             failures.append(f"{role}:memory_above_400_mib_acceptance_bound")
+    profile_name = evidence.get("database_profile", "pg-256mb-v1")
+    if profile_name not in DATABASE_PROFILES:
+        failures.append("database:unknown_capacity_profile")
+    profile = DATABASE_PROFILES.get(profile_name, DATABASE_PROFILES["pg-256mb-v1"])
+    maximum_memory_mib = profile["maximum_memory_mib"]
+    if "database_profile" in evidence:
+        for phase, actual in (
+            ("initial", database),
+            ("final", evidence.get("final_database", {})),
+        ):
+            if (
+                actual.get("plan") != profile["plan"]
+                or actual.get("status") != "available"
+                or actual.get("ipAllowList") != []
+            ):
+                failures.append(f"database:{phase}_capacity_or_availability_mismatch")
+        if profile_name == "pg-1gb-v1" and evidence["duration_seconds"] < 1800:
+            failures.append("database:upgraded_capacity_requires_thirty_minutes")
     database_memory = [
         point["value"]
         for item in evidence["memory"]
@@ -125,8 +147,13 @@ def acceptance_failures(evidence: dict[str, Any]) -> list[str]:
         )
         for point in item["values"]
     ]
-    if len(database_memory) < 9 or max(database_memory, default=0) >= 230 * 1024 * 1024:
-        failures.append("database:missing_memory_or_above_230_mib_acceptance_bound")
+    if (
+        len(database_memory) < 9
+        or max(database_memory, default=0) >= maximum_memory_mib * 1024 * 1024
+    ):
+        failures.append(
+            f"database:missing_memory_or_above_{maximum_memory_mib}_mib_acceptance_bound"
+        )
     failures.extend(dependency_failures(evidence))
     return sorted(set(failures))
 
@@ -213,9 +240,17 @@ def main() -> None:
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--seconds", type=int, default=660)
     parser.add_argument("--interval", type=int, default=10)
+    parser.add_argument(
+        "--database-profile",
+        choices=tuple(DATABASE_PROFILES),
+        default="pg-256mb-v1",
+        help="Explicit reviewed compute profile; never applied to historical evidence",
+    )
     args = parser.parse_args()
     if args.seconds < 600 or args.interval < 1:
         parser.error("acceptance requires at least 600 seconds and a positive interval")
+    if args.database_profile == "pg-1gb-v1" and args.seconds < 1800:
+        parser.error("the upgraded database profile requires at least 1800 seconds")
     expected_commits = {role: args.commit for role in SERVICES}
     for override in args.role_commit:
         role, separator, commit = override.partition("=")
@@ -228,6 +263,7 @@ def main() -> None:
         "started_at": start.isoformat(),
         "expected_commit": args.commit,
         "expected_commits": expected_commits,
+        "database_profile": args.database_profile,
         "requests": [],
         "services": {},
         "limitation": (
@@ -247,6 +283,8 @@ def main() -> None:
             if deploy["status"] != "live" or deploy["commit"]["id"] != expected_commits[role]:
                 raise RuntimeError(f"{role}: expected pinned live deploy before acceptance")
         evidence["database"] = api_get(render, "postgres/" + DATABASE)
+        if evidence["database"].get("plan") != DATABASE_PROFILES[args.database_profile]["plan"]:
+            raise RuntimeError("Actual database plan does not match the requested capacity profile")
         deadline = time.monotonic() + args.seconds
         while True:
             # Two simultaneous page-equivalent clients test server-side coalescing.
@@ -284,6 +322,7 @@ def main() -> None:
             role: api_get(render, f"services/{service_id}/deploys", params={"limit": 1})
             for role, service_id in SERVICES.items()
         }
+        evidence["final_database"] = api_get(render, "postgres/" + DATABASE)
     evidence["http_failures"] = sum(row.get("status") != 200 for row in evidence["requests"])
     evidence["acceptance_failures"] = acceptance_failures(evidence)
     args.output.write_text(json.dumps(evidence, indent=2, default=str) + "\n")
