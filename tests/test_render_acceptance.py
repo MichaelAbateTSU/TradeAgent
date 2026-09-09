@@ -221,7 +221,7 @@ def test_physical_progress_requires_each_symbol_not_just_aggregate_flow() -> Non
 
 
 @pytest.mark.parametrize(
-    "mutation", ["window", "interval", "naive", "count", "duplicate", "receipt"]
+    "mutation", ["window", "interval", "naive", "count", "duplicate", "receipt", "processing"]
 )
 def test_physical_progress_rejects_invalid_evidence(mutation: str) -> None:
     first, last = physical_samples()
@@ -235,8 +235,11 @@ def test_physical_progress_rejects_invalid_evidence(mutation: str) -> None:
         last["market"]["market_quotes"][0]["count"] = True
     elif mutation == "duplicate":
         last["market"]["market_quotes"].append(deepcopy(last["market"]["market_quotes"][0]))
-    else:
+    elif mutation == "receipt":
         last["market"]["market_quotes"][0]["latest_received_at"] = "2026-09-09T16:00:00Z"
+    else:
+        last["market"]["market_quotes"][0]["latest_received_at"] = "2026-09-09T17:04:59.500Z"
+        last["market"]["market_quotes"][0]["latest_committed_at"] = "2026-09-09T17:04:59.100Z"
     assert physical_progress_failures(first, last)
 
 

@@ -109,11 +109,10 @@ def physical_progress_failures(first: dict[str, Any], last: dict[str, Any]) -> l
                     exchange = timestamp(row["latest_exchange_at"])
                     if not starts[0] <= exchange <= end:
                         raise ValueError("Exchange proof outside the fixed window")
-                    if any(
-                        timestamp(row[key]) < exchange
-                        for key in ("latest_received_at", "latest_committed_at")
-                    ):
-                        raise ValueError("Receipt/commit proof precedes exchange time")
+                    received = timestamp(row["latest_received_at"])
+                    committed = timestamp(row["latest_committed_at"])
+                    if not exchange <= received <= committed:
+                        raise ValueError("Invalid exchange/receipt/processing chronology")
                 series.append(by_symbol)
             for symbol in RECORDER_SYMBOLS:
                 before, after = (rows.get(symbol) for rows in series)
