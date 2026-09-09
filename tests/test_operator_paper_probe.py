@@ -12,6 +12,7 @@ from sqlalchemy import select
 from tradeagent import event_operator_probe as probe
 from tradeagent.alpaca_paper import AlpacaOrderStatus, AlpacaPaperOrder
 from tradeagent.event_store import EventStore
+from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.persistence import Database, ProductionRepository, events
 
 
@@ -106,6 +107,7 @@ def test_actual_adapter_submit_cancel_proof_preserves_pauses_and_never_claims_fi
     assert broker.submit_limit_order.call_count == broker.cancel_order.call_count == 1
     probe.run_probe(broker, repo, store, **args)
     assert broker.submit_limit_order.call_count == 1
+    assert RoundTripNotificationRepository(store.database).count() == 1
     with store.database.begin() as connection:
         assert len(list(connection.scalars(select(events.c.event_id)))) == 2
 

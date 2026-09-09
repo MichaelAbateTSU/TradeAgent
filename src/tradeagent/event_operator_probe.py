@@ -8,11 +8,13 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
 from typing import Any
+from uuid import NAMESPACE_URL, uuid5
 
 import httpx
 
 from tradeagent.domain import OrderRequest, OrderType, Side
 from tradeagent.experimental_policy import reject_live_environment
+from tradeagent.notifications import RoundTripNotificationRepository
 
 TEST_ID = "operator-paper-submit-cancel-20260909"
 CLIENT_ID = "ta-probe-20260909-0020-aapl"
@@ -61,6 +63,7 @@ def run_probe(
     saved = repository.get_control(CONTROL_KEY)
     state = json.loads(saved) if saved else None
     if state is not None and state.get("state") == "canceled_and_flat":
+        enqueue_result_email(store.database, state)
         return dict(state)
     existing = broker.find_order_by_client_id(CLIENT_ID)
     post_result = "not_repeated"
@@ -204,4 +207,46 @@ def run_probe(
     print("PAPER_ORDER_PROBE " + json.dumps(result, default=str), flush=True)
     repository.set_control(CONTROL_KEY, json.dumps(result, default=str))
     store.audit("operator_order_probe", result, datetime.now(UTC), TEST_ID)
+    if canceled_flat:
+        enqueue_result_email(store.database, result)
     return result
+
+
+def enqueue_result_email(database: Any, result: dict[str, Any]) -> None:
+    order = result["order"]
+    identity = uuid5(NAMESPACE_URL, f"tradeagent:{TEST_ID}:verified-result")
+    RoundTripNotificationRepository(database).enqueue_status(
+        identity,
+        {
+            "subject": "[TradeAgent PAPER TEST] Render worker order accepted and canceled",
+            "text": "\n".join(
+                [
+                    "ACTUAL RENDER WORKER / ALPACA PAPER API TEST",
+                    f"Test: {TEST_ID}",
+                    f"Worker instance: {result['worker_owner']}",
+                    f"Worker code: {result['deployed_build']}",
+                    f"Broker: {result['broker_host']}",
+                    f"Alpaca order ID: {order['id']}",
+                    f"Client order ID: {CLIENT_ID}",
+                    f"Symbol/side: {order['symbol']} / {order['side']}",
+                    f"Quantity: {order['quantity']}; limit: $100; maximum notional: $10",
+                    f"Created: {order['created_at']}",
+                    f"Canceled: {order.get('canceled_at')}",
+                    f"Final broker status: {order['status']}",
+                    f"Filled quantity: {order['filled_quantity']}",
+                    "Final positions: none. Final open orders: none.",
+                    "Normal trading remains paused.",
+                    "",
+                    "This proves the running Render worker submitted a real PAPER order,",
+                    "read it back, canceled it, and confirmed a flat account.",
+                    "It does NOT prove a completed buy/sell round trip or profitability:",
+                    "the regular market was closed and the order did not fill.",
+                    "No real money, live account, or trading limits were changed.",
+                ]
+            ),
+            "test_id": TEST_ID,
+            "operator_probe": True,
+            "actual_filled_trade_proven": False,
+        },
+        created_at=datetime.now(UTC),
+    )
