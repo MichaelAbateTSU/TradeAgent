@@ -49,7 +49,8 @@ def register_event_commands(subparsers: Any) -> None:
         parser.add_argument("--purpose", choices=["research", "iex-practice"])
         parser.add_argument("--practice-start-date", type=date.fromisoformat)
         parser.add_argument(
-            "--entry-policy", choices=["event-strategy", "equipment-only-demo", "news-paper"]
+            "--entry-policy",
+            choices=["event-strategy", "equipment-only-demo", "news-paper", "scheduled-operator"],
         )
         parser.add_argument("--demo-account-digest")
         parser.add_argument("--news-account-digest")
@@ -95,6 +96,8 @@ def handle_event_command(args: argparse.Namespace) -> bool:
         )
         if (value := getattr(args, key, None)) is not None
     }
+    if args.command == "run":
+        overrides["mode"] = args.mode
     settings = ExperimentalSettings.model_validate(overrides)
     result: Any
     if args.command in {"doctor", "source-capabilities"}:

@@ -100,6 +100,8 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
                     "persistence.py",
                     "operator_calibration.py",
                     "paper_account_history.py",
+                    "scheduled_paper.py",
+                    "market_progress.py",
                 )
             ),
         }
@@ -259,6 +261,31 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
                 "Retain 30-second freshness and risk supervision; do not slow to 5-15 minutes"
             ),
         )
+    if settings.entry_policy == "scheduled-operator":
+        manifest.update(
+            session_protocol_version="scheduled-owner-paper-v1",
+            policy_change="One dated prior owner approval, autonomous readiness, then operator OMS",
+            maximum_news_entries_per_session=0,
+            automatic_calibration_enabled=False,
+            calibration={
+                "automatic_enabled": False,
+                "delegation_required": "immutable ScheduledPaperSession",
+                "minimum_continuous_regular_session_readiness_seconds": 1800,
+                "physical_progress_endpoint_interval_seconds": 600,
+                "sparse_minute_prints_do_not_reset_critical_readiness": True,
+                "entry_window_eastern": ["10:05 inclusive", "10:30 exclusive"],
+                "maximum_delegated_AAPL_round_trips": 1,
+                "maximum_notional_usd": "25",
+                "entry_expiry_seconds": 30,
+                "exit_after_seconds": 60,
+                "no_next_day_rollover": True,
+            },
+            hypotheses=[],
+            entry_policy="scheduled-operator",
+            authority=(
+                "immutable dated ScheduledPaperSession; no startup or next-day rollover approval"
+            ),
+        )
     return digest, manifest
 
 
@@ -372,7 +399,8 @@ class EventRuntime:
         tick_at = now or datetime.now(UTC)
         from tradeagent.operator_calibration import step as operator_step
 
-        operator_result = operator_step(self, observed_at=tick_at)
+        scheduled_host = self.settings.entry_policy == "scheduled-operator"
+        operator_result = operator_step(self, observed_at=tick_at, recovery_only=scheduled_host)
         if operator_result is not None:
             result = {
                 "state": "operator_calibration",
@@ -387,20 +415,32 @@ class EventRuntime:
             }
             self.repo.heartbeat("tradeagent-event-worker", self.instance_id, result)
             return result
+        if scheduled_host:
+            from tradeagent.scheduled_paper import step as scheduled_step
+
+            # Expiry/revocation notices must not depend on successful network collection.
+            scheduled_step(self, now=tick_at, collect=False)
         operator_probe = None
         # operator_step renews the lease and supervises durable exposure before parsing commands.
-        crypto_test = step_crypto_test(
-            self.broker,
-            self.market,
-            self.repo,
-            self.store,
-            owner_id=self.instance_id,
-            code_sha=self.code_sha,
-            config_hash=self.config_hash,
-            cohort_id=self.settings.cohort_id,
-            assert_owner=self.oms.assert_owner,
+        crypto_test = (
+            None
+            if scheduled_host
+            else step_crypto_test(
+                self.broker,
+                self.market,
+                self.repo,
+                self.store,
+                owner_id=self.instance_id,
+                code_sha=self.code_sha,
+                config_hash=self.config_hash,
+                cohort_id=self.settings.cohort_id,
+                assert_owner=self.oms.assert_owner,
+            )
         )
-        if self.repo.get_control(f"{OPERATOR_PROBE_KEY}:{self.settings.cohort_id}") is not None:
+        if (
+            not scheduled_host
+            and self.repo.get_control(f"{OPERATOR_PROBE_KEY}:{self.settings.cohort_id}") is not None
+        ):
             try:
                 operator_probe = run_probe(
                     self.broker,
@@ -649,7 +689,11 @@ class EventRuntime:
                     },
                     evaluated_at,
                 )
-                if decision.action == "eligible" and self.settings.mode == "experimental-paper":
+                if (
+                    decision.action == "eligible"
+                    and self.settings.mode == "experimental-paper"
+                    and not scheduled_host
+                ):
                     self.store.candidate_state(
                         stored_id,
                         self.settings.cohort_id,
@@ -678,8 +722,24 @@ class EventRuntime:
                     },
                     evaluated_at,
                 )
-        calibration = self._practice_calibration(datetime.now(UTC))
-        self._select_news_candidate(candidates, pre_receipt_states)
+        scheduled_status = None
+        if scheduled_host:
+            from tradeagent.scheduled_paper import step as scheduled_step
+
+            try:
+                scheduled_status = scheduled_step(self)
+            except (ValueError, KeyError, TypeError, httpx.HTTPError) as error:
+                scheduled_status = {
+                    "state": "invalid_schedule_requires_review",
+                    "reason": str(error)[:500],
+                }
+            # Collection and R1 evaluation precede command consumption, while recovery
+            # already ran before any potentially malformed authority was parsed.
+            operator_result = operator_step(self, observed_at=datetime.now(UTC))
+            calibration = None
+        else:
+            calibration = self._practice_calibration(datetime.now(UTC))
+            self._select_news_candidate(candidates, pre_receipt_states)
         if self.session_plan is not None:
             self.premarket_brief = persist_premarket_brief(
                 self.store.database,
@@ -725,6 +785,19 @@ class EventRuntime:
             ),
             "purpose": self.settings.purpose,
             "entry_policy": self.settings.entry_policy,
+            **(
+                {
+                    "scheduled_paper": scheduled_status,
+                    "operator_paper": operator_result,
+                    "_operator_active": bool(
+                        operator_result and operator_result.get("_operator_active")
+                    ),
+                    "global_strategy_kill": self.repo.get_control("kill_switch"),
+                    "ordinary_entries_enabled": False,
+                }
+                if scheduled_host
+                else {}
+            ),
             "qualification_eligible": self.settings.purpose != "iex-practice",
             "execution_feed": self.settings.execution_feed,
             "practice_start_date": str(self.settings.practice_start_date)

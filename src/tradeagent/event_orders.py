@@ -483,6 +483,8 @@ class ExperimentalOrderManager:
     ) -> dict[str, Any]:
         self.assert_owner(now)
         errors: list[str] = []
+        if self.settings.entry_policy == "scheduled-operator":
+            return {"state": "risk_rejected", "reasons": ["SCHEDULE_DELEGATION_REQUIRED"]}
         if self.recovery_only:
             errors.append("RECOVERY_ONLY_NO_ENTRIES")
         if self.settings.entry_policy == "operator-calibration" and (
@@ -678,6 +680,16 @@ class ExperimentalOrderManager:
                 else None
             )
             if budget is not None:
+                scheduled_reservation = budget.get("scheduled_entry_reserved") is True
+                owns_scheduled_reservation = bool(
+                    scheduled_reservation
+                    and self.settings.entry_policy == "operator-calibration"
+                    and self.operator_scope is not None
+                    and self.operator_scope.scheduled_session_id is not None
+                    and budget.get("scheduled_request_id") == str(self.operator_scope.request_id)
+                )
+                if scheduled_reservation and not owns_scheduled_reservation:
+                    return {"state": "risk_rejected", "reasons": ["SCHEDULED_ENTRY_RESERVED"]}
                 if entry_kind == "calibration" and budget["equipment_client_order_id"] is not None:
                     return {
                         "state": "duplicate_event",
@@ -721,7 +733,7 @@ class ExperimentalOrderManager:
             ):
                 return {"state": "risk_rejected", "reasons": ["POSITION_OR_ORDER_RESERVED"]}
             entries_today = (
-                budget["total_entries_reserved"]
+                budget["total_entries_reserved"] - int(owns_scheduled_reservation)
                 if budget is not None
                 else sum(
                     row["side"] == "buy" and _utc(row["created_at"]).date() == now.date()
@@ -740,7 +752,10 @@ class ExperimentalOrderManager:
                 )
             )
             if budget is not None:
-                budget["total_entries_reserved"] += 1
+                if owns_scheduled_reservation:
+                    budget["scheduled_entry_reserved"] = False
+                else:
+                    budget["total_entries_reserved"] += 1
                 if entry_kind == "strategy":
                     budget["news_entries_reserved"] += 1
                 else:

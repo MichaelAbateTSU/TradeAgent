@@ -40,7 +40,11 @@ class ExperimentalSettings(BaseSettings):
     mode: ExperimentMode = "shadow"
     purpose: Literal["research", "iex-practice"] = "research"
     entry_policy: Literal[
-        "event-strategy", "equipment-only-demo", "news-paper", "operator-calibration"
+        "event-strategy",
+        "equipment-only-demo",
+        "news-paper",
+        "operator-calibration",
+        "scheduled-operator",
     ] = "event-strategy"
     demo_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     news_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
@@ -91,7 +95,7 @@ class ExperimentalSettings(BaseSettings):
                 )
         elif self.demo_account_digest is not None:
             raise ValueError("demo account pin requires the equipment-only policy")
-        if self.entry_policy in {"news-paper", "operator-calibration"}:
+        if self.entry_policy in {"news-paper", "operator-calibration", "scheduled-operator"}:
             if (
                 self.purpose != "iex-practice"
                 or self.max_entries_per_session != 2
@@ -102,6 +106,10 @@ class ExperimentalSettings(BaseSettings):
                 )
         elif self.news_account_digest is not None:
             raise ValueError("news account pin requires the news-paper policy")
+        if self.entry_policy == "scheduled-operator" and (
+            self.mode != "experimental-paper" or self.symbols != "AAPL"
+        ):
+            raise ValueError("scheduled operator host requires actual AAPL experimental-paper")
         return self
 
     @property

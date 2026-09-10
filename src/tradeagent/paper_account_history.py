@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_UP, Decimal
 from hashlib import sha256
 from typing import Any
@@ -21,7 +21,12 @@ from tradeagent.event_performance import (
     SELL_SHARE_RATE,
     SELL_VALUE_RATE,
 )
-from tradeagent.event_session import locked_session_budget, save_session_budget
+from tradeagent.event_session import (
+    empty_session_budget,
+    locked_session_budget,
+    save_session_budget,
+    session_control_key,
+)
 from tradeagent.event_store import EventStore, event_order_links
 from tradeagent.persistence import controls, orders
 
@@ -367,9 +372,126 @@ def save_baseline(store: EventStore, history: dict[str, Any], now: datetime) -> 
             external = set(identities) - local_ids
             if not previous <= external:
                 raise ValueError("history cannot remove previously counted BUY attempts")
+            before_budget = dict(budget)
             budget["total_entries_reserved"] += len(external - previous)
             budget["external_buy_client_ids"] = sorted(external)
             save_session_budget(connection, budget, now)
+            if before_budget != budget:
+                store.audit(
+                    "account_history_budget_correction",
+                    {
+                        "account_digest": digest,
+                        "session_date": day,
+                        "history_identity": report["identity"],
+                        "before": before_budget,
+                        "after": budget,
+                        "added_external_buy_client_ids": sorted(external - previous),
+                        "upward_only": True,
+                    },
+                    now,
+                    digest + ":" + day,
+                    connection,
+                )
         _write_control(connection, key, json.dumps(report, sort_keys=True), now)
         store.audit("account_history_baseline", report, now, digest, connection)
     return report
+
+
+def preview_baseline(store: EventStore, history: dict[str, Any], now: datetime) -> dict[str, Any]:
+    """Read-only import preview; not market acceptance or order authority."""
+    report = value_history(history)
+    if not timedelta(0) <= now - stamp(report["observed_at"]) <= timedelta(seconds=60):
+        raise ValueError("fresh history baseline required")
+    for order in history["orders"]:
+        for key in (
+            "created_at",
+            "submitted_at",
+            "updated_at",
+            "filled_at",
+            "canceled_at",
+            "expired_at",
+        ):
+            if order.get(key) and stamp(order[key]) > stamp(report["observed_at"]):
+                raise ValueError("future broker order history")
+    digest = report["account_digest"]
+    with store.database.begin() as connection:
+        raw = connection.scalar(
+            select(controls.c.control_value).where(
+                controls.c.control_key == "paper-baseline:" + digest
+            )
+        )
+        old = json.loads(raw) if raw and raw != "{}" else None
+        if old:
+            timeline = {row["id"]: row for row in report["timeline"]}
+            if (
+                stamp(old["observed_at"]) > stamp(report["observed_at"])
+                or not set(old["broker_order_ids"]) <= set(report["broker_order_ids"])
+                or any(timeline.get(row["id"]) != row for row in old["timeline"])
+            ):
+                raise ValueError("baseline cannot discard or rewrite previously valued history")
+        linked = list(
+            connection.execute(
+                select(orders.c.client_order_id, orders.c.status, orders.c.broker_order_id)
+                .join(
+                    event_order_links,
+                    orders.c.client_order_id == event_order_links.c.client_order_id,
+                )
+                .where(event_order_links.c.payload["account_digest"].as_string() == digest)
+            ).mappings()
+        )
+        if any(row["status"] not in FINAL for row in linked):
+            raise ValueError("unresolved local history blocks baseline")
+        if any(
+            row["broker_order_id"] and row["broker_order_id"] not in report["broker_order_ids"]
+            for row in linked
+        ):
+            raise ValueError("broker snapshot omits retained OMS history")
+        local_ids = {row["client_order_id"] for row in linked}
+        corrections = []
+        for day, identities in report["buy_client_ids"].items():
+            session_date = date.fromisoformat(day)
+            raw = connection.scalar(
+                select(controls.c.control_value).where(
+                    controls.c.control_key == session_control_key(digest, session_date)
+                )
+            )
+            before_budget = json.loads(raw) if raw else empty_session_budget(digest, session_date)
+            if (
+                before_budget["account_digest"] != digest
+                or before_budget["planned_session_date"] != day
+            ):
+                raise ValueError("persisted practice session identity mismatch")
+            previous = set(before_budget.get("external_buy_client_ids", []))
+            external = set(identities) - local_ids
+            if not previous <= external:
+                raise ValueError("history cannot remove previously counted BUY attempts")
+            after_budget = {
+                **before_budget,
+                "total_entries_reserved": before_budget["total_entries_reserved"]
+                + len(external - previous),
+                "external_buy_client_ids": sorted(external),
+            }
+            corrections.append(
+                {
+                    "session_date": day,
+                    "row_existed": raw is not None,
+                    "before": before_budget,
+                    "proposed_after": after_budget,
+                    "added_external_buy_client_ids": sorted(external - previous),
+                    "upward_only": True,
+                }
+            )
+    return {
+        "kind": "read_only_paper_baseline_import_preview",
+        "observed_at": now.isoformat(),
+        "history_identity": report["identity"],
+        "history_observed_at": report["observed_at"],
+        "account_digest": digest,
+        "cash_pnl": report["cash_pnl"],
+        "economic_pnl": report["economic_pnl"],
+        "peak_pnl": report["peak_pnl"],
+        "budget_corrections": corrections,
+        "database_mutations": 0,
+        "market_acceptance": False,
+        "order_authority_created": False,
+    }

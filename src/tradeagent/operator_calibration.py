@@ -10,7 +10,7 @@ from typing import Any, Literal, Self
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import httpx
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_serializer, model_validator
 from sqlalchemy import ColumnElement, case, exists, func, literal, or_, select
 
 from tradeagent.config import AppConfig
@@ -39,13 +39,52 @@ class OperatorPaperRequest(BaseModel):
     owner_authority: str = Field(min_length=20, max_length=1000)
     checks: dict[str, bool]
     control_versions: dict[str, tuple[str | None, str | None]]
+    scheduled_session_id: UUID | None = None
+    scheduled_session_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    scheduled_authority_updated_at: str | None = None
+    issued_at: AwareDatetime | None = None
+    not_before: AwareDatetime | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize_scope(self, handler: Any) -> dict[str, Any]:
+        result: dict[str, Any] = handler(self)
+        if self.scheduled_session_id is None:
+            for key in (
+                "scheduled_session_id",
+                "scheduled_session_sha256",
+                "scheduled_authority_updated_at",
+                "issued_at",
+                "not_before",
+            ):
+                result.pop(key, None)
+        return result
 
     @model_validator(mode="after")
     def validate_scope(self) -> Self:
+        scheduled = self.scheduled_session_id is not None
+        if scheduled:
+            valid_time = bool(
+                self.scheduled_session_sha256 is not None
+                and self.scheduled_authority_updated_at is not None
+                and self.issued_at is not None
+                and self.not_before is not None
+                and self.approved_at < self.not_before <= self.issued_at < self.entry_deadline
+                and self.approved_at.astimezone(EASTERN).date() < self.session_date
+                and self.not_before.astimezone(EASTERN).date() == self.session_date
+                and timedelta(0) < self.entry_deadline - self.not_before <= timedelta(minutes=30)
+            )
+        else:
+            valid_time = bool(
+                self.scheduled_session_sha256 is None
+                and self.scheduled_authority_updated_at is None
+                and self.issued_at is None
+                and self.not_before is None
+                and self.approved_at.astimezone(EASTERN).date() == self.session_date
+                and timedelta(0) < self.entry_deadline - self.approved_at <= timedelta(minutes=30)
+            )
         if (
-            self.approved_at.astimezone(EASTERN).date() != self.session_date
+            not valid_time
             or self.entry_deadline.astimezone(EASTERN).date() != self.session_date
-            or not timedelta(0) < self.entry_deadline - self.approved_at <= timedelta(minutes=30)
             or not all(
                 self.checks.get(key) is True
                 for key in (
@@ -71,7 +110,9 @@ class OperatorPaperRequest(BaseModel):
         return "operator-paper-" + self.request_id.hex
 
     def in_window(self, now: datetime) -> bool:
-        return self.approved_at <= now < self.entry_deadline
+        return (self.issued_at or self.approved_at) <= now < self.entry_deadline and (
+            self.issued_at is None or now < self.issued_at + timedelta(seconds=90)
+        )
 
 
 def control_versions(
@@ -155,6 +196,11 @@ def authorized(
 ) -> bool:
     if request is None:
         return False
+    if request.scheduled_session_id is not None:
+        from tradeagent.scheduled_paper import delegation_valid
+
+        if not delegation_valid(repo, request):
+            return False
     return bool(
         settings.entry_policy == "operator-calibration"
         and request.cohort_id == settings.cohort_id
@@ -179,6 +225,10 @@ def final_entry_fence(
     if request is None or owner_id is None or not request.in_window(now):
         return False
     conditions: list[ColumnElement[bool]] = []
+    if request.scheduled_session_id is not None:
+        from tradeagent.scheduled_paper import delegation_conditions
+
+        conditions.extend(delegation_conditions(repo, request))
     for key, (value, updated_at) in request.control_versions.items():
         query = select(controls.c.control_key).where(controls.c.control_key == key)
         conditions.append(
@@ -457,6 +507,12 @@ def _step(runtime: Any, supervised_cohorts: set[str]) -> dict[str, Any] | None:
             and runtime.settings.cohort_id == request.worker_cohort_id
             and runtime.settings.practice_start_date == request.session_date
         )
+        if (
+            runtime.settings.entry_policy == "scheduled-operator"
+            and request.scheduled_session_id is None
+            and not existing_rows
+        ):
+            raise ValueError("scheduled host requires its immutable dated delegation")
         if not owns_code and not existing_rows:
             raise ValueError("request does not match the running worker code/config/cohort")
         runtime.store.freeze(request.cohort_id, config_hash, manifest, settings.mode, now)
@@ -530,17 +586,35 @@ def _step(runtime: Any, supervised_cohorts: set[str]) -> dict[str, Any] | None:
             raise ValueError("operator authority expired or control versions changed")
         if runtime.broker.positions() or runtime.broker.open_orders():
             raise ValueError("flat account without open orders required")
-        history = runtime.broker.account_history()
+        cached = getattr(runtime, "_scheduled_history", None)
+        history = (
+            cached[1]
+            if request.scheduled_session_id is not None
+            and cached is not None
+            and cached[0] == request.request_id
+            and timedelta(0) <= now - cached[2] <= timedelta(seconds=5)
+            else runtime.broker.account_history()
+        )
         if (
             history["account_digest"] != request.account_digest
             or history_identity(history) != request.history_sha256
         ):
             raise ValueError("broker history changed after explicit baseline review")
-        baseline = save_baseline(runtime.store, history, datetime.now(UTC))
+        baseline = (
+            cached[3]
+            if request.scheduled_session_id is not None
+            and cached is not None
+            and history is cached[1]
+            else save_baseline(runtime.store, history, datetime.now(UTC))
+        )
         now = datetime.now(UTC)
         context = runtime.context
         if (
             context.errors
+            or (
+                request.scheduled_session_id is not None
+                and not timedelta(0) <= now - context.observed_at <= timedelta(seconds=90)
+            )
             or context.blocking_reasons(now=now)
             or context.halted_for("AAPL", now=now) is not False
             or not runtime._sources_fresh(now)
@@ -586,8 +660,15 @@ def _step(runtime: Any, supervised_cohorts: set[str]) -> dict[str, Any] | None:
         quote = runtime._refresh_quote("AAPL")
         now = datetime.now(UTC)
         eligible_at = max(
-            request.approved_at,
-            market.observed_at + timedelta(seconds=runtime.policy.processing_latency_seconds),
+            request.not_before or request.approved_at,
+            (
+                runtime.first_bar_receipts.get(
+                    ("AAPL", market.completed_bar.timestamp), market.observed_at
+                )
+                if request.scheduled_session_id is not None
+                else market.observed_at
+            )
+            + timedelta(seconds=runtime.policy.processing_latency_seconds),
         )
         result = manager.submit_entry(
             symbol="AAPL",
@@ -654,7 +735,9 @@ def _step(runtime: Any, supervised_cohorts: set[str]) -> dict[str, Any] | None:
         return state
 
 
-def step(runtime: Any, *, observed_at: datetime | None = None) -> dict[str, Any] | None:
+def step(
+    runtime: Any, *, observed_at: datetime | None = None, recovery_only: bool = False
+) -> dict[str, Any] | None:
     now = observed_at or datetime.now(UTC)
     runtime.oms.assert_owner(now)
     supervised_cohorts = recover_prior_cohorts(runtime, now)
@@ -668,6 +751,8 @@ def step(runtime: Any, *, observed_at: datetime | None = None) -> dict[str, Any]
         )
     else:
         runtime.oms.supervise(now, feed_healthy=runtime._sources_fresh(now))
+    if recovery_only:
+        return None
     try:
         return _step(runtime, supervised_cohorts)
     except (ValueError, KeyError, TypeError) as error:
