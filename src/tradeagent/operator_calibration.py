@@ -11,7 +11,7 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 import httpx
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
-from sqlalchemy import ColumnElement, exists, literal, select
+from sqlalchemy import ColumnElement, case, exists, func, literal, or_, select
 
 from tradeagent.config import AppConfig
 from tradeagent.event_context import OfficialContextSnapshot
@@ -291,7 +291,128 @@ def context_valid(ticket: dict[str, Any] | None, now: datetime) -> bool:
         return False
 
 
-def _step(runtime: Any) -> dict[str, Any] | None:
+def recover_prior_cohorts(runtime: Any, now: datetime) -> set[str]:
+    from tradeagent.event_orders import FINAL, ExperimentalOrderManager
+    from tradeagent.event_store import event_cohorts, event_order_links
+    from tradeagent.persistence import orders
+
+    raw = runtime.repo.get_control("operator-paper-active")
+    if raw is None:
+        raw = runtime.repo.get_control(f"operator-paper-request:{runtime.settings.cohort_id}")
+    try:
+        active = OperatorPaperRequest.model_validate_json(raw) if raw is not None else None
+    except ValueError:
+        active = None
+    with runtime.store.database.begin() as connection:
+        cohorts = set(
+            connection.scalars(
+                select(event_order_links.c.cohort_id)
+                .join(orders, orders.c.client_order_id == event_order_links.c.client_order_id)
+                .join(event_cohorts, event_cohorts.c.cohort_id == event_order_links.c.cohort_id)
+                .where(
+                    event_cohorts.c.manifest["settings"]["entry_policy"].as_string()
+                    == "operator-calibration"
+                )
+                .group_by(event_order_links.c.cohort_id, orders.c.symbol)
+                .having(
+                    or_(
+                        func.sum(
+                            case(
+                                (orders.c.side == "buy", orders.c.filled_quantity),
+                                else_=-orders.c.filled_quantity,
+                            )
+                        )
+                        != 0,
+                        func.sum(case((orders.c.status.not_in(FINAL), 1), else_=0)) > 0,
+                    )
+                )
+            )
+        )
+    supervised: set[str] = set()
+    for cohort in cohorts:
+        rows = runtime.store.linked_orders(cohort)
+        if all(row["status"] in FINAL for row in rows) and not ExperimentalOrderManager.inventory(
+            rows
+        ):
+            continue
+        supervised.add(cohort)
+        try:
+            with runtime.store.database.begin() as connection:
+                frozen = (
+                    connection.execute(
+                        select(event_cohorts).where(event_cohorts.c.cohort_id == cohort)
+                    )
+                    .mappings()
+                    .one()
+                )
+            manifest = frozen["manifest"]
+            saved = load_request(runtime.repo, cohort)
+            if saved is None or saved != OperatorPaperRequest.model_validate(
+                manifest["operator_scope"]
+            ):
+                raise ValueError("immutable operator recovery scope is unavailable or changed")
+            app = AppConfig(**manifest["operational_settings"])
+            settings = ExperimentalSettings.model_validate(manifest["settings"])
+            config_hash = sha256(
+                json.dumps(
+                    {key: value for key, value in manifest.items() if key != "config_hash"},
+                    sort_keys=True,
+                ).encode()
+            ).hexdigest()
+            if (
+                saved.cohort_id != cohort
+                or settings.cohort_id != cohort
+                or settings.entry_policy != "operator-calibration"
+                or settings.mode != "experimental-paper"
+                or settings.practice_start_date != saved.session_date
+                or settings.news_account_digest != saved.account_digest
+                or manifest["code_sha"] != saved.code_sha
+                or manifest["config_hash"] != config_hash
+                or config_hash != frozen["config_hash"]
+            ):
+                raise ValueError("immutable operator recovery configuration mismatch")
+            manager = ExperimentalOrderManager(
+                runtime.store,
+                runtime.broker,
+                settings,
+                app,
+                config_hash,
+                saved.code_sha,
+                runtime.instance_id,
+                recovery_only=True,
+                quote_provider=runtime._protective_quote,
+            )
+            valid_active = (
+                active == saved
+                and runtime.code_sha == saved.code_sha
+                and runtime.config_hash == saved.worker_config_hash
+                and runtime.settings.cohort_id == saved.worker_cohort_id
+            )
+            manager.supervise(now, feed_healthy=valid_active and runtime._sources_fresh(now))
+        except (ValueError, KeyError, httpx.HTTPError) as error:
+            runtime.store.audit(
+                "operator_recovery_blocked",
+                {
+                    "cohort_id": cohort,
+                    "reason": type(error).__name__,
+                    "source": "immutable scope and durable order links; no reconstructed authority",
+                },
+                now,
+                cohort,
+            )
+            RoundTripNotificationRepository(runtime.store.database).enqueue_status(
+                uuid5(NAMESPACE_URL, f"{PROTOCOL}:{cohort}:recovery-blocked"),
+                {
+                    "subject": "[TradeAgent PAPER] Operator recovery requires review",
+                    "text": f"Cohort: {cohort}\nRecovery error: {type(error).__name__}.\n"
+                    "No broker-flat claim. No new entry authority created.",
+                },
+                created_at=now,
+            )
+    return supervised
+
+
+def _step(runtime: Any, supervised_cohorts: set[str]) -> dict[str, Any] | None:
     from tradeagent.event_orders import FINAL, ExperimentalOrderManager
     from tradeagent.event_runtime import _execution_quote
     from tradeagent.event_store import event_cohorts
@@ -299,7 +420,7 @@ def _step(runtime: Any) -> dict[str, Any] | None:
 
     raw = runtime.repo.get_control(f"operator-paper-request:{runtime.settings.cohort_id}")
     active = runtime.repo.get_control("operator-paper-active")
-    if active:
+    if active is not None:
         prior = OperatorPaperRequest.model_validate_json(active)
         if not runtime.repo.get_control(f"{prior.cohort_id}:operator-terminal"):
             raw = active
@@ -358,7 +479,8 @@ def _step(runtime: Any) -> dict[str, Any] | None:
         )
         rows = runtime.store.linked_orders(request.cohort_id)
         if rows:
-            manager.supervise(now, feed_healthy=runtime._sources_fresh(now))
+            if request.cohort_id not in supervised_cohorts:
+                manager.supervise(now, feed_healthy=runtime._sources_fresh(now))
             rows = runtime.store.linked_orders(request.cohort_id)
             if all(row["status"] in FINAL for row in rows) and not manager.inventory(rows):
                 result = manager.reconcile(datetime.now(UTC))
@@ -442,11 +564,14 @@ def _step(runtime: Any) -> dict[str, Any] | None:
             or market.completed_daily_sessions < runtime.policy.minimum_liquidity_sessions
         ):
             raise ValueError("completed regular-session observation and liquidity history required")
+        certificate_account = runtime.broker.account()
+        if sha256(certificate_account.id.encode()).hexdigest() != request.account_digest:
+            raise ValueError("operator account changed after verified history")
         proof = certificate(
             settings,
             config_hash=config_hash,
             code_sha=request.code_sha,
-            account_id=runtime.broker.account().id,
+            account_id=certificate_account.id,
             checks=request.checks,
             now=now,
             limitations=(
@@ -528,9 +653,14 @@ def _step(runtime: Any) -> dict[str, Any] | None:
         return state
 
 
-def step(runtime: Any) -> dict[str, Any] | None:
+def step(runtime: Any, *, observed_at: datetime | None = None) -> dict[str, Any] | None:
+    now = observed_at or datetime.now(UTC)
+    runtime.oms.assert_owner(now)
+    supervised_cohorts = recover_prior_cohorts(runtime, now)
+    if not supervised_cohorts:
+        runtime.oms.supervise(now, feed_healthy=runtime._sources_fresh(now))
     try:
-        return _step(runtime)
+        return _step(runtime, supervised_cohorts)
     except (ValueError, KeyError, TypeError) as error:
         raw = runtime.repo.get_control("operator-paper-active") or runtime.repo.get_control(
             f"operator-paper-request:{runtime.settings.cohort_id}"

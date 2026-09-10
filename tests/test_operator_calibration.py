@@ -644,3 +644,127 @@ def test_new_emergency_kill_does_not_disable_owned_risk_exit(make_runtime, monke
     assert result["timing"]["flat_verified_at"] == (AT + timedelta(seconds=2)).isoformat()
     assert not result["timing"]["timing_guaranteed"]
     assert runtime.repo.get_control(f"{request.cohort_id}:operator-scope")
+
+
+def test_account_switch_after_history_cannot_mint_authority_for_another_account(
+    make_runtime, monkeypatch
+):
+    runtime, request = prepare(make_runtime, monkeypatch)
+    account = runtime.broker.account
+    snapshot = runtime.broker.account_history
+    switched = False
+
+    def after_history():
+        nonlocal switched
+        result = snapshot()
+        switched = True
+        return result
+
+    runtime.broker.account_history = after_history
+    runtime.broker.account = lambda: (
+        account().model_copy(update={"id": "other-paper-account"}) if switched else account()
+    )
+    result = tick(runtime, AT)["operator_paper"]
+    assert result["state"] == "blocked_requires_review"
+    assert result["reason"] == "operator account changed after verified history"
+    assert runtime.broker.submissions == 0
+    assert not runtime.store.linked_orders(request.cohort_id)
+    assert runtime.repo.get_control(f"{request.cohort_id}:broker-account") is None
+
+
+def test_final_dispatch_account_pin_does_not_trust_a_changed_cohort_account_record(
+    make_runtime, monkeypatch
+):
+    runtime, request = prepare(make_runtime, monkeypatch)
+    account = runtime.broker.account
+    find = runtime.broker.find_order_by_client_id
+    switched = False
+
+    def before_dispatch(client_id):
+        nonlocal switched
+        switched = True
+        runtime.repo.set_control(
+            f"{request.cohort_id}:broker-account", sha256(b"other-paper-account").hexdigest()
+        )
+        return find(client_id)
+
+    runtime.broker.find_order_by_client_id = before_dispatch
+    runtime.broker.account = lambda: (
+        account().model_copy(update={"id": "other-paper-account"}) if switched else account()
+    )
+    result = tick(runtime, AT)["operator_paper"]
+    assert result["state"] == "blocked_requires_review"
+    assert result["reason"] == "account changed before dispatch"
+    assert runtime.broker.submissions == 0
+    rows = runtime.store.linked_orders(request.cohort_id)
+    assert len(rows) == 1 and rows[0]["filled_quantity"] == 0
+    assert not rows[0]["link"].get("submission_attempted_at")
+
+
+@pytest.mark.parametrize("malformed", ["{}", "not-json", ""])
+def test_malformed_active_command_does_not_disable_owned_recovery_or_lease(
+    make_runtime, monkeypatch, malformed
+):
+    runtime, request = prepare(make_runtime, monkeypatch)
+    tick(runtime, AT)
+    original_scope = runtime.repo.get_control(f"{request.cohort_id}:operator-scope")
+    original_pauses = control_versions(runtime.repo, runtime.settings.cohort_id)
+    owned = runtime.broker.positions()[0].quantity
+    runtime.repo.set_control("operator-paper-active", malformed)
+    result = tick(runtime, AT + timedelta(seconds=61))["operator_paper"]
+    assert result["state"] == "operator_command_invalid_requires_review"
+    assert runtime.broker.submissions == 2
+    assert not runtime.broker.positions() and not runtime.broker.open_orders()
+    rows = runtime.store.linked_orders(request.cohort_id)
+    assert rows[-1]["side"] == "sell" and rows[-1]["quantity"] == owned
+    assert runtime.repo.get_control("operator-paper-active") == malformed
+    assert runtime.repo.get_control(f"{request.cohort_id}:operator-scope") == original_scope
+    assert control_versions(runtime.repo, runtime.settings.cohort_id) == original_pauses
+    with runtime.store.database.begin() as connection:
+        renewed = connection.scalar(select(worker_locks.c.acquired_at))
+        messages = list(connection.execute(select(notification_outbox)).mappings())
+    assert renewed.replace(tzinfo=UTC) >= AT + timedelta(seconds=61)
+    tick(runtime, AT + timedelta(seconds=62))
+    assert runtime.broker.submissions == 2
+    with runtime.store.database.begin() as connection:
+        assert len(list(connection.execute(select(notification_outbox)))) == len(messages)
+    assert "broker-flat" in next(
+        row["payload"]["text"]
+        for row in messages
+        if row["payload"].get("subject", "").endswith("Invalid command; review required")
+    )
+
+
+def test_valid_active_request_is_supervised_once_without_premature_exit(make_runtime, monkeypatch):
+    runtime, request = prepare(make_runtime, monkeypatch)
+    tick(runtime, AT)
+    assert tick(runtime, AT + timedelta(seconds=10))["operator_paper"]["state"] == "supervising"
+    assert runtime.broker.submissions == 1 and runtime.broker.positions()
+    assert tick(runtime, AT + timedelta(seconds=61))["operator_paper"]["state"] == "completed_flat"
+    assert runtime.broker.submissions == 2
+    assert len(runtime.store.linked_orders(request.cohort_id)) == 2
+
+
+def test_worker_manifest_pins_operator_policy_and_history_modules(make_runtime):
+    from tradeagent import event_runtime
+
+    runtime = make_runtime()
+    _, manifest = event_runtime.cohort_manifest(runtime.settings, runtime.code_sha)
+    for name in ("operator_calibration.py", "paper_account_history.py"):
+        expected = sha256(
+            Path(event_runtime.__file__).with_name(name).read_text(encoding="utf-8").encode()
+        ).hexdigest()
+        assert manifest["runtime_module_hashes"][name] == expected
+
+
+def test_invalid_pointer_recovery_uses_frozen_settings_not_new_environment(
+    make_runtime, monkeypatch
+):
+    runtime, request = prepare(make_runtime, monkeypatch)
+    tick(runtime, AT)
+    runtime.repo.set_control("operator-paper-active", "{}")
+    monkeypatch.setenv("EVENT_VIRTUAL_EQUITY", "5000")
+    result = tick(runtime, AT + timedelta(seconds=61))["operator_paper"]
+    assert result["state"] == "operator_command_invalid_requires_review"
+    assert runtime.broker.submissions == 2 and not runtime.broker.positions()
+    assert len(runtime.store.linked_orders(request.cohort_id)) == 2

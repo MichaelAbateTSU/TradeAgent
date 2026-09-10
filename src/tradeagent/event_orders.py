@@ -215,6 +215,11 @@ class ExperimentalOrderManager:
             raise ValueError("live or unknown broker endpoint forbidden")
         account = self.broker.account()
         digest = sha256(account.id.encode()).hexdigest()
+        if self.settings.entry_policy == "operator-calibration" and (
+            self.operator_scope is None or digest != self.operator_scope.account_digest
+        ):
+            self.pause("OPERATOR_ACCOUNT_PIN_MISMATCH", now)
+            raise ValueError("operator account does not match the immutable request")
         account_key = f"{self.settings.cohort_id}:broker-account"
         recorded_account = self.repo.get_control(account_key)
         if recorded_account is None:
@@ -893,7 +898,10 @@ class ExperimentalOrderManager:
             self.settings.cohort_id,
         )
         digest = sha256(self.broker.account().id.encode()).hexdigest()
-        if self.repo.get_control(f"{self.settings.cohort_id}:broker-account") != digest:
+        if self.repo.get_control(f"{self.settings.cohort_id}:broker-account") != digest or (
+            self.settings.entry_policy == "operator-calibration"
+            and (self.operator_scope is None or digest != self.operator_scope.account_digest)
+        ):
             raise ValueError("account changed before dispatch")
         unauthorized_demo = (
             request.side is Side.BUY

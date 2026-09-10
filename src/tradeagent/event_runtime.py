@@ -98,6 +98,8 @@ def cohort_manifest(settings: ExperimentalSettings, code_sha: str) -> tuple[str,
                     "intraday.py",
                     "order_state.py",
                     "persistence.py",
+                    "operator_calibration.py",
+                    "paper_account_history.py",
                 )
             ),
         }
@@ -370,7 +372,7 @@ class EventRuntime:
         tick_at = now or datetime.now(UTC)
         from tradeagent.operator_calibration import step as operator_step
 
-        operator_result = operator_step(self)
+        operator_result = operator_step(self, observed_at=tick_at)
         if operator_result is not None:
             result = {
                 "state": "operator_calibration",
@@ -386,11 +388,7 @@ class EventRuntime:
             self.repo.heartbeat("tradeagent-event-worker", self.instance_id, result)
             return result
         operator_probe = None
-        # Always supervise owned positions before optional operator diagnostics.
-        self.oms.supervise(
-            tick_at,
-            feed_healthy=self._sources_fresh(tick_at),
-        )
+        # operator_step renews the lease and supervises durable exposure before parsing commands.
         crypto_test = step_crypto_test(
             self.broker,
             self.market,
