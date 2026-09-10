@@ -94,6 +94,11 @@ EVENT_HEARTBEAT_FIELDS = (
     "calibration_status",
     "session_budget",
     "broker_stream",
+    "entry_policy",
+    "scheduled_paper",
+    "operator_paper",
+    "ordinary_entries_enabled",
+    "global_strategy_kill",
 )
 ROLE_HEARTBEAT_FIELDS = (
     "state",
@@ -139,6 +144,11 @@ ROLE_HEARTBEAT_FIELDS = (
     "oldest_uncommitted_age_seconds",
     "batch_write_seconds",
     "dispatched",
+    "entry_policy",
+    "scheduled_paper",
+    "operator_paper",
+    "ordinary_entries_enabled",
+    "global_strategy_kill",
 )
 ROLE_LOCKS = {
     "tradeagent-event-worker": "tradeagent-event-worker",

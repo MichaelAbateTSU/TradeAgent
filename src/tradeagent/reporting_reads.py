@@ -99,7 +99,13 @@ SOURCE_FIELDS = (
 
 def projected_payload(column: Any, fields: Sequence[str]) -> list[Any]:
     """Project in SQL so excluded JSON bodies never reach the driver."""
-    booleans = {"coverage_complete", "healthy", "synthetic", "is_primary_source"}
+    booleans = {
+        "coverage_complete",
+        "healthy",
+        "synthetic",
+        "is_primary_source",
+        "ordinary_entries_enabled",
+    }
     return [
         (column[key].as_boolean() if key in booleans else column[key]).label(key) for key in fields
     ]

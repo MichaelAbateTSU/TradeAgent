@@ -135,6 +135,55 @@ def test_console_exposes_production_runtime_state(tmp_path: Path) -> None:
     }
 
 
+def test_console_exposes_schedule_without_implying_ordinary_trade_authority(tmp_path: Path) -> None:
+    url = f"sqlite:///{tmp_path / 'scheduled.db'}"
+    now = datetime.now(UTC)
+    schedule = {
+        "state": "scheduled_preopen",
+        "market_readiness": False,
+        "global_strategy_kill": "active",
+        "operator_exception": "scheduled",
+    }
+    with Database(url) as database:
+        database.initialize()
+        repository = ProductionRepository(database)
+        repository.set_control("kill_switch", "active")
+        repository.heartbeat(
+            "tradeagent-event-worker",
+            "scheduled-owner",
+            {
+                "state": "market_closed",
+                "mode": "experimental-paper",
+                "purpose": "iex-practice",
+                "cohort_id": "scheduled-fixture",
+                "entry_policy": "scheduled-operator",
+                "scheduled_paper": schedule,
+                "operator_paper": None,
+                "ordinary_entries_enabled": False,
+                "global_strategy_kill": "active",
+                "unprojected_source_body": "not for the overview",
+            },
+            observed_at=now,
+        )
+    with TestClient(
+        create_app(
+            production_database_url=url,
+            ledger_path=tmp_path / "ledger.db",
+            experiments_path=tmp_path / "experiments.db",
+        )
+    ) as client:
+        ready = client.get("/ready").json()
+        reported = ready["operational_status"]["roles"]["tradeagent-event-worker"]["reported"]
+        overview = client.get("/api/event-product").json()
+        for payload in (reported, overview):
+            assert payload["scheduled_paper"] == schedule
+            assert payload["entry_policy"] == "scheduled-operator"
+            assert payload["ordinary_entries_enabled"] is False
+            assert payload["global_strategy_kill"] == "active"
+            assert "unprojected_source_body" not in payload
+        assert ready["operational_status"]["controls"]["kill_switch"]["value"] == "active"
+
+
 def test_production_statistics_are_singleflight_but_controls_and_roles_are_live(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
