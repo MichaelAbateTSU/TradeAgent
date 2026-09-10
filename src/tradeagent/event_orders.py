@@ -1516,7 +1516,13 @@ class ExperimentalOrderManager:
                 triggered[symbol] = trigger
         return triggered
 
-    def supervise(self, now: datetime, *, feed_healthy: bool) -> None:
+    def supervise(
+        self,
+        now: datetime,
+        *,
+        feed_healthy: bool,
+        supervised_recovery_cohorts: frozenset[str] = frozenset(),
+    ) -> None:
         """Always called before event ingestion, including outages and operational pauses."""
         self.assert_owner(now)
         self.reconcile(now)
@@ -1541,7 +1547,10 @@ class ExperimentalOrderManager:
                 self.finish_demo("ATTEMPT_FINISHED_BROKER_FLAT", now)
         if not self.recovery_only:
             for manager in tuple(self._recoveries.values()):
-                if manager.settings.cohort_id not in self._unverified_cohorts:
+                if (
+                    manager.settings.cohort_id not in self._unverified_cohorts
+                    and manager.settings.cohort_id not in supervised_recovery_cohorts
+                ):
                     manager.supervise(now, feed_healthy=False)
             self.reconcile(now)
         if self.settings.cohort_id in self._unverified_cohorts:

@@ -455,6 +455,7 @@ def _step(runtime: Any, supervised_cohorts: set[str]) -> dict[str, Any] | None:
             runtime.code_sha == request.code_sha
             and runtime.config_hash == request.worker_config_hash
             and runtime.settings.cohort_id == request.worker_cohort_id
+            and runtime.settings.practice_start_date == request.session_date
         )
         if not owns_code and not existing_rows:
             raise ValueError("request does not match the running worker code/config/cohort")
@@ -657,7 +658,15 @@ def step(runtime: Any, *, observed_at: datetime | None = None) -> dict[str, Any]
     now = observed_at or datetime.now(UTC)
     runtime.oms.assert_owner(now)
     supervised_cohorts = recover_prior_cohorts(runtime, now)
-    if not supervised_cohorts:
+    if supervised_cohorts:
+        # Deduplicate only the operator recoveries already attempted this tick.
+        # Foreign or invalid operator records must not suppress ordinary owned exits.
+        runtime.oms.supervise(
+            now,
+            feed_healthy=runtime._sources_fresh(now),
+            supervised_recovery_cohorts=frozenset(supervised_cohorts),
+        )
+    else:
         runtime.oms.supervise(now, feed_healthy=runtime._sources_fresh(now))
     try:
         return _step(runtime, supervised_cohorts)

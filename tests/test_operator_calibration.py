@@ -122,7 +122,7 @@ def complete_history():
 
 
 def prepare(make, monkeypatch, *, snapshot=None, **changes):
-    runtime = make(confirmed=False, mode="shadow", practice_start_date=date(2026, 9, 9))
+    runtime = make(confirmed=False, mode="shadow", practice_start_date=AT.date())
     monkeypatch.setattr(operator_calibration, "datetime", Clock)
     monkeypatch.setattr("tradeagent.event_orders.datetime", Clock)
     Clock.current = runtime.broker.now = AT
@@ -768,3 +768,93 @@ def test_invalid_pointer_recovery_uses_frozen_settings_not_new_environment(
     assert result["state"] == "operator_command_invalid_requires_review"
     assert runtime.broker.submissions == 2 and not runtime.broker.positions()
     assert len(runtime.store.linked_orders(request.cohort_id)) == 2
+
+
+def test_foreign_operator_recovery_does_not_suppress_ordinary_owned_exit(make_runtime):
+    from test_iex_practice import NOW
+
+    from tradeagent.domain import OrderRequest, Side
+    from tradeagent.event_orders import ExperimentalOrderManager
+    from tradeagent.event_session import session_identity
+
+    runtime = make_runtime()
+    assert tick(runtime)["calibration"]["state"] == "filled"
+    assert runtime.broker.submissions == 1 and runtime.broker.positions()
+    request_id = uuid4()
+    foreign_digest = sha256(b"foreign-paper-account").hexdigest()
+    request = OperatorPaperRequest(
+        request_id=request_id,
+        action="one_paper_AAPL_round_trip",
+        worker_cohort_id=runtime.settings.cohort_id,
+        worker_config_hash=runtime.config_hash,
+        code_sha="a" * 40,
+        account_digest=foreign_digest,
+        session_date=NOW.date(),
+        approved_at=NOW,
+        entry_deadline=NOW + timedelta(minutes=10),
+        acceptance_sha256="c" * 64,
+        history_sha256="d" * 64,
+        owner_authority="Offline fixture for foreign recovery isolation",
+        checks=dict.fromkeys(
+            [
+                "reviewed_release",
+                "market_acceptance",
+                "account_history_complete",
+                "operator_confirmation",
+                "normal_entries_paused",
+            ],
+            True,
+        ),
+        control_versions={
+            "kill_switch": ("active", NOW.isoformat()),
+            f"{runtime.settings.cohort_id}:pause": (None, None),
+            f"operator-paper-{request_id.hex}:pause": (None, None),
+        },
+    )
+    settings, config_hash, manifest = configuration(request, runtime.app)
+    runtime.store.freeze(request.cohort_id, config_hash, manifest, settings.mode, NOW)
+    runtime.repo.set_control(f"{request.cohort_id}:operator-scope", request.model_dump_json())
+    foreign = ExperimentalOrderManager(
+        runtime.store,
+        runtime.broker,
+        settings,
+        runtime.app,
+        config_hash,
+        request.code_sha,
+        "fixture",
+    )
+    with runtime.store.database.begin() as connection:
+        foreign._reserve(
+            connection,
+            OrderRequest(
+                client_order_id="foreign-pending",
+                decision_id="foreign",
+                strategy_id="foreign-fixture",
+                symbol="MSFT",
+                side=Side.BUY,
+                quantity=Decimal("0.1"),
+                submitted_at=NOW,
+            ),
+            "foreign",
+            {
+                "account_digest": foreign_digest,
+                "session_id": session_identity(foreign_digest, NOW.date()),
+                "entry_kind": "calibration",
+                "exit_at": (NOW + timedelta(seconds=60)).isoformat(),
+                "expires_at": (NOW + timedelta(seconds=30)).isoformat(),
+            },
+        )
+    tick(runtime, NOW + timedelta(seconds=61))
+    assert runtime.broker.submissions == 2 and not runtime.broker.positions()
+    assert runtime.store.linked_orders(runtime.settings.cohort_id)[-1]["side"] == "sell"
+    assert runtime.store.linked_orders(request.cohort_id)[0]["broker_order_id"] is None
+
+
+def test_operator_entry_rejects_a_stale_host_session_date(make_runtime, monkeypatch):
+    runtime, request = prepare(make_runtime, monkeypatch)
+    runtime.settings = runtime.settings.model_copy(
+        update={"practice_start_date": request.session_date - timedelta(days=1)}
+    )
+    result = tick(runtime, AT)["operator_paper"]
+    assert result["state"] == "blocked_requires_review"
+    assert runtime.broker.submissions == 0
