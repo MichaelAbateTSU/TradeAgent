@@ -1,0 +1,69 @@
+{
+  "started_at": "2026-09-10T19:18:10.780914+00:00",
+  "finished_at": "2026-09-10T19:48:13.331665+00:00",
+  "duration_seconds": 1802.550751,
+  "http_requests": 2352,
+  "http_failures": 0,
+  "observer_failures": [],
+  "physical_failures": [],
+  "stock_progress": {
+    "AAPL": {
+      "first_count": 2,
+      "last_count": 36,
+      "first_exchange_at": "2026-09-10 19:18:53.658642+00:00",
+      "last_exchange_at": "2026-09-10 19:38:26.826390+00:00"
+    },
+    "MSFT": {
+      "first_count": 2,
+      "last_count": 37,
+      "first_exchange_at": "2026-09-10 19:18:41.992795+00:00",
+      "last_exchange_at": "2026-09-10 19:38:58.274162+00:00"
+    },
+    "NVDA": {
+      "first_count": 2,
+      "last_count": 36,
+      "first_exchange_at": "2026-09-10 19:18:48.646119+00:00",
+      "last_exchange_at": "2026-09-10 19:38:28.916920+00:00"
+    }
+  },
+  "cohort_id": "iex-operator-host-20260910",
+  "config_hash": "f9da25a504f1c5920446555a548f5d6f5906f67b8082b48bb5bad5b25cce5dbd",
+  "event_code_sha": "74313931871c79996c2039b6c5b563dbff2c22bb",
+  "mode": "shadow",
+  "owner": "srv-dae4tr7qj5pc73a9e0k0-56f89867c5-84lwf",
+  "source_first_at": "2026-09-10T19:17:13.746166+00:00",
+  "source_last_at": "2026-09-10T19:47:41.816167+00:00",
+  "maximum_memory": [
+    {
+      "resource": "srv-dae4tr7qj5pc73a9e0k0",
+      "peak_mib": 189.08984184265137
+    },
+    {
+      "resource": "srv-dadoa3740ujc73cb09c0",
+      "peak_mib": 267.89453506469727
+    },
+    {
+      "resource": "srv-dadnn6mq1p3s73ef7ef0",
+      "peak_mib": 188.59766006469727
+    },
+    {
+      "resource": "dpg-dadn7nht0dsc73f9jja0-a",
+      "peak_mib": 489.87109184265137
+    },
+    {
+      "resource": "srv-dadn8son74is73apqcc0",
+      "peak_mib": 135.19922256469727
+    }
+  ],
+  "new_recorder_drops": 0,
+  "new_recorder_gaps": 0,
+  "max_recorder_commit_lag_seconds": 0.783371,
+  "operational_shadow_checks_passed": true,
+  "operator_order_execution_verified": false,
+  "operator_request_published": false,
+  "trading_authorized": false,
+  "standing_daily_trading_enabled": false,
+  "reason_no_trade": "New-release acceptance completed after unchanged15:30Eastern entry cutoff; todaybudgetunused, not a rejected/filled trade",
+  "raw_sha256": "c330990c009c59041bfdf96dd512e380cd9f9771d7dbad715937f9233605b5a1",
+  "archive": "paper-sep10-host-soak.json.gz"
+}

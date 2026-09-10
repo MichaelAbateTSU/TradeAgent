@@ -1,0 +1,167 @@
+{
+  "job_id": "job-dahfqrqfngtc739ai340",
+  "result": {
+    "at": "2026-09-10T18:57:01.212667+00:00",
+    "read_only": true,
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "status": "ACTIVE",
+      "account_blocked": false,
+      "trading_blocked": false,
+      "positions": 0,
+      "open_orders": 0,
+      "clock": {
+        "timestamp": "2026-09-10T14:57:00.705150-04:00",
+        "is_open": true,
+        "next_open": "2026-09-11T09:30:00-04:00",
+        "next_close": "2026-09-10T16:00:00-04:00"
+      },
+      "today_orders": []
+    },
+    "schema": "0013_trade_event_identity",
+    "new_host_exists": false,
+    "new_host_controls_or_active_pointer": [],
+    "unresolved_orders": [],
+    "old_cohort_row_hashes": {
+      "v20-news-paper-20260909-r1": "6633a0006d6b6e8a11d6cd3555f0c8a061bbe9c9a696e3566d3a9a1f809203fa",
+      "iex-trade-repair-20260909": "49c073a682e996becb150a2bc0f6d36b2612a94c2dbbbba83de19aa98f875be9"
+    },
+    "selected_controls": [
+      {
+        "control_key": "v20-tuesday-20260908-r3:pause",
+        "control_value": "OPERATOR_INCIDENT_REPAIR",
+        "updated_at": "2026-09-08 14:34:14.338876+00:00"
+      },
+      {
+        "control_key": "v20-iex-practice-20260908:calibration_status",
+        "control_value": "{\"session_date\": \"2026-09-08\", \"state\": \"scheduled\"}",
+        "updated_at": "2026-09-07 04:52:46.531188+00:00"
+      },
+      {
+        "control_key": "v20-tuesday-20260908-r2:calibration_status",
+        "control_value": "{\"session_date\": \"2026-09-08\", \"state\": \"scheduled\"}",
+        "updated_at": "2026-09-07 08:10:08.863804+00:00"
+      },
+      {
+        "control_key": "v20-tuesday-20260908:calibration_status",
+        "control_value": "{\"session_date\": \"2026-09-08\", \"state\": \"scheduled\"}",
+        "updated_at": "2026-09-07 07:59:31.980425+00:00"
+      },
+      {
+        "control_key": "v20-tuesday-20260908-r2:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-07 08:30:58.487283+00:00"
+      },
+      {
+        "control_key": "v20-iex-practice-20260908-r2:calibration_status",
+        "control_value": "{\"session_date\": \"2026-09-08\", \"state\": \"scheduled\"}",
+        "updated_at": "2026-09-07 05:05:33.105316+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r3:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reason\": \"no earlier operational observation\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-08T17:42:49.276662+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-08 17:42:49.382113+00:00"
+      },
+      {
+        "control_key": "v20-tuesday-20260908-r3:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"observed\": {\"ask\": \"316.85\", \"bid\": \"316.23\", \"certificate_permits_paper\": true, \"evaluated_at\": \"2026-09-08T13:59:57.349828+00:00\", \"limit_price\": \"316.85\", \"market_phase\": \"entry\", \"maximum_limit_price\": null, \"maximum_notional\": \"25\", \"median_daily_dollar_volume\": \"12974063332.15\", \"notional\": \"24.99978185\", \"quote_at\": \"2026-09-08T13:59:56.297677+00:00\", \"source_valid\": true}, \"purpose\": \"operator_calibration\", \"qualification_eligible\": false, \"reasons\": [\"INVALID_PRICE_OR_SPREAD\", \"GLOBAL_KILL_SWITCH\"], \"state\": \"risk_rejected\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-08T14:00:34.987478+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-08 14:00:34.996345+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r3:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 18:36:15.222557+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 16:10:44.864295+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r4:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reason\": \"no earlier operational observation\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-08T19:03:10.587318+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-08 19:03:10.598973+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r2:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reason\": \"no earlier operational observation\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-08T16:30:53.584674+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-08 16:30:53.990071+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r4:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 19:05:52.988755+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r2:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 17:16:41.159518+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reason\": \"no earlier operational observation\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-08T15:36:27.884527+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-08 15:36:28.181888+00:00"
+      },
+      {
+        "control_key": "v20-operator-probe-20260909:pause",
+        "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "updated_at": "2026-09-09 04:36:36.338370+00:00"
+      },
+      {
+        "control_key": "v20-operator-probe-20260909:calibration_status",
+        "control_value": "{\"state\": \"waiting_for_regular_entry_window\"}",
+        "updated_at": "2026-09-09 04:36:36.695560+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:calibration_status",
+        "control_value": "{\"blocking_evidence\": {\"reasons\": [\"NEWS_AUTHORIZATION_REQUIRED\"], \"state\": \"blocked\"}, \"entry_attempts\": 0, \"missed_at\": \"2026-09-09T14:30:33.183229+00:00\", \"outcome\": \"MISSED\", \"state\": \"missed_window_no_trade\"}",
+        "updated_at": "2026-09-09 14:30:33.286983+00:00"
+      },
+      {
+        "control_key": "kill_switch",
+        "control_value": "active",
+        "updated_at": "2026-09-08 23:33:26.789305+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-09 05:34:16.069284+00:00"
+      },
+      {
+        "control_key": "v20-crypto-proof-20260909:pause",
+        "control_value": "RECONCILIATION_REQUIRED",
+        "updated_at": "2026-09-09 06:21:27.422314+00:00"
+      },
+      {
+        "control_key": "v20-crypto-proof-20260909:calibration_status",
+        "control_value": "{\"state\": \"waiting_for_regular_entry_window\"}",
+        "updated_at": "2026-09-09 06:19:41.684019+00:00"
+      },
+      {
+        "control_key": "v20-manual-demo-20260909-r1:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-09 00:18:24.133135+00:00"
+      },
+      {
+        "control_key": "v20-manual-demo-20260909-r1:calibration_status",
+        "control_value": "{\"state\": \"waiting_for_regular_entry_window\"}",
+        "updated_at": "2026-09-09 04:00:11.806138+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:news-terminal",
+        "control_value": "{\"reason\": \"SESSION_FINISHED_OR_EQUIPMENT_FAILED\", \"observed_at\": \"2026-09-09T14:30:24.386665+00:00\", \"entries_disabled\": true}",
+        "updated_at": "2026-09-09 14:30:24.386665+00:00"
+      },
+      {
+        "control_key": "iex-trade-repair-20260909:pause",
+        "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "updated_at": "2026-09-09 18:56:28.415955+00:00"
+      },
+      {
+        "control_key": "iex-trade-repair-20260909:calibration_status",
+        "control_value": "{\"state\": \"shadow_no_orders\"}",
+        "updated_at": "2026-09-09 18:56:30.187323+00:00"
+      }
+    ]
+  }
+}

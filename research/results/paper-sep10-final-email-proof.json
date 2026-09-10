@@ -1,0 +1,89 @@
+{
+  "job_id": "job-dahgk167bikc73fqk1k0",
+  "readbacks": [
+    {
+      "at": "2026-09-10T19:50:49.231599+00:00",
+      "row": {
+        "notification_id": "28e61f50-8c53-55fa-96c9-fb69fabe62d6",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] September10 trade not executed - status",
+          "text": "No trade was placed today. Your requested paper trade was not completed.\n\nThis morning the worker was still in SHADOW mode with a September9 session date and active trading pauses. I had not enabled automatic daily rollover/trading. That was an incomplete handoff, not an Alpaca fill failure or an exhausted September10 budget.\n\nI implemented and deployed the reviewed current-date worker code7431393, including account binding, emergency-control version checks, durable owned-position recovery and conservative historical-risk accounting. The worker remains in SHADOW mode under iex-operator-host-20260910. No order request or certificate was published and no old pause or terminal was cleared.\n\nIts actual 1802.6-second live acceptance finished at15:48ET, with 2352 HTTP requests, zero HTTP errors, no new recorder queue drops/gaps and advancing physical/source data. This was after the existing15:30 entry cutoff. I did not extend that cutoff or force a late order. Review fixes, validation and the interrupted session took too long to execute your request today.\n\nAt 2026-09-10T15:49:28.886094-04:00, the paper account was ACTIVE/unblocked, with zero positions, zero open orders, zero unresolved local intents and zero September10 orders. The requested trade is NOT a filled or rejected trade.\n\nRecurring automatic news trading is still NOT enabled. The separate standing-policy/duration/revocation and risk-review decision remains unresolved; this one-off path does not supply indefinite authority. A read-only pre-open readiness check and clear status email are scheduled for09:00ET September11 so this is not left silent until midday. That check will not manufacture approval, clear R1/manual kills or replay today's request.\n\nThis is a new once-only final-status notice through the existing Render notifier, not a resend of prior messages. No profitability or qualification claim is made.\n",
+          "cohort_id": "iex-operator-host-20260910",
+          "operational_status": "NOT_ATTEMPTED_ENTRY_CUTOFF",
+          "trading_authorized": false,
+          "orders_submitted_today": 0,
+          "requested_trade_completed": false,
+          "standing_daily_trading_enabled": false,
+          "qualification_eligible": false,
+          "broker_observed_at": "2026-09-10T15:49:28.886094-04:00",
+          "observed_at": "2026-09-10T19:50:10.608881+00:00"
+        },
+        "status": "pending",
+        "attempts": 0,
+        "provider_message_id": null,
+        "created_at": "2026-09-10 19:50:49.221446+00:00",
+        "sent_at": null,
+        "claimed_at": null
+      }
+    },
+    {
+      "at": "2026-09-10T19:50:54.235298+00:00",
+      "row": {
+        "notification_id": "28e61f50-8c53-55fa-96c9-fb69fabe62d6",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] September10 trade not executed - status",
+          "text": "No trade was placed today. Your requested paper trade was not completed.\n\nThis morning the worker was still in SHADOW mode with a September9 session date and active trading pauses. I had not enabled automatic daily rollover/trading. That was an incomplete handoff, not an Alpaca fill failure or an exhausted September10 budget.\n\nI implemented and deployed the reviewed current-date worker code7431393, including account binding, emergency-control version checks, durable owned-position recovery and conservative historical-risk accounting. The worker remains in SHADOW mode under iex-operator-host-20260910. No order request or certificate was published and no old pause or terminal was cleared.\n\nIts actual 1802.6-second live acceptance finished at15:48ET, with 2352 HTTP requests, zero HTTP errors, no new recorder queue drops/gaps and advancing physical/source data. This was after the existing15:30 entry cutoff. I did not extend that cutoff or force a late order. Review fixes, validation and the interrupted session took too long to execute your request today.\n\nAt 2026-09-10T15:49:28.886094-04:00, the paper account was ACTIVE/unblocked, with zero positions, zero open orders, zero unresolved local intents and zero September10 orders. The requested trade is NOT a filled or rejected trade.\n\nRecurring automatic news trading is still NOT enabled. The separate standing-policy/duration/revocation and risk-review decision remains unresolved; this one-off path does not supply indefinite authority. A read-only pre-open readiness check and clear status email are scheduled for09:00ET September11 so this is not left silent until midday. That check will not manufacture approval, clear R1/manual kills or replay today's request.\n\nThis is a new once-only final-status notice through the existing Render notifier, not a resend of prior messages. No profitability or qualification claim is made.\n",
+          "cohort_id": "iex-operator-host-20260910",
+          "operational_status": "NOT_ATTEMPTED_ENTRY_CUTOFF",
+          "trading_authorized": false,
+          "orders_submitted_today": 0,
+          "requested_trade_completed": false,
+          "standing_daily_trading_enabled": false,
+          "qualification_eligible": false,
+          "broker_observed_at": "2026-09-10T15:49:28.886094-04:00",
+          "observed_at": "2026-09-10T19:50:10.608881+00:00"
+        },
+        "status": "pending",
+        "attempts": 0,
+        "provider_message_id": null,
+        "created_at": "2026-09-10 19:50:49.221446+00:00",
+        "sent_at": null,
+        "claimed_at": null
+      }
+    },
+    {
+      "at": "2026-09-10T19:50:59.239034+00:00",
+      "row": {
+        "notification_id": "28e61f50-8c53-55fa-96c9-fb69fabe62d6",
+        "cycle_id": null,
+        "notification_type": "daily_agent_status",
+        "payload": {
+          "subject": "[TradeAgent PAPER] September10 trade not executed - status",
+          "text": "No trade was placed today. Your requested paper trade was not completed.\n\nThis morning the worker was still in SHADOW mode with a September9 session date and active trading pauses. I had not enabled automatic daily rollover/trading. That was an incomplete handoff, not an Alpaca fill failure or an exhausted September10 budget.\n\nI implemented and deployed the reviewed current-date worker code7431393, including account binding, emergency-control version checks, durable owned-position recovery and conservative historical-risk accounting. The worker remains in SHADOW mode under iex-operator-host-20260910. No order request or certificate was published and no old pause or terminal was cleared.\n\nIts actual 1802.6-second live acceptance finished at15:48ET, with 2352 HTTP requests, zero HTTP errors, no new recorder queue drops/gaps and advancing physical/source data. This was after the existing15:30 entry cutoff. I did not extend that cutoff or force a late order. Review fixes, validation and the interrupted session took too long to execute your request today.\n\nAt 2026-09-10T15:49:28.886094-04:00, the paper account was ACTIVE/unblocked, with zero positions, zero open orders, zero unresolved local intents and zero September10 orders. The requested trade is NOT a filled or rejected trade.\n\nRecurring automatic news trading is still NOT enabled. The separate standing-policy/duration/revocation and risk-review decision remains unresolved; this one-off path does not supply indefinite authority. A read-only pre-open readiness check and clear status email are scheduled for09:00ET September11 so this is not left silent until midday. That check will not manufacture approval, clear R1/manual kills or replay today's request.\n\nThis is a new once-only final-status notice through the existing Render notifier, not a resend of prior messages. No profitability or qualification claim is made.\n",
+          "cohort_id": "iex-operator-host-20260910",
+          "operational_status": "NOT_ATTEMPTED_ENTRY_CUTOFF",
+          "trading_authorized": false,
+          "orders_submitted_today": 0,
+          "requested_trade_completed": false,
+          "standing_daily_trading_enabled": false,
+          "qualification_eligible": false,
+          "broker_observed_at": "2026-09-10T15:49:28.886094-04:00",
+          "observed_at": "2026-09-10T19:50:10.608881+00:00"
+        },
+        "status": "sent",
+        "attempts": 1,
+        "provider_message_id": "ddfc6113-49e5-488e-b4ad-a7fa22bd9094",
+        "created_at": "2026-09-10 19:50:49.221446+00:00",
+        "sent_at": "2026-09-10 19:50:54.456895+00:00",
+        "claimed_at": "2026-09-10 19:50:54.230648+00:00"
+      }
+    }
+  ],
+  "provider_acceptance_verified": true,
+  "inbox_delivery_verified": false,
+  "log_read_retry": "One control-plane ReadTimeout; retried reads only, no duplicate enqueue/job"
+}

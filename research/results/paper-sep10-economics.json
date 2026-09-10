@@ -1,0 +1,131 @@
+{
+  "job_id": "job-dahdj62fngtc7392qte0",
+  "result": {
+    "at": "2026-09-10T16:24:11.252229+00:00",
+    "read_only": true,
+    "all_activity_types_complete": true,
+    "activities": [
+      {
+        "id": "20260904000000000::9e615b2f-2995-4463-8fe3-b333f81d8fca",
+        "activity_type": "JNLC",
+        "date": "2026-09-04",
+        "created_at": "2026-09-04T22:20:26.814503Z",
+        "net_amount": "100000",
+        "description": "",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260904000000000::e1282dea-0330-4601-9fee-9499033dd67b",
+        "activity_type": "CFEE",
+        "date": "2026-09-04",
+        "created_at": "2026-09-04T22:31:02.812309Z",
+        "net_amount": "0",
+        "description": "Coin Pair Transaction Fee (Non USD)",
+        "symbol": "BTCUSD",
+        "cusip": "BTC123456",
+        "qty": "-0.0000025",
+        "price": "79793.28",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260904183059029::2012865d-2943-4fed-b2eb-120fbc0b6441",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-04T22:30:59.029136Z",
+        "type": "fill",
+        "price": "79793.284",
+        "qty": "0.001",
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "7c35efc7-c452-4c3d-8bb0-fefd77a79782",
+        "cum_qty": "0.001",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260904201800238::da2c2497-5ae8-4b96-a79a-c8ea0e0b4ad2",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-05T00:18:00.238858Z",
+        "type": "fill",
+        "price": "79591.4",
+        "qty": "0.0009975",
+        "side": "sell",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "b72a264a-02d9-4a43-b331-4d3a535c7505",
+        "cum_qty": "0.0009975",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260909000000000::2e623c8a-debb-4226-a4e9-d7a676de7d17",
+        "activity_type": "CFEE",
+        "date": "2026-09-09",
+        "created_at": "2026-09-09T06:21:31.935539Z",
+        "net_amount": "-0.05",
+        "description": "Coin Pair Transaction Fee (USD)",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260909000000000::bd134c62-19dd-49d7-bde3-9a150857a1ca",
+        "activity_type": "CFEE",
+        "date": "2026-09-09",
+        "created_at": "2026-09-09T06:20:49.923271Z",
+        "net_amount": "0",
+        "description": "Coin Pair Transaction Fee (Non USD)",
+        "symbol": "BTCUSD",
+        "cusip": "BTC123456",
+        "qty": "-0.00000062",
+        "price": "79217.31",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260909022049378::b81c2780-1ead-43e5-b749-5be3feac0a81",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-09T06:20:49.378751Z",
+        "type": "fill",
+        "price": "79217.31",
+        "qty": "0.000247676",
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "385947be-92ac-4215-98f4-54380075a145",
+        "cum_qty": "0.000247676",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260909022128132::64e75807-3bc9-45a9-adc5-0931565da312",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-09T06:21:28.132488Z",
+        "type": "fill",
+        "price": "79103.5",
+        "qty": "0.000247056",
+        "side": "sell",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+        "cum_qty": "0.000247056",
+        "order_status": "filled",
+        "swap_rate": "1"
+      }
+    ],
+    "account_values": {
+      "currency": "USD",
+      "cash": "99999.27",
+      "equity": "99999.27",
+      "last_equity": "99999.27",
+      "portfolio_value": "99999.27",
+      "buying_power": "399997.08",
+      "status": "ACTIVE",
+      "trading_blocked": false,
+      "account_blocked": false,
+      "pattern_day_trader": null,
+      "daytrade_count": null
+    }
+  }
+}

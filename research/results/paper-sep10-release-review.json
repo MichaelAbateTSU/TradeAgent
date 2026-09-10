@@ -1,0 +1,23 @@
+{
+  "reviewed_commit": "74313931871c79996c2039b6c5b563dbff2c22bb",
+  "reviewer": "operator-final-review",
+  "review_agent_id": "44de5b5a-ccaa-4fc9-b3ea-d1dbf2c0bfd3",
+  "review_result": "No significant issues found in code and shadow configuration",
+  "full_tests_passed": 1158,
+  "skipped": 2,
+  "coverage_percent": 87.47,
+  "ruff": "passed",
+  "format": "passed",
+  "mypy": "passed",
+  "host_mode": "shadow",
+  "host_cohort": "iex-operator-host-20260910",
+  "host_session_date": "2026-09-10",
+  "operator_request_to_be_published": false,
+  "reason": "Required post-deployment 30-minute acceptance cannot finish before the unchanged 15:30 Eastern entry cutoff",
+  "standing_recurring_trading_enabled": false,
+  "prior_review_findings": [
+    "Request account bound at certificate creation, reconciliation and final dispatch",
+    "Malformed mutable pointers do not prevent durable owned-position recovery",
+    "Foreign or invalid operator recovery does not suppress ordinary owned exits"
+  ]
+}

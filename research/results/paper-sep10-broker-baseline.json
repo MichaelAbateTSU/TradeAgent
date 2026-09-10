@@ -1,0 +1,314 @@
+{
+  "job_id": "job-dahdhpuq1p3s73egfpl0",
+  "result": {
+    "at": "2026-09-10T16:21:20.595769+00:00",
+    "read_only": true,
+    "account": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "status": "ACTIVE",
+      "account_blocked": false,
+      "trading_blocked": false,
+      "positions": [],
+      "open_orders": [],
+      "clock": {
+        "timestamp": "2026-09-10T12:21:19.852608-04:00",
+        "is_open": true,
+        "next_open": "2026-09-11T09:30:00-04:00",
+        "next_close": "2026-09-10T16:00:00-04:00"
+      }
+    },
+    "asset": {
+      "id": "b0b6dd9d-8b9b-48a9-ba46-b9d54906e415",
+      "symbol": "AAPL",
+      "name": "Apple Inc. Common Stock",
+      "asset_class": "us_equity",
+      "exchange": "NASDAQ",
+      "status": "active",
+      "tradable": true,
+      "fractionable": true
+    },
+    "quote": {
+      "quote": {
+        "ap": 320.21,
+        "as": 40,
+        "ax": "V",
+        "bp": 320.11,
+        "bs": 40,
+        "bx": "V",
+        "c": [
+          "R"
+        ],
+        "t": "2026-09-10T16:21:19.093952804Z",
+        "z": "C"
+      },
+      "symbol": "AAPL"
+    },
+    "orders_complete": true,
+    "all_orders": [
+      {
+        "id": "759d315b-6124-48e5-b725-de832eb6269b",
+        "client_order_id": "manual-20260904T222425111095Z",
+        "symbol": "SPY",
+        "side": "buy",
+        "status": "canceled",
+        "submitted_at": "2026-09-04T22:24:25.608902Z",
+        "created_at": "2026-09-04T22:24:25.608902Z",
+        "filled_at": null,
+        "filled_qty": "0",
+        "filled_avg_price": null,
+        "qty": "1",
+        "notional": null,
+        "canceled_at": "2026-09-05T00:29:19.517437Z"
+      },
+      {
+        "id": "7c35efc7-c452-4c3d-8bb0-fefd77a79782",
+        "client_order_id": "manual-crypto-20260904T223058556554Z",
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "status": "filled",
+        "submitted_at": "2026-09-04T22:30:59.027221Z",
+        "created_at": "2026-09-04T22:30:59.027221Z",
+        "filled_at": "2026-09-04T22:30:59.029136Z",
+        "filled_qty": "0.001",
+        "filled_avg_price": "79793.284",
+        "qty": "0.001",
+        "notional": null,
+        "canceled_at": null
+      },
+      {
+        "id": "b72a264a-02d9-4a43-b331-4d3a535c7505",
+        "client_order_id": "take-profit-20260905T001800310929Z",
+        "symbol": "BTC/USD",
+        "side": "sell",
+        "status": "filled",
+        "submitted_at": "2026-09-05T00:18:00.236002Z",
+        "created_at": "2026-09-05T00:18:00.236002Z",
+        "filled_at": "2026-09-05T00:18:00.238858Z",
+        "filled_qty": "0.0009975",
+        "filled_avg_price": "79591.4",
+        "qty": "0.0009975",
+        "notional": null,
+        "canceled_at": null
+      },
+      {
+        "id": "dd9ba5c8-8319-4466-83c0-af3cc9911c73",
+        "client_order_id": "ta-probe-20260909-0020-aapl",
+        "symbol": "AAPL",
+        "side": "buy",
+        "status": "canceled",
+        "submitted_at": "2026-09-09T04:37:09.535181Z",
+        "created_at": "2026-09-09T04:37:09.535181Z",
+        "filled_at": null,
+        "filled_qty": "0",
+        "filled_avg_price": null,
+        "qty": "0.1",
+        "notional": null,
+        "canceled_at": "2026-09-09T04:37:09.716008Z"
+      },
+      {
+        "id": "385947be-92ac-4215-98f4-54380075a145",
+        "client_order_id": "ta-crypto-test-20260909-0151-buy",
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "status": "filled",
+        "submitted_at": "2026-09-09T06:20:49.376591Z",
+        "created_at": "2026-09-09T06:20:49.376591Z",
+        "filled_at": "2026-09-09T06:20:49.378751Z",
+        "filled_qty": "0.000247676",
+        "filled_avg_price": "79217.31",
+        "qty": null,
+        "notional": "20",
+        "canceled_at": null
+      },
+      {
+        "id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+        "client_order_id": "ta-crypto-test-20260909-0151-s0",
+        "symbol": "BTC/USD",
+        "side": "sell",
+        "status": "filled",
+        "submitted_at": "2026-09-09T06:21:28.130083Z",
+        "created_at": "2026-09-09T06:21:28.130083Z",
+        "filled_at": "2026-09-09T06:21:28.132488Z",
+        "filled_qty": "0.000247056",
+        "filled_avg_price": "79103.5",
+        "qty": "0.000247056",
+        "notional": null,
+        "canceled_at": null
+      }
+    ],
+    "activities_complete": true,
+    "activities": [
+      {
+        "id": "20260904000000000::e1282dea-0330-4601-9fee-9499033dd67b",
+        "activity_type": "CFEE",
+        "date": "2026-09-04",
+        "created_at": "2026-09-04T22:31:02.812309Z",
+        "net_amount": "0",
+        "description": "Coin Pair Transaction Fee (Non USD)",
+        "symbol": "BTCUSD",
+        "cusip": "BTC123456",
+        "qty": "-0.0000025",
+        "price": "79793.28",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260904183059029::2012865d-2943-4fed-b2eb-120fbc0b6441",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-04T22:30:59.029136Z",
+        "type": "fill",
+        "price": "79793.284",
+        "qty": "0.001",
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "7c35efc7-c452-4c3d-8bb0-fefd77a79782",
+        "cum_qty": "0.001",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260904201800238::da2c2497-5ae8-4b96-a79a-c8ea0e0b4ad2",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-05T00:18:00.238858Z",
+        "type": "fill",
+        "price": "79591.4",
+        "qty": "0.0009975",
+        "side": "sell",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "b72a264a-02d9-4a43-b331-4d3a535c7505",
+        "cum_qty": "0.0009975",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260909000000000::2e623c8a-debb-4226-a4e9-d7a676de7d17",
+        "activity_type": "CFEE",
+        "date": "2026-09-09",
+        "created_at": "2026-09-09T06:21:31.935539Z",
+        "net_amount": "-0.05",
+        "description": "Coin Pair Transaction Fee (USD)",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260909000000000::bd134c62-19dd-49d7-bde3-9a150857a1ca",
+        "activity_type": "CFEE",
+        "date": "2026-09-09",
+        "created_at": "2026-09-09T06:20:49.923271Z",
+        "net_amount": "0",
+        "description": "Coin Pair Transaction Fee (Non USD)",
+        "symbol": "BTCUSD",
+        "cusip": "BTC123456",
+        "qty": "-0.00000062",
+        "price": "79217.31",
+        "status": "executed",
+        "currency": "USD"
+      },
+      {
+        "id": "20260909022049378::b81c2780-1ead-43e5-b749-5be3feac0a81",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-09T06:20:49.378751Z",
+        "type": "fill",
+        "price": "79217.31",
+        "qty": "0.000247676",
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "385947be-92ac-4215-98f4-54380075a145",
+        "cum_qty": "0.000247676",
+        "order_status": "filled",
+        "swap_rate": "1"
+      },
+      {
+        "id": "20260909022128132::64e75807-3bc9-45a9-adc5-0931565da312",
+        "activity_type": "FILL",
+        "transaction_time": "2026-09-09T06:21:28.132488Z",
+        "type": "fill",
+        "price": "79103.5",
+        "qty": "0.000247056",
+        "side": "sell",
+        "symbol": "BTC/USD",
+        "leaves_qty": "0",
+        "order_id": "1d9dad72-351e-4478-bf2f-3f7d1079b8dd",
+        "cum_qty": "0.000247056",
+        "order_status": "filled",
+        "swap_rate": "1"
+      }
+    ],
+    "unresolved_local_orders": [],
+    "risk_controls": [
+      {
+        "control_key": "v20-tuesday-20260908-r3:pause",
+        "control_value": "OPERATOR_INCIDENT_REPAIR",
+        "updated_at": "2026-09-08 14:34:14.338876+00:00"
+      },
+      {
+        "control_key": "practice-session:f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+        "control_value": "{\"session_id\": \"f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9\", \"planned_session_date\": \"2026-09-08\", \"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"total_entries_reserved\": 0, \"news_entries_reserved\": 0, \"equipment_test_id\": \"56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d\", \"equipment_client_order_id\": null, \"equipment_cohort_id\": null}",
+        "updated_at": "2026-09-07 08:12:26.569965+00:00"
+      },
+      {
+        "control_key": "v20-tuesday-20260908-r2:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-07 08:30:58.487283+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r3:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 18:36:15.222557+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 16:10:44.864295+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r4:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 19:05:52.988755+00:00"
+      },
+      {
+        "control_key": "v20-incident-20260908-r2:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-08 17:16:41.159518+00:00"
+      },
+      {
+        "control_key": "v20-operator-probe-20260909:pause",
+        "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "updated_at": "2026-09-09 04:36:36.338370+00:00"
+      },
+      {
+        "control_key": "kill_switch",
+        "control_value": "active",
+        "updated_at": "2026-09-08 23:33:26.789305+00:00"
+      },
+      {
+        "control_key": "v20-news-paper-20260909-r1:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-09 05:34:16.069284+00:00"
+      },
+      {
+        "control_key": "paper-risk:b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "control_value": "{\"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"capital\": \"10000\", \"daily_limit\": \"50\", \"drawdown_limit\": \"150\", \"observed_at\": \"2026-09-09T18:52:27.513043+00:00\", \"peak\": \"10000\", \"weekly_limit\": \"50\"}",
+        "updated_at": "2026-09-09 18:52:27.513043+00:00"
+      },
+      {
+        "control_key": "v20-crypto-proof-20260909:pause",
+        "control_value": "RECONCILIATION_REQUIRED",
+        "updated_at": "2026-09-09 06:21:27.422314+00:00"
+      },
+      {
+        "control_key": "v20-manual-demo-20260909-r1:pause",
+        "control_value": "OPERATOR_PAUSE",
+        "updated_at": "2026-09-09 00:18:24.133135+00:00"
+      },
+      {
+        "control_key": "iex-trade-repair-20260909:pause",
+        "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+        "updated_at": "2026-09-09 18:56:28.415955+00:00"
+      }
+    ]
+  }
+}

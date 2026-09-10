@@ -1,0 +1,18 @@
+{
+  "candidate_commit": "74313931871c79996c2039b6c5b563dbff2c22bb",
+  "recorded_at": "2026-09-10T19:02:29.212924+00:00",
+  "full_tests_passed": 1158,
+  "skipped": 2,
+  "coverage_percent": 87.47,
+  "ruff": "passed",
+  "format": "passed",
+  "mypy": "passed",
+  "previous_interrupted_run": "Original final-safety log stopped at74%; not counted as a passing run",
+  "independent_review": "operator-final-review: no significant issues found in exact7431393 code and shadow configuration",
+  "production_changed": false,
+  "operator_request_published": false,
+  "known_entry_cutoff_eastern": "15:30",
+  "new_release_live_acceptance_required_seconds": 1800,
+  "standing_daily_authority_enabled": false,
+  "broker_baseline": "paper-sep10-resumed-preflight.json"
+}

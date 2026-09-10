@@ -1,0 +1,19 @@
+{
+  "job_id": "job-dahg58ifngtc739bnep0",
+  "result": {
+    "at": "2026-09-10T19:19:14.981391+00:00",
+    "read_only": true,
+    "busy_status": 429,
+    "busy_seconds": 0.1115336287766695,
+    "light_sections": {
+      "/health": 200,
+      "/ready": 200,
+      "/api/status": 200
+    },
+    "report_status": 200,
+    "report_seconds": 0.9768807040527463,
+    "report_bytes": 4426517,
+    "report_id": "9e34326e-9eaf-582c-8f1b-edb0bcd14072",
+    "session_state": "UNRESOLVED_OR_IN_PROGRESS"
+  }
+}

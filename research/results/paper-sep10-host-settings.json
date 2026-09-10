@@ -1,0 +1,142 @@
+{
+  "at": "2026-09-10T19:08:57.494034+00:00",
+  "reviewed_commit": "74313931871c79996c2039b6c5b563dbff2c22bb",
+  "before": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T17:18:37.334019Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent run --mode shadow --purpose iex-practice --practice-start-date 2026-09-09 --entry-policy event-strategy --cohort-id iex-trade-repair-20260909 --symbols AAPL,MSFT,NVDA --max-entries-per-session 2"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-news-worker",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-09T18:51:38.987597Z"
+  },
+  "before_deploy": {
+    "id": "dep-dagqkimk1f9s73ckdtog",
+    "commit": {
+      "id": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+      "message": "Scope persisted trade identity to venue and event time\n\nPreserve originals while accepting provider IDs reused on another day or venue. Add bounded concurrent-index migration, atomic conflict-aware generic writes, cross-session regressions and a private rollback-only PostgreSQL fixture. No historical backfill or trading-risk changes.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+      "createdAt": "2026-09-09T17:45:51Z"
+    },
+    "status": "live",
+    "trigger": "api",
+    "createdAt": "2026-09-09T18:49:46.120838Z",
+    "updatedAt": "2026-09-09T18:51:38.986177Z",
+    "startedAt": "2026-09-09T18:49:46.118978Z",
+    "finishedAt": "2026-09-09T18:51:38.985844Z"
+  },
+  "request": {
+    "serviceDetails": {
+      "envSpecificDetails": {
+        "startCommand": "tradeagent run --mode shadow --purpose iex-practice --practice-start-date 2026-09-10 --entry-policy event-strategy --cohort-id iex-operator-host-20260910 --symbols AAPL,MSFT,NVDA --max-entries-per-session 2"
+      }
+    }
+  },
+  "environment_digest_before": "9f826a4a3c58905d4fce4ef75b04c7c42725d1b0966a9bb485ac16ce2ca71451",
+  "state": "verified_not_yet_deployed",
+  "trading_authorized": false,
+  "response_status": 200,
+  "response": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T17:18:37.334019Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent run --mode shadow --purpose iex-practice --practice-start-date 2026-09-10 --entry-policy event-strategy --cohort-id iex-operator-host-20260910 --symbols AAPL,MSFT,NVDA --max-entries-per-session 2"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-news-worker",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-10T19:08:57.548435Z"
+  },
+  "after": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T17:18:37.334019Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent run --mode shadow --purpose iex-practice --practice-start-date 2026-09-10 --entry-policy event-strategy --cohort-id iex-operator-host-20260910 --symbols AAPL,MSFT,NVDA --max-entries-per-session 2"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-news-worker",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-10T19:08:57.548435Z"
+  },
+  "environment_digest_after": "9f826a4a3c58905d4fce4ef75b04c7c42725d1b0966a9bb485ac16ce2ca71451",
+  "only_start_command_changed": true
+}

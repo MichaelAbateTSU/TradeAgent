@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "createdAt": "2026-09-10T17:57:00Z",
+    "id": "74313931871c79996c2039b6c5b563dbff2c22bb",
+    "message": "Keep ordinary owned recovery active alongside operator supervision\n\nDeduplicate only individual operator recovery cohorts instead of suppressing the host supervisor. Require current host session dates for new operator entries and cover foreign-account recovery isolation.\n\nCo-authored-by: Copilot App \u003c223556219+Copilot@users.noreply.github.com\u003e"
+  },
+  "createdAt": "2026-09-10T19:09:00.997993Z",
+  "id": "dep-dahg0j2fngtc739b78kg",
+  "startedAt": "2026-09-10T19:09:00.996114Z",
+  "status": "build_in_progress",
+  "trigger": "api",
+  "updatedAt": "2026-09-10T19:09:00.997993Z"
+}
