@@ -20,6 +20,7 @@ from tradeagent.event_performance import (
 )
 from tradeagent.event_store import EventStore, event_order_links
 from tradeagent.experimental_policy import ExperimentalSettings
+from tradeagent.paper_account_history import before as history_before
 from tradeagent.persistence import controls, orders
 
 
@@ -44,6 +45,18 @@ def account_risk(
             select(controls.c.control_value).where(controls.c.control_key == key).with_for_update()
         ).scalar_one()
         saved = json.loads(raw)
+        baseline_raw = connection.scalar(
+            select(controls.c.control_value).where(
+                controls.c.control_key == "paper-baseline:" + digest
+            )
+        )
+        baseline = json.loads(baseline_raw) if baseline_raw else None
+        if settings.entry_policy == "operator-calibration" and baseline is None:
+            return {
+                "state": "unvalued",
+                "blocked": True,
+                "reason": "complete broker baseline required",
+            }
         capital = Decimal(saved.get("capital", str(settings.virtual_equity)))
         rows = [
             dict(row)
@@ -57,14 +70,20 @@ def account_risk(
                 .order_by(orders.c.created_at, orders.c.order_id)
             ).mappings()
         ]
+        if baseline is not None:
+            rows = [
+                row for row in rows if row["broker_order_id"] not in baseline["broker_order_ids"]
+            ]
 
-        def equity(selected: list[dict[str, Any]], prices: dict[str, Decimal]) -> Decimal:
+        def equity(
+            selected: list[dict[str, Any]], prices: dict[str, Decimal], offset: Decimal = Decimal(0)
+        ) -> Decimal:
             report = allocation_ledgers(
                 selected, prices, capital, session_date=local_date, purpose="iex-practice"
             )
             if report["state"] != "valued":
                 raise ValueError("account risk history/position cannot be valued")
-            return Decimal(report["economic_paper_equity"])
+            return Decimal(report["economic_paper_equity"]) + offset
 
         def before(boundary: datetime) -> Decimal:
             selected = []
@@ -84,10 +103,14 @@ def account_risk(
                     raise ValueError("naive broker fill timestamp")
                 if filled_at < boundary:
                     selected.append(row)
-            return equity(selected, {})
+            return equity(
+                selected, {}, history_before(baseline, boundary) if baseline else Decimal(0)
+            )
 
         try:
-            current = equity(rows, marks)
+            current = equity(
+                rows, marks, Decimal(baseline["economic_pnl"]) if baseline else Decimal(0)
+            )
             day_start = before(datetime.combine(local_date, time(), ZoneInfo("America/New_York")))
             week_start = before(datetime.combine(monday, time(), ZoneInfo("America/New_York")))
         except (ValueError, ArithmeticError) as error:
@@ -104,8 +127,8 @@ def account_risk(
             Decimal(saved.get("drawdown_limit", "150")),
             settings.virtual_equity * settings.drawdown_fraction,
         )
-        historical_peak = capital
-        cash = Decimal(0)
+        historical_peak = capital + Decimal(baseline["peak_pnl"]) if baseline else capital
+        cash = Decimal(baseline["economic_pnl"]) if baseline else Decimal(0)
         inventory: dict[str, Decimal] = {}
         for row in rows:
             broker = row["link"].get("broker") or {}
@@ -153,7 +176,10 @@ def account_risk(
             "week_start_equity": str(week_start),
             "session_date": str(local_date),
             "week_start": str(monday),
-            "scope": "all retained broker fills for pinned account",
+            "scope": "verified complete broker baseline plus subsequent OMS fills"
+            if baseline
+            else "retained OMS-linked fills only; external history is not established",
+            "broker_baseline_identity": baseline["identity"] if baseline else None,
             "fees": "existing conservative economic cost reserves, not invented actual fees",
         }
         store.audit("account_risk", report, now, settings.cohort_id, connection)

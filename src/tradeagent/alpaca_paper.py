@@ -154,6 +154,50 @@ class AlpacaPaperClient:
             raise ValueError("Alpaca account response must be an object")
         return AlpacaPaperAccount.model_validate(payload)
 
+    def account_history(self) -> dict[str, Any]:
+        from hashlib import sha256
+
+        account = self.account()
+        if account.currency != "USD":
+            raise ValueError("USD paper account history required")
+        raw_orders = self._request(
+            "GET", "/v2/orders", params={"status": "all", "limit": "500", "direction": "asc"}
+        )
+        if not isinstance(raw_orders, list) or len(raw_orders) >= 500:
+            raise ValueError("complete bounded account order history unavailable")
+        activities: list[dict[str, Any]] = []
+        cursor: str | None = None
+        for _ in range(20):
+            parameters = {"page_size": "100", "direction": "asc"}
+            if cursor is not None:
+                parameters["page_token"] = cursor
+            page = self._request("GET", "/v2/account/activities", params=parameters)
+            if not isinstance(page, list) or any(not isinstance(row, dict) for row in page):
+                raise ValueError("invalid account activity history")
+            activities.extend(page)
+            if len(page) < 100:
+                break
+            next_cursor = str(page[-1]["id"])
+            if next_cursor == cursor:
+                raise ValueError("account activity pagination did not advance")
+            cursor = next_cursor
+        else:
+            raise ValueError("account activity history exceeds verified bounded pagination")
+        ending_account = self.account()
+        if ending_account.id != account.id or ending_account.currency != "USD":
+            raise ValueError("account changed while reading history")
+        return {
+            "account_digest": sha256(account.id.encode()).hexdigest(),
+            "broker_host": self.broker_host,
+            "observed_at": datetime.now(UTC).isoformat(),
+            "complete": True,
+            "account_cash": str(ending_account.cash),
+            "orders": [
+                AlpacaPaperOrder.model_validate(row).model_dump(mode="json") for row in raw_orders
+            ],
+            "activities": activities,
+        }
+
     def positions(self) -> tuple[AlpacaPaperPosition, ...]:
         payload = self._request("GET", "/v2/positions")
         if not isinstance(payload, list):

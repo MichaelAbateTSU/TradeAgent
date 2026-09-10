@@ -39,7 +39,9 @@ class ExperimentalSettings(BaseSettings):
     )
     mode: ExperimentMode = "shadow"
     purpose: Literal["research", "iex-practice"] = "research"
-    entry_policy: Literal["event-strategy", "equipment-only-demo", "news-paper"] = "event-strategy"
+    entry_policy: Literal[
+        "event-strategy", "equipment-only-demo", "news-paper", "operator-calibration"
+    ] = "event-strategy"
     demo_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     news_account_digest: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     practice_start_date: date | None = None
@@ -89,13 +91,15 @@ class ExperimentalSettings(BaseSettings):
                 )
         elif self.demo_account_digest is not None:
             raise ValueError("demo account pin requires the equipment-only policy")
-        if self.entry_policy == "news-paper":
+        if self.entry_policy in {"news-paper", "operator-calibration"}:
             if (
                 self.purpose != "iex-practice"
                 or self.max_entries_per_session != 2
                 or self.news_account_digest is None
             ):
-                raise ValueError("news paper requires IEX, two bounded entries and account pin")
+                raise ValueError(
+                    "protected paper requires IEX, two bounded entries and account pin"
+                )
         elif self.news_account_digest is not None:
             raise ValueError("news account pin requires the news-paper policy")
         return self

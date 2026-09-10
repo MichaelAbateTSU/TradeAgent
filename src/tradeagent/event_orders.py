@@ -97,6 +97,13 @@ class ExperimentalOrderManager:
         self.owner_id = owner_id
         self.recovery_only = recovery_only
         self.quote_provider = quote_provider
+        from tradeagent.operator_calibration import load_request
+
+        self.operator_scope = (
+            load_request(self.repo, settings.cohort_id)
+            if settings.entry_policy == "operator-calibration"
+            else None
+        )
         self._recoveries: dict[str, ExperimentalOrderManager] = {}
         self._unverified_cohorts: set[str] = set()
 
@@ -176,6 +183,32 @@ class ExperimentalOrderManager:
             "tradeagent-event-worker", self.owner_id, observed_at=now
         ):
             raise EventLeaseLostError("event worker lost lease; broker actions fenced")
+
+    def operator_authorized(self, now: datetime) -> bool:
+        from tradeagent.operator_calibration import authorized
+
+        return self.owner_id is not None and authorized(
+            self.repo,
+            self.operator_scope,
+            self.settings,
+            self.config_hash,
+            self.code_sha,
+            now,
+            self.app,
+        )
+
+    def entry_paused(self, now: datetime) -> bool:
+        return bool(
+            self.repo.get_control(f"{self.settings.cohort_id}:pause")
+            or (
+                self.settings.entry_policy == "operator-calibration"
+                and not self.operator_authorized(now)
+            )
+            or (
+                self.repo.get_control("kill_switch") == "active"
+                and not self.operator_authorized(now)
+            )
+        )
 
     def reconcile(self, now: datetime) -> dict[str, Any]:
         if self.broker.broker_host != PAPER_HOST:
@@ -260,6 +293,9 @@ class ExperimentalOrderManager:
         return result
 
     def _notify_completed_cycles(self, rows: list[dict[str, Any]], now: datetime) -> None:
+        if self.settings.entry_policy == "operator-calibration":
+            # The operator summary reports fills without calling unverified fees zero.
+            return
         bought = Decimal(0)
         entry_value = Decimal(0)
         sold = Decimal(0)
@@ -412,7 +448,7 @@ class ExperimentalOrderManager:
         drawdown = min(self.settings.drawdown_fraction, self.app.risk.max_drawdown)
         if equity <= day_start * (1 - loss) or equity <= peak * (1 - drawdown):
             self.pause("ECONOMIC_LOSS_LIMIT", now)
-        if self.settings.entry_policy == "news-paper":
+        if self.settings.entry_policy in {"news-paper", "operator-calibration"}:
             shared = account_risk(self.store, self.settings, marks, now)
             report["account_risk"] = shared
             if shared["blocked"]:
@@ -444,6 +480,10 @@ class ExperimentalOrderManager:
         errors: list[str] = []
         if self.recovery_only:
             errors.append("RECOVERY_ONLY_NO_ENTRIES")
+        if self.settings.entry_policy == "operator-calibration" and (
+            entry_kind != "calibration" or not self.operator_authorized(now)
+        ):
+            return {"state": "risk_rejected", "reasons": ["EXPLICIT_OPERATOR_CALIBRATION_REQUIRED"]}
         if self.settings.entry_policy == "equipment-only-demo":
             if entry_kind != "calibration":
                 return {"state": "risk_rejected", "reasons": ["DEMO_NO_STRATEGY_ENTRIES"]}
@@ -501,10 +541,14 @@ class ExperimentalOrderManager:
             or symbol != "AAPL"
             or cluster_key != f"opening-calibration:{local_date}:AAPL"
             or gate.session_open is None
-            or not gate.session_open
-            + timedelta(minutes=self.settings.calibration_window_minutes[0])
-            <= now
-            < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
+            or (
+                not self.operator_scope.in_window(now)
+                if self.operator_scope is not None
+                else not gate.session_open
+                + timedelta(minutes=self.settings.calibration_window_minutes[0])
+                <= now
+                < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
+            )
         ):
             errors.append("CALIBRATION_NOT_AUTHORIZED")
         if self.settings.entry_policy == "news-paper" and (
@@ -541,7 +585,7 @@ class ExperimentalOrderManager:
             errors.append("LIQUIDITY_FLOOR")
         if self.repo.get_control(f"{self.settings.cohort_id}:pause"):
             errors.append("OPERATIONAL_PAUSE")
-        if self.repo.get_control("kill_switch") == "active":
+        if self.repo.get_control("kill_switch") == "active" and not self.operator_authorized(now):
             errors.append("GLOBAL_KILL_SWITCH")
         account = self.broker.account()
         if (
@@ -749,7 +793,7 @@ class ExperimentalOrderManager:
                     "decision_ticket": decision_ticket,
                     **(
                         {"protection": event_news_policy.protection(limit)}
-                        if self.settings.entry_policy == "news-paper"
+                        if self.settings.entry_policy in {"news-paper", "operator-calibration"}
                         else {}
                     ),
                 },
@@ -892,9 +936,14 @@ class ExperimentalOrderManager:
                 )
             )
         )
-        paused = self.repo.get_control("kill_switch") == "active" or self.repo.get_control(
-            f"{self.settings.cohort_id}:pause"
+        paused = self.entry_paused(now)
+        unauthorized_operator = (
+            request.side is Side.BUY
+            and self.settings.entry_policy == "operator-calibration"
+            and (link.get("entry_kind") != "calibration" or not self.operator_authorized(now))
         )
+        from tradeagent.operator_calibration import context_valid
+
         self.assert_owner(now)
         if request.side is Side.BUY:
             clock = self.broker.clock()
@@ -905,10 +954,15 @@ class ExperimentalOrderManager:
                 or clock.timestamp.astimezone(ZoneInfo(self.app.intraday.timezone)).date()
                 != self.settings.practice_start_date
                 or gate.session_open is None
-                or not gate.session_open
-                + timedelta(minutes=self.settings.calibration_window_minutes[0])
-                <= clock.timestamp
-                < gate.session_open + timedelta(minutes=self.settings.calibration_window_minutes[1])
+                or (
+                    not self.operator_scope.in_window(clock.timestamp)
+                    if self.operator_scope is not None
+                    else not gate.session_open
+                    + timedelta(minutes=self.settings.calibration_window_minutes[0])
+                    <= clock.timestamp
+                    < gate.session_open
+                    + timedelta(minutes=self.settings.calibration_window_minutes[1])
+                )
             )
             insufficient_news_horizon = link.get("entry_kind") == "strategy" and (
                 gate.session_close is None
@@ -930,6 +984,11 @@ class ExperimentalOrderManager:
                 or expired_calibration
                 or unauthorized_demo
                 or unauthorized_news
+                or unauthorized_operator
+                or (
+                    self.settings.entry_policy == "operator-calibration"
+                    and not context_valid(link.get("decision_ticket"), clock.timestamp)
+                )
                 or (
                     self.settings.entry_policy == "news-paper"
                     and (
@@ -947,7 +1006,7 @@ class ExperimentalOrderManager:
                 )
                 return {"state": "expired", "reasons": ["SUBMISSION_REVALIDATION_FAILED"]}
             now = clock.timestamp
-        elif self.settings.entry_policy == "news-paper":
+        elif self.settings.entry_policy in {"news-paper", "operator-calibration"}:
             clock = self.broker.clock()
             gate = self.calendar.gate(clock.timestamp)
             if (
@@ -980,7 +1039,31 @@ class ExperimentalOrderManager:
                     )
                 return {"state": "expired", "reasons": ["EXIT_SUBMISSION_REVALIDATION_FAILED"]}
             now = clock.timestamp
-        # No database/control work may occur between these guards and the broker call.
+        if request.side is Side.BUY and self.settings.entry_policy == "operator-calibration":
+            from tradeagent.operator_calibration import final_entry_fence
+
+            fenced = final_entry_fence(
+                self.repo, self.operator_scope, self.owner_id, datetime.now(UTC)
+            )
+            dispatch_at = datetime.now(UTC)
+            final_gate = self.calendar.gate(dispatch_at)
+            if (
+                not fenced
+                or self.operator_scope is None
+                or not self.operator_scope.in_window(dispatch_at)
+                or not final_gate.can_enter
+                or not timedelta(0) <= dispatch_at - now <= timedelta(seconds=5)
+                or not timedelta(0) <= dispatch_at - request.submitted_at <= timedelta(seconds=5)
+                or not timedelta(0) <= dispatch_at - quote_at <= timedelta(seconds=5)
+                or dispatch_at >= datetime.fromisoformat(link["expires_at"])
+                or not context_valid(link.get("decision_ticket"), dispatch_at)
+            ):
+                self._expire_unsent(
+                    request.client_order_id, dispatch_at, claimed_in_this_dispatch=True
+                )
+                return {"state": "expired", "reasons": ["OPERATOR_FINAL_FENCE_FAILED"]}
+            now = dispatch_at
+        # No database/control work occurs after the final freshness checks before the broker call.
         # The durable prepared UNKNOWN state covers a crash before acknowledgement.
         try:
             try:
@@ -1063,7 +1146,7 @@ class ExperimentalOrderManager:
                         self.settings.cohort_id,
                         connection,
                     )
-                    if self.settings.entry_policy == "news-paper":
+                    if self.settings.entry_policy in {"news-paper", "operator-calibration"}:
                         enqueue_lifecycle(
                             connection,
                             cohort=self.settings.cohort_id,
@@ -1245,7 +1328,7 @@ class ExperimentalOrderManager:
             link = dict(link_value)
             link["broker"] = response.model_dump(mode="json")
             if (
-                self.settings.entry_policy == "news-paper"
+                self.settings.entry_policy in {"news-paper", "operator-calibration"}
                 and current["side"] == "buy"
                 and response.filled_quantity > 0
                 and response.filled_average_price is not None
@@ -1266,7 +1349,7 @@ class ExperimentalOrderManager:
                 self.settings.cohort_id + ":" + client_id,
                 connection,
             )
-            if self.settings.entry_policy == "news-paper":
+            if self.settings.entry_policy in {"news-paper", "operator-calibration"}:
                 enqueue_lifecycle(
                     connection,
                     cohort=self.settings.cohort_id,
@@ -1363,7 +1446,7 @@ class ExperimentalOrderManager:
         )
 
     def _protection_triggers(self, now: datetime) -> dict[str, dict[str, Any]]:
-        if self.settings.entry_policy != "news-paper":
+        if self.settings.entry_policy not in {"news-paper", "operator-calibration"}:
             return {}
         rows = self.store.linked_orders(self.settings.cohort_id)
         active: dict[str, list[dict[str, Any]]] = {}
@@ -1495,9 +1578,7 @@ class ExperimentalOrderManager:
         for row in rows:
             if row["side"] == "buy" and row["status"] not in FINAL:
                 expiry = datetime.fromisoformat(row["link"]["expires_at"])
-                paused = self.repo.get_control(f"{self.settings.cohort_id}:pause") or (
-                    self.repo.get_control("kill_switch") == "active"
-                )
+                paused = self.entry_paused(now)
                 if (
                     not feed_healthy
                     or now >= expiry
@@ -1541,8 +1622,7 @@ class ExperimentalOrderManager:
                 gate.must_flatten
                 or now >= due
                 or not feed_healthy
-                or self.repo.get_control(f"{self.settings.cohort_id}:pause")
-                or self.repo.get_control("kill_switch") == "active"
+                or self.entry_paused(now)
                 or symbol in protection_triggers
             ):
                 continue

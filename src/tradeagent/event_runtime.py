@@ -368,6 +368,23 @@ class EventRuntime:
 
     def tick(self, now: datetime | None = None) -> dict[str, Any]:
         tick_at = now or datetime.now(UTC)
+        from tradeagent.operator_calibration import step as operator_step
+
+        operator_result = operator_step(self)
+        if operator_result is not None:
+            result = {
+                "state": "operator_calibration",
+                "mode": self.settings.mode,
+                "cohort_id": self.settings.cohort_id,
+                "code_sha": self.code_sha,
+                "config_hash": self.config_hash,
+                "purpose": self.settings.purpose,
+                "practice_start_date": str(self.settings.practice_start_date),
+                "operator_paper": operator_result,
+                "_operator_active": operator_result.get("_operator_active", False),
+            }
+            self.repo.heartbeat("tradeagent-event-worker", self.instance_id, result)
+            return result
         operator_probe = None
         # Always supervise owned positions before optional operator diagnostics.
         self.oms.supervise(
@@ -1775,7 +1792,11 @@ async def run_event_service(
                     else:
                         if once:
                             return result
-                    await asyncio.sleep(settings.poll_seconds)
+                    await asyncio.sleep(
+                        2
+                        if "result" in locals() and result.get("_operator_active")
+                        else settings.poll_seconds
+                    )
             finally:
                 stream_stop.set()
                 if stream_task is not None:
