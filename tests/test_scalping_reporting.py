@@ -37,7 +37,7 @@ def setup_status(database: Database, now: datetime, *, owner: str = "owner") -> 
         "config_hash": "d" * 64,
         "owner_id": owner,
         "trade_summary": {"closed_round_trips": 3, "pending_fee_reconciliation": 1},
-        "execution": {"pending_orders": 0},
+        "execution": {"pending_orders": 0, "account_digest": "a" * 64},
     }
     with database.begin() as connection:
         connection.execute(
@@ -113,9 +113,10 @@ def test_daily_email_uses_scalping_not_retired_equipment_policy(tmp_path: Path) 
         report = build_daily_status(database, now, "America/New_York")
         assert report["profile"] == "v30-paper-unrestricted"
         assert report["cohort_id"] == "v30-test"
-        assert "no paper loss" in report["text"]
-        assert "pending_fee_reconciliation" in report["text"]
-        assert "Pending or estimated fees are not actual final net P&L" in report["text"]
+        assert len(report["text"].split("\n\n")) == 5
+        assert report["completed_round_trips"] == 0
+        assert "pending_fee_reconciliation" not in report["text"]
+        assert "No completed buy-and-sell trades were recorded" in report["text"]
         assert "paper-preflight" not in report["text"]
 
 

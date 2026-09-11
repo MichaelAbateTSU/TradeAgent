@@ -346,7 +346,8 @@ def _parser() -> argparse.ArgumentParser:
     portfolio_evaluate.add_argument("--database", type=Path, default=Path("data/experiments.db"))
     notifier = subparsers.add_parser(
         "notifier",
-        help="deliver exactly-once round-trip emails from the production outbox",
+        aliases=["notifier-daily"],
+        help="deliver only the scheduled five-paragraph daily email from the production outbox",
     )
     notifier.add_argument("--once", action="store_true")
     notifier.add_argument("--poll-seconds", type=float, default=5)
@@ -965,7 +966,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(_json({"experiment_id": experiment_id, "report": report}))
         return
 
-    if args.command == "notifier":
+    if args.command in {"notifier", "notifier-daily"}:
         import logging
 
         from tradeagent.daily_status import DailyStatusScheduler, DailyStatusSettings
@@ -973,19 +974,22 @@ def main(argv: Sequence[str] | None = None) -> None:
         logging.basicConfig(level=logging.INFO)
         config = AppConfig()
         email_settings = EmailSettings.model_validate({})
+        daily_settings = DailyStatusSettings()
         with (
             Database(config.database_url.get_secret_value()) as database,
             ResendEmailProvider(email_settings) as provider,
         ):
             notification_repository = RoundTripNotificationRepository(database)
             service = NotifierService(
-                NotificationDispatcher(notification_repository, provider),
+                NotificationDispatcher(
+                    notification_repository, provider, daily_settings=daily_settings
+                ),
                 ProductionRepository(database),
                 instance_id=(
                     args.instance_id or os.getenv("RENDER_INSTANCE_ID") or socket.gethostname()
                 ),
                 poll_seconds=args.poll_seconds,
-                daily_scheduler=DailyStatusScheduler(database, DailyStatusSettings()),
+                daily_scheduler=DailyStatusScheduler(database, daily_settings),
             )
             if args.once:
                 dispatched = service.run_once()

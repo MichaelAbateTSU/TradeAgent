@@ -366,7 +366,7 @@ def test_outbox_insertion_rolls_back_on_transaction_failure(database: Database) 
     assert _enqueue(database)
 
 
-def test_notifier_hook_dispatches_once_without_changing_daily_schedule(database: Database) -> None:
+def test_notifier_does_not_enqueue_individual_operational_emails(database: Database) -> None:
     _missed(database)
     delivered: list[OutboxMessage] = []
 
@@ -391,10 +391,10 @@ def test_notifier_hook_dispatches_once_without_changing_daily_schedule(database:
         clock=lambda: NOW,
         daily_scheduler=daily,
     )
-    assert service.run_once()
     assert not service.run_once()
-    assert len(delivered) == 1 and daily.calls == 2
-    assert _rows(database)[0]["provider_message_id"] == "provider-acceptance"
+    assert not service.run_once()
+    assert delivered == [] and daily.calls == 2
+    assert _rows(database) == []
 
 
 def test_missing_worker_and_naive_observation(database: Database) -> None:

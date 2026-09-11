@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
@@ -10,10 +11,17 @@ from uuid import UUID, uuid4
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from sqlalchemy import and_, insert, or_, select, update
+from sqlalchemy import and_, insert, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
 
-from tradeagent.persistence import Database, notification_outbox, position_cycles
+from tradeagent.email_schedule import DAILY_SUMMARY_FORMAT, DailyEmailPolicy, DailyStatusSettings
+from tradeagent.persistence import (
+    Database,
+    append_reporting_metadata,
+    events,
+    notification_outbox,
+    position_cycles,
+)
 
 
 class RoundTripOutcome(StrEnum):
@@ -28,6 +36,7 @@ class NotificationStatus(StrEnum):
     SENT = "sent"
     FAILED = "failed"
     NEEDS_REVIEW = "needs_review"
+    SUPPRESSED = "suppressed"
 
 
 class RoundTripEmail(BaseModel):
@@ -301,7 +310,133 @@ class RoundTripNotificationRepository:
                 is not None
             )
 
-    def claim_next(self, *, observed_at: datetime | None = None) -> OutboxMessage | None:
+    def needs_daily_content_refresh(self, notification_id: UUID) -> bool:
+        with self._database.begin() as connection:
+            row = (
+                connection.execute(
+                    select(notification_outbox).where(
+                        notification_outbox.c.notification_id == str(notification_id)
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        return bool(
+            row
+            and row["attempts"] == 0
+            and row["sent_at"] is None
+            and row["provider_message_id"] is None
+            and row["status"] in {NotificationStatus.PENDING.value, NotificationStatus.FAILED.value}
+            and row["payload"].get("summary_format") != DAILY_SUMMARY_FORMAT
+        )
+
+    def refresh_unattempted_daily(
+        self, notification_id: UUID, payload: dict[str, Any], *, observed_at: datetime
+    ) -> bool:
+        with self._database.begin() as connection:
+            row = (
+                connection.execute(
+                    select(notification_outbox)
+                    .where(
+                        notification_outbox.c.notification_id == str(notification_id),
+                        notification_outbox.c.attempts == 0,
+                        notification_outbox.c.sent_at.is_(None),
+                        notification_outbox.c.provider_message_id.is_(None),
+                        notification_outbox.c.status.in_(
+                            (NotificationStatus.PENDING.value, NotificationStatus.FAILED.value)
+                        ),
+                    )
+                    .with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None or row["payload"].get("summary_format") == DAILY_SUMMARY_FORMAT:
+                return False
+            connection.execute(
+                update(notification_outbox)
+                .where(notification_outbox.c.notification_id == str(notification_id))
+                .values(payload=payload, status=NotificationStatus.PENDING.value)
+            )
+            event_id = str(uuid4())
+            audit = {
+                "notification_id": str(notification_id),
+                "reason": "replace_unattempted_legacy_daily_content",
+                "previous_payload": row["payload"],
+                "summary_format": payload["summary_format"],
+            }
+            connection.execute(
+                insert(events).values(
+                    event_id=event_id,
+                    occurred_at=observed_at,
+                    recorded_at=observed_at,
+                    event_type="email_daily_content_refreshed",
+                    trace_id=str(notification_id),
+                    payload=audit,
+                )
+            )
+            append_reporting_metadata(connection, event_id, "email_daily_content_refreshed", audit)
+            return True
+
+    def suppress_non_daily(self, keep_id: UUID | None, *, observed_at: datetime) -> int:
+        """Retain original content and accepted deliveries; suppress only unsent work."""
+        with self._database.begin() as connection:
+            rows = list(
+                connection.execute(
+                    select(notification_outbox.c.notification_id)
+                    .where(
+                        notification_outbox.c.status.in_(
+                            (NotificationStatus.PENDING.value, NotificationStatus.FAILED.value)
+                        ),
+                        notification_outbox.c.provider_message_id.is_(None),
+                        notification_outbox.c.sent_at.is_(None),
+                        notification_outbox.c.notification_id != str(keep_id)
+                        if keep_id is not None
+                        else true(),
+                    )
+                    .order_by(notification_outbox.c.created_at)
+                    .with_for_update(skip_locked=True)
+                    .limit(100)
+                ).scalars()
+            )
+            if not rows:
+                return 0
+            connection.execute(
+                update(notification_outbox)
+                .where(notification_outbox.c.notification_id.in_(rows))
+                .values(status=NotificationStatus.SUPPRESSED.value)
+            )
+            event_id = str(uuid4())
+            payload = {
+                "notification_ids": rows,
+                "reason": "owner_requested_daily_summary_only",
+                "accepted_messages_unchanged": True,
+                "payloads_preserved": True,
+            }
+            connection.execute(
+                insert(events).values(
+                    event_id=event_id,
+                    occurred_at=observed_at,
+                    recorded_at=observed_at,
+                    event_type="email_daily_only_suppression",
+                    trace_id="daily-email-policy",
+                    payload=payload,
+                )
+            )
+            append_reporting_metadata(connection, event_id, "email_daily_only_suppression", payload)
+            return len(rows)
+
+    def mark_review_required(self, notification_id: UUID) -> None:
+        with self._database.begin() as connection:
+            connection.execute(
+                update(notification_outbox)
+                .where(notification_outbox.c.notification_id == str(notification_id))
+                .values(status=NotificationStatus.NEEDS_REVIEW.value)
+            )
+
+    def claim_next(
+        self, *, observed_at: datetime | None = None, only_notification_id: UUID | None = None
+    ) -> OutboxMessage | None:
         now = observed_at or datetime.now(UTC)
         stale_claim = now - timedelta(minutes=2)
         # Resend's idempotency window is finite. Do not blindly retry an ambiguous old send.
@@ -316,6 +451,9 @@ class RoundTripNotificationRepository:
                         notification_outbox.c.claimed_at < safe_retry_start,
                         notification_outbox.c.created_at < safe_retry_start,
                     ),
+                    notification_outbox.c.notification_id == str(only_notification_id)
+                    if only_notification_id is not None
+                    else true(),
                 )
                 .values(status=NotificationStatus.NEEDS_REVIEW.value)
             )
@@ -340,7 +478,10 @@ class RoundTripNotificationRepository:
                                 notification_outbox.c.claimed_at <= stale_claim,
                                 notification_outbox.c.created_at >= safe_retry_start,
                             ),
-                        )
+                        ),
+                        notification_outbox.c.notification_id == str(only_notification_id)
+                        if only_notification_id is not None
+                        else true(),
                     )
                     .order_by(notification_outbox.c.created_at)
                     .with_for_update(skip_locked=True)
@@ -418,14 +559,39 @@ class NotificationDispatcher:
         self,
         repository: RoundTripNotificationRepository,
         provider: EmailProvider,
+        *,
+        daily_only: bool = True,
+        daily_settings: DailyStatusSettings | None = None,
+        clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         self._repository = repository
         self._provider = provider
+        self._clock = clock
+        self._daily_policy = (
+            DailyEmailPolicy(daily_settings or DailyStatusSettings()) if daily_only else None
+        )
 
     def dispatch_one(self) -> bool:
-        message = self._repository.claim_next()
+        now = self._clock()
+        eligible_id = None
+        if self._daily_policy is not None:
+            keep_id = (
+                self._daily_policy.current_id(now) if self._daily_policy.settings.enabled else None
+            )
+            self._repository.suppress_non_daily(keep_id, observed_at=now)
+            eligible_id = self._daily_policy.eligible_id(now)
+            if eligible_id is None:
+                return False
+        message = self._repository.claim_next(observed_at=now, only_notification_id=eligible_id)
         if message is None:
             return False
+        if self._daily_policy is not None and not self._daily_policy.validates_payload(
+            message.payload, now
+        ):
+            self._repository.mark_review_required(message.notification_id)
+            raise EmailDeliveryError(
+                "daily summary content does not match the five-paragraph contract"
+            )
         try:
             provider_message_id = self._provider.send(message)
         except EmailDeliveryError as error:

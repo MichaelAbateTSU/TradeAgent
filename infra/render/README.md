@@ -5,7 +5,10 @@ The root [`render.yaml`](../../render.yaml) creates:
 - managed PostgreSQL with external access disabled;
 - one Docker dashboard service;
 - one always-on shadow worker;
-- one always-on exactly-once email notifier.
+- one always-on notifier for the five-paragraph daily email at 6 p.m. Eastern.
+
+The [daily email policy](../../docs/DAILY_EMAIL.md) suppresses individual trade,
+startup and intraday status emails. Detailed records remain in the dashboard.
 
 The current hosted resource status is recorded in [`DEPLOYMENT.md`](DEPLOYMENT.md).
 

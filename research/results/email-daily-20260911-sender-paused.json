@@ -1,0 +1,95 @@
+{
+  "at": "2026-09-11T15:54:11.564354+00:00",
+  "reason": "Owner requested daily-only18ET email; pause sender during implementation to prevent further non-daily delivery. Trading services untouched.",
+  "before": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T02:16:58.892375Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dadnn6mq1p3s73ef7ef0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dadnn6mq1p3s73ef7ef0",
+    "name": "tradeagent-notifier",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent notifier"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-notifier",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-11T12:07:20.505137Z"
+  },
+  "deploy": {
+    "id": "dep-dahut6ajnfac73a88cmg",
+    "commit": {
+      "id": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+      "message": "Commit ownership projections atomically and retain acknowledged recovery credits\n\nBound foreign inventory adoption by observed external-flow capacity while owned credits remain. Recover unsettled credits when attributed fees and aggregate positions corroborate them, including corrections to provisional closures. Keep cycle changes, activity checkpoints and audits in one transaction with version checks.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+      "createdAt": "2026-09-11T11:54:10Z"
+    },
+    "status": "live",
+    "trigger": "api",
+    "createdAt": "2026-09-11T12:05:45.870794Z",
+    "updatedAt": "2026-09-11T12:07:20.5034Z",
+    "startedAt": "2026-09-11T12:05:45.869004Z",
+    "finishedAt": "2026-09-11T12:07:20.503019Z"
+  },
+  "response_status": 202,
+  "after": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T02:16:58.892375Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dadnn6mq1p3s73ef7ef0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dadnn6mq1p3s73ef7ef0",
+    "name": "tradeagent-notifier",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent notifier"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-notifier",
+    "suspended": "suspended",
+    "suspenders": [
+      "user"
+    ],
+    "type": "background_worker",
+    "updatedAt": "2026-09-11T15:54:11.193604Z"
+  }
+}

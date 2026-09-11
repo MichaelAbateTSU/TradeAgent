@@ -15,7 +15,7 @@ durable order identities, broker-authoritative reconciliation and honest executi
 
 - v30 paper crypto scalping with an explicit unrestricted experimental operating policy
 - Venue-specific L2 order-book features, deterministic momentum/reversion and shared replay logic
-- Persistent order/cycle recovery, measured execution costs, and existing-notifier digests
+- Persistent order/cycle recovery, measured costs, and one five-paragraph daily email at 18:00 Eastern
 - Separate v30 dashboard status; legacy risk controls are not misrepresented as v30 permissions
 - v20 event-driven shadow collection with immutable receipt-time evidence and visible abstentions
 - Bounded H1 guidance, H2 valued-contract, and R1 official macro/news risk rules
@@ -48,7 +48,7 @@ durable order identities, broker-authoritative reconciliation and honest executi
 - NYSE holiday/early-close gates and fail-closed minute-bar aggregation
 - PostgreSQL-compatible persistence, worker locks, heartbeats, and Alembic migrations
 - Persisted OMS transition state machine for partial fills, cancels, and recovery
-- Transactional exactly-once round-trip profit/loss email outbox
+- Transactional notification outbox with daily-only, idempotent email delivery
 - Typed Alpaca IEX websocket ingestion with reconnect backoff
 - Single-instance shadow worker with scheduled reconciliation and watchdogs
 - Always-on notifier service and Azure Container Apps deployment template

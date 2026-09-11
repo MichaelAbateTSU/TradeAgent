@@ -62,7 +62,7 @@ services:
     plan: starter
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    dockerCommand: tradeagent notifier
+    dockerCommand: tradeagent notifier-daily
     preDeployCommand: alembic upgrade head
     autoDeployTrigger: commit
     numInstances: 1
@@ -81,4 +81,3 @@ services:
         sync: false
       - key: EMAIL_RECIPIENT
         sync: false
-

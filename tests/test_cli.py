@@ -6,7 +6,15 @@ from pathlib import Path
 
 import pytest
 
-from tradeagent.cli import main
+from tradeagent.cli import _parser, main
+
+
+@pytest.mark.parametrize("command", ["notifier", "notifier-daily"])
+def test_daily_notifier_commands_share_delivery_options(command: str) -> None:
+    args = _parser().parse_args([command, "--once", "--poll-seconds", "10"])
+    assert args.command == command
+    assert args.once is True
+    assert args.poll_seconds == 10
 
 
 def test_backtest_command_prints_paper_report(capsys: object) -> None:

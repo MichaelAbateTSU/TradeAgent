@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, func, insert, select
 from sqlalchemy.pool import StaticPool
 
 from tradeagent import api
-from tradeagent.daily_status import build_daily_status
+from tradeagent.daily_status import build_daily_status, build_detailed_daily_status
 from tradeagent.event_market import EventMarketState
 from tradeagent.event_outcomes import event_outcomes, outcome_summary, record_quote_paths
 from tradeagent.event_performance import allocation_ledgers
@@ -444,7 +444,8 @@ def test_runtime_calibration_contract_reports_audit_facts_not_source_evidence(
     assert Decimal(result["ledgers"]["broker_paper_pnl"]) == Decimal("0.50")
 
     summary = build_daily_status(database, NOW, "America/New_York")
-    text = summary["text"]
+    assert len(summary["text"].split("\n\n")) == 5
+    text = build_detailed_daily_status(database, NOW, "America/New_York")["text"]
     assert summary["calibration"] == calibration
     assert summary["blockers"] == []
     assert "Execution feed (last reported): iex" in text
@@ -464,7 +465,7 @@ def test_runtime_calibration_contract_reports_audit_facts_not_source_evidence(
 
 
 @pytest.mark.parametrize("purpose_source", ["manifest", "settings", "heartbeat"])
-def test_daily_practice_email_separates_limitations_and_excludes_qualification(
+def test_detailed_practice_report_separates_limitations_and_excludes_qualification(
     database: Database, purpose_source: str
 ) -> None:
     store = EventStore(database)
@@ -500,7 +501,8 @@ def test_daily_practice_email_separates_limitations_and_excludes_qualification(
         COHORT,
     )
     summary = build_daily_status(database, NOW, "America/New_York")
-    text = summary["text"]
+    assert len(summary["text"].split("\n\n")) == 5
+    text = build_detailed_daily_status(database, NOW, "America/New_York")["text"]
     assert summary["purpose"] == "iex-practice"
     assert summary["qualification_eligible"] is False
     assert summary["blockers"] == ["IEX_QUOTE_STALE"]

@@ -79,6 +79,11 @@ exchange queue positions, and simulated results are not broker fills.
 
 ## Runtime and observation
 
+**Email policy update:** the owner's 11:50 Eastern instruction now requires
+only the 18:00 Eastern five-paragraph daily summary. The original startup and
+30-minute digest behavior described in the rollout history below is
+superseded; see [DAILY_EMAIL.md](DAILY_EMAIL.md).
+
 The cloud worker owns one durable execution lease. Market ingestion and
 persisted event batching are separate from order supervision; slow news
 collection must not stall an open position's execution lifecycle.
@@ -89,11 +94,9 @@ cumulative; cancellation must be confirmed before an owned-quantity exit.
 Crypto base-asset fees can reduce available inventory and must not be counted
 twice in cash proceeds. Unposted or estimated fees remain labeled as such.
 
-The existing notifier sends a once-only startup message and periodic
-execution/accounting digests, initially every 30 minutes. Every order and
-cycle remains in the ledger; high-frequency trading does not require an email
-for every quote or state change. The normal 18:00 Eastern daily report remains
-on its existing schedule and gains a v30-specific view.
+The existing notifier sends one five-paragraph plain-English summary at
+18:00 Eastern. Every order and cycle remains in the ledger; no separate trade,
+startup or intraday digest email is sent under the updated policy.
 
 The read-only dashboard exposes `/api/scalping`, clearly separating the v30
 profile from retained legacy global/R1 controls. Stale or mismatched-owner

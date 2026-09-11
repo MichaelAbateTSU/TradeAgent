@@ -4,13 +4,12 @@ import logging
 from collections import Counter
 from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
-from uuid import NAMESPACE_URL, UUID, uuid5
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from zoneinfo import ZoneInfo
 
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import func, select
 
+from tradeagent.email_schedule import DailyStatusSettings as DailyStatusSettings
+from tradeagent.email_schedule import daily_notification_id as daily_notification_id
 from tradeagent.event_reporting import (
     evidence_labels,
     reported_calibration,
@@ -29,33 +28,6 @@ from tradeagent.reporting_reads import (
 )
 
 LOGGER = logging.getLogger(__name__)
-
-
-class DailyStatusSettings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_prefix="EMAIL_DAILY_",
-        env_file=".env",
-        extra="ignore",
-        frozen=True,
-    )
-
-    enabled: bool = True
-    timezone: str = "America/New_York"
-    hour: int = Field(default=18, ge=0, le=23)
-    minute: int = Field(default=0, ge=0, le=59)
-
-    @field_validator("timezone")
-    @classmethod
-    def validate_timezone(cls, value: str) -> str:
-        try:
-            ZoneInfo(value)
-        except ZoneInfoNotFoundError as error:
-            raise ValueError("daily email timezone must be a valid IANA timezone") from error
-        return value
-
-
-def daily_notification_id(day: date, timezone: str) -> UUID:
-    return uuid5(NAMESPACE_URL, f"tradeagent:daily-agent-status:{timezone}:{day.isoformat()}")
 
 
 def _utc(value: datetime) -> datetime:
@@ -84,15 +56,23 @@ class DailyStatusScheduler:
         if self._last_enqueued_day == day:
             return False
         notification_id = daily_notification_id(day, self.settings.timezone)
-        if self.outbox.contains(notification_id):
+        existing = self.outbox.contains(notification_id)
+        refresh = existing and self.outbox.needs_daily_content_refresh(notification_id)
+        if existing and not refresh:
             self._last_enqueued_day = day
             return False
         try:
-            payload = build_daily_status(self.database, observed_at, self.settings.timezone)
+            payload = build_daily_status(
+                self.database, observed_at, self.settings.timezone, settings=self.settings
+            )
         except ReportBusyError:
             LOGGER.warning("Daily session report deferred: another full report is running")
             return False
-        created = self.outbox.enqueue_status(notification_id, payload, created_at=observed_at)
+        created = (
+            self.outbox.refresh_unattempted_daily(notification_id, payload, observed_at=observed_at)
+            if refresh
+            else self.outbox.enqueue_status(notification_id, payload, created_at=observed_at)
+        )
         self._last_enqueued_day = day
         if created:
             self.repository.append_event(
@@ -112,7 +92,27 @@ class DailyStatusScheduler:
         return created
 
 
-def build_daily_status(database: Database, now: datetime, timezone: str) -> dict[str, Any]:
+def build_daily_status(
+    database: Database, now: datetime, timezone: str, *, settings: DailyStatusSettings | None = None
+) -> dict[str, Any]:
+    from tradeagent.daily_email_summary import build_daily_email_summary
+
+    selected = settings or DailyStatusSettings(timezone=timezone)
+    detailed = build_detailed_daily_status(database, now, timezone)
+    summary = build_daily_email_summary(
+        database, now, selected, legacy_trades=detailed.get("legacy_trade_summary")
+    )
+    return {
+        **detailed,
+        **summary,
+        "cohort_id": summary.get("cohort_id") or detailed.get("cohort_id"),
+    }
+
+
+def build_detailed_daily_status(database: Database, now: datetime, timezone: str) -> dict[str, Any]:
+    """Retained diagnostic report; the notifier uses the five-paragraph summary instead."""
+    from tradeagent.daily_email_summary import compact_legacy_trades
+
     zone = ZoneInfo(timezone)
     local = now.astimezone(zone)
     start = datetime.combine(local.date(), time.min, zone).astimezone(UTC)
@@ -375,6 +375,7 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
             "url": f"/api/event-session-report?report_id={structured['report_id']}",
         },
         "session_report_id": structured["report_id"],
+        "legacy_trade_summary": compact_legacy_trades(structured),
         "local_date": local.date().isoformat(),
         "timezone": timezone,
         "cohort_id": cohort_id,

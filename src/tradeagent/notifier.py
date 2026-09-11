@@ -6,7 +6,6 @@ from datetime import UTC, datetime
 from typing import Protocol
 
 from tradeagent.notifications import EmailDeliveryError
-from tradeagent.operational_status_notifications import OperationalStatusNotifications
 from tradeagent.persistence import ProductionRepository
 
 
@@ -43,7 +42,6 @@ class NotifierService:
         self._maximum_backoff_seconds = maximum_backoff_seconds
         self._clock = clock
         self._daily_scheduler = daily_scheduler
-        self._operational_scheduler = OperationalStatusNotifications(repository._database)
 
     def run_once(self) -> bool:
         self._acquire_lock()
@@ -82,7 +80,6 @@ class NotifierService:
 
     def _dispatch_one(self) -> bool:
         self._heartbeat("running", dispatched=False)
-        self._operational_scheduler.enqueue_due(observed_at=self._clock())
         if self._daily_scheduler is not None:
             self._daily_scheduler.enqueue_due(observed_at=self._clock())
         return self._dispatcher.dispatch_one()

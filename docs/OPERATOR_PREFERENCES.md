@@ -31,3 +31,13 @@ The preference applies only to the explicitly versioned v30 profile. Preserve
 older immutable cohorts, approvals, missed windows, accounting and evidence.
 Any supersession of an earlier scheduled session must be explicit and audited,
 not an overwrite or replay. A user-requested stop must remain possible.
+
+## September 11, 2026: email preference
+
+At **11:50 Eastern**, the owner requested only **one email each day at 18:00
+America/New_York**, not an email for each trade or a recurring intraday
+digest. Its body must contain exactly **five easy-to-read, plain-English
+paragraphs** explaining the reporting day's trading and profit or loss.
+Do not include raw trade details, order identifiers, JSON dumps or additional
+automatic startup/incident messages. Preserve honest loss reporting and
+uncertain fee attribution. See [DAILY_EMAIL.md](DAILY_EMAIL.md).

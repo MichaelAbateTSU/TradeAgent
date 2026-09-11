@@ -13,6 +13,7 @@ from tradeagent.daily_status import (
     DailyStatusScheduler,
     DailyStatusSettings,
     build_daily_status,
+    build_detailed_daily_status,
     daily_notification_id,
 )
 from tradeagent.event_store import EventStore
@@ -86,7 +87,7 @@ def test_schedule_validates_time_and_can_be_disabled(database: Database):
         scheduler.enqueue_due(observed_at=SUNDAY.replace(tzinfo=None))
 
 
-def test_status_uses_actual_cohort_today_counts_and_latest_scoped_pnl(database: Database):
+def test_detailed_diagnostic_uses_actual_cohort_counts_and_scoped_pnl(database: Database):
     repo = ProductionRepository(database)
     store = EventStore(database)
     now = SUNDAY + timedelta(hours=5)  # Local Sunday, UTC Monday.
@@ -136,7 +137,7 @@ def test_status_uses_actual_cohort_today_counts_and_latest_scoped_pnl(database: 
     )
     store.audit("performance", {"broker_paper_pnl": "999999"}, now, "different-cohort")
     repo.set_control("actual-cohort:pause", "SOURCE_REVIEW")
-    summary = build_daily_status(database, now, "America/New_York")
+    summary = build_detailed_daily_status(database, now, "America/New_York")
     assert summary["local_date"] == "2026-09-06"
     text = summary["text"]
     assert "Decisions: 1; eligible: 0; abstained: 1" in text
@@ -156,8 +157,8 @@ def test_status_uses_actual_cohort_today_counts_and_latest_scoped_pnl(database: 
     assert "declared 60-session/60-round-trip floor" in text
 
 
-def test_missing_or_stale_worker_is_reported_not_pretended_healthy(database: Database):
-    result = build_daily_status(database, SUNDAY, "America/New_York")
+def test_detailed_diagnostic_does_not_pretend_a_stale_worker_is_healthy(database: Database):
+    result = build_detailed_daily_status(database, SUNDAY, "America/New_York")
     assert "Event worker: stale_or_missing" in result["text"]
     assert "Restore the event worker" in result["text"]
     assert "Broker-paper cumulative P&L: unknown / not recorded" in result["text"]
@@ -169,7 +170,7 @@ def test_missing_or_stale_worker_is_reported_not_pretended_healthy(database: Dat
     )
     assert (
         "Event worker: stale_or_missing"
-        in build_daily_status(database, SUNDAY, "America/New_York")["text"]
+        in build_detailed_daily_status(database, SUNDAY, "America/New_York")["text"]
     )
 
 
@@ -189,7 +190,7 @@ def test_busy_report_defers_daily_email_without_crashing_or_marking_day_complete
     outbox = RoundTripNotificationRepository(database)
     scheduler = DailyStatusScheduler(database, DailyStatusSettings(_env_file=None))
     service = NotifierService(
-        NotificationDispatcher(outbox, provider),
+        NotificationDispatcher(outbox, provider, clock=lambda: SUNDAY),
         ProductionRepository(database),
         instance_id="busy-report-notifier",
         clock=lambda: SUNDAY,
@@ -216,7 +217,7 @@ def test_render_notifier_enqueues_daily_and_reuses_existing_provider(database: D
     provider = Provider()
     scheduler = DailyStatusScheduler(database, DailyStatusSettings(_env_file=None))
     notifier = NotifierService(
-        NotificationDispatcher(outbox, provider),
+        NotificationDispatcher(outbox, provider, clock=lambda: SUNDAY),
         ProductionRepository(database),
         instance_id="email-worker",
         clock=lambda: SUNDAY,
@@ -269,14 +270,18 @@ def test_unknown_transport_outcome_remains_recoverable_sending(database: Databas
         api_key=SecretStr("fixture"), sender="fixture@example.org", recipient="owner@example.org"
     )
     with httpx.Client(transport=httpx.MockTransport(timeout)) as client:
-        dispatcher = NotificationDispatcher(outbox, ResendEmailProvider(settings, client=client))
+        dispatcher = NotificationDispatcher(
+            outbox, ResendEmailProvider(settings, client=client), daily_only=False
+        )
         with pytest.raises(EmailDeliveryError) as captured:
             dispatcher.dispatch_one()
     assert captured.value.outcome_unknown
     assert outbox.status(identity) is NotificationStatus.SENDING
 
 
-def test_round_trip_delivery_still_works_next_to_daily_messages(database: Database):
+def test_production_delivery_suppresses_round_trip_messages_beside_the_daily_summary(
+    database: Database,
+):
     outbox = RoundTripNotificationRepository(database)
     cycle = outbox.open_cycle(
         strategy_version="fixture",
@@ -293,11 +298,18 @@ def test_round_trip_delivery_still_works_next_to_daily_messages(database: Databa
         observed_at=SUNDAY
     )
     provider = Provider()
-    dispatcher = NotificationDispatcher(outbox, provider)
-    assert dispatcher.dispatch_one()
+    dispatcher = NotificationDispatcher(outbox, provider, clock=lambda: SUNDAY)
     assert dispatcher.dispatch_one()
     assert not dispatcher.dispatch_one()
     assert {message.notification_type for message in provider.messages} == {
-        "round_trip_closed",
         "daily_agent_status",
     }
+    with database.begin() as connection:
+        assert (
+            connection.scalar(
+                select(notification_outbox.c.status).where(
+                    notification_outbox.c.notification_type == "round_trip_closed"
+                )
+            )
+            == "suppressed"
+        )

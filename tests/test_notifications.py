@@ -91,7 +91,7 @@ def test_dispatcher_marks_sent_and_does_not_resend(tmp_path: Path) -> None:
         closing_fees=Decimal(0),
     )
     provider = FakeProvider()
-    dispatcher = NotificationDispatcher(repository, provider)
+    dispatcher = NotificationDispatcher(repository, provider, daily_only=False)
 
     assert dispatcher.dispatch_one()
     assert not dispatcher.dispatch_one()
@@ -119,11 +119,11 @@ def test_failed_delivery_is_retried_with_same_idempotency_key(tmp_path: Path) ->
     )
     failing = FakeProvider(fail=True)
     with pytest.raises(EmailDeliveryError, match="unavailable"):
-        NotificationDispatcher(repository, failing).dispatch_one()
+        NotificationDispatcher(repository, failing, daily_only=False).dispatch_one()
 
     assert repository.status(notification_id) is NotificationStatus.FAILED
     succeeding = FakeProvider()
-    assert NotificationDispatcher(repository, succeeding).dispatch_one()
+    assert NotificationDispatcher(repository, succeeding, daily_only=False).dispatch_one()
     assert succeeding.messages[0].notification_id == notification_id
     assert succeeding.messages[0].attempts == 2
     database.dispose()

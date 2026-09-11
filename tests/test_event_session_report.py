@@ -334,6 +334,12 @@ def test_daily_report_persists_unpriced_fills_and_known_losses_with_no_worker(
     assert unvalued["positions"] == {"AAPL": "0.1"}
     assert report["news_strategy"]["trades"][0]["broker_paper_pnl"] == "-0.1"
     assert unvalued["trades"][-1]["broker_paper_pnl"] is None
+    summary = notification["payload"]
+    assert summary["completed_round_trips"] == 1
+    assert len(summary["text"].split("\n\n")) == 5
+    assert "a loss of $0.11" in summary["text"]
+    assert "exact final net result is not confirmed" in summary["text"]
+    assert "No completed buy-and-sell trades" not in summary["text"]
     if classification == "EQUIPMENT_TEST":
         assert report["news_strategy"]["broker_paper_pnl"] == "-0.1"
     rendered = render_session_report(report)
