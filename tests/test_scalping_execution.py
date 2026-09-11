@@ -441,6 +441,315 @@ def test_foreign_inventory_is_preserved_and_base_fees_are_not_double_counted(set
     assert result["payload"]["base_fee_cash_deduction_repeated"] is False
 
 
+def external_fill(broker, identity, side, quantity):
+    broker._apply_fill(
+        SimpleNamespace(client_order_id=identity, symbol="BTC/USD", side=side),
+        D(quantity),
+        D(100),
+    )
+
+
+def test_foreign_acquisition_cannot_restore_previously_observed_owned_base_fee(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "owned-net"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    now = advance(setup, 5)
+    external_fill(broker, "manual-acquisition", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    assert broker.posts[-1].side.value == "sell"
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("9.975")
+
+
+@pytest.mark.parametrize("reconcile_deposit", [False, True])
+def test_second_owned_cycle_cannot_claim_foreign_coins_while_fees_remain_late(
+    setup, reconcile_deposit
+):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "first-net-cycle"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    first_buy = broker.posts[0].client_order_id
+    now = advance(setup, 5)
+    external_fill(broker, "foreign-between-cycles", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    first_sell = broker.posts[-1].client_order_id
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("9.975")
+    assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) == D("9.975")
+    assert engine._account_state()["initial_unowned_positions"] == {}
+
+    now = advance(setup, 20)
+    engine.step((signal(now, "second-net-cycle"),), {"BTC/USD": quote(now)}, now=now)
+    second_buy = broker.posts[-1].client_order_id
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    now = advance(setup, 22)
+    post_fee(broker, "late-first-base", first_buy, base=".0025")
+    post_fee(broker, "late-first-usd", first_sell, cash=".249375")
+    for _ in range(2):
+        engine.reconcile(now=now)
+        assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+        assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) == D("9.975")
+    now = advance(setup, 35)
+    engine.step((), {}, now=now)
+    second_sell = broker.posts[-1].client_order_id
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("9.975")
+    assert engine.status()["cycle_counts"]["closed_owned_flat"] == 2
+
+    now = advance(setup, 36)
+    external_fill(broker, "foreign-deposit-after-cycles", "buy", "2")
+    post_fee(broker, "late-second-base", second_buy, base=".0025")
+    post_fee(broker, "late-second-usd", second_sell, cash=".249375")
+    if reconcile_deposit:
+        for _ in range(2):
+            engine.reconcile(now=now)
+            assert engine.inventory() == {}
+    assert broker.balances["BTC/USD"] == D("11.970")
+    assert len(broker.posts) == 4
+    engine.step((signal(now, "third-after-deposit"),), {"BTC/USD": quote(now)}, now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    now = advance(setup, 60)
+    engine.step((), {}, now=now)
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("11.970")
+
+
+def post_fee(broker, identity, order_id, *, base="0", cash="0"):
+    broker.activities.append(
+        {
+            "id": identity,
+            "activity_type": "CFEE",
+            "order_id": order_id,
+            "symbol": "BTC/USD" if D(base) else "",
+            "qty": str(-D(base)),
+            "net_amount": str(-D(cash)),
+            "currency": "USD",
+            "status": "executed",
+            "created_at": broker.clock().isoformat(),
+        }
+    )
+
+
+def test_net_entitlement_survives_restart_with_foreign_coins_and_unposted_fees(setup):
+    database, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "restart-net"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 5)
+    external_fill(broker, "foreign-before-restart", "buy", "10")
+    engine.reconcile(now=now)
+    restarted = make()
+    restarted.initialize()
+    assert restarted.inventory()["BTC/USD"].quantity == D(".9975")
+    with database.begin() as connection:
+        ownership = connection.scalar(select(scalping_cycles.c.payload))["ownership"]
+    assert D(ownership["cumulative_reduction"]) == D(".0025")
+    now = advance(setup, 15)
+    restarted.step((), {}, now=now)
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("9.975")
+
+
+def test_additional_partial_fill_credits_only_new_net_coins_and_late_fee_is_not_recharged(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.partial = D(".4")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "partial-net"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    assert engine.inventory()["BTC/USD"].quantity == D(".399")
+    now = advance(setup, 1)
+    external_fill(broker, "foreign-before-partial", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 2)
+    broker.fill_more(buy_id, D(".2"))
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".5985")
+    post_fee(broker, "late-partial-fee", buy_id, base=".0015")
+    for seconds in (2, 3):
+        now = advance(setup, seconds)
+        engine.reconcile(now=now)
+        assert engine.inventory()["BTC/USD"].quantity == D(".5985")
+    now = advance(setup, 4)
+    engine.step((signal(now, "close-partial", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D(".5985")
+    assert broker.balances["BTC/USD"] == D("9.975")
+
+
+def test_external_sell_and_add_are_segregated_once_without_consuming_owned_coins(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "external-flows"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 3)
+    external_fill(broker, "external-buy-ten", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 5)
+    external_fill(broker, "external-sell-five", "sell", "5")
+    for _ in range(2):
+        engine.reconcile(now=now)
+        assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+        assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) == D("4.975")
+    now = advance(setup, 7)
+    external_fill(broker, "external-buy-two", "buy", "2")
+    engine.reconcile(now=now)
+    now = advance(setup, 8)
+    engine.step((signal(now, "exit-external-flows", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("6.970")
+
+
+def test_inventory_loss_cannot_return_from_foreign_add_but_new_owned_buy_can_add_net_quantity(
+    setup,
+):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "initial-loss"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 3)
+    external_fill(broker, "external-before-loss", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 5)
+    external_fill(broker, "manual-sale-into-owned", "sell", "10")
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9725")
+    now = advance(setup, 7)
+    external_fill(broker, "foreign-after-loss", "buy", "10")
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9725")
+    now = advance(setup, 8)
+    engine.step((signal(now, "additional-owned"),), {"BTC/USD": quote(now)}, now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D("1.97")
+    now = advance(setup, 10)
+    engine.step((signal(now, "close-loss", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D("1.97")
+    assert broker.balances["BTC/USD"] == D("9.975")
+
+
+def test_usd_and_base_fee_postings_do_not_debit_net_entitlement_twice(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "fee-net"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    now = advance(setup, 3)
+    external_fill(broker, "foreign-fee-test", "buy", "10")
+    engine.reconcile(now=now)
+    post_fee(broker, "owned-base-late", buy_id, base=".0025")
+    post_fee(broker, "owned-usd-extra", buy_id, cash="1")
+    broker.cash -= 1
+    for seconds in (5, 6):
+        now = advance(setup, seconds)
+        engine.reconcile(now=now)
+        assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    sell_id = broker.posts[-1].client_order_id
+    post_fee(broker, "owned-sell-cash", sell_id, cash=".249375")
+    for seconds in (16, 17):
+        now = advance(setup, seconds)
+        engine.reconcile(now=now)
+    cycle = engine.summary()["recent_cycles"][0]
+    assert D(cycle["actual_net_pnl"]).quantize(D(".00000001")) == D("-1.499375")
+    assert D(cycle["payload"]["ownership"]["cumulative_reduction"]) == D(".0025")
+    assert broker.balances["BTC/USD"] == D("9.975")
+
+
+def test_step_reconciles_foreign_sale_before_persisting_an_owned_loss(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "step-foreign-sale"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 3)
+    external_fill(broker, "foreign-step-buy", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 5)
+    external_fill(broker, "foreign-step-sell", "sell", "5")
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("4.975")
+
+
+def test_foreign_base_fee_posting_and_debit_do_not_reduce_owned_entitlement(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "foreign-base-fees"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 3)
+    external_fill(broker, "foreign-fee-order", "buy", "10")
+    engine.reconcile(now=now)
+    post_fee(broker, "foreign-fee-posted-late", "foreign-fee-order", base=".025")
+    now = advance(setup, 5)
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) == D("9.975")
+    now = advance(setup, 8)
+    broker.balances["BTC/USD"] -= D(".005")
+    post_fee(broker, "foreign-additional-debit", "foreign-fee-order", base=".005")
+    for _ in range(2):
+        engine.reconcile(now=now)
+        assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+        assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) == D("9.970")
+
+
+def test_existing_cycle_without_ownership_extension_bootstraps_its_observed_net(setup):
+    database, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "pre-fix-cycle"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    with database.begin() as connection:
+        row = connection.execute(select(scalping_cycles)).mappings().one()
+        payload = dict(row["payload"])
+        payload.pop("ownership")
+        connection.execute(
+            update(scalping_cycles)
+            .where(scalping_cycles.c.cycle_id == row["cycle_id"])
+            .values(payload=payload)
+        )
+    now = advance(setup, 5)
+    external_fill(broker, "foreign-after-old-cycle", "buy", "10")
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    with database.begin() as connection:
+        ownership = connection.scalar(select(scalping_cycles.c.payload))["ownership"]
+    assert D(ownership["cumulative_reduction"]) == D(".0025")
+
+
+def test_partial_fee_attribution_never_restores_unattributed_coin_reduction(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "partial-fee-attribution"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 5)
+    external_fill(broker, "foreign-for-fee-attribution", "buy", "10")
+    post_fee(broker, "only-some-fee-known", broker.posts[0].client_order_id, base=".0015")
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    with engine.database.begin() as connection:
+        payload = connection.scalar(select(scalping_cycles.c.payload))
+    assert D(payload["ownership"]["cumulative_reduction"]) == D(".0025")
+    assert D(payload["inventory_reduction_not_yet_attributed"]) == D(".001")
+
+
 @pytest.mark.parametrize("failure", ["account", "owner", "stale_owner"])
 def test_technical_identity_fences_prevent_every_post(setup, failure):
     database, broker, _, clock, make = setup

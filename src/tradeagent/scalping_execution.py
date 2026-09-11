@@ -716,6 +716,9 @@ class ScalpOrderEngine:
         intent = row["intent"]
         request = OrderRequest.model_validate(intent["request"])
         asset = self._asset(request.symbol)
+        if request.side is Side.BUY:
+            self._read_positions(force=True)
+            self._refresh_cycles(self.clock(), protect_before_buy=request.symbol)
         # This durable transition precedes the external call, including process death.
         with self.database.begin() as connection:
             self._lease(connection, self.clock())
@@ -759,11 +762,23 @@ class ScalpOrderEngine:
                         return
                 else:
                     self._read_positions(force=True)
+                    current_cycle = dict(
+                        connection.execute(
+                            select(scalping_cycles).where(
+                                scalping_cycles.c.cycle_id == row["cycle_id"]
+                            )
+                        )
+                        .mappings()
+                        .one()
+                    )
                     protected = number(
                         self._account_state().get("unowned_positions", {}).get(request.symbol, 0)
                     )
-                    if request.quantity > max(
-                        Decimal(0), self._available.get(request.symbol, Decimal(0)) - protected
+                    if request.quantity > min(
+                        ledger_amount(current_cycle, "owned_quantity"),
+                        max(
+                            Decimal(0), self._available.get(request.symbol, Decimal(0)) - protected
+                        ),
                     ):
                         self._expire_unsent(connection, client_id)
                         return
@@ -1261,7 +1276,80 @@ class ScalpOrderEngine:
                             )
         return affected
 
-    def _refresh_cycles(self, now: datetime, extra: set[str] | None = None) -> None:
+    def _external_inventory_debits(
+        self, account_state: dict[str, Any]
+    ) -> tuple[dict[str, Decimal], dict[str, str], dict[str, str], set[str]]:
+        protected = {
+            symbol: number(quantity)
+            for symbol, quantity in account_state.get("unowned_positions", {}).items()
+        }
+        applied = dict(account_state.get("ownership_external_debits", {}))
+        acquisitions = dict(account_state.get("ownership_external_acquisitions", {}))
+        acquisition_symbols: set[str] = set()
+        with self.database.begin() as connection:
+            rows = (
+                connection.execute(
+                    select(scalping_activities).where(
+                        scalping_activities.c.account_digest == self.config.account_digest,
+                        scalping_activities.c.occurred_at > stamp(account_state["captured_at"]),
+                        scalping_activities.c.broker_order_id.is_not(None),
+                        scalping_activities.c.cycle_id.is_(None),
+                        ~select(orders.c.client_order_id)
+                        .join(
+                            scalping_order_links,
+                            scalping_order_links.c.client_order_id == orders.c.client_order_id,
+                        )
+                        .where(orders.c.broker_order_id == scalping_activities.c.broker_order_id)
+                        .exists(),
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        for row in rows:
+            raw = row["payload"]
+            symbol = row["symbol"]
+            if not symbol:
+                continue
+            quantity = number(raw.get("qty", 0))
+            if (
+                row["kind"] == "FILL"
+                and row["side"] == "buy"
+                and quantity > 0
+                and self._positions_at is not None
+                and utc(row["occurred_at"]) <= self._positions_at
+            ):
+                if quantity > number(acquisitions.get(row["activity_key"], 0)):
+                    acquisitions[row["activity_key"]] = str(quantity)
+                    acquisition_symbols.add(symbol)
+                continue
+            if row["kind"] == "FILL" and row["side"] == "sell" and quantity > 0:
+                debit = quantity
+            elif (
+                row["kind"] in {"CFEE", "FEE"}
+                and quantity < 0
+                and number(raw.get("net_amount", 0)) == 0
+                and raw.get("status") == "executed"
+                and raw.get("currency") == "USD"
+            ):
+                debit = -quantity
+            else:
+                continue
+            previous = number(applied.get(row["activity_key"], 0))
+            increment = max(Decimal(0), debit - previous)
+            protected[symbol] = max(Decimal(0), protected.get(symbol, Decimal(0)) - increment)
+            applied[row["activity_key"]] = str(max(previous, debit))
+        return protected, applied, acquisitions, acquisition_symbols
+
+    def _refresh_cycles(
+        self,
+        now: datetime,
+        extra: set[str] | None = None,
+        *,
+        protect_before_buy: str | None = None,
+    ) -> None:
+        if self._positions_dirty:
+            self._read_positions(force=True)
         cycles = {row["cycle_id"]: row for row in self._cycles()}
         if extra:
             with self.database.begin() as connection:
@@ -1272,13 +1360,60 @@ class ScalpOrderEngine:
                     )
                 ).mappings():
                     cycles[stored_cycle["cycle_id"]] = dict(stored_cycle)
-        protected = self._account_state().get("unowned_positions", {})
+        account_state = self._account_state()
+        order_rows = {identity: self.store.cycle_orders(identity) for identity in cycles}
+        own_sells: dict[str, Decimal] = {}
+        for identity, cycle in cycles.items():
+            sold = sum(
+                (
+                    number((row["broker"] or {}).get("filled_quantity", 0))
+                    for row in order_rows[identity]
+                    if row["side"] == "sell"
+                ),
+                Decimal(0),
+            )
+            own_sells[cycle["symbol"]] = own_sells.get(cycle["symbol"], Decimal(0)) + max(
+                Decimal(0), sold - ledger_amount(cycle, "exit_quantity")
+            )
+        previous_positions = account_state.get("ownership_positions", {})
+        foreign_drop = any(
+            number(account_state.get("unowned_positions", {}).get(symbol, 0)) > 0
+            and number(previous) - self._positions.get(symbol, Decimal(0))
+            > own_sells.get(symbol, Decimal(0))
+            for symbol, previous in previous_positions.items()
+        )
+        if (
+            foreign_drop
+            and self._positions_at is not None
+            and stamp(account_state["activity_watermark"]) < self._positions_at
+        ):
+            refreshed_cycles = self._sync_activities(self.clock(), pages=5)
+            account_state = self._account_state()
+            if (
+                account_state.get("activity_window_until") is not None
+                or stamp(account_state["activity_watermark"]) < self._positions_at
+            ):
+                raise ValueError(
+                    "foreign inventory decrease awaits current activity reconciliation"
+                )
+            if refreshed_cycles or self._positions_dirty:
+                self._refresh_cycles(
+                    self.clock(),
+                    (extra or set()) | refreshed_cycles,
+                    protect_before_buy=protect_before_buy,
+                )
+                return
+        protected, external_debits, external_acquisitions, protect_symbols = (
+            self._external_inventory_debits(account_state)
+        )
+        if protect_before_buy is not None:
+            protect_symbols.add(protect_before_buy)
         remaining = {
-            key: max(Decimal(0), value - number(protected.get(key, 0)))
+            key: max(Decimal(0), value - protected.get(key, Decimal(0)))
             for key, value in self._positions.items()
         }
         for cycle in sorted(cycles.values(), key=lambda row: row["created_at"]):
-            rows = self.store.cycle_orders(cycle["cycle_id"])
+            rows = order_rows[cycle["cycle_id"]]
             bought = sold = buy_value = sell_value = Decimal(0)
             priced = True
             fill_times = []
@@ -1320,7 +1455,26 @@ class ScalpOrderEngine:
             inferred_base = sum(
                 (-number(row["payload"].get("qty", 0)) for row in inferred), Decimal(0)
             )
-            qty_cap = max(Decimal(0), bought - sold - base_fees)
+            previous_bought = ledger_amount(cycle, "entry_quantity")
+            previous_sold = ledger_amount(cycle, "exit_quantity")
+            previous_owned = ledger_amount(cycle, "owned_quantity")
+            if bought < previous_bought or sold < previous_sold:
+                raise ValueError("owned cumulative fills regressed")
+            previous_reduction = max(
+                Decimal(0),
+                previous_bought - previous_sold - previous_owned,
+                number(cycle["payload"].get("ownership", {}).get("cumulative_reduction", 0)),
+            )
+            # An observed debit is durable, even before its fee/activity record arrives.
+            # Only additional owned BUY fills can increase this entitlement.
+            known_reduction = max(previous_reduction, base_fees)
+            qty_cap = max(Decimal(0), bought - sold - known_reduction)
+            if (
+                (cycle["state"] not in CLOSED or bought > previous_bought)
+                and rows
+                and all(row["status"] in FINAL for row in rows)
+            ):
+                protect_symbols.add(cycle["symbol"])
             already_closed = cycle["state"] in CLOSED and (
                 bought == ledger_amount(cycle, "entry_quantity")
                 and sold == ledger_amount(cycle, "exit_quantity")
@@ -1333,6 +1487,17 @@ class ScalpOrderEngine:
             remaining[cycle["symbol"]] = max(
                 Decimal(0), remaining.get(cycle["symbol"], Decimal(0)) - owned
             )
+            reduction = max(known_reduction, bought - sold - owned)
+            ownership = {
+                "version": 1,
+                "net_entitlement": str(owned),
+                "cumulative_owned_buys": str(bought),
+                "cumulative_owned_sells": str(sold),
+                "cumulative_reduction": str(reduction),
+                "position_observed_at": self._positions_at.isoformat()
+                if self._positions_at
+                else None,
+            }
             pending = any(row["status"] not in FINAL for row in rows)
             all_final = bool(rows) and not pending
             if not rows or (all_final and bought == 0):
@@ -1343,7 +1508,7 @@ class ScalpOrderEngine:
                 and sold > 0
                 and (
                     already_closed
-                    or qty_cap == 0
+                    or max(Decimal(0), bought - sold - reduction) == 0
                     or self._positions.get(cycle["symbol"], Decimal(0))
                     <= number(protected.get(cycle["symbol"], 0))
                 )
@@ -1366,7 +1531,6 @@ class ScalpOrderEngine:
             exit_due = utc(cycle["exit_due_at"]) if cycle["exit_due_at"] else due_candidate
             if exit_due is not None and due_candidate is not None:
                 exit_due = min(exit_due, due_candidate)
-            reduction = max(Decimal(0), bought - sold - owned)
             base_pending = max(Decimal(0), reduction - base_fees)
             fee_order_ids = {row["broker_order_id"] for row in confirmed}
             buy_ids = {
@@ -1437,6 +1601,7 @@ class ScalpOrderEngine:
                 }
             payload = {
                 **cycle["payload"],
+                "ownership": ownership,
                 "inventory_reduction_not_yet_attributed": str(base_pending),
                 "actual_base_fee_quantity": str(base_fees),
                 "inferred_account_cash_fee_allocation": str(inferred_cash),
@@ -1522,6 +1687,54 @@ class ScalpOrderEngine:
                         at=now,
                         connection=connection,
                     )
+                if (
+                    previous_owned != owned
+                    or previous_reduction != reduction
+                    or "ownership" not in cycle["payload"]
+                ):
+                    self.store.audit(
+                        "net_ownership",
+                        {
+                            "cycle_id": cycle["cycle_id"],
+                            "previous_owned": str(previous_owned),
+                            "additional_owned_buys": str(bought - previous_bought),
+                            "additional_owned_sells": str(sold - previous_sold),
+                            "previous_reduction": str(previous_reduction),
+                            "ownership": ownership,
+                        },
+                        at=now,
+                        connection=connection,
+                    )
+        for symbol, amount in remaining.items():
+            if symbol in protect_symbols:
+                protected[symbol] = protected.get(symbol, Decimal(0)) + amount
+        updated_protected = {symbol: str(quantity) for symbol, quantity in protected.items()}
+        position_snapshot = {symbol: str(quantity) for symbol, quantity in self._positions.items()}
+        if (
+            updated_protected != account_state.get("unowned_positions", {})
+            or external_debits != account_state.get("ownership_external_debits", {})
+            or external_acquisitions != account_state.get("ownership_external_acquisitions", {})
+            or position_snapshot != account_state.get("ownership_positions", {})
+        ):
+            self._save_account_state(
+                {
+                    "unowned_positions": updated_protected,
+                    "ownership_external_debits": external_debits,
+                    "ownership_external_acquisitions": external_acquisitions,
+                    "ownership_positions": position_snapshot,
+                }
+            )
+            if updated_protected != account_state.get("unowned_positions", {}):
+                self.store.audit(
+                    "unowned_inventory_segregated",
+                    {
+                        "run_id": self.run_id,
+                        "before": account_state.get("unowned_positions", {}),
+                        "after": updated_protected,
+                        "owned_entitlements_increased": False,
+                    },
+                    at=self.clock(),
+                )
 
     def _request_exits(self, signals: tuple[ScalpSignal, ...], now: datetime) -> None:
         sells = {
@@ -1573,20 +1786,24 @@ class ScalpOrderEngine:
             asset = self._asset(cycle["symbol"])
             self._account()
             self._read_positions(force=True)
+            self._refresh_cycles(self.clock())
+            with self.database.begin() as connection:
+                cycle = dict(
+                    connection.execute(
+                        select(scalping_cycles).where(
+                            scalping_cycles.c.cycle_id == cycle["cycle_id"]
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
             protected = number(
                 self._account_state().get("unowned_positions", {}).get(cycle["symbol"], 0)
             )
             account_available = max(
                 Decimal(0), self._available.get(cycle["symbol"], Decimal(0)) - protected
             )
-            bought, sold = (
-                ledger_amount(cycle, "entry_quantity"),
-                ledger_amount(cycle, "exit_quantity"),
-            )
-            known_fee = ledger_amount(cycle, "actual_base_fees")
-            # The broker's available balance already reflects charged base-asset fees.
-            # Estimated future costs are not subtracted from that actual balance again.
-            owned = max(Decimal(0), bought - sold - known_fee)
+            owned = ledger_amount(cycle, "owned_quantity")
             quantity = floor_quantity(min(owned, account_available), asset.min_trade_increment)
             if quantity < asset.min_order_size:
                 continue
