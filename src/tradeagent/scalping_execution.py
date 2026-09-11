@@ -1400,6 +1400,10 @@ class ScalpOrderEngine:
                 "fees": str(max(old_fees, total["fees"])),
                 "provisional_reduction": str(old_provisional - fee_overlap),
                 "new_buys": str(new_buys),
+                "unsettled_external_credit": bool(
+                    previous.get("unsettled_external_credit")
+                    or (new_fees > 0 and old_provisional > fee_overlap)
+                ),
             }
         return protected, evidence, disposals, acquisition_symbols
 
@@ -1591,6 +1595,18 @@ class ScalpOrderEngine:
             if pending_buy > 0 or mixed or unacknowledged_buy > 0:
                 pending_symbols.add(cycle["symbol"])
         if evidence_ready:
+            for symbol, projection in foreign_evidence.items():
+                if not projection.get("unsettled_external_credit"):
+                    continue
+                credit = number(projection["provisional_reduction"])
+                restored = protected.get(symbol, Decimal(0)) + credit
+                available = self._positions.get(symbol, Decimal(0)) - carry_totals.get(
+                    symbol, Decimal(0)
+                )
+                if available >= restored:
+                    protected[symbol] = restored
+                    projection["provisional_reduction"] = "0"
+                    projection["unsettled_external_credit"] = False
             for symbol in acquisition_symbols | (
                 {protect_before_buy} if protect_before_buy else set()
             ):

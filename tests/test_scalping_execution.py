@@ -885,6 +885,60 @@ def test_manual_acquisition_during_order_ack_lag_preserves_unacknowledged_owned_
     assert engine.status()["unresolved_ownership_count"] == 0
 
 
+@pytest.mark.parametrize("restart", [False, True])
+@pytest.mark.parametrize("fee_before_catchup", [False, True])
+def test_lagged_foreign_position_does_not_consume_recorded_external_credit(
+    setup, restart, fee_before_catchup
+):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.partial = D(".4")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "foreign-position-lag"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    now = advance(setup, 1)
+    external_fill(broker, "lagged-foreign-buy", "buy", "10")
+    actual_positions = broker.positions
+    lagging = [True]
+
+    def positions():
+        actual = actual_positions()
+        if lagging[0]:
+            return (
+                actual[0].model_copy(
+                    update={"quantity": D(".399"), "available_quantity": D(".399")}
+                ),
+            )
+        return actual
+
+    broker.positions = positions
+    engine.reconcile(now=now)
+    now = advance(setup, 2)
+    broker.fill_more(buy_id, D(".2"))
+    if not fee_before_catchup:
+        lagging[0] = False
+    post_fee(broker, "lag-foreign-owned-fee", buy_id, base=".0015")
+    post_fee(broker, "lag-foreign-external-fee", "lagged-foreign-buy", base=".025")
+    engine.reconcile(now=now)
+    if restart:
+        engine = make(exit_after_seconds=None)
+        engine.initialize()
+    lagging[0] = False
+    now = advance(setup, 3)
+    engine.reconcile(now=now)
+    assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) == D("9.975")
+    assert engine.inventory()["BTC/USD"].quantity == D(".5985")
+    now = advance(setup, 4)
+    engine.step((signal(now, "close-foreign-lag", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D(".5985")
+    assert broker.balances["BTC/USD"] == D("9.975")
+    for seconds in (5, 30, 60):
+        engine.reconcile(now=advance(setup, seconds))
+    assert not engine.inventory()
+    assert engine.status()["unresolved_ownership_count"] == 0
+
+
 def test_unresolved_settlement_does_not_repeat_identical_broker_reads_every_tick(
     setup, monkeypatch
 ):
