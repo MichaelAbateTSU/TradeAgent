@@ -1,0 +1,8 @@
+Error: error listing logs: received response code 503: failed to query loki: loki returned a 504 status code: <html>
+<head><title>504 Gateway Time-out</title></head>
+<body>
+<center><h1>504 Gateway Time-out</h1></center>
+<hr><center>nginx/1.31.2</center>
+</body>
+</html>
+: logs is currently unavailable

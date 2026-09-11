@@ -1,0 +1,612 @@
+{
+  "job_id": "job-dahkj4942hec7399k40g",
+  "status": "succeeded",
+  "results": [
+    {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "after_controls": [
+        {
+          "control_key": "iex-operator-host-20260910:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-10 19:17:49.316307+00:00"
+        },
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "paper-baseline:b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+          "control_value": "{\"account_cash\": \"99999.27\", \"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"broker_order_ids\": [\"1d9dad72-351e-4478-bf2f-3f7d1079b8dd\", \"385947be-92ac-4215-98f4-54380075a145\", \"759d315b-6124-48e5-b725-de832eb6269b\", \"7c35efc7-c452-4c3d-8bb0-fefd77a79782\", \"b72a264a-02d9-4a43-b331-4d3a535c7505\", \"dd9ba5c8-8319-4466-83c0-af3cc9911c73\"], \"buy_client_ids\": {\"2026-09-04\": [\"manual-20260904T222425111095Z\", \"manual-crypto-20260904T223058556554Z\"], \"2026-09-09\": [\"ta-probe-20260909-0020-aapl\", \"ta-crypto-test-20260909-0151-buy\"]}, \"cash_pnl\": \"-0.52809467556\", \"cash_pnl_basis\": \"fill cash flows and posted cash fees only; excludes funding\", \"economic_pnl\": \"-0.7399174463133780\", \"economic_pnl_basis\": \"known cash P&L less conservative reserves; not actual net P&L\", \"external_funding\": \"100000\", \"fee_reserves\": [{\"at\": \"2026-09-05T00:18:00.238858+00:00\", \"basis\": \"unposted fee allowance at 0.25%, rounded up; not an actual fee\", \"cash\": \"0\", \"id\": \"estimated-crypto-fee:2026-09-04:sell\", \"quantity\": \"0\", \"reserve\": \"0.20\", \"symbol\": \"\"}, {\"at\": \"2026-09-11T00:21:56.268086+00:00\", \"basis\": \"unexplained cash-deficit reserve; not an assigned fee or P&L\", \"cash\": \"0\", \"id\": \"unattributed-cash-deficit-reserve\", \"quantity\": \"0\", \"reserve\": \"0.00190532444\", \"symbol\": \"\"}], \"identity\": \"9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200\", \"observed_at\": \"2026-09-11T00:21:56.268086+00:00\", \"peak_pnl\": \"0\", \"timeline\": [{\"at\": \"2026-09-04T22:20:26.814503+00:00\", \"cash\": \"0\", \"external_cash_flow\": \"100000\", \"id\": \"20260904000000000::9e615b2f-2995-4463-8fe3-b333f81d8fca\", \"quantity\": \"0\", \"reserve\": \"0\", \"symbol\": \"\"}, {\"at\": \"2026-09-04T22:30:59.029136+00:00\", \"cash\": \"-79.793284\", \"id\": \"20260904183059029::2012865d-2943-4fed-b2eb-120fbc0b6441\", \"quantity\": \"0.001\", \"reserve\": \"0.00398966420\", \"symbol\": \"BTCUSD\"}, {\"at\": \"2026-09-04T22:31:02.812309+00:00\", \"cash\": \"0\", \"id\": \"20260904000000000::e1282dea-0330-4601-9fee-9499033dd67b\", \"quantity\": \"-0.0000025\", \"reserve\": \"0\", \"symbol\": \"BTCUSD\"}, {\"at\": \"2026-09-05T00:18:00.238858+00:00\", \"cash\": \"79.39242150\", \"id\": \"20260904201800238::da2c2497-5ae8-4b96-a79a-c8ea0e0b4ad2\", \"quantity\": \"-0.0009975\", \"reserve\": \"0.0039696210750\", \"symbol\": \"BTCUSD\"}, {\"at\": \"2026-09-09T06:20:49.378751+00:00\", \"cash\": \"-19.62022647156\", \"id\": \"20260909022049378::b81c2780-1ead-43e5-b749-5be3feac0a81\", \"quantity\": \"0.000247676\", \"reserve\": \"0.0009810113235780\", \"symbol\": \"BTCUSD\"}, {\"at\": \"2026-09-09T06:20:49.923271+00:00\", \"cash\": \"0\", \"id\": \"20260909000000000::bd134c62-19dd-49d7-bde3-9a150857a1ca\", \"quantity\": \"-6.2E-7\", \"reserve\": \"0\", \"symbol\": \"BTCUSD\"}, {\"at\": \"2026-09-09T06:21:28.132488+00:00\", \"cash\": \"19.5429942960\", \"id\": \"20260909022128132::64e75807-3bc9-45a9-adc5-0931565da312\", \"quantity\": \"-0.000247056\", \"reserve\": \"0.000977149714800\", \"symbol\": \"BTCUSD\"}, {\"at\": \"2026-09-09T06:21:31.935539+00:00\", \"cash\": \"-0.05\", \"id\": \"20260909000000000::2e623c8a-debb-4226-a4e9-d7a676de7d17\", \"quantity\": \"0\", \"reserve\": \"0\", \"symbol\": \"\"}], \"unexplained_cash_deficit\": \"0.20190532444\"}",
+          "updated_at": "2026-09-11 00:21:56.452205+00:00"
+        },
+        {
+          "control_key": "practice-session:3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+          "control_value": "{\"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"equipment_client_order_id\": null, \"equipment_cohort_id\": null, \"equipment_test_id\": \"555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0\", \"external_buy_client_ids\": [\"ta-crypto-test-20260909-0151-buy\", \"ta-probe-20260909-0020-aapl\"], \"news_entries_reserved\": 0, \"planned_session_date\": \"2026-09-09\", \"session_id\": \"3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16\", \"total_entries_reserved\": 2}",
+          "updated_at": "2026-09-11 00:21:56.452205+00:00"
+        },
+        {
+          "control_key": "practice-session:f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+          "control_value": "{\"session_id\": \"f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9\", \"planned_session_date\": \"2026-09-08\", \"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"total_entries_reserved\": 0, \"news_entries_reserved\": 0, \"equipment_test_id\": \"56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d\", \"equipment_client_order_id\": null, \"equipment_cohort_id\": null}",
+          "updated_at": "2026-09-07 08:12:26.569965+00:00"
+        },
+        {
+          "control_key": "practice-session:f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+          "control_value": "{\"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"equipment_client_order_id\": null, \"equipment_cohort_id\": null, \"equipment_test_id\": \"6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9\", \"external_buy_client_ids\": [\"manual-20260904T222425111095Z\", \"manual-crypto-20260904T223058556554Z\"], \"news_entries_reserved\": 0, \"planned_session_date\": \"2026-09-04\", \"session_id\": \"f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f\", \"total_entries_reserved\": 2}",
+          "updated_at": "2026-09-11 00:21:56.452205+00:00"
+        },
+        {
+          "control_key": "v20-crypto-proof-20260909:pause",
+          "control_value": "RECONCILIATION_REQUIRED",
+          "updated_at": "2026-09-09 06:21:27.422314+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 16:10:44.864295+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908-r2:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 17:16:41.159518+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908-r3:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 18:36:15.222557+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908-r4:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 19:05:52.988755+00:00"
+        },
+        {
+          "control_key": "v20-manual-demo-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 00:18:24.133135+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        },
+        {
+          "control_key": "v20-operator-probe-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 04:36:36.338370+00:00"
+        },
+        {
+          "control_key": "v20-tuesday-20260908-r2:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-07 08:30:58.487283+00:00"
+        },
+        {
+          "control_key": "v20-tuesday-20260908-r3:pause",
+          "control_value": "OPERATOR_INCIDENT_REPAIR",
+          "updated_at": "2026-09-08 14:34:14.338876+00:00"
+        }
+      ],
+      "after_import_preview": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "budget_corrections": [
+          {
+            "added_external_buy_client_ids": [],
+            "before": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+              "external_buy_client_ids": [
+                "manual-20260904T222425111095Z",
+                "manual-crypto-20260904T223058556554Z"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-04",
+              "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+              "total_entries_reserved": 2
+            },
+            "proposed_after": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+              "external_buy_client_ids": [
+                "manual-20260904T222425111095Z",
+                "manual-crypto-20260904T223058556554Z"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-04",
+              "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+              "total_entries_reserved": 2
+            },
+            "row_existed": true,
+            "session_date": "2026-09-04",
+            "upward_only": true
+          },
+          {
+            "added_external_buy_client_ids": [],
+            "before": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+              "external_buy_client_ids": [
+                "ta-crypto-test-20260909-0151-buy",
+                "ta-probe-20260909-0020-aapl"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-09",
+              "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+              "total_entries_reserved": 2
+            },
+            "proposed_after": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+              "external_buy_client_ids": [
+                "ta-crypto-test-20260909-0151-buy",
+                "ta-probe-20260909-0020-aapl"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-09",
+              "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+              "total_entries_reserved": 2
+            },
+            "row_existed": true,
+            "session_date": "2026-09-09",
+            "upward_only": true
+          }
+        ],
+        "cash_pnl": "-0.52809467556",
+        "database_mutations": 0,
+        "economic_pnl": "-0.7399174463133780",
+        "history_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+        "history_observed_at": "2026-09-11T00:21:56.268086+00:00",
+        "kind": "read_only_paper_baseline_import_preview",
+        "market_acceptance": false,
+        "observed_at": "2026-09-11T00:21:56.479174+00:00",
+        "order_authority_created": false,
+        "peak_pnl": "0"
+      },
+      "baseline_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+      "before_controls": [
+        {
+          "control_key": "iex-operator-host-20260910:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-10 19:17:49.316307+00:00"
+        },
+        {
+          "control_key": "iex-trade-repair-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 18:56:28.415955+00:00"
+        },
+        {
+          "control_key": "kill_switch",
+          "control_value": "active",
+          "updated_at": "2026-09-08 23:33:26.789305+00:00"
+        },
+        {
+          "control_key": "practice-session:f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9",
+          "control_value": "{\"session_id\": \"f31657d996309a19bf68884023e8f168e9ff098f0c3111f9953b4770323ef5c9\", \"planned_session_date\": \"2026-09-08\", \"account_digest\": \"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\", \"total_entries_reserved\": 0, \"news_entries_reserved\": 0, \"equipment_test_id\": \"56d5a4fe2bc837c2d7d5753cb38a109507ca654cf569aa7310372a6da117b06d\", \"equipment_client_order_id\": null, \"equipment_cohort_id\": null}",
+          "updated_at": "2026-09-07 08:12:26.569965+00:00"
+        },
+        {
+          "control_key": "v20-crypto-proof-20260909:pause",
+          "control_value": "RECONCILIATION_REQUIRED",
+          "updated_at": "2026-09-09 06:21:27.422314+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 16:10:44.864295+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908-r2:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 17:16:41.159518+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908-r3:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 18:36:15.222557+00:00"
+        },
+        {
+          "control_key": "v20-incident-20260908-r4:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-08 19:05:52.988755+00:00"
+        },
+        {
+          "control_key": "v20-manual-demo-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 00:18:24.133135+00:00"
+        },
+        {
+          "control_key": "v20-news-paper-20260909-r1:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-09 05:34:16.069284+00:00"
+        },
+        {
+          "control_key": "v20-operator-probe-20260909:pause",
+          "control_value": "R1_EVENT_REQUIRES_POSITION_REVIEW",
+          "updated_at": "2026-09-09 04:36:36.338370+00:00"
+        },
+        {
+          "control_key": "v20-tuesday-20260908-r2:pause",
+          "control_value": "OPERATOR_PAUSE",
+          "updated_at": "2026-09-07 08:30:58.487283+00:00"
+        },
+        {
+          "control_key": "v20-tuesday-20260908-r3:pause",
+          "control_value": "OPERATOR_INCIDENT_REPAIR",
+          "updated_at": "2026-09-08 14:34:14.338876+00:00"
+        }
+      ],
+      "broker_host": "https://paper-api.alpaca.markets",
+      "broker_orders_submitted": 0,
+      "code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+      "flat_verified_at": "2026-09-11T00:21:56.452205+00:00",
+      "kill_and_pause_controls_written": false,
+      "kind": "reviewed_same_image_paper_baseline_preflight",
+      "market_acceptance": false,
+      "new_baseline_audits": [
+        {
+          "event_id": "839edcb0-1696-4822-abaf-2e585de5f36e",
+          "event_type": "event_account_history_budget_correction",
+          "occurred_at": "2026-09-11 00:21:56.452205+00:00",
+          "payload": {
+            "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+            "added_external_buy_client_ids": [
+              "manual-20260904T222425111095Z",
+              "manual-crypto-20260904T223058556554Z"
+            ],
+            "after": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+              "external_buy_client_ids": [
+                "manual-20260904T222425111095Z",
+                "manual-crypto-20260904T223058556554Z"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-04",
+              "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+              "total_entries_reserved": 2
+            },
+            "before": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-04",
+              "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+              "total_entries_reserved": 0
+            },
+            "history_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+            "session_date": "2026-09-04",
+            "upward_only": true
+          },
+          "recorded_at": "2026-09-11 00:21:56.467061+00:00",
+          "trace_id": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f:2026-09-04"
+        },
+        {
+          "event_id": "830ed3a5-bc19-48a8-acd2-ec7fda953687",
+          "event_type": "event_account_history_budget_correction",
+          "occurred_at": "2026-09-11 00:21:56.452205+00:00",
+          "payload": {
+            "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+            "added_external_buy_client_ids": [
+              "ta-crypto-test-20260909-0151-buy",
+              "ta-probe-20260909-0020-aapl"
+            ],
+            "after": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+              "external_buy_client_ids": [
+                "ta-crypto-test-20260909-0151-buy",
+                "ta-probe-20260909-0020-aapl"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-09",
+              "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+              "total_entries_reserved": 2
+            },
+            "before": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-09",
+              "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+              "total_entries_reserved": 0
+            },
+            "history_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+            "session_date": "2026-09-09",
+            "upward_only": true
+          },
+          "recorded_at": "2026-09-11 00:21:56.473309+00:00",
+          "trace_id": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f:2026-09-09"
+        },
+        {
+          "event_id": "f646356b-db35-44bb-98ef-f13f5167b892",
+          "event_type": "event_paper_baseline_prearm_import",
+          "occurred_at": "2026-09-11 00:21:56.452205+00:00",
+          "payload": {
+            "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+            "after_import_preview": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "budget_corrections": [
+                {
+                  "added_external_buy_client_ids": [],
+                  "before": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+                    "external_buy_client_ids": [
+                      "manual-20260904T222425111095Z",
+                      "manual-crypto-20260904T223058556554Z"
+                    ],
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-04",
+                    "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+                    "total_entries_reserved": 2
+                  },
+                  "proposed_after": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+                    "external_buy_client_ids": [
+                      "manual-20260904T222425111095Z",
+                      "manual-crypto-20260904T223058556554Z"
+                    ],
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-04",
+                    "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+                    "total_entries_reserved": 2
+                  },
+                  "row_existed": true,
+                  "session_date": "2026-09-04",
+                  "upward_only": true
+                },
+                {
+                  "added_external_buy_client_ids": [],
+                  "before": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+                    "external_buy_client_ids": [
+                      "ta-crypto-test-20260909-0151-buy",
+                      "ta-probe-20260909-0020-aapl"
+                    ],
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-09",
+                    "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+                    "total_entries_reserved": 2
+                  },
+                  "proposed_after": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+                    "external_buy_client_ids": [
+                      "ta-crypto-test-20260909-0151-buy",
+                      "ta-probe-20260909-0020-aapl"
+                    ],
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-09",
+                    "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+                    "total_entries_reserved": 2
+                  },
+                  "row_existed": true,
+                  "session_date": "2026-09-09",
+                  "upward_only": true
+                }
+              ],
+              "cash_pnl": "-0.52809467556",
+              "database_mutations": 0,
+              "economic_pnl": "-0.7399174463133780",
+              "history_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+              "history_observed_at": "2026-09-11T00:21:56.268086+00:00",
+              "kind": "read_only_paper_baseline_import_preview",
+              "market_acceptance": false,
+              "observed_at": "2026-09-11T00:21:56.479174+00:00",
+              "order_authority_created": false,
+              "peak_pnl": "0"
+            },
+            "baseline_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+            "broker_host": "https://paper-api.alpaca.markets",
+            "broker_orders_submitted": 0,
+            "code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+            "flat_verified_at": "2026-09-11T00:21:56.452205+00:00",
+            "kill_and_pause_controls_written": false,
+            "kind": "reviewed_same_image_paper_baseline_preflight",
+            "market_acceptance": false,
+            "persisted": true,
+            "preview": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "budget_corrections": [
+                {
+                  "added_external_buy_client_ids": [
+                    "manual-20260904T222425111095Z",
+                    "manual-crypto-20260904T223058556554Z"
+                  ],
+                  "before": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-04",
+                    "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+                    "total_entries_reserved": 0
+                  },
+                  "proposed_after": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+                    "external_buy_client_ids": [
+                      "manual-20260904T222425111095Z",
+                      "manual-crypto-20260904T223058556554Z"
+                    ],
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-04",
+                    "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+                    "total_entries_reserved": 2
+                  },
+                  "row_existed": false,
+                  "session_date": "2026-09-04",
+                  "upward_only": true
+                },
+                {
+                  "added_external_buy_client_ids": [
+                    "ta-crypto-test-20260909-0151-buy",
+                    "ta-probe-20260909-0020-aapl"
+                  ],
+                  "before": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-09",
+                    "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+                    "total_entries_reserved": 0
+                  },
+                  "proposed_after": {
+                    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+                    "equipment_client_order_id": null,
+                    "equipment_cohort_id": null,
+                    "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+                    "external_buy_client_ids": [
+                      "ta-crypto-test-20260909-0151-buy",
+                      "ta-probe-20260909-0020-aapl"
+                    ],
+                    "news_entries_reserved": 0,
+                    "planned_session_date": "2026-09-09",
+                    "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+                    "total_entries_reserved": 2
+                  },
+                  "row_existed": false,
+                  "session_date": "2026-09-09",
+                  "upward_only": true
+                }
+              ],
+              "cash_pnl": "-0.52809467556",
+              "database_mutations": 0,
+              "economic_pnl": "-0.7399174463133780",
+              "history_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+              "history_observed_at": "2026-09-11T00:21:56.268086+00:00",
+              "kind": "read_only_paper_baseline_import_preview",
+              "market_acceptance": false,
+              "observed_at": "2026-09-11T00:21:56.452205+00:00",
+              "order_authority_created": false,
+              "peak_pnl": "0"
+            },
+            "schedule_authority_created": false
+          },
+          "recorded_at": "2026-09-11 00:21:56.483786+00:00",
+          "trace_id": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f"
+        }
+      ],
+      "persisted": true,
+      "preview": {
+        "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "budget_corrections": [
+          {
+            "added_external_buy_client_ids": [
+              "manual-20260904T222425111095Z",
+              "manual-crypto-20260904T223058556554Z"
+            ],
+            "before": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-04",
+              "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+              "total_entries_reserved": 0
+            },
+            "proposed_after": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "6390adaa1998e736c6513d8fb110006808e046b91a3a76ac837924a9cb430dd9",
+              "external_buy_client_ids": [
+                "manual-20260904T222425111095Z",
+                "manual-crypto-20260904T223058556554Z"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-04",
+              "session_id": "f76b057f05b5d200a66e5155c2504ecc625e6105385be02624c7a41554e31f5f",
+              "total_entries_reserved": 2
+            },
+            "row_existed": false,
+            "session_date": "2026-09-04",
+            "upward_only": true
+          },
+          {
+            "added_external_buy_client_ids": [
+              "ta-crypto-test-20260909-0151-buy",
+              "ta-probe-20260909-0020-aapl"
+            ],
+            "before": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-09",
+              "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+              "total_entries_reserved": 0
+            },
+            "proposed_after": {
+              "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+              "equipment_client_order_id": null,
+              "equipment_cohort_id": null,
+              "equipment_test_id": "555933b77cc6ca8a5e031ad96e23b9701203dbece26e47482dbac4ebbeb8b1b0",
+              "external_buy_client_ids": [
+                "ta-crypto-test-20260909-0151-buy",
+                "ta-probe-20260909-0020-aapl"
+              ],
+              "news_entries_reserved": 0,
+              "planned_session_date": "2026-09-09",
+              "session_id": "3b31408313141677c5bfbce1161772bcfe5e98d7668cd5e1faf50bd75db9ce16",
+              "total_entries_reserved": 2
+            },
+            "row_existed": false,
+            "session_date": "2026-09-09",
+            "upward_only": true
+          }
+        ],
+        "cash_pnl": "-0.52809467556",
+        "database_mutations": 0,
+        "economic_pnl": "-0.7399174463133780",
+        "history_identity": "9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200",
+        "history_observed_at": "2026-09-11T00:21:56.268086+00:00",
+        "kind": "read_only_paper_baseline_import_preview",
+        "market_acceptance": false,
+        "observed_at": "2026-09-11T00:21:56.452205+00:00",
+        "order_authority_created": false,
+        "peak_pnl": "0"
+      },
+      "protected_controls_unchanged": true,
+      "reporting_metadata_missing": 0,
+      "schedule_authority_created": false
+    }
+  ]
+}

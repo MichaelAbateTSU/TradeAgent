@@ -1,0 +1,22 @@
+{
+  "job_id": "job-dahj9d6k1f9s73fhf5u0",
+  "result": {
+    "at": "2026-09-10T22:52:54.809667+00:00",
+    "read_only": true,
+    "daily_schedule": {
+      "enabled": true,
+      "hour": 18,
+      "minute": 0,
+      "timezone": "America/New_York"
+    },
+    "existing_daily_message": {
+      "notification_id": "1f74886e-dc7a-5939-8e9a-e64746b45fa3",
+      "status": "sent",
+      "attempts": 1,
+      "provider_message_id": "d51e51ec-66fc-4a62-88b2-43d1f3f57c6b",
+      "created_at": "2026-09-10 22:00:03.574215+00:00",
+      "sent_at": "2026-09-10 22:00:06.996357+00:00"
+    },
+    "resend_performed": false
+  }
+}

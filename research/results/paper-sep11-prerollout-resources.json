@@ -1,0 +1,325 @@
+{
+  "observed_at": "2026-09-10T23:36:06.278966+00:00",
+  "services": {
+    "event": {
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T17:18:37.334019Z",
+        "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dae4tr7qj5pc73a9e0k0",
+        "name": "tradeagent-news-worker",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "preDeployCommand": "alembic upgrade head",
+            "startCommand": "tradeagent run --mode shadow --purpose iex-practice --practice-start-date 2026-09-10 --entry-policy event-strategy --cohort-id iex-operator-host-20260910 --symbols AAPL,MSFT,NVDA --max-entries-per-session 2"
+          },
+          "numInstances": 1,
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+        },
+        "slug": "tradeagent-news-worker",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "background_worker",
+        "updatedAt": "2026-09-10T19:10:32.275944Z"
+      },
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-dahg0j2fngtc739b78kg",
+            "commit": {
+              "id": "74313931871c79996c2039b6c5b563dbff2c22bb",
+              "message": "Keep ordinary owned recovery active alongside operator supervision\n\nDeduplicate only individual operator recovery cohorts instead of suppressing the host supervisor. Require current host session dates for new operator entries and cover foreign-account recovery isolation.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-10T17:57:00Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-10T19:09:00.997993Z",
+            "updatedAt": "2026-09-10T19:10:32.274745Z",
+            "startedAt": "2026-09-10T19:09:00.996114Z",
+            "finishedAt": "2026-09-10T19:10:32.274525Z"
+          },
+          "cursor": "6Aym_Hf4f4YwajJmbmd0YzczOWI3OGtn"
+        }
+      ],
+      "env_keys": [
+        "ALPACA_KEY_ID",
+        "ALPACA_SECRET_KEY",
+        "NEWS_CONTACT_EMAIL",
+        "NEWS_POLL_SECONDS",
+        "NEWS_STALE_SECONDS",
+        "NEWS_SYMBOLS",
+        "PYTHON_VERSION",
+        "TRADEAGENT_DATABASE_URL",
+        "TRADEAGENT_MODE"
+      ],
+      "env_sha256": "ff69bd0ceded505d87aaeae92c682b9d0715422fb53b3ebbb0157bb9577dd3fb"
+    },
+    "recorder": {
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T01:46:27.63386Z",
+        "dashboardUrl": "https://dashboard.render.com/worker/srv-dadn8son74is73apqcc0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dadn8son74is73apqcc0",
+        "name": "tradeagent-shadow-worker",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "preDeployCommand": "alembic upgrade head",
+            "startCommand": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD"
+          },
+          "numInstances": 1,
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dadn8son74is73apqcc0@ssh.oregon.render.com"
+        },
+        "slug": "tradeagent-shadow-worker",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "background_worker",
+        "updatedAt": "2026-09-09T17:59:13.198582Z"
+      },
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-dagps3dbedkc739omglg",
+            "commit": {
+              "id": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+              "message": "Scope persisted trade identity to venue and event time\n\nPreserve originals while accepting provider IDs reused on another day or venue. Add bounded concurrent-index migration, atomic conflict-aware generic writes, cross-session regressions and a private rollback-only PostgreSQL fixture. No historical backfill or trading-risk changes.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-09T17:45:51Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-09T17:57:34.004393Z",
+            "updatedAt": "2026-09-09T17:59:13.194809Z",
+            "startedAt": "2026-09-09T17:57:34.002443Z",
+            "finishedAt": "2026-09-09T17:59:13.18722Z"
+          },
+          "cursor": "ZuhQ-LM3vPhzM2RiZWRrYzczOW9tZ2xn"
+        }
+      ],
+      "env_keys": [
+        "ALPACA_DATA_STREAM_URL",
+        "ALPACA_KEY_ID",
+        "ALPACA_SECRET_KEY",
+        "PYTHON_VERSION",
+        "TRADEAGENT_DATABASE_URL",
+        "TRADEAGENT_INTRADAY__ENABLED",
+        "TRADEAGENT_MODE"
+      ],
+      "env_sha256": "04f8d0655634ff9920354d10eb71464eeee33d16c87b4c775e71c4d93d07ac64"
+    },
+    "notifier": {
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T02:16:58.892375Z",
+        "dashboardUrl": "https://dashboard.render.com/worker/srv-dadnn6mq1p3s73ef7ef0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dadnn6mq1p3s73ef7ef0",
+        "name": "tradeagent-notifier",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "preDeployCommand": "alembic upgrade head",
+            "startCommand": "tradeagent notifier"
+          },
+          "numInstances": 1,
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+        },
+        "slug": "tradeagent-notifier",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "background_worker",
+        "updatedAt": "2026-09-09T16:47:23.877557Z"
+      },
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-dagoqf8n74is739dkj7g",
+            "commit": {
+              "id": "37e7a72c792a0398324ac0c5bee5cd50cdbb5077",
+              "message": "Notify current paper session outcomes without requiring a trade\n\nObserve same-day frozen cohort controls and atomically enqueue deduplicated MISSED, BLOCKED or completion notices through the existing notifier. No historical replay, broker-state claim, trading-control changes or heavy report generation.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-09T16:39:23Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-09T16:45:49.852563Z",
+            "updatedAt": "2026-09-09T16:47:23.876267Z",
+            "startedAt": "2026-09-09T16:45:49.85094Z",
+            "finishedAt": "2026-09-09T16:47:23.876032Z"
+          },
+          "cursor": "bZsd4rzbP1RxZjhuNzRpczczOWRrajdn"
+        }
+      ],
+      "env_keys": [
+        "EMAIL_API_KEY",
+        "EMAIL_PROVIDER",
+        "EMAIL_RECIPIENT",
+        "EMAIL_SENDER",
+        "PYTHON_VERSION",
+        "TRADEAGENT_DATABASE_URL",
+        "TRADEAGENT_MODE"
+      ],
+      "env_sha256": "5b6bf8b4bb0118dcca5d9c1272a405694a8ef80f7bbcc8e0d4df450e93121c08"
+    },
+    "dashboard": {
+      "service": {
+        "autoDeploy": "no",
+        "autoDeployTrigger": "off",
+        "branch": "main",
+        "createdAt": "2026-09-05T02:57:16.739538Z",
+        "dashboardUrl": "https://dashboard.render.com/web/srv-dadoa3740ujc73cb09c0",
+        "environmentId": "evm-daf34jn40ujc739c8530",
+        "id": "srv-dadoa3740ujc73cb09c0",
+        "name": "tradeagent-runtime-dashboard",
+        "notifyOnFail": "default",
+        "ownerId": "tea-d9dqrkr7uimc73c2e240",
+        "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+        "rootDir": "",
+        "serviceDetails": {
+          "buildPlan": "starter",
+          "cache": {
+            "profile": "no-cache"
+          },
+          "env": "python",
+          "envSpecificDetails": {
+            "buildCommand": "pip install .",
+            "startCommand": "tradeagent serve --host 0.0.0.0 --port $PORT --production"
+          },
+          "healthCheckPath": "/health",
+          "ipAllowList": [
+            {
+              "cidrBlock": "0.0.0.0/0",
+              "description": "everywhere"
+            }
+          ],
+          "maintenanceMode": {
+            "enabled": false,
+            "uri": ""
+          },
+          "numInstances": 1,
+          "openPorts": [
+            {
+              "port": 10000,
+              "protocol": "TCP"
+            }
+          ],
+          "plan": "starter",
+          "previews": {
+            "generation": "off"
+          },
+          "pullRequestPreviewsEnabled": "no",
+          "region": "oregon",
+          "runtime": "python",
+          "sshAddress": "srv-dadoa3740ujc73cb09c0@ssh.oregon.render.com",
+          "url": "https://tradeagent-runtime-dashboard.onrender.com"
+        },
+        "slug": "tradeagent-runtime-dashboard",
+        "suspended": "not_suspended",
+        "suspenders": [],
+        "type": "web_service",
+        "updatedAt": "2026-09-08T22:13:10.398364Z"
+      },
+      "deploys": [
+        {
+          "deploy": {
+            "id": "dep-dag8gd6k1f9s738f7hpg",
+            "commit": {
+              "id": "5e728c5b29fb9330df61d8f3bae95ca8a34ca53b",
+              "message": "Reserve prepared-cache headroom for known-key promotion bursts\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>",
+              "createdAt": "2026-09-08T21:58:20Z"
+            },
+            "status": "live",
+            "trigger": "api",
+            "createdAt": "2026-09-08T22:12:04.554904Z",
+            "updatedAt": "2026-09-08T22:13:40.34932Z",
+            "startedAt": "2026-09-08T22:12:04.527277Z",
+            "finishedAt": "2026-09-08T22:13:10.396813Z"
+          },
+          "cursor": "QtsiVDSdq_ZnZDZrMWY5czczOGY3aHBn"
+        }
+      ],
+      "env_keys": [
+        "PORT",
+        "PYTHON_VERSION",
+        "TRADEAGENT_DATABASE_URL",
+        "TRADEAGENT_MODE"
+      ],
+      "env_sha256": "096c6a98f754ad8eefb7ba16e30e94996f40057c6b57f3446101fbc754f5af3f"
+    }
+  },
+  "database": {
+    "connectionPool": "none",
+    "createdAt": "2026-09-05T01:43:58.415023Z",
+    "dashboardUrl": "https://dashboard.render.com/d/dpg-dadn7nht0dsc73f9jja0-a",
+    "databaseName": "tradeagent",
+    "databaseUser": "tradeagent",
+    "diskAutoscalingEnabled": false,
+    "diskSizeGB": 15,
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "highAvailabilityEnabled": false,
+    "id": "dpg-dadn7nht0dsc73f9jja0-a",
+    "ipAllowList": [],
+    "name": "tradeagent-postgres",
+    "owner": {
+      "email": "michaelabate819@gmail.com",
+      "id": "tea-d9dqrkr7uimc73c2e240",
+      "name": "Trade Agent",
+      "type": "team"
+    },
+    "plan": "0.5c-1g",
+    "readReplicas": [],
+    "region": "oregon",
+    "role": "primary",
+    "status": "available",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "updatedAt": "2026-09-09T16:25:58.12949Z",
+    "version": "17"
+  }
+}

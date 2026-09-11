@@ -1,0 +1,8 @@
+Error: error listing logs: received response code 503: failed to query loki: loki returned a 502 status code: <html>
+<head><title>502 Bad Gateway</title></head>
+<body>
+<center><h1>502 Bad Gateway</h1></center>
+<hr><center>nginx/1.31.2</center>
+</body>
+</html>
+: logs is currently unavailable

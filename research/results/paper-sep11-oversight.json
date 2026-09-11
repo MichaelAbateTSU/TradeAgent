@@ -1,0 +1,18 @@
+{
+  "session_id": "d889264f-50d4-4da4-be00-be99b5089546",
+  "automation_type": "same_session_once",
+  "next_run_at": "2026-09-11T13:00:00.000Z",
+  "local_time": "September 11, 2026, 09:00 America/New_York",
+  "persisted_at": "2026-09-11T01:01:19.645Z",
+  "purpose": "Independent read-only oversight of the already-armed Render worker",
+  "executor": "Existing singleton Render event worker",
+  "code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+  "cohort_id": "paper-scheduled-20260911",
+  "authority_sha256": "4bbe94c98a6dde03e658947d92fb577b3630549ed3cadd1e96a5296d9ea35e74",
+  "additional_chat_approval_required": false,
+  "observer_may_publish_or_renew_authority": false,
+  "observer_may_clear_risk_controls": false,
+  "preopen_market_readiness_is_expected_incomplete": true,
+  "followup": "After the 09:00 wake, persist same-session 09:35 oversight if not actively watching; observe the finite 10:05-10:30 operation and arrange recovery follow-up if exposure remains.",
+  "future_days_authorized": false
+}

@@ -1,0 +1,12 @@
+{
+  "session_id": "7b922299-817c-5655-98e8-261bf947a1cb",
+  "nonce": "a7123df5-5f2d-5908-8014-0bb5f9fd1524",
+  "request_id": "f88ec4f2-18ef-5b84-bd0b-39babe1e914a",
+  "operator_cohort_id": "operator-paper-f88ec4f218ef5b84bd0b39babe1e914a",
+  "host_cohort_id": "paper-scheduled-20260911",
+  "approved_at": "2026-09-10T17:53:44.767-04:00",
+  "session_date": "2026-09-11",
+  "not_before": "2026-09-11T10:05:00-04:00",
+  "entry_deadline": "2026-09-11T10:30:00-04:00",
+  "state": "identifiers_reserved_locally_only_not_published_authority"
+}

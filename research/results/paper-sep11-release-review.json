@@ -1,0 +1,38 @@
+{
+  "reviewed_code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+  "reviewed_against": "74dd9d1bfd4b52d7468c8dc45895396155edea2d",
+  "initial_candidate": "71f248306e00d2d4aed2357b1bd42a80d9615545",
+  "initial_review_passed": false,
+  "initial_findings": [
+    {
+      "severity": "high",
+      "finding": "Synchronous full source collection delayed protection of existing operator exposure.",
+      "reproduced_delay_seconds": 60,
+      "resolution": "Recovery-first supervision selects unsettled durable OMS orders/inventory and bypasses full source ingestion while execution remains active."
+    },
+    {
+      "severity": "medium",
+      "finding": "Readiness continuity checked collection start instead of its completed observation timestamp.",
+      "reproduced_accepted_gap_seconds": 120,
+      "maximum_approved_gap_seconds": 90,
+      "resolution": "Completed observation gaps above 90 seconds discard the previous interval and physical proof chain before authority can be issued."
+    }
+  ],
+  "corrected_independent_review": {
+    "agent_id": "19862ff5-f706-4cc9-b471-b5abb3ea799e",
+    "verdict": "No significant issues found in the reviewed changes."
+  },
+  "corrected_validation": {
+    "tests_passed": 1237,
+    "tests_skipped": 2,
+    "coverage_percent": 87.49,
+    "ruff": "passed",
+    "format_files_checked": 213,
+    "mypy_source_files_checked": 95,
+    "mypy": "passed"
+  },
+  "nightly_resources_verified_by_this_record": false,
+  "morning_market_readiness_verified_by_this_record": false,
+  "authority_published_by_this_record": false,
+  "orders_submitted_by_this_record": 0
+}

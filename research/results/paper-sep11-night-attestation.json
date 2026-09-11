@@ -1,0 +1,91 @@
+{
+  "kind": "reviewed_nightly_resource_deployment_attestation",
+  "at": "2026-09-11T00:58:28.358091+00:00",
+  "code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+  "cohort_id": "paper-scheduled-20260911",
+  "config_hash": "0ea47bb4a8239deacb550b496f2edfa849324bea269e1dccf805042b22eee8d1",
+  "owner": "srv-dae4tr7qj5pc73a9e0k0-58dd55b49f-v4k4t",
+  "observation_started_at": "2026-09-11T00:23:29.854774+00:00",
+  "observation_finished_at": "2026-09-11T00:53:32.437900+00:00",
+  "duration_seconds": 1802.583126,
+  "http_requests": 2380,
+  "http_errors": 0,
+  "memory": [
+    {
+      "resource": "srv-dadoa3740ujc73cb09c0",
+      "samples": 31,
+      "peak_mib": 153.30859184265137
+    },
+    {
+      "resource": "srv-dadnn6mq1p3s73ef7ef0",
+      "samples": 31,
+      "peak_mib": 197.109375
+    },
+    {
+      "resource": "dpg-dadn7nht0dsc73f9jja0-a",
+      "samples": 31,
+      "peak_mib": 440.87890625
+    },
+    {
+      "resource": "srv-dadn8son74is73apqcc0",
+      "samples": 31,
+      "peak_mib": 131.74219131469727
+    },
+    {
+      "resource": "srv-dae4tr7qj5pc73a9e0k0",
+      "samples": 31,
+      "peak_mib": 184.35155868530273
+    }
+  ],
+  "database_profile": "pg-1gb-v1",
+  "nightly_resources_passed": true,
+  "full_market_acceptance_passed": false,
+  "raw_acceptance_failures": [
+    "recorder:committed_exchange_time_not_advancing",
+    "recorder:market_bars_not_advancing",
+    "recorder:market_quotes_not_advancing",
+    "recorder:market_trades_not_advancing",
+    "recorder:unhealthy_or_dropped_packets",
+    "tradeagent-shadow-market-feed:stale_or_unhealthy",
+    "tradeagent-shadow-recorder:stale_or_unhealthy"
+  ],
+  "closed_market_limitations": "No advancing exchange quotes/trades/bars; recorder reports degraded and derived frames stale. These failures remain failures of live-market acceptance, not passing market proof. Raw persistence is drained, loss/error-free and current owners renew their leases. Transport reports subscribed; this is not fresh exchange-delivery proof.",
+  "morning_cloud_memory_measured": false,
+  "morning_readiness_required": "The existing worker must obtain its own fresh 1800-second regular-session proof and all original source/account/risk/entry gates before delegation.",
+  "new_recorder_gaps": 0,
+  "new_recorder_drops": 0,
+  "historical_recorder_gap_count_preserved": 1,
+  "pg_log_pages": 2,
+  "pg_log_entries": 1384,
+  "pg_backend_failure_or_recovery_detected": false,
+  "prepared_cache_server_budget": 8,
+  "schema": "0013_trade_event_identity",
+  "reporting_metadata_missing": 0,
+  "report_admission_status": 429,
+  "report_success_status": 200,
+  "exact_r1_decision_ids": [
+    "34d2945870726d8b2800e63446ecf8a17cd3f970799d125fb5a23126ff7dcaa4",
+    "46f9b66d184aa66f9bced174fb81ae6777d0c1bddd4aac1a14e355e2e90bbc63",
+    "63bca6734bc5bb6284bc1f22291804f0685481a5e1cb2f6d10e664b380b513a9",
+    "8c2df4a671e6e9b9674d31c6b996523b17331ae5c149c19f1fe634e3dd927661",
+    "a48f813c133f8f8f2463de2b4b135085c2a8701fbedd0b74a0186f3c7540db10",
+    "d34c449e37aae247da9a74a9c09bf9df5b92b49763c996e982f08cad2f1b247d",
+    "d6791861c2db816c93eab230db4685358fb554c257b21d106705d98b39f1483f"
+  ],
+  "source_review_sha256": "32eb1028e107a031b5f69806a833526ff2de57b66b04fadaba8097af2ef27c68",
+  "reviewed_host_pause_unchanged_not_cleared": true,
+  "orders_submitted": 0,
+  "schedule_authority_published_by_this_record": false,
+  "evidence_files_sha256": {
+    "paper-sep11-final-identity.json": "a82be56dcae09bed7a0b503ddfdfc720195d24ccbee2c2ae9f40b592026af1fc",
+    "paper-sep11-final-resources.json": "d716ce3462a7bde20e678b8d628b38dfe220b433a9e38e7ec09ba716474a1f47",
+    "paper-sep11-source-review.json": "32eb1028e107a031b5f69806a833526ff2de57b66b04fadaba8097af2ef27c68",
+    "paper-sep11-recorder-read.json": "4cec4a7b629d96f2eeaa04a9c152c04ad6d9f22a78d665d098d14a308937eed2",
+    "paper-sep11-night-pg-summary.json": "a20af6a23ea74bbea1fdd956867da930a908498b5d6a3d4105a1b87ccd9c6dde",
+    "paper-sep11-report.json": "2fd40408ec7a0fb3f7e152a4209fe26bdc05743fe610b07e9431a68de2cfd00f",
+    "paper-sep11-baseline-import.json": "700a87b84f80894b7f500184d107750923da87adfd7c219c9f8ba9c3e145f614",
+    "paper-sep11-release-review.json": "f07b9782a4478461c7be650961c78571d7063e4338e85787a0b0a36d84484fd6"
+  },
+  "raw_soak_uncompressed_sha256": "5732bce37daee99782aca61fa9da4caa9b66e97f5a59b5865ce5e09cf9c998b8",
+  "raw_soak_archive": "paper-sep11-night-soak.json.gz"
+}

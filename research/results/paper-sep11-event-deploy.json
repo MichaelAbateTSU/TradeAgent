@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "createdAt": "2026-09-11T00:06:47Z",
+    "id": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+    "message": "Keep scheduled paper protection independent of source polling\n\nRecheck completed observation continuity before extending readiness or delegating. Preserve the initial review failures and add timing regressions.\n\nCo-authored-by: Copilot App \u003c223556219+Copilot@users.noreply.github.com\u003e"
+  },
+  "createdAt": "2026-09-11T00:14:21.104825Z",
+  "id": "dep-dahkfn942hec73992ckg",
+  "startedAt": "2026-09-11T00:14:21.103312Z",
+  "status": "build_in_progress",
+  "trigger": "api",
+  "updatedAt": "2026-09-11T00:14:21.104825Z"
+}

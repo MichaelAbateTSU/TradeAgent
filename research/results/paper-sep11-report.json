@@ -1,0 +1,24 @@
+{
+  "job_id": "job-dahkk0jm8hqs73c6bvig",
+  "status": "succeeded",
+  "results": [
+    {
+      "at": "2026-09-11T00:23:46.688765+00:00",
+      "busy_seconds": 0.09812373295426369,
+      "busy_status": 429,
+      "code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+      "email_enqueued": false,
+      "full_report_generated": true,
+      "light_sections": {
+        "/api/status": 200,
+        "/health": 200,
+        "/ready": 200
+      },
+      "read_only": true,
+      "report_bytes": 190182,
+      "report_seconds": 0.3064429161604494,
+      "report_status": 200,
+      "session_state": "NOT_STARTED"
+    }
+  ]
+}
