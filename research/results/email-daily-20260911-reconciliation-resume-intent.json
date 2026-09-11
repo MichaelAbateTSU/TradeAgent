@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-11 17:18:46.651289+00:00",
+  "existing_reviewed_deployment": {
+    "id": "dep-dai3d97n948s73dvu12g",
+    "commit": {
+      "id": "282f0d91079425f6f5760706a8f8810bd07f65da",
+      "message": "Wait for a safe notifier delivery-lease handoff\n\nAllow the daily-only command to wait without dispatching or altering the current owner's heartbeat. Keep a notifier-only maintenance lease during the suspended Render service transition, and use the injected clock consistently for lease acquisition.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+      "createdAt": "2026-09-11T17:11:09Z"
+    },
+    "status": "update_in_progress",
+    "trigger": "api",
+    "createdAt": "2026-09-11T17:13:09.352968Z",
+    "updatedAt": "2026-09-11T17:15:52.476926Z",
+    "startedAt": "2026-09-11T17:13:09.549154Z"
+  },
+  "guard_job": "job-dai3d0m743jc73dntsug",
+  "guard_lease": {
+    "lock_name": "tradeagent-notifier",
+    "present": true,
+    "owner_id": "email-daily-maintenance-20260911",
+    "renewed_at": "2026-09-11T17:18:43.610299+00:00",
+    "age_seconds": 2.205256,
+    "owner_matches_heartbeat": false,
+    "recent_within_120_seconds": true,
+    "basis": "observation only; actual takeover thresholds are role-configured"
+  },
+  "reason": "Suspension prevents the built image from completing activation",
+  "no_repeated_deploy_submission": true
+}

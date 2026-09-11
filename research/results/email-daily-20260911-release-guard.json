@@ -1,0 +1,18 @@
+{
+  "job_id": "job-dai3i7hijrss738hf5eg",
+  "status": "succeeded",
+  "results": [
+    {
+      "audit_id": "f9381668-3187-4c84-8ec9-8be8d85a0ca2",
+      "old_instance_grace_elapsed": true,
+      "owner": "email-daily-maintenance-20260911",
+      "provider_called": false,
+      "released_at": "2026-09-11T17:24:00.606474+00:00",
+      "state": "release_authorized",
+      "trading_lease_changed": false,
+      "verified_deployment": "dep-dai3ftrm8hqs738kdtmg",
+      "verified_live_at": "2026-09-11T17:20:34.259858+00:00",
+      "verified_new_sha": "282f0d91079425f6f5760706a8f8810bd07f65da"
+    }
+  ]
+}

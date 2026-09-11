@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-11 17:13:07.533955+00:00",
+  "service": "srv-dadnn6mq1p3s73ef7ef0",
+  "guard_job": "job-dai3d0m743jc73dntsug",
+  "guard_owner": "email-daily-maintenance-20260911",
+  "new_sha": "282f0d91079425f6f5760706a8f8810bd07f65da",
+  "old_sender_cannot_acquire_delivery_lease": true
+}

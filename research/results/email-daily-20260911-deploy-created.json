@@ -1,0 +1,6 @@
+{
+  "status": 400,
+  "body": {
+    "message": "cannot deploy suspended service"
+  }
+}

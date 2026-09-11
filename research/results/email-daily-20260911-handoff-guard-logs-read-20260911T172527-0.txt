@@ -1,0 +1,2449 @@
+{
+  "id": "64bf562d-1680-4b83-aafe-37210c79a5da",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "\u001b[32m\u001b[1m==\u003e\u001b(B\u001b[m \u001b[1mRunning 'python -u -c \"import base64;exec(base64.b64decode('CmRlZiBlbWl0KHZhbHVlKToKICAgIGltcG9ydCBiYXNlNjQsIGd6aXAsIGhhc2hsaWIsIGpzb24KICAgIHJhdyA9IGpzb24uZHVtcHModmFsdWUsIGRlZmF1bHQ9c3RyLCBzb3J0X2tleXM9VHJ1ZSkuZW5jb2RlKCkKICAgIGVuY29kZWQgPSBiYXNlNjQuYjY0ZW5jb2RlKGd6aXAuY29tcHJlc3MocmF3LCBtdGltZT0wKSkuZGVjb2RlKCkKICAgIHBhcnRzID0gW2VuY29kZWRbaTppKzYwMDBdIGZvciBpIGluIHJhbmdlKDAsIGxlbihlbmNvZGVkKSwgNjAwMCldCiAgICBmb3IgaW5kZXgsIHBhcnQgaW4gZW51bWVyYXRlKHBhcnRzKToKICAgICAgICBwcmludCgiU0VQMTFfQ0hVTksgIiArIGpzb24uZHVtcHMoeyJpbmRleCI6IGluZGV4LCAidG90YWwiOiBsZW4ocGFydHMpLAogICAgICAgICAgICAic2hhMjU2IjogaGFzaGxpYi5zaGEyNTYocmF3KS5oZXhkaWdlc3QoKSwgImRhdGEiOiBwYXJ0fSksIGZsdXNoPVRydWUpCmltcG9ydCBiYXNlNjQsIGpzb24KSk9CX0lOUFVUID0ganNvbi5sb2FkcyhiYXNlNjQuYjY0ZGVjb2RlKCdleUp2YkdSZmMyaGhJam9nSW1ObVl6QmpNamMxWTJOaU56aGxNekpsTURSbU9UZzBORGxsTlRoalpqUXdZMlEwTkRrMU5ESWlMQ0FpYm1WM1gzTm9ZU0k2SUNJeU9ESm1NR1E1TVRBM09UUXlOV1kyWmpVM05qQTNNRFpoT0dZNE9ERXdZbVF3TjJZMk5XUmhJaXdnSW05M2JtVnlJam9nSW1WdFlXbHNMV1JoYVd4NUxXMWhhVzUwWlc1aGJtTmxMVEl3TWpZd09URXhJaXdnSW5KbGJHVmhjMlZmYTJWNUlqb2dJbVZ0WVdsc0xXUmhhV3g1TFhSeVlXNXphWFJwYjI0Nk1qQXlOakE1TVRFNmNtVnNaV0Z6WlNKOScpKQoiIiJIb2xkIG9ubHkgdGhlIG5hdHVyYWxseSBleHBpcmVkIGVtYWlsIGxlYXNlIGR1cmluZyB0aGUgc3VzcGVuZGVkLXNlcnZpY2Ugcm9sbG91dC4iIiINCg0KaW1wb3J0IGpzb24NCmltcG9ydCBvcw0KaW1wb3J0IHRpbWUNCmZyb20gZGF0ZXRpbWUgaW1wb3J0IFVUQywgZGF0ZXRpbWUNCg0KZnJvbSBzcWxhbGNoZW15IGltcG9ydCBzZWxlY3QNCg0KZnJvbSB0cmFkZWFnZW50LmNvbmZpZyBpbXBvcnQgQXBwQ29uZmlnDQpmcm9tIHRyYWRlYWdlbnQucGVyc2lzdGVuY2UgaW1wb3J0IERhdGFiYXNlLCBQcm9kdWN0aW9uUmVwb3NpdG9yeSwgd29ya2VyX2xvY2tzDQoNCmFzc2VydCBvcy5lbnZpcm9uWyJSRU5ERVJfR0lUX0NPTU1JVCJdID09IEpPQl9JTlBVVFsib2xkX3NoYSJdDQpvd25lciA9IEpPQl9JTlBVVFsib3duZXIiXQ0KcmVsZWFzZV9rZXkgPSBKT0JfSU5QVVRbInJlbGVhc2Vfa2V5Il0NCnN0YXJ0ZWQgPSBkYXRldGltZS5ub3coVVRDKQ0Kd2l0aCBEYXRhYmFzZShBcHBDb25maWcoKS5kYXRhYmFzZV91cmwuZ2V0X3NlY3JldF92YWx1ZSgpLCBwb29sX3NpemU9MSkgYXMgZGF0YWJhc2U6DQogICAgcmVwb3NpdG9yeSA9IFByb2R1Y3Rpb25SZXBvc2l0b3J5KGRhdGFiYXNlKQ0KICAgIHdpdGggZGF0YWJhc2UuYmVnaW4oKSBhcyBjb25uZWN0aW9uOg0KICAgICAgICBiZWZvcmUgPSBjb25uZWN0aW9uLmV4ZWN1dGUoDQogICAgICAgICAgICBzZWxlY3Qod29ya2VyX2xvY2tzKS53aGVyZSh3b3JrZXJfbG9ja3MuYy5sb2NrX25hbWUgPT0gInRyYWRlYWdlbnQtbm90aWZpZXIiKQ0KICAgICAgICApLm1hcHBpbmdzKCkub25lX29yX25vbmUoKQ0KICAgIGlmIGJlZm9yZSBpcyBub3QgTm9uZToNCiAgICAgICAgYXNzZXJ0IChzdGFydGVkIC0gYmVmb3JlWyJhY3F1aXJlZF9hdCJdKS50b3RhbF9zZWNvbmRzKCkgPiAxMjANCiAgICBhc3NlcnQgcmVwb3NpdG9yeS5nZXRfY29udHJvbChyZWxlYXNlX2tleSkgaXMgTm9uZSwgIlJlbGVhc2UgaXMgc2luZ2xlLXVzZSINCiAgICBhc3NlcnQgcmVwb3NpdG9yeS5hY3F1aXJlX3dvcmtlcl9sb2NrKCJ0cmFkZWFnZW50LW5vdGlmaWVyIiwgb3duZXIsIG9ic2VydmVkX2F0PXN0YXJ0ZWQpDQogICAgZXZpZGVuY2UgPSB7DQogICAgICAgICJzdGF0ZSI6ICJob2xkaW5nX2RlbGl2ZXJ5X2xlYXNlIiwNCiAgICAgICAgIm93bmVyIjogb3duZXIsDQogICAgICAgICJzdGFydGVkX2F0Ijogc3RhcnRlZC5pc29mb3JtYXQoKSwNCiAgICAgICAgIm9sZF9sZWFzZSI6IGpzb24ubG9hZHMoanNvbi5kdW1wcyhkaWN0KGJlZm9yZSksIGRlZmF1bHQ9c3RyKSkgaWYgYmVmb3JlIGlzIG5vdCBOb25lIGVsc2UgTm9uZSwNCiAgICAgICAgIm5ld19jb2RlX3NoYSI6IEpPQl9JTlBVVFsibmV3X3NoYSJdLA0KICAgICAgICAibm9fZGlzcGF0Y2hlcl9ub19wcm92aWRlcl9ub190cmFkaW5nX2xlYXNlIjogVHJ1ZSwNCiAgICB9DQogICAgcmVwb3NpdG9yeS5hcHBlbmRfZXZlbnQoDQogICAgICAgICJlbWFpbF9kYWlseV90cmFuc2l0aW9uX2hvbGQiLCBldmlkZW5jZSwNCiAgICAgICAgb2NjdXJyZWRfYXQ9c3RhcnRlZCwgdHJhY2VfaWQ9b3duZXIsDQogICAgKQ0KICAgIHByaW50KCJFTUFJTF9HVUFSRCAiICsganNvbi5kdW1wcyhldmlkZW5jZSwgZGVmYXVsdD1zdHIpLCBmbHVzaD1UcnVlKQ0KICAgIHdoaWxlIFRydWU6DQogICAgICAgIG5vdyA9IGRhdGV0aW1lLm5vdyhVVEMpDQogICAgICAgIGFzc2VydCByZXBvc2l0b3J5LnJlZnJlc2hfd29ya2VyX2xvY2soInRyYWRlYWdlbnQtbm90aWZpZXIiLCBvd25lciwgb2JzZXJ2ZWRfYXQ9bm93KQ0KICAgICAgICByYXcgPSByZXBvc2l0b3J5LmdldF9jb250cm9sKHJlbGVhc2Vfa2V5KQ0KICAgICAgICBpZiByYXcgaXMgbm90IE5vbmU6DQogICAgICAgICAgICByZWxlYXNlID0ganNvbi5sb2FkcyhyYXcpDQogICAgICAgICAgICBhc3NlcnQgcmVsZWFzZVsib3duZXIiXSA9PSBvd25lcg0KICAgICAgICAgICAgYXNzZXJ0IHJlbGVhc2VbInZlcmlmaWVkX25ld19zaGEiXSA9PSBKT0JfSU5QVVRbIm5ld19zaGEiXQ0KICAgICAgICAgICAgYXNzZXJ0IHJlbGVhc2VbIm9sZF9pbnN0YW5jZV9ncmFjZV9lbGFwc2VkIl0gaXMgVHJ1ZQ0KICAgICAgICAgICAgYnJlYWsNCiAgICAgICAgcHJpbnQoIkVNQUlMX0dVQVJEICIgKyBqc29uLmR1bXBzKHsib3duZXIiOiBvd25lciwgInJlZnJlc2hlZF9hdCI6IG5vdy5pc29mb3JtYXQoKX0pLA0KICAgICAgICAgICAgICBmbHVzaD1UcnVlKQ0KICAgICAgICB0aW1lLnNsZWVwKDUpDQogICAgYXNzZXJ0IHJlcG9zaXRvcnkucmVsZWFzZV93b3JrZXJfbG9jaygidHJhZGVhZ2VudC1ub3RpZmllciIsIG93bmVyKQ0KICAgIGZpbmlzaGVkID0gZGF0ZXRpbWUubm93KFVUQykNCiAgICByZXBvc2l0b3J5LmFwcGVuZF9ldmVudCgNCiAgICAgICAgImVtYWlsX2RhaWx5X3RyYW5zaXRpb25fcmVsZWFzZWQiLA0KICAgICAgICB7Im93bmVyIjogb3duZXIsICJuZXdfY29kZV9zaGEiOiBKT0JfSU5QVVRbIm5ld19zaGEiXSwgInJlbGVhc2UiOiByZWxlYXNlLA0KICAgICAgICAgInByb3ZpZGVyX2NhbGxlZCI6IEZhbHNlLCAidHJhZGluZ19sZWFzZV9jaGFuZ2VkIjogRmFsc2V9LA0KICAgICAgICBvY2N1cnJlZF9hdD1maW5pc2hlZCwgdHJhY2VfaWQ9b3duZXIsDQogICAgKQ0KICAgIGVtaXQoeyoqZXZpZGVuY2UsICJzdGF0ZSI6ICJyZWxlYXNlZCIsICJmaW5pc2hlZF9hdCI6IGZpbmlzaGVkLCAicmVsZWFzZSI6IHJlbGVhc2V9KQ0K'))\"'\u001b(B\u001b[m",
+  "timestamp": "2026-09-11T17:12:55.803644047Z"
+}{
+  "id": "f724fd07-f85a-45ae-9aca-5849f2e68415",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"state\": \"holding_delivery_lease\", \"owner\": \"email-daily-maintenance-20260911\", \"started_at\": \"2026-09-11T17:12:57.567287+00:00\", \"old_lease\": {\"lock_name\": \"tradeagent-notifier\", \"owner_id\": \"srv-dadnn6mq1p3s73ef7ef0-547554897f-rnssm\", \"acquired_at\": \"2026-09-11 15:55:08.197862+00:00\"}, \"new_code_sha\": \"282f0d91079425f6f5760706a8f8810bd07f65da\", \"no_dispatcher_no_provider_no_trading_lease\": true}",
+  "timestamp": "2026-09-11T17:12:58.120572633Z"
+}{
+  "id": "3b93c477-5542-44ba-9e6e-b46367974954",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:12:58.120479+00:00\"}",
+  "timestamp": "2026-09-11T17:12:58.126891119Z"
+}{
+  "id": "8436896d-45e3-4c85-bd10-9e57928a614e",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:03.126912+00:00\"}",
+  "timestamp": "2026-09-11T17:13:03.134111793Z"
+}{
+  "id": "989e5369-420f-4867-acf8-583d1aa4574f",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:08.134111+00:00\"}",
+  "timestamp": "2026-09-11T17:13:08.141351499Z"
+}{
+  "id": "6451b2a6-79a6-40cd-b31e-0d8e4f1f5b49",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:13.141350+00:00\"}",
+  "timestamp": "2026-09-11T17:13:13.148266789Z"
+}{
+  "id": "65eda34b-e8a8-4fc3-a901-af5b2ca0827b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:18.148163+00:00\"}",
+  "timestamp": "2026-09-11T17:13:18.157222448Z"
+}{
+  "id": "8840d079-f5a4-4af7-9f76-c38aa75bd8c0",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:23.156898+00:00\"}",
+  "timestamp": "2026-09-11T17:13:23.164638769Z"
+}{
+  "id": "8315ca00-92cc-4be0-8547-b33369617bae",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:28.164659+00:00\"}",
+  "timestamp": "2026-09-11T17:13:28.171350998Z"
+}{
+  "id": "45385556-2023-4737-8df3-16e09f55d8a2",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:33.171407+00:00\"}",
+  "timestamp": "2026-09-11T17:13:33.179542946Z"
+}{
+  "id": "e20ac53a-6b33-478b-b3f1-c39b7c5704e1",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:38.178373+00:00\"}",
+  "timestamp": "2026-09-11T17:13:38.184783019Z"
+}{
+  "id": "9132626d-2903-431b-8b0b-d82bd3d2f682",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:43.184760+00:00\"}",
+  "timestamp": "2026-09-11T17:13:43.19089748Z"
+}{
+  "id": "a26466df-8761-40ad-8152-74cfc9066ba4",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:48.190903+00:00\"}",
+  "timestamp": "2026-09-11T17:13:48.199538747Z"
+}{
+  "id": "b7f61ec6-a0fb-4eb1-b959-4d559ad6b17b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:53.199525+00:00\"}",
+  "timestamp": "2026-09-11T17:13:53.205653511Z"
+}{
+  "id": "f5516ece-b48c-416f-885e-5d5f396db503",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:13:58.205613+00:00\"}",
+  "timestamp": "2026-09-11T17:13:58.212266563Z"
+}{
+  "id": "19a4dc5b-6d5e-4570-9dff-8ae6a0228087",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:03.212264+00:00\"}",
+  "timestamp": "2026-09-11T17:14:03.218291234Z"
+}{
+  "id": "577f2c89-5baf-4a18-9275-4dd363d94c56",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:08.218320+00:00\"}",
+  "timestamp": "2026-09-11T17:14:08.226783192Z"
+}{
+  "id": "dee6a9c4-fb27-4af6-9e46-0aea94264b69",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:13.226744+00:00\"}",
+  "timestamp": "2026-09-11T17:14:13.23361671Z"
+}{
+  "id": "75df34c3-8fc1-4613-8400-0de728435a7c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:18.233611+00:00\"}",
+  "timestamp": "2026-09-11T17:14:18.241370566Z"
+}{
+  "id": "0059e02b-b52c-417a-aacb-53b197cea3cc",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:23.241355+00:00\"}",
+  "timestamp": "2026-09-11T17:14:23.248064643Z"
+}{
+  "id": "ba33dcba-4fed-411b-b733-ae64be2537fc",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:28.248077+00:00\"}",
+  "timestamp": "2026-09-11T17:14:28.254873861Z"
+}{
+  "id": "6922f0db-906a-4473-9ebf-ac6397cf0d4b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:33.254888+00:00\"}",
+  "timestamp": "2026-09-11T17:14:33.262323824Z"
+}{
+  "id": "289b244c-c289-4835-801b-f3824c093587",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:38.262287+00:00\"}",
+  "timestamp": "2026-09-11T17:14:38.268351641Z"
+}{
+  "id": "91c6aca2-675a-4d03-ac12-aa96d4fd24d7",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:43.268348+00:00\"}",
+  "timestamp": "2026-09-11T17:14:43.276086111Z"
+}{
+  "id": "c8b22dae-d6d7-473f-9846-2b9291a21798",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:48.276118+00:00\"}",
+  "timestamp": "2026-09-11T17:14:48.282611589Z"
+}{
+  "id": "ba5b5d86-a5ac-4684-b0cc-fc316f5897dc",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:53.282594+00:00\"}",
+  "timestamp": "2026-09-11T17:14:53.288842152Z"
+}{
+  "id": "14e9e319-6351-4dc8-a0d1-a14429cad668",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:14:58.288868+00:00\"}",
+  "timestamp": "2026-09-11T17:14:58.294975594Z"
+}{
+  "id": "9e7aa2ef-e1df-4154-830e-97ccb82015af",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:03.294979+00:00\"}",
+  "timestamp": "2026-09-11T17:15:03.301127207Z"
+}{
+  "id": "a2e2b7f1-0115-4bc2-9841-dc1eca05331b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:08.301179+00:00\"}",
+  "timestamp": "2026-09-11T17:15:08.307383273Z"
+}{
+  "id": "bfb51b20-c336-4eae-8c00-00d67ee09c4b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:13.307402+00:00\"}",
+  "timestamp": "2026-09-11T17:15:13.31525317Z"
+}{
+  "id": "895667fa-5eec-409d-869b-86b9d35bfe78",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:18.315256+00:00\"}",
+  "timestamp": "2026-09-11T17:15:18.321411056Z"
+}{
+  "id": "aa621340-265a-448e-aa22-a46dda54fe67",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:23.321414+00:00\"}",
+  "timestamp": "2026-09-11T17:15:23.328801417Z"
+}{
+  "id": "4cc00b17-3745-4262-b705-f0e90e4f1ff8",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:28.328835+00:00\"}",
+  "timestamp": "2026-09-11T17:15:28.338799124Z"
+}{
+  "id": "ba9dd9a1-247b-4382-80bb-ab09b85e79b3",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:33.338771+00:00\"}",
+  "timestamp": "2026-09-11T17:15:33.347232594Z"
+}{
+  "id": "1e555cde-370b-4106-b899-602ff975317c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:38.347193+00:00\"}",
+  "timestamp": "2026-09-11T17:15:38.354717717Z"
+}{
+  "id": "98c18b33-a8f9-48be-b62f-18dc680b98b7",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:43.354733+00:00\"}",
+  "timestamp": "2026-09-11T17:15:43.361233714Z"
+}{
+  "id": "1cc7e323-6288-40fd-9a64-34de6ba5fb2d",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:48.361256+00:00\"}",
+  "timestamp": "2026-09-11T17:15:48.368545476Z"
+}{
+  "id": "50418fe7-46ac-457b-93c7-58a9b7143ee9",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:53.368511+00:00\"}",
+  "timestamp": "2026-09-11T17:15:53.375616493Z"
+}{
+  "id": "5bb7093b-ac03-43e8-b3d6-ec7229d3898d",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:15:58.375576+00:00\"}",
+  "timestamp": "2026-09-11T17:15:58.387361818Z"
+}{
+  "id": "73834e02-d5bb-4efd-8d2f-ca1fe73c35fb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:03.387347+00:00\"}",
+  "timestamp": "2026-09-11T17:16:03.393684384Z"
+}{
+  "id": "222f6c21-6acb-41e6-aa11-000efd7aaf39",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:08.393679+00:00\"}",
+  "timestamp": "2026-09-11T17:16:08.400878646Z"
+}{
+  "id": "9f13e17a-6e9e-4032-af9f-d5c6ad99645e",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:13.400885+00:00\"}",
+  "timestamp": "2026-09-11T17:16:13.407207473Z"
+}{
+  "id": "aaa4d40e-8df6-455c-8fca-727f1670b19c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:18.407177+00:00\"}",
+  "timestamp": "2026-09-11T17:16:18.41342349Z"
+}{
+  "id": "0e4ab335-7a00-49b2-8dfc-a96b0614cbc7",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:23.413421+00:00\"}",
+  "timestamp": "2026-09-11T17:16:23.419443493Z"
+}{
+  "id": "cd109985-a0cd-45a8-ad5d-e880cb52a0ea",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:28.419464+00:00\"}",
+  "timestamp": "2026-09-11T17:16:28.425934646Z"
+}{
+  "id": "3295b941-dc25-4b0e-94b7-050be4074a86",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:33.425937+00:00\"}",
+  "timestamp": "2026-09-11T17:16:33.432805185Z"
+}{
+  "id": "68c2bf2a-b313-4620-ac06-b0f764774e73",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:38.432845+00:00\"}",
+  "timestamp": "2026-09-11T17:16:38.442372756Z"
+}{
+  "id": "8f905c25-3521-4ef0-93fb-cd7005c6b253",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:43.442379+00:00\"}",
+  "timestamp": "2026-09-11T17:16:43.448988484Z"
+}{
+  "id": "c3eeb34c-7edf-4f7d-9543-f88bc713102b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:48.449016+00:00\"}",
+  "timestamp": "2026-09-11T17:16:48.454899908Z"
+}{
+  "id": "4e367a98-fb1a-4aaa-9669-808462c5fedd",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:53.454883+00:00\"}",
+  "timestamp": "2026-09-11T17:16:53.461551648Z"
+}{
+  "id": "d1925d75-79b3-4f9c-9de8-0ba22d4e76eb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:16:58.461575+00:00\"}",
+  "timestamp": "2026-09-11T17:16:58.467427083Z"
+}{
+  "id": "709168af-2c13-41a0-b704-c9ad2632c62c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:03.467425+00:00\"}",
+  "timestamp": "2026-09-11T17:17:03.474487482Z"
+}{
+  "id": "71c123c5-f84c-45ec-8bd2-5d7cfbfed535",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:08.474498+00:00\"}",
+  "timestamp": "2026-09-11T17:17:08.480808447Z"
+}{
+  "id": "385ce0f8-889f-4d02-ad2d-2b260e218c35",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:13.483192+00:00\"}",
+  "timestamp": "2026-09-11T17:17:13.493567111Z"
+}{
+  "id": "9863f89a-5fe8-46d7-b748-e3a8f32b0952",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:18.493585+00:00\"}",
+  "timestamp": "2026-09-11T17:17:18.499598552Z"
+}{
+  "id": "407c9089-0f09-4911-ab12-a54a9bf1227b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:23.499588+00:00\"}",
+  "timestamp": "2026-09-11T17:17:23.508085661Z"
+}{
+  "id": "7a9e48c1-df79-4372-a836-58c7295f39e5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:28.508090+00:00\"}",
+  "timestamp": "2026-09-11T17:17:28.514224546Z"
+}{
+  "id": "68ab9415-6e24-4773-8441-d5588c3031d8",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:33.514250+00:00\"}",
+  "timestamp": "2026-09-11T17:17:33.520926582Z"
+}{
+  "id": "4ae452be-42ef-47a7-afbf-0ab3d34e5ae1",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:38.520937+00:00\"}",
+  "timestamp": "2026-09-11T17:17:38.530287928Z"
+}{
+  "id": "0c86dcca-c5f7-4a83-973e-e99b73ea691a",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:43.530258+00:00\"}",
+  "timestamp": "2026-09-11T17:17:43.537193929Z"
+}{
+  "id": "0e145ef9-3f29-492c-8e8c-1d7fcbcc83ae",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:48.537179+00:00\"}",
+  "timestamp": "2026-09-11T17:17:48.543691804Z"
+}{
+  "id": "1c4e2bf0-065d-4b5a-bf89-d3889f725a78",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:53.543731+00:00\"}",
+  "timestamp": "2026-09-11T17:17:53.550061077Z"
+}{
+  "id": "06d8632e-008e-4dcd-88c2-05d1f5e0e491",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:17:58.550088+00:00\"}",
+  "timestamp": "2026-09-11T17:17:58.559453867Z"
+}{
+  "id": "b412b592-6652-40da-9357-20d14b7e6afc",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:03.559451+00:00\"}",
+  "timestamp": "2026-09-11T17:18:03.565632528Z"
+}{
+  "id": "00bd9e7e-3366-41e8-bd42-e874eace9355",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:08.565647+00:00\"}",
+  "timestamp": "2026-09-11T17:18:08.571986573Z"
+}{
+  "id": "422ab3e5-38d4-410d-a890-644a8c2e800b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:13.571963+00:00\"}",
+  "timestamp": "2026-09-11T17:18:13.578576183Z"
+}{
+  "id": "404b3c68-499f-4d37-aa0c-f1c91d1402e6",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:18.578578+00:00\"}",
+  "timestamp": "2026-09-11T17:18:18.584129005Z"
+}{
+  "id": "7b0720d6-104d-4797-84e9-4b6db5fc71a5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:23.584128+00:00\"}",
+  "timestamp": "2026-09-11T17:18:23.590426321Z"
+}{
+  "id": "308cf38c-7c83-450c-ae40-71c70a5514fd",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:28.590447+00:00\"}",
+  "timestamp": "2026-09-11T17:18:28.597171916Z"
+}{
+  "id": "d496e9cd-28c6-4393-ac70-7e5869a86b02",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:33.597298+00:00\"}",
+  "timestamp": "2026-09-11T17:18:33.60434124Z"
+}{
+  "id": "a8d49a4d-8c0b-4067-adb8-8678af533d79",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:38.604366+00:00\"}",
+  "timestamp": "2026-09-11T17:18:38.610319502Z"
+}{
+  "id": "275226ca-2ba9-40de-b61c-c1b1bd01de7d",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:43.610299+00:00\"}",
+  "timestamp": "2026-09-11T17:18:43.616218294Z"
+}{
+  "id": "03af339c-faef-4d3a-8624-5ed9c8ff3e09",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:48.616216+00:00\"}",
+  "timestamp": "2026-09-11T17:18:48.622822899Z"
+}{
+  "id": "dc4c6b2d-19df-4ba2-8763-d07fb2013b98",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:53.622814+00:00\"}",
+  "timestamp": "2026-09-11T17:18:53.62908351Z"
+}{
+  "id": "0975836b-23c2-49e3-9d02-89cf7a2254c3",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:18:58.629077+00:00\"}",
+  "timestamp": "2026-09-11T17:18:58.635549855Z"
+}{
+  "id": "e2b09d24-6b50-49ab-b95c-ebdb12c3f8b6",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:03.636183+00:00\"}",
+  "timestamp": "2026-09-11T17:19:03.643907645Z"
+}{
+  "id": "b442f353-4ad8-467b-842b-fff8a59ebde5",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:08.644064+00:00\"}",
+  "timestamp": "2026-09-11T17:19:08.65030147Z"
+}{
+  "id": "d367aa8a-8ae5-4734-89a7-325ba58290ff",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:13.650301+00:00\"}",
+  "timestamp": "2026-09-11T17:19:13.656089494Z"
+}{
+  "id": "3d6accb1-069a-4c08-98bb-37923032e6f3",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:18.656116+00:00\"}",
+  "timestamp": "2026-09-11T17:19:18.662410869Z"
+}{
+  "id": "5fe1d707-3888-4526-aa8c-dcd21e032e1c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:23.662419+00:00\"}",
+  "timestamp": "2026-09-11T17:19:23.668646103Z"
+}{
+  "id": "aaa01b5b-fb57-4783-b6a6-728c3dad801f",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:28.668677+00:00\"}",
+  "timestamp": "2026-09-11T17:19:28.674805496Z"
+}{
+  "id": "ac5f73d7-6482-478a-a597-0bb0a8c8e1c4",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:33.674790+00:00\"}",
+  "timestamp": "2026-09-11T17:19:33.681212914Z"
+}{
+  "id": "cd0b8286-af92-49af-a37d-b9ad2a4eaec4",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:38.681204+00:00\"}",
+  "timestamp": "2026-09-11T17:19:38.687230026Z"
+}{
+  "id": "e54b1bd8-6879-4618-a852-fe1523fd1469",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:43.687191+00:00\"}",
+  "timestamp": "2026-09-11T17:19:43.693626296Z"
+}{
+  "id": "72e6f0f9-9adc-4dff-84b2-ea10689f39bb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:48.693644+00:00\"}",
+  "timestamp": "2026-09-11T17:19:48.702404771Z"
+}{
+  "id": "9ef5edaa-3478-4f05-bbcc-d0e623e3c987",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:53.702419+00:00\"}",
+  "timestamp": "2026-09-11T17:19:53.708623938Z"
+}{
+  "id": "e7a3f099-13f7-4509-a1e0-55adfa30ef3b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:19:58.708610+00:00\"}",
+  "timestamp": "2026-09-11T17:19:58.714790776Z"
+}{
+  "id": "4cb8b0b1-c23e-4114-bb02-458fbcb9fb51",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:03.714805+00:00\"}",
+  "timestamp": "2026-09-11T17:20:03.721615517Z"
+}{
+  "id": "e9558099-a168-463c-9d8e-16cf23877d54",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:08.721646+00:00\"}",
+  "timestamp": "2026-09-11T17:20:08.72854557Z"
+}{
+  "id": "9245d3e2-a4fe-4cfa-a975-d33951a2b569",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:13.728557+00:00\"}",
+  "timestamp": "2026-09-11T17:20:13.735492873Z"
+}{
+  "id": "845ad6c0-273c-4d97-b2e4-2936fc03e0e2",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:18.735529+00:00\"}",
+  "timestamp": "2026-09-11T17:20:18.741821647Z"
+}{
+  "id": "51b1fba1-1b50-4bcd-83fd-3fa75c41bdd4",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:23.741807+00:00\"}",
+  "timestamp": "2026-09-11T17:20:23.74861109Z"
+}{
+  "id": "ffb4c5c9-95f0-4b94-92a4-b2b4d5d0aa19",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:28.748702+00:00\"}",
+  "timestamp": "2026-09-11T17:20:28.755696658Z"
+}{
+  "id": "ab88515b-dd81-4763-aadd-bcbae9280373",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:33.755717+00:00\"}",
+  "timestamp": "2026-09-11T17:20:33.761771809Z"
+}{
+  "id": "5b3b5e5e-3719-4791-aae2-65e819279f61",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:38.764215+00:00\"}",
+  "timestamp": "2026-09-11T17:20:38.770986088Z"
+}{
+  "id": "b4e45228-8b71-46b6-a13c-7a85e8c66e32",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:43.770959+00:00\"}",
+  "timestamp": "2026-09-11T17:20:43.779674038Z"
+}{
+  "id": "e899d4a3-c18b-442d-bfa4-543583d3b5fb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:48.779692+00:00\"}",
+  "timestamp": "2026-09-11T17:20:48.785757291Z"
+}{
+  "id": "1d0b4b31-783a-4649-8df1-76bbea722aa1",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:53.785774+00:00\"}",
+  "timestamp": "2026-09-11T17:20:53.794982773Z"
+}{
+  "id": "8649c31e-b2a8-440e-926d-2466d9d40075",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:20:58.794989+00:00\"}",
+  "timestamp": "2026-09-11T17:20:58.801430435Z"
+}{
+  "id": "6af876ce-bd09-4cc3-879c-64d0e9c65803",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:03.801458+00:00\"}",
+  "timestamp": "2026-09-11T17:21:03.807471129Z"
+}{
+  "id": "316a81e4-6e32-4d06-bdea-e89350071691",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:08.808191+00:00\"}",
+  "timestamp": "2026-09-11T17:21:08.815117724Z"
+}{
+  "id": "0b0bf08c-bd3c-4e2a-97ad-ff163af84a70",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:13.815154+00:00\"}",
+  "timestamp": "2026-09-11T17:21:13.822340742Z"
+}{
+  "id": "830acde5-24c0-43fb-9690-88ee410dd576",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:18.822369+00:00\"}",
+  "timestamp": "2026-09-11T17:21:18.829093901Z"
+}{
+  "id": "c7980f8a-1c9c-40aa-8672-34a2ee76e577",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:23.829096+00:00\"}",
+  "timestamp": "2026-09-11T17:21:23.835683698Z"
+}{
+  "id": "19a94faf-2122-4a00-8ce0-928e7bbe51eb",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:28.835706+00:00\"}",
+  "timestamp": "2026-09-11T17:21:28.841873518Z"
+}{
+  "id": "af20ebf7-c8f9-4777-9094-aca5a497d96c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:33.841870+00:00\"}",
+  "timestamp": "2026-09-11T17:21:33.84860888Z"
+}{
+  "id": "6a151c74-1c02-4a56-aa27-823c8ffac167",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:38.848663+00:00\"}",
+  "timestamp": "2026-09-11T17:21:38.856000804Z"
+}{
+  "id": "8f44366c-dca3-4960-aeaa-ba809f10d70d",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:43.855994+00:00\"}",
+  "timestamp": "2026-09-11T17:21:43.86296015Z"
+}{
+  "id": "7339ab50-1b79-4608-9339-b658de636abf",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:48.862942+00:00\"}",
+  "timestamp": "2026-09-11T17:21:48.869599002Z"
+}{
+  "id": "e2194292-17c0-4441-9f55-703d7b5e1a7a",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:53.869607+00:00\"}",
+  "timestamp": "2026-09-11T17:21:53.876070181Z"
+}{
+  "id": "b3cdb423-b879-40ba-ac92-d5e0a70166af",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:21:58.876080+00:00\"}",
+  "timestamp": "2026-09-11T17:21:58.882743644Z"
+}{
+  "id": "9750979e-8648-4920-ae4e-9f1f3b6ecca8",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:03.882749+00:00\"}",
+  "timestamp": "2026-09-11T17:22:03.889374267Z"
+}{
+  "id": "abca7113-bc00-4073-8363-27c50515bb95",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:08.889391+00:00\"}",
+  "timestamp": "2026-09-11T17:22:08.89540319Z"
+}{
+  "id": "277f0114-2c78-4bf8-88d7-a4cdc19f926c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:13.896180+00:00\"}",
+  "timestamp": "2026-09-11T17:22:13.90558115Z"
+}{
+  "id": "97c9d4ec-4e64-4fea-be1a-49f371956184",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:18.904651+00:00\"}",
+  "timestamp": "2026-09-11T17:22:18.914265443Z"
+}{
+  "id": "cafe906e-b200-4cac-a3c2-41a71aac3bc9",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:23.912508+00:00\"}",
+  "timestamp": "2026-09-11T17:22:23.9193093Z"
+}{
+  "id": "178a1a62-09e4-403d-a3eb-894bdc3dd9d7",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:28.919318+00:00\"}",
+  "timestamp": "2026-09-11T17:22:28.925958307Z"
+}{
+  "id": "38c43c34-dba3-4e5d-ba35-5d4aada76f1c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:33.925969+00:00\"}",
+  "timestamp": "2026-09-11T17:22:33.93232851Z"
+}{
+  "id": "925d5cca-1ad1-4146-a61e-1517631ebf05",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:38.932344+00:00\"}",
+  "timestamp": "2026-09-11T17:22:38.938272226Z"
+}{
+  "id": "d87bed51-da9c-43af-a725-0f12197e4d75",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:43.938273+00:00\"}",
+  "timestamp": "2026-09-11T17:22:43.944220042Z"
+}{
+  "id": "4989e0e6-cafe-42f2-91a0-13231301c832",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:48.944241+00:00\"}",
+  "timestamp": "2026-09-11T17:22:48.950529736Z"
+}{
+  "id": "d099a72a-b183-4577-a6c7-6e304360286b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:53.950540+00:00\"}",
+  "timestamp": "2026-09-11T17:22:53.956995053Z"
+}{
+  "id": "9e7ec41a-ec36-424f-957c-4bb369d2e7c0",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:22:58.957019+00:00\"}",
+  "timestamp": "2026-09-11T17:22:58.963523553Z"
+}{
+  "id": "7d9ccb8a-95df-415a-8a3f-50aba74579f6",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:03.963661+00:00\"}",
+  "timestamp": "2026-09-11T17:23:03.970542742Z"
+}{
+  "id": "008952d3-691b-4eb1-b822-4ab1ca63b20c",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:08.970555+00:00\"}",
+  "timestamp": "2026-09-11T17:23:08.977281996Z"
+}{
+  "id": "5952b7ce-3387-46da-853a-4e2c4568d0b2",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:13.977537+00:00\"}",
+  "timestamp": "2026-09-11T17:23:13.985112352Z"
+}{
+  "id": "23fafcb2-4480-418e-b92c-645eaa4e0846",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:18.985081+00:00\"}",
+  "timestamp": "2026-09-11T17:23:18.991028992Z"
+}{
+  "id": "0f1744bd-25bc-46c7-b491-6654aa448f03",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:23.991047+00:00\"}",
+  "timestamp": "2026-09-11T17:23:23.998130516Z"
+}{
+  "id": "596e69d4-0649-490c-b80c-770727f5c60b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:28.998154+00:00\"}",
+  "timestamp": "2026-09-11T17:23:29.004304953Z"
+}{
+  "id": "6a5e977d-e090-40fd-be0c-31f8e07378be",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:34.004323+00:00\"}",
+  "timestamp": "2026-09-11T17:23:34.010648995Z"
+}{
+  "id": "b5cfbf90-a316-4415-a433-9947646aef60",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:39.010681+00:00\"}",
+  "timestamp": "2026-09-11T17:23:39.017384244Z"
+}{
+  "id": "9cbbf6ed-8f80-4aea-9fba-bd5440dcce1a",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:44.017372+00:00\"}",
+  "timestamp": "2026-09-11T17:23:44.025004669Z"
+}{
+  "id": "73036763-d982-4ae9-8efc-0b2644d4129b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:49.024400+00:00\"}",
+  "timestamp": "2026-09-11T17:23:49.030932774Z"
+}{
+  "id": "64a12151-42a4-43c8-a2ae-d3af42908c7e",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:54.031168+00:00\"}",
+  "timestamp": "2026-09-11T17:23:54.039222444Z"
+}{
+  "id": "a3414ede-b523-49b7-a482-1a04be65ea5b",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "EMAIL_GUARD {\"owner\": \"email-daily-maintenance-20260911\", \"refreshed_at\": \"2026-09-11T17:23:59.038397+00:00\"}",
+  "timestamp": "2026-09-11T17:23:59.046326582Z"
+}{
+  "id": "96b5fc14-b541-4137-8927-b94187543450",
+  "labels": [
+    {
+      "name": "resource",
+      "value": "job-dai3d0m743jc73dntsug"
+    },
+    {
+      "name": "level",
+      "value": "info"
+    },
+    {
+      "name": "type",
+      "value": "app"
+    }
+  ],
+  "message": "SEP11_CHUNK {\"index\": 0, \"total\": 1, \"sha256\": \"928c2fd981b1a477b7f90fe0b768acca82fbf5ad9b3dab99851cf1009e963312\", \"data\": \"H4sIAAAAAAAC/5VS227kIAz9lRGvu4lMJlyS7+g7YoNJUAnJAJ2qqvrvC7PbSavtPvQF2cjn+PjYr8S64NKCRulMxhPpoOMNDA2lJyrGrh+hb4FxTuEHwAhAfp5IwGc1bQZVWvQNIzsLZqAghr5jllsmOAjgWlopKfwyICxnRt+wmzIu7TpPC0ZVsj1uV2f+xDlq48KsPOqEhTnHJyyYzZv71yvR0+XJxS8Fs5GxEWRLByF5dwj22/Sogl4rAalNUM8YchO27KzDWGu251BEOFNLUrw2RpsQ+Hqh+zmJM1qBFhrWC8Z6OQjbxJDSSt7ekRWGq3a+AJ1/aUoYMgYdJmyqRBgorW0iHpPUuVxIuRapOeryotd7QvNh9u+Q372ctPc3Fqt9wqPtv6Y9/N0ytBx4L/rDtE/LUNOiw/yJ8oqxmmeUwd1vL2sxtFKXrKo82xxXuVyKd/LR5HUmHyHeXfFrKTCe+7Zjg2TykHLH1cv77tHVFRWPY/7P9LQbmWgZF50UR8uCyLdzeXeOvP0GUqRNTiwDAAA=\"}",
+  "timestamp": "2026-09-11T17:24:04.068473658Z"
+}

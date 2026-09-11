@@ -57,7 +57,49 @@ restore per-trade delivery.
 
 ## Deployment status
 
-The notifier was intentionally suspended while this change was implemented,
-to prevent another unwanted digest during the transition. Trading continued.
-Final deployment, observed policy state and the actual five-paragraph preview
-will be recorded here. No out-of-schedule test email is authorized.
+The change is deployed to the existing Render notifier:
+
+- Reviewed code: `282f0d91079425f6f5760706a8f8810bd07f65da`.
+- Service: `srv-dadnn6mq1p3s73ef7ef0`.
+- Deployment: `dep-dai3ftrm8hqs738kdtmg`, observed live at 13:20 Eastern
+  on September 11, 2026.
+- Command: `tradeagent notifier-daily`.
+- Observed sender: `srv-dadnn6mq1p3s73ef7ef0-858b98d886-zqx8z`, with a
+  fresh matching delivery lease after the maintenance job finished.
+- Actual settings: enabled, `America/New_York`, hour `18`, minute `0`.
+
+The initial suspended deploy returned HTTP 400. A later deployment response
+could not be decoded as JSON and required read-only reconciliation; the controller suspended the sender again
+rather than assume success. Render-created resume deployments and the original
+failed observations are retained in the evidence. The final transition kept
+the notifier-only maintenance lease throughout activation and the old-image
+shutdown grace period. The maintenance and release jobs completed without
+calling an email provider or changing trading ownership.
+
+Actual outbox comparison preserved all **27 already-accepted messages**
+unchanged, including their payload hashes, provider IDs and attempts. The
+**three queued digests** became `suppressed` without changing their original
+payloads or adding delivery attempts. No out-of-schedule test email was sent.
+The existing trading worker then generated its real 13:30 digest. A 13:31
+read-only observation found that new record suppressed too, with zero attempts
+and no provider acceptance ID. The total accepted-message count stayed 27.
+
+The new-image preview contains **five paragraphs and 314 words**. It uses real
+recorded activity and explicitly labels pending trading costs. This is a
+before-18:00 preview, not an email delivery or a full-day profitability claim.
+The scheduled September 11 daily identity is
+`ba7bf7bc-a632-5ed8-a500-f8b643c8efdf`; its eventual provider acceptance must
+be observed separately and must never be inferred from a preview.
+A same-session read-only check is scheduled for 18:05 Eastern to inspect the
+normal daily sender's result; that check is not authorized to send another
+email or replay an accepted message.
+
+The event worker remains on
+`211347c82b2f4b04aa0dd22e042dfa3eae434ee1`. Recorder and dashboard deployments,
+resource plans, instance counts, environment fingerprint, recipient and
+provider were unchanged. PostgreSQL remains on schema `0014_scalping_runtime`.
+
+Evidence is under `research/results/email-daily-20260911-*`, including the
+original suspension, outbox before/after reads, guarded deployment, final
+resource state and actual preview. The normal notifier, not a chat-side order
+or email job, owns the daily send.

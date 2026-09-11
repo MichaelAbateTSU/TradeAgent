@@ -1,0 +1,40 @@
+{
+  "at": "2026-09-11 17:13:08.936073+00:00",
+  "error": "Expecting value: line 1 column 1 (char 0)",
+  "samples": [
+    {
+      "observed_at": "2026-09-11T17:13:07.533888+00:00",
+      "maintenance_job_status": "running",
+      "maintenance_lease": {
+        "lock_name": "tradeagent-notifier",
+        "present": true,
+        "owner_id": "email-daily-maintenance-20260911",
+        "renewed_at": "2026-09-11T17:13:03.126912+00:00",
+        "age_seconds": 4.286226,
+        "owner_matches_heartbeat": false,
+        "recent_within_120_seconds": true,
+        "basis": "observation only; actual takeover thresholds are role-configured"
+      },
+      "event_owner": "srv-dae4tr7qj5pc73a9e0k0-7cd574cbb5-lz6d7",
+      "event_code": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+      "event_fresh": true
+    },
+    {
+      "observed_at": "2026-09-11T17:13:08.512717+00:00",
+      "maintenance_job_status": "running",
+      "maintenance_lease": {
+        "lock_name": "tradeagent-notifier",
+        "present": true,
+        "owner_id": "email-daily-maintenance-20260911",
+        "renewed_at": "2026-09-11T17:13:08.134111+00:00",
+        "age_seconds": 0.326209,
+        "owner_matches_heartbeat": false,
+        "recent_within_120_seconds": true,
+        "basis": "observation only; actual takeover thresholds are role-configured"
+      },
+      "event_owner": "srv-dae4tr7qj5pc73a9e0k0-7cd574cbb5-lz6d7",
+      "event_code": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+      "event_fresh": true
+    }
+  ]
+}

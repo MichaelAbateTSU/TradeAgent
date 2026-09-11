@@ -1,0 +1,11 @@
+{
+  "at": "2026-09-11 17:05:16.082252+00:00",
+  "service": "srv-dadnn6mq1p3s73ef7ef0",
+  "body": {
+    "serviceDetails": {
+      "envSpecificDetails": {
+        "startCommand": "tradeagent notifier-daily"
+      }
+    }
+  }
+}

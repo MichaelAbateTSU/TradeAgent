@@ -1,0 +1,9 @@
+Here is your paper-trading summary for Friday, September 11. This update covers the reporting day from Thursday at 6:00 PM to Friday at 1:25 PM, including overnight activity. The agent completed 55 trades, meaning positions that were bought and then sold. These were paper trades, so no real investment money was used.
+
+Trading activity was spread across Bitcoin (41 completed trades), Ether (14 completed trades). Momentum entries looked for short bursts of upward price and buying pressure, rather than making long-term investments. Some entries instead looked for a brief recovery after a pullback. Another 127 entry attempts ended without a fill, so they did not become completed positions. The individual order numbers and technical logs stay in the dashboard, not this email.
+
+The conservative estimate for the completed trades is a loss of $27.96 after estimated trading costs. Costs for 55 trades still need to be fully matched to their records, so the exact final net result is not confirmed. This estimate is neither guaranteed profit nor the value of positions still open.
+
+Using the current cost estimates, 0 trades finished ahead, 55 finished behind and 0 were approximately unchanged. The average completed position was held for 12.0 seconds, and the longest lasted 7.1 minutes. Small price moves can be outweighed by fees and the difference between buying and selling prices, so the number of winning trades alone is not enough to judge success.
+
+The current position and order status is unavailable or stale, so I cannot confirm present positions from this report. The trade totals above are recorded outcomes, not a substitute for a fresh account update. The broker delayed 5 requests during the period; those interruptions can make entries or exits take longer than intended. Trading records continue to be kept automatically. Your next email will be the next daily summary at 6 p.m. Eastern, rather than an email for each trade.

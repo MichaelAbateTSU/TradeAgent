@@ -1,0 +1,29 @@
+{
+  "job_id": "job-dai3d0m743jc73dntsug",
+  "status": "succeeded",
+  "results": [
+    {
+      "finished_at": "2026-09-11 17:24:04.056610+00:00",
+      "new_code_sha": "282f0d91079425f6f5760706a8f8810bd07f65da",
+      "no_dispatcher_no_provider_no_trading_lease": true,
+      "old_lease": {
+        "acquired_at": "2026-09-11 15:55:08.197862+00:00",
+        "lock_name": "tradeagent-notifier",
+        "owner_id": "srv-dadnn6mq1p3s73ef7ef0-547554897f-rnssm"
+      },
+      "owner": "email-daily-maintenance-20260911",
+      "release": {
+        "old_instance_grace_elapsed": true,
+        "owner": "email-daily-maintenance-20260911",
+        "provider_called": false,
+        "released_at": "2026-09-11T17:24:00.606474+00:00",
+        "trading_lease_changed": false,
+        "verified_deployment": "dep-dai3ftrm8hqs738kdtmg",
+        "verified_live_at": "2026-09-11T17:20:34.259858+00:00",
+        "verified_new_sha": "282f0d91079425f6f5760706a8f8810bd07f65da"
+      },
+      "started_at": "2026-09-11T17:12:57.567287+00:00",
+      "state": "released"
+    }
+  ]
+}
