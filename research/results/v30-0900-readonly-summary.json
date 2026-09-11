@@ -1,0 +1,77 @@
+{
+  "scope": "September11 09ET strictly read-only oversight",
+  "observed_at": "2026-09-11T13:08:40.341439+00:00",
+  "broker_observed_at": "2026-09-11T13:08:42.236290+00:00",
+  "deployed_code_sha": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+  "cohort_id": "v30-paper-scalper-20260911",
+  "config_hash": "c5652d4939cfc1072f1725866c6c6d7f746503e2cfc52d9414f5c39edd12302d",
+  "state": "operator_stopped",
+  "owner": "srv-dae4tr7qj5pc73a9e0k0-756df49c96-khf2f",
+  "maintenance_entry_stop": true,
+  "broker": {
+    "account_blocked": false,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "at": "2026-09-11T13:08:42.236290+00:00",
+    "cash": "99995.33",
+    "open_orders": [],
+    "positions": [],
+    "status": "ACTIVE",
+    "trading_blocked": false
+  },
+  "cycle_counts": {
+    "closed_owned_flat": 11,
+    "no_fill": 24
+  },
+  "completed_round_trips": 11,
+  "gross_cash_flow": "-1.822114911887358160",
+  "modeled_net_pnl": "-4.622181484248164765",
+  "fees_pending_cycles": 11,
+  "final_actual_strategy_net_pnl_known": false,
+  "unresolved_orders": 0,
+  "unresolved_ownership": 0,
+  "legacy_cohort_hashes_unchanged": true,
+  "old_schedule_revoked": {
+    "broker_orders_submitted": 0,
+    "original_authority_sha256": "4bbe94c98a6dde03e658947d92fb577b3630549ed3cadd1e96a5296d9ea35e74",
+    "owner_request_at": "2026-09-11T02:18:28.634-04:00",
+    "reason": "Owner superseded the single dated AAPL demonstration with v30 autonomous paper scalping.",
+    "replacement_cohort": "v30-paper-scalper-20260911",
+    "replacement_deployed_by_this_job": false,
+    "replacement_observed_live": true,
+    "replacement_profile": "v30-paper-unrestricted",
+    "reviewed_replacement_code_sha": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+    "revoked_at": "2026-09-11T12:10:35.499689+00:00"
+  },
+  "reporting_metadata_missing": 0,
+  "broker_backoff_audits": 5,
+  "orders_submitted_by_this_check": 0,
+  "emails_enqueued_by_this_check": 0,
+  "policy_or_configuration_changes_by_this_check": false,
+  "latest_digest": [
+    {
+      "attempts": 1,
+      "notification_id": "5db50736-8a57-5a1c-a248-4c453989fd11",
+      "provider_message_id": "11d627b3-45e9-4b3f-b451-147cabc4f0b3",
+      "sent_at": "2026-09-11 13:00:08.501847+00:00",
+      "status": "sent",
+      "subject": "[TradeAgent PAPER v30] Scalping digest - 2026-09-11T13:00:05.147723+00:00"
+    },
+    {
+      "attempts": 1,
+      "notification_id": "451c600a-df45-5a5b-9e12-1860464c9dcd",
+      "provider_message_id": "beb02584-38fa-4b84-8cdf-18c52580cd13",
+      "sent_at": "2026-09-11 12:30:04.608033+00:00",
+      "status": "sent",
+      "subject": "[TradeAgent PAPER v30] Scalping digest - 2026-09-11T12:30:03.471010+00:00"
+    },
+    {
+      "attempts": 1,
+      "notification_id": "c5e09693-f346-5768-9bfb-ae95934581e2",
+      "provider_message_id": "d912a284-72a9-4387-aedf-47f22449b09f",
+      "sent_at": "2026-09-11 12:11:27.805030+00:00",
+      "status": "sent",
+      "subject": "[TradeAgent PAPER v30] Autonomous scalper started"
+    }
+  ],
+  "implementation_status": "Separate production-corrective work remains in progress; latest local candidate is not deployed or approved."
+}

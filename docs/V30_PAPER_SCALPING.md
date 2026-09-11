@@ -124,12 +124,98 @@ a daily approval prompt. Do not start another worker against the same account.
 
 ## Release status
 
-Implementation and integration are in progress. The currently deployed
-September 11 AAPL schedule is not silently overwritten by writing this
-document. A reviewed v30 rollout must explicitly supersede it, preserve its
-authority and evidence, and record actual new ownership, data, order
-reconciliation and notification outcomes before this document claims v30 is
-operational.
+**v30 is deployed in paper mode; new entries are temporarily paused for
+corrective maintenance.** Recovery, data recording and notifications remain
+active. The current reviewed release is
+`cfc0c275ccb78e32e04f98449e58cf40cd449542`; its full validation passed 1,466
+tests, with two skipped and 87.92% coverage. Earlier passing suites did not
+catch several execution defects: all original findings and failed regression
+evidence remain preserved. Focused review cleared the final corrections to
+marketable replay limits, foreign inventory segregation, delayed settlement
+credits and atomic ownership/activity projection updates.
+
+Actual rollout identities:
+
+| Role | Deployment / code |
+|---|---|
+| Event/scalper | `dep-dahusfid0e5s7391qbj0` / `cfc0c27` |
+| Dashboard | `dep-dahut69594qs738mlad0` / `cfc0c27` |
+| Notifier | `dep-dahut6ajnfac73a88cmg` / `cfc0c27` |
+| Recorder, unchanged | `dep-dagps3dbedkc739omglg` / `68c2e8f` |
+
+The running execution owner is
+`srv-dae4tr7qj5pc73a9e0k0-756df49c96-khf2f`, observed with its matching
+fresh lease at **08:09:36 Eastern**. The process waited for the previous
+owner's natural lease handoff; no lease was stolen. The immutable run is
+`v30-paper-scalper-20260911`, config
+`c5652d4939cfc1072f1725866c6c6d7f746503e2cfc52d9414f5c39edd12302d`.
+Migration `0014_scalping_runtime` is installed.
+
+The old one-day AAPL authority was explicitly superseded at
+**08:10:35.499689 Eastern**, only after observing the new v30 owner.
+Its immutable authority and history were not overwritten. A separate
+`:revoked` sidecar and audit record link the owner's new instruction and
+replacement release. Existing global/pause values and all legacy cohort
+hashes were preserved. This is not a replay or reset of a missed test.
+
+At the **08:16:46 Eastern** readback, the worker was processing actual crypto
+book/quote data, the compressed persisted tape decoded with matching hashes,
+and reporting metadata had no missing rows. One genuine strategy-generated
+paper BUY had reached Alpaca and then been canceled without a fill:
+
+- Client: `ta30-da0c0060d10ebe2ed58125256cd57cab5fce15f5`
+- Broker: `bf2cbaea-9f42-47ea-8145-16d3ead18f40`
+- Status: `canceled`, cumulative filled quantity: **0**
+
+The account was ACTIVE/unblocked, flat and without open orders at that
+readback. **This is submission/cancellation proof, not a completed trade or
+profitability proof.** The unrestricted worker remains active; it does not
+force a BUY when its alpha conditions are absent.
+
+The existing notifier accepted the once-only v30 startup email at
+**08:11:27.805030 Eastern**, outbox attempts **1**:
+notification `c5e09693-f346-5768-9bfb-ae95934581e2`,
+provider `d912a284-72a9-4387-aedf-47f22449b09f`.
+Provider acceptance is not inbox delivery proof. The startup message is not
+a fill notification.
+
+Application plans, replicas, disabled auto-deployment, environment
+fingerprints, PostgreSQL capacity/storage/private allowlist and recipients
+were not expanded. A 30-minute resource/flow observation is in progress at
+this checkpoint; its outcome and later actual order/fee observations must
+remain separate from the deployment and startup-email facts above.
+
+### September 11, 09:00 read-only oversight
+
+The **09:08:42 Eastern** broker read confirmed ACTIVE/unblocked status,
+**zero positions and zero open orders**. The same deployed `cfc0c27` worker
+still held its fresh matching lease; no unresolved order or ownership state
+was reported. Its state was `operator_stopped` because the earlier maintenance
+command pauses new entries while preserving recovery.
+
+The ledger then contained **11 completed paper round trips** and 24 no-fill
+cycles. Recorded gross cash flow was `-$1.822114911887358160`; modeled net
+P&L was `-$4.622181484248164765`. All 11 completed cycles still had pending
+fee attribution, so these are **not final confirmed strategy net results**.
+The broker cash balance was $99,995.33.
+
+The initial 30-minute observation retained a failed
+`runtime_reported_error` verdict: five actual broker HTTP 429 responses caused
+backoff, and one exit was delayed approximately seven minutes. The worker
+recovered and closed that position. Source/data and request-cadence
+corrections are separate unfinished implementation work; the newer local Git
+candidate is not the deployed release.
+
+The 08:30 and 09:00 digest messages were each sent once through the existing
+notifier. The 09:00 provider acceptance ID is
+`11d627b3-45e9-4b3f-b451-147cabc4f0b3`; acceptance is not inbox proof.
+No additional email, order, rearm, policy or configuration change was made
+by this read-only oversight. The old AAPL authority remains revoked and all
+legacy cohort hashes remain unchanged.
+
+Evidence: [09:00 read-only summary](../research/results/v30-0900-readonly-summary.json),
+[broker and ledger snapshot](../research/results/v30-0900-readonly-proof.json),
+and [existing digest acceptance](../research/results/v30-digest-proof.json).
 
 Paper trading has no real investment loss, but APIs, compute, storage,
 credentials and operational failures still have real consequences. Neither
@@ -139,6 +225,10 @@ profitability.
 ## References
 
 - [Actual read-only capabilities](../research/results/v30-capabilities.json)
+- [Cumulative release review](../research/results/v30-review-final.json)
+- [Actual initial deployed state](../research/results/v30-initial-proof.json)
+- [Legacy authority supersession](../research/results/v30-legacy-supersession.json)
+- [Actual intermediate order and email proof](../research/results/v30-interim-proof.json)
 - [Alpaca real-time crypto data](https://docs.alpaca.markets/docs/real-time-crypto-pricing-data)
 - The owner-supplied 1,234-line scalping research attachment, received September
   11, 2026. Its CME/MBO, neural-model and co-location recommendations are not

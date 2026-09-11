@@ -1,0 +1,44 @@
+{
+  "job_id": "job-dahvodjl550s73f60jl0",
+  "status": "succeeded",
+  "results": [
+    {
+      "at": "2026-09-11T13:04:14.104876+00:00",
+      "code_sha": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+      "email_enqueued": false,
+      "normal_18_et_schedule_unchanged": true,
+      "notifications": [
+        {
+          "attempts": 1,
+          "notification_id": "5db50736-8a57-5a1c-a248-4c453989fd11",
+          "provider_message_id": "11d627b3-45e9-4b3f-b451-147cabc4f0b3",
+          "sent_at": "2026-09-11 13:00:08.501847+00:00",
+          "status": "sent",
+          "subject": "[TradeAgent PAPER v30] Scalping digest - 2026-09-11T13:00:05.147723+00:00"
+        },
+        {
+          "attempts": 1,
+          "notification_id": "451c600a-df45-5a5b-9e12-1860464c9dcd",
+          "provider_message_id": "beb02584-38fa-4b84-8cdf-18c52580cd13",
+          "sent_at": "2026-09-11 12:30:04.608033+00:00",
+          "status": "sent",
+          "subject": "[TradeAgent PAPER v30] Scalping digest - 2026-09-11T12:30:03.471010+00:00"
+        },
+        {
+          "attempts": 1,
+          "notification_id": "c5e09693-f346-5768-9bfb-ae95934581e2",
+          "provider_message_id": "d912a284-72a9-4387-aedf-47f22449b09f",
+          "sent_at": "2026-09-11 12:11:27.805030+00:00",
+          "status": "sent",
+          "subject": "[TradeAgent PAPER v30] Autonomous scalper started"
+        }
+      ],
+      "read_only": true,
+      "report_bytes": 322013,
+      "report_profile": "v30-paper-unrestricted",
+      "report_sha256": "c5b187aa9b47580b7cc84b81dbbaaebb0827637e00d9fab16decdd6119e45c43",
+      "report_state": "operator_stopped",
+      "report_subject": "[TradeAgent PAPER v30] Daily scalping status - 2026-09-11"
+    }
+  ]
+}
