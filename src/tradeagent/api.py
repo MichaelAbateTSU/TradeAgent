@@ -99,6 +99,8 @@ EVENT_HEARTBEAT_FIELDS = (
     "operator_paper",
     "ordinary_entries_enabled",
     "global_strategy_kill",
+    "scalping",
+    "paper_policy",
 )
 ROLE_HEARTBEAT_FIELDS = (
     "state",
@@ -149,6 +151,8 @@ ROLE_HEARTBEAT_FIELDS = (
     "operator_paper",
     "ordinary_entries_enabled",
     "global_strategy_kill",
+    "scalping",
+    "paper_policy",
 )
 ROLE_LOCKS = {
     "tradeagent-event-worker": "tradeagent-event-worker",
@@ -420,15 +424,30 @@ DASHBOARD = """<!doctype html>
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
     th, td { padding: .65rem; border-bottom: 1px solid #233653; text-align: left; }
     code { color: #9bc4ff; }
+    .scalp-facts { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr); gap: .55rem 1rem; }
+    .scalp-facts dt { color: #acc0dc; }
+    .scalp-facts dd { margin: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+    .scalp-details { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9rem; }
+    @media (max-width: 600px) { body { padding: 1rem; } .scalp-facts { grid-template-columns: 1fr; } .scalp-facts dd { margin-bottom: .6rem; } }
   </style>
 </head>
 <body>
   <header><div><h1>TradeAgent</h1><div>Read-only paper-trading console</div></div><span class="badge">PAPER ONLY</span></header>
   <p class="warning">No live broker is connected. Qualification means a research gate passed, not that profit is guaranteed.</p>
+  <section class="card" aria-labelledby="scalping-heading">
+    <h2 id="scalping-heading">v30 autonomous paper scalping</h2>
+    <p id="scalp-state" role="status">Loading the current worker and its execution state...</p>
+    <p>24/7 crypto experiments with no paper loss, drawdown, exposure, trade-count or approval limits. Order ownership, reconciliation and broker constraints still apply.</p>
+    <dl id="scalp-facts" class="scalp-facts"></dl>
+    <h3>Execution and accounting</h3>
+    <pre id="scalp-accounting" class="scalp-details">No current observation yet.</pre>
+    <details><summary>Signals, market data and latency</summary><pre id="scalp-signals" class="scalp-details"></pre></details>
+    <p>Scores are deterministic rule outputs, not probabilities. Pending fee estimates and paper fills do not establish live profitability. <a href="/api/scalping" target="_blank" rel="noopener">Open the full v30 status snapshot</a>.</p>
+  </section>
   <section class="grid">
     <div class="card"><div>NAV</div><div id="nav" class="value">-</div></div>
     <div class="card"><div>Gross exposure</div><div id="exposure" class="value">-</div></div>
-    <div class="card"><div>Kill switch</div><div id="kill-switch" class="value">-</div></div>
+    <div class="card"><div id="kill-label">Kill switch</div><div id="kill-switch" class="value">-</div></div>
     <div class="card"><div>Audit events</div><div id="events" class="value">-</div></div>
     <div class="card"><div>Experiments</div><div id="experiments" class="value">-</div></div>
     <div class="card"><div>Qualified trials</div><div id="qualified" class="value">-</div></div>
@@ -509,6 +528,37 @@ DASHBOARD = """<!doctype html>
       document.querySelector('#shadow-nav').textContent =
         runtime.shadow_nav ? `$${Number(runtime.shadow_nav).toLocaleString()}` : '-';
     }
+    function renderScalping(status) {
+      const state = status.state || 'unavailable';
+      document.querySelector('#scalp-state').textContent = status.state === 'not_started'
+        ? status.message
+        : `${state} | ${status.active ? 'current owner observation' : 'not a current owned observation'} | ${status.status_at || 'no timestamp'}`;
+      const facts = {
+        'Profile': status.profile || 'not reported',
+        'Run': status.cohort_id || 'not reported',
+        'Mode': status.mode || 'not reported',
+        'Symbols': (status.symbols || []).join(', ') || 'not reported',
+        'Worker': status.owner_id || 'not reported',
+        'Code': status.code_sha || 'not reported'
+      };
+      const list = document.querySelector('#scalp-facts');
+      list.replaceChildren(...Object.entries(facts).flatMap(([key, value]) => {
+        const term = document.createElement('dt'); term.textContent = key;
+        const description = document.createElement('dd'); description.textContent = String(value);
+        return [term, description];
+      }));
+      document.querySelector('#scalp-accounting').textContent = JSON.stringify({
+        summary: status.trade_summary ?? 'not reported',
+        current_execution: status.execution ?? 'not reported',
+        operator_stop: status.operator_stop ?? 'not reported'
+      }, null, 2);
+      document.querySelector('#scalp-signals').textContent = JSON.stringify({
+        last_signals: status.last_signals, market: status.market, raw: status.raw,
+        latency: status.latency, errors: status.errors
+      }, null, 2);
+      document.querySelector('#kill-label').textContent = status.profile === 'v30-paper-unrestricted'
+        ? 'Legacy strategy kill (not v30 policy)' : 'Kill switch';
+    }
     function renderProduct(product) {
       const operational = product.operational_status;
       document.querySelector('#service-observations').textContent = operational
@@ -532,6 +582,8 @@ DASHBOARD = """<!doctype html>
       });
       document.querySelector('#event-evidence').textContent = product.purpose === 'iex-practice'
         ? 'IEX paper practice only. Sessions and round trips, including calibration, do not count toward the 60-session/60-round-trip research qualification floors. Dollar results are broker-paper facts and modeled operational estimates, not validated strategy economics.'
+        : product.entry_policy === 'v30-paper-unrestricted'
+        ? 'The active worker runs the separate unrestricted v30 paper profile shown above. Older event cohorts and research qualification records are retained, not reused as scalping authority.'
         : 'Research evidence remains unproven; qualification gates and minimum evidence floors still apply.';
       document.querySelector('#event-ledgers').textContent =
         JSON.stringify(product.ledgers || {performance:'No measured forward outcomes'}, null, 2);
@@ -566,6 +618,7 @@ DASHBOARD = """<!doctype html>
           refreshSection('News', '/api/news?limit=20', ['#news-count'], news => {
             document.querySelector('#news-count').textContent = news.items.length;
           }),
+          refreshSection('v30 scalping', '/api/scalping', ['#scalp-state', '#scalp-accounting'], renderScalping),
           refreshSection('Event overview', '/api/event-product', ['#event-state', '#event-session-report', '#service-observations'], renderProduct)
         ]);
       } finally {
@@ -757,6 +810,23 @@ def create_app(
                 "full_report_url": "/api/event-session-report",
             }
 
+    @app.get("/api/scalping")
+    def scalping(cohort_id: str | None = None) -> dict[str, Any]:
+        from tradeagent.scalping_reporting import scalping_status
+
+        if production_database_url is None:
+            return {
+                "state": "not_started",
+                "active": False,
+                "message": "Configure the production database to observe the v30 worker.",
+                "live_execution_available": False,
+            }
+        try:
+            with production_database() as database:
+                return scalping_status(database, cohort_id=cohort_id)
+        except (SQLAlchemyError, ValueError) as error:
+            raise HTTPException(status_code=503, detail="Scalping status unavailable") from error
+
     def build_event_product() -> dict[str, object]:
         now = datetime.now(UTC)
         settings = ExperimentalSettings()
@@ -820,6 +890,25 @@ def create_app(
                     "coverage": heartbeat_row["premarket_coverage"],
                     "preparation_status": heartbeat_row["preparation_status"],
                     "projection": "overview only; full brief remains in immutable audit evidence",
+                }
+            if details.get("entry_policy") == "v30-paper-unrestricted":
+                fresh = heartbeat_at is not None and timedelta(
+                    0
+                ) <= now - heartbeat_at <= timedelta(seconds=120)
+                return {
+                    **base,
+                    **details,
+                    "state": details.get("state", "not_reported") if fresh else "stale_or_missing",
+                    "heartbeat_at": heartbeat_at.isoformat() if heartbeat_at else None,
+                    "blockers": [],
+                    "source_limitations": [],
+                    "capability_limitations": [
+                        "Venue-specific aggregated crypto L2, not MBO or exact queue position.",
+                        "Paper outcomes and uncalibrated rule scores are not validated profitability.",
+                    ],
+                    "decisions": [],
+                    "legacy_event_cohorts_retained": True,
+                    "scalping_status_url": "/api/scalping",
                 }
             with database.begin() as connection:
                 cohort_id = str(

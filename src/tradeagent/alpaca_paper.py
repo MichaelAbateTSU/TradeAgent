@@ -56,6 +56,7 @@ class AlpacaPaperAccount(BaseModel):
     cash: Decimal
     portfolio_value: Decimal
     buying_power: Decimal
+    non_marginable_buying_power: Decimal | None = None
     pattern_day_trader: bool = False
     trading_blocked: bool
     transfers_blocked: bool
@@ -70,6 +71,7 @@ class AlpacaPaperPosition(BaseModel):
     average_entry_price: Decimal = Field(alias="avg_entry_price")
     market_value: Decimal
     unrealized_pnl: Decimal = Field(alias="unrealized_pl")
+    available_quantity: Decimal | None = Field(default=None, alias="qty_available")
 
 
 class AlpacaPaperOrder(BaseModel):
@@ -107,6 +109,30 @@ class PaperAsset(BaseModel):
     status: str
     tradable: bool
     fractionable: bool = False
+
+
+class PaperCryptoAsset(BaseModel):
+    model_config = ConfigDict(
+        frozen=True, extra="allow", populate_by_name=True, allow_inf_nan=False
+    )
+    id: str
+    symbol: str
+    asset_class: Literal["crypto"] = Field(alias="class")
+    status: str
+    tradable: bool
+    min_order_size: Decimal = Field(gt=0)
+    min_trade_increment: Decimal = Field(gt=0)
+    price_increment: Decimal = Field(gt=0)
+
+
+def canonical_crypto_symbol(symbol: str) -> str:
+    value = symbol.strip().upper()
+    if "/" not in value and value.endswith("USD"):
+        value = value[:-3] + "/USD"
+    base, separator, quote = value.partition("/")
+    if not separator or not base.isalnum() or quote != "USD":
+        raise ValueError("a USD crypto pair is required")
+    return value
 
 
 class PaperClock(BaseModel):
@@ -296,6 +322,132 @@ class AlpacaPaperClient:
             if isinstance(item, dict) and item.get("symbol") == "BTC/USD":
                 return dict(item)
         raise ValueError("BTC/USD is not available on this paper account")
+
+    def crypto_asset(self, symbol: str) -> PaperCryptoAsset:
+        wanted = canonical_crypto_symbol(symbol)
+        payload = self._request(
+            "GET", "/v2/assets", params={"asset_class": "crypto", "status": "active"}
+        )
+        if not isinstance(payload, list):
+            raise ValueError("crypto assets must be an array")
+        for row in payload:
+            if not isinstance(row, dict) or not row.get("symbol"):
+                continue
+            try:
+                matches = canonical_crypto_symbol(str(row["symbol"])) == wanted
+            except ValueError:
+                matches = False
+            if matches:
+                return PaperCryptoAsset.model_validate({**row, "symbol": wanted})
+        raise ValueError(f"{wanted} is unavailable on this paper account")
+
+    def submit_crypto_limit_order(
+        self, order: OrderRequest, limit_price: Decimal, *, asset: PaperCryptoAsset | None = None
+    ) -> AlpacaPaperOrder:
+        symbol = canonical_crypto_symbol(order.symbol)
+        asset = asset or self.crypto_asset(symbol)
+        self._validate_crypto_order(order, asset)
+        if (
+            order.order_type is not OrderType.LIMIT
+            or not limit_price.is_finite()
+            or limit_price <= 0
+            or limit_price % asset.price_increment
+        ):
+            raise ValueError("crypto limit price must match the broker price increment")
+        return AlpacaPaperOrder.model_validate(
+            self._request(
+                "POST",
+                "/v2/orders",
+                json={
+                    "symbol": symbol,
+                    "qty": format(order.quantity, "f"),
+                    "side": order.side.value,
+                    "type": "limit",
+                    "time_in_force": "gtc",
+                    "limit_price": format(limit_price, "f"),
+                    "client_order_id": order.client_order_id,
+                },
+            )
+        )
+
+    def submit_crypto_market_order(
+        self, order: OrderRequest, *, asset: PaperCryptoAsset | None = None
+    ) -> AlpacaPaperOrder:
+        symbol = canonical_crypto_symbol(order.symbol)
+        asset = asset or self.crypto_asset(symbol)
+        self._validate_crypto_order(order, asset)
+        if order.order_type is not OrderType.MARKET:
+            raise ValueError("crypto market endpoint requires a market intent")
+        return AlpacaPaperOrder.model_validate(
+            self._request(
+                "POST",
+                "/v2/orders",
+                json={
+                    "symbol": symbol,
+                    "qty": format(order.quantity, "f"),
+                    "side": order.side.value,
+                    "type": "market",
+                    "time_in_force": "gtc",
+                    "client_order_id": order.client_order_id,
+                },
+            )
+        )
+
+    @staticmethod
+    def _validate_crypto_order(order: OrderRequest, asset: PaperCryptoAsset) -> None:
+        if (
+            canonical_crypto_symbol(order.symbol) != asset.symbol
+            or asset.status != "active"
+            or not asset.tradable
+            or not order.quantity.is_finite()
+            or order.quantity < asset.min_order_size
+            or order.quantity % asset.min_trade_increment
+            or len(order.client_order_id) > 48
+        ):
+            raise ValueError("crypto intent violates broker identity, tradability or increments")
+
+    def account_activity_page(
+        self,
+        *,
+        after: datetime,
+        until: datetime,
+        page_token: str | None = None,
+        page_size: int = 100,
+        activity_types: tuple[str, ...] | None = None,
+    ) -> dict[str, Any]:
+        """One incremental page, without the legacy account-order-history size ceiling."""
+        if (
+            after.tzinfo is None
+            or until.tzinfo is None
+            or after > until
+            or not 1 <= page_size <= 100
+        ):
+            raise ValueError(
+                "an ordered aware activity window and supported page size are required"
+            )
+        params = {
+            "after": after.isoformat(),
+            "until": until.isoformat(),
+            "direction": "asc",
+            "page_size": str(page_size),
+        }
+        if page_token is not None:
+            params["page_token"] = page_token
+        if activity_types:
+            params["activity_types"] = ",".join(activity_types)
+        payload = self._request("GET", "/v2/account/activities", params=params)
+        if not isinstance(payload, list) or any(
+            not isinstance(row, dict) or not row.get("id") for row in payload
+        ):
+            raise ValueError("invalid incremental activity page")
+        next_token = str(payload[-1]["id"]) if len(payload) == page_size else None
+        if next_token is not None and next_token == page_token:
+            raise ValueError("activity pagination did not advance")
+        return {
+            "activities": payload,
+            "next_page_token": next_token,
+            "complete": next_token is None,
+        }
 
     def submit_bitcoin_test_buy(self, client_order_id: str) -> AlpacaPaperOrder:
         if not client_order_id.startswith("ta-crypto-test-") or len(client_order_id) > 48:

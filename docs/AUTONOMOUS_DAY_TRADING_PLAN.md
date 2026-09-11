@@ -1,5 +1,12 @@
 # Autonomous paper day-trading plan
 
+> Historical roadmap for the earlier research and ETF engines. The owner's
+> September 11 v30 instruction introduces a separate unrestricted,
+> always-on paper-crypto scalping profile. See
+> [v30 paper scalping](V30_PAPER_SCALPING.md) and
+> [operator preferences](OPERATOR_PREFERENCES.md). The dated baseline and
+> conservative gates below remain historical context, not v30 entry policy.
+
 ## Executive decision
 
 TradeAgent should become an **always-on, paper-only, low-frequency intraday agent** for

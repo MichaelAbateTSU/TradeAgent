@@ -704,8 +704,10 @@ def _parser() -> argparse.ArgumentParser:
         default=Path("research/freezes/v0.10.0"),
     )
     from tradeagent.event_cli import register_event_commands
+    from tradeagent.scalping_cli import register_scalping_commands
 
     register_event_commands(subparsers)
+    register_scalping_commands(subparsers)
     return parser
 
 
@@ -717,7 +719,10 @@ def _parse_utc(value: str) -> datetime:
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parser().parse_args(argv)
     from tradeagent.event_cli import handle_event_command
+    from tradeagent.scalping_cli import handle_scalping_command
 
+    if handle_scalping_command(args):
+        return
     if handle_event_command(args):
         return
     if args.command == "status":

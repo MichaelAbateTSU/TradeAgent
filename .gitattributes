@@ -1,0 +1,3 @@
+research/results/v30-*.json -text
+research/results/v30-*.txt -text
+research/results/v30-*.jsonl text eol=lf

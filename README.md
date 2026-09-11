@@ -1,10 +1,10 @@
 # TradeAgent
 
-A safety-first autonomous trading system that starts with **fake money only**. The first
-release is an auditable paper-trading kernel: deterministic strategies propose target
-allocations, a separate risk engine approves or rejects every order, and a paper broker
-models slippage and commission before recording decisions and fills in an append-only
-SQLite ledger.
+An autonomous trading system using **fake money only**. Version 30 adds a separate
+always-on crypto-scalping profile alongside the retained research and event-trading
+engines. The v30 paper profile has no paper loss/drawdown/exposure/trade-count limits,
+dated approval window or qualification prerequisite. It still uses fixed paper routing,
+durable order identities, broker-authoritative reconciliation and honest execution data.
 
 > [!WARNING]
 > TradeAgent is research software, not financial advice. It does not guarantee profit.
@@ -13,6 +13,10 @@ SQLite ledger.
 
 ## Current capabilities
 
+- v30 paper crypto scalping with an explicit unrestricted experimental operating policy
+- Venue-specific L2 order-book features, deterministic momentum/reversion and shared replay logic
+- Persistent order/cycle recovery, measured execution costs, and existing-notifier digests
+- Separate v30 dashboard status; legacy risk controls are not misrepresented as v30 permissions
 - v20 event-driven shadow collection with immutable receipt-time evidence and visible abstentions
 - Bounded H1 guidance, H2 valued-contract, and R1 official macro/news risk rules
 - Separate operational certificates and statistical qualification; no live-money mode
@@ -69,6 +73,12 @@ SQLite ledger.
 ## Quick start
 
 TradeAgent requires Python 3.12 or newer.
+
+For v30's operating contract, available data, daemon commands and actual deployment
+status, read [v30 paper scalping](docs/V30_PAPER_SCALPING.md). The owner's durable
+paper-operating preferences are recorded in [operator preferences](docs/OPERATOR_PREFERENCES.md).
+Older commands below retain their original research/risk policies; v30 does not rewrite
+their immutable cohorts or historical outcomes.
 
 ```powershell
 python -m venv .venv
@@ -137,9 +147,9 @@ becomes positive:
 
 Reconciliation journals broker-authoritative account, position, and open-order state.
 Missing or duplicate orders and blocked accounts activate the durable kill switch. The
-OMS contains a submission path, but new exposure fails closed unless the strategy's
-latest registered experiment is qualified; risk-reducing exits remain available. No CLI
-or autonomous loop invokes submission yet.
+legacy OMS contains a submission path, but new exposure there fails closed unless the
+strategy's latest registered experiment is qualified; risk-reducing exits remain
+available. The separate v30 `scalp-run` daemon does not use that legacy qualification gate.
 
 Run the promotion-gated research suite:
 

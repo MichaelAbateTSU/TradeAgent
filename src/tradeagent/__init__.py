@@ -1,7 +1,7 @@
-"""Safety-first autonomous paper-trading agent."""
+"""Autonomous paper-trading research and crypto scalping."""
 
 from tradeagent.config import AppConfig
 from tradeagent.engine import TradingEngine
 
 __all__ = ["AppConfig", "TradingEngine"]
-__version__ = "20.0.0"
+__version__ = "30.0.0"

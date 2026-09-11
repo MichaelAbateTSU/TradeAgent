@@ -120,6 +120,10 @@ def build_daily_status(database: Database, now: datetime, timezone: str) -> dict
     repository = ProductionRepository(database)
     worker = repository.latest_heartbeat("tradeagent-event-worker")
     details = worker[2] if worker else {}
+    if details.get("entry_policy") == "v30-paper-unrestricted":
+        from tradeagent.scalping_reporting import build_scalping_daily_status
+
+        return build_scalping_daily_status(database, now, timezone)
     cohort_id = str(details["cohort_id"]) if details.get("cohort_id") else None
     if cohort_id is None:
         with database.begin() as connection:
