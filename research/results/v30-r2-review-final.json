@@ -1,0 +1,32 @@
+{
+  "reviewed_code_sha": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+  "previous_deployed_code_sha": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+  "reviewer": "19862ff5-f706-4cc9-b471-b5abb3ea799e",
+  "cumulative_focused_review": "No significant issues found in the reviewed changes.",
+  "production_findings_addressed": [
+    "Positions ahead of pending owned order acknowledgments no longer imply foreign acquisitions.",
+    "Genuine mixed-flow uncertainty survives incomplete activity coverage.",
+    "Unchanged unresolved state does not force broker-position and activity requests on every tick.",
+    "Zero-owned-quantity exits do not make repeated dispatch-preparation broker requests.",
+    "Unacknowledged dispatched BUY exposure participates in foreign-settlement protection.",
+    "Provisional external credits recover on attributable fee and balance catch-up evidence."
+  ],
+  "reproduced_request_load": {
+    "before": "260 broker reads over ten unchanged unresolved ticks",
+    "after": "At most four broker reads in the same targeted scenario",
+    "not_an_order_quota_or_financial_policy": true
+  },
+  "validation": {
+    "passed": 1475,
+    "skipped": 2,
+    "coverage_percent": 87.92,
+    "ruff": "passed",
+    "formatted_files": 234,
+    "mypy_source_files": 105,
+    "mypy": "passed"
+  },
+  "strategy_parameters_changed": false,
+  "paper_financial_limits_added": false,
+  "deployment_verified_by_this_record": false,
+  "broker_fill_or_profitability_claim": false
+}

@@ -121,8 +121,13 @@ The event and dashboard services were deployed explicitly to that release:
 
 | Role | Deployment |
 |---|---|
-| Event | `dep-dahkfnad0e5s73fp38pg` |
-| Dashboard | `dep-dahkfn942hec73992ckg` |
+| Event | `dep-dahkfn942hec73992ckg` |
+| Dashboard | `dep-dahkfnad0e5s73fp38pg` |
+
+The role labels above correct a transposition in the earlier prose. The
+immutable service-ID/deployment responses in the resource evidence were
+unchanged; the September 11 v30 pre-rollout read independently confirmed these
+actual mappings.
 
 The event deployment became live before ownership transferred. Startup
 attempts correctly refused the prior owner's unexpired lease; the old owner's

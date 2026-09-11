@@ -1,0 +1,26 @@
+{
+  "reviewed_code_sha": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+  "reviewer": "19862ff5-f706-4cc9-b471-b5abb3ea799e",
+  "cumulative_review": "No significant issues found in the reviewed changes.",
+  "resolved_findings": [
+    "Marketable replay entry price and remainder semantics now match the live limit order.",
+    "Net-owned entitlement is segregated from subsequent external acquisitions.",
+    "Mixed partial fills and external flows retain unresolved credits rather than guessing ownership.",
+    "Lagged position reads preserve acknowledged credits and recover on corroborating evidence.",
+    "Foreign holdings cannot absorb remaining acknowledged credits beyond their external-flow capacity.",
+    "Cycle ownership, external-activity checkpoints and audits now commit atomically with version checks."
+  ],
+  "validation": {
+    "passed": 1466,
+    "skipped": 2,
+    "coverage_percent": 87.92,
+    "ruff": "passed",
+    "formatted_files": 234,
+    "mypy_source_files": 105,
+    "mypy": "passed",
+    "package_version": "30.0.0"
+  },
+  "paper_financial_policy_changed_by_fixes": false,
+  "deployment_verified_by_this_record": false,
+  "broker_fills_verified_by_this_record": false
+}

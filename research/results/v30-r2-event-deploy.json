@@ -1,0 +1,13 @@
+{
+  "commit": {
+    "createdAt": "2026-09-11T13:33:36Z",
+    "id": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+    "message": "Recover unsettled external credits after corroborated fee and balance updates\n\nRetain provisional external credits through lagged position observations. Restore their protected quantity only after attributable fee evidence and sufficient catch-up balance, preserving established owned entitlements and restart recovery.\n\nCo-authored-by: Copilot App \u003c223556219+Copilot@users.noreply.github.com\u003e"
+  },
+  "createdAt": "2026-09-11T13:42:46.043889Z",
+  "id": "dep-dai0almk1f9s73fii4fg",
+  "startedAt": "2026-09-11T13:42:46.041905Z",
+  "status": "build_in_progress",
+  "trigger": "api",
+  "updatedAt": "2026-09-11T13:42:46.043889Z"
+}

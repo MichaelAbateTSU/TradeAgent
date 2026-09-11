@@ -1,0 +1,1136 @@
+{
+  "job_id": "job-dahpvih42hec73a0haa0",
+  "status": "succeeded",
+  "results": [
+    {
+      "account": {
+        "account_blocked": false,
+        "buying_power": "399997.08",
+        "cash": "99999.27",
+        "clock": {
+          "is_open": false,
+          "next_close": "2026-09-11T16:00:00-04:00",
+          "next_open": "2026-09-11T09:30:00-04:00",
+          "timestamp": "2026-09-11T02:29:47.308277-04:00"
+        },
+        "digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+        "open_orders": 0,
+        "positions": 0,
+        "status": "ACTIVE",
+        "trading_blocked": false
+      },
+      "assets": [
+        {
+          "attributes": [
+            "fractional_eh_enabled"
+          ],
+          "class": "crypto",
+          "easy_to_borrow": false,
+          "exchange": "CRYPTO",
+          "fractionable": true,
+          "id": "276e2673-764b-4ab6-a611-caf665ca6340",
+          "maintenance_margin_requirement": 100,
+          "margin_requirement_long": "100",
+          "margin_requirement_short": "100",
+          "marginable": false,
+          "min_order_size": "0.00001299",
+          "min_trade_increment": "0.000000001",
+          "name": "Bitcoin  / US Dollar",
+          "price_increment": "0.000000001",
+          "shortable": false,
+          "status": "active",
+          "symbol": "BTC/USD",
+          "tradable": true
+        },
+        {
+          "attributes": [
+            "fractional_eh_enabled"
+          ],
+          "class": "crypto",
+          "easy_to_borrow": false,
+          "exchange": "CRYPTO",
+          "fractionable": true,
+          "id": "a1733398-6acc-4e92-af24-0d0667f78713",
+          "maintenance_margin_requirement": 100,
+          "margin_requirement_long": "100",
+          "margin_requirement_short": "100",
+          "marginable": false,
+          "min_order_size": "0.000407688",
+          "min_trade_increment": "0.000000001",
+          "name": "Ethereum / US Dollar",
+          "price_increment": "0.000000001",
+          "shortable": false,
+          "status": "active",
+          "symbol": "ETH/USD",
+          "tradable": true
+        }
+      ],
+      "at": "2026-09-11T06:29:46.689559+00:00",
+      "code_sha": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+      "orders_submitted": 0,
+      "quotes": {
+        "quotes": {
+          "BTC/USD": {
+            "ap": 77259.346,
+            "as": 0.0010034,
+            "bp": 77241.605,
+            "bs": 0.00099234,
+            "t": "2026-09-11T06:29:13.685909915Z"
+          },
+          "ETH/USD": {
+            "ap": 2465.85,
+            "as": 0.03339,
+            "bp": 2465.4,
+            "bs": 0.033038,
+            "t": "2026-09-11T06:28:42.635857272Z"
+          }
+        }
+      },
+      "read_only": true,
+      "scheduled_controls": [
+        {
+          "control_key": "scheduled-paper:7b922299-817c-5655-98e8-261bf947a1cb",
+          "control_value": "{\"session_id\":\"7b922299-817c-5655-98e8-261bf947a1cb\",\"nonce\":\"a7123df5-5f2d-5908-8014-0bb5f9fd1524\",\"worker_cohort_id\":\"paper-scheduled-20260911\",\"worker_config_hash\":\"0ea47bb4a8239deacb550b496f2edfa849324bea269e1dccf805042b22eee8d1\",\"code_sha\":\"21a3d4186824a85746e10b5fb36f4060a09f3515\",\"account_digest\":\"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\",\"session_date\":\"2026-09-11\",\"approved_at\":\"2026-09-10T17:53:44.767000-04:00\",\"not_before\":\"2026-09-11T10:05:00-04:00\",\"entry_deadline\":\"2026-09-11T10:30:00-04:00\",\"owner_authority\":\"Owner September10 17:53:44.767 Eastern requested ready to trade tomorrow, without shadow mode or another chat. One bounded September11 paper AAPL equipment round trip only. Exact seven historical source risks reviewed; ordinary global/R1 pauses remain active, future control updates revoke entry. Source-review evidence SHA256 32eb1028e107a031b5f69806a833526ff2de57b66b04fadaba8097af2ef27c68\",\"reviewed_history\":{\"account_digest\":\"b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f\",\"broker_host\":\"https://paper-api.alpaca.markets\",\"observed_at\":\"2026-09-11T00:59:00.292265+00:00\",\"complete\":true,\"account_cash\":\"99999.27\",\"orders\":[{\"id\":\"759d315b-6124-48e5-b725-de832eb6269b\",\"client_order_id\":\"manual-20260904T222425111095Z\",\"status\":\"canceled\",\"symbol\":\"SPY\",\"side\":\"buy\",\"quantity\":\"1\",\"notional\":null,\"filled_quantity\":\"0\",\"filled_average_price\":null,\"created_at\":\"2026-09-04T22:24:25.608902Z\",\"updated_at\":\"2026-09-05T00:29:19.517438Z\",\"submitted_at\":\"2026-09-04T22:24:25.608902Z\",\"filled_at\":null,\"canceled_at\":\"2026-09-05T00:29:19.517437Z\",\"expired_at\":null,\"failed_at\":null,\"replaced_at\":null,\"replaced_by\":null,\"replaces\":null,\"asset_id\":\"b28f4066-5c6d-479b-a2af-85dc1a8f16fb\",\"asset_class\":\"us_equity\",\"order_class\":\"\",\"order_type\":\"market\",\"type\":\"market\",\"position_intent\":\"buy_to_open\",\"time_in_force\":\"day\",\"limit_price\":null,\"stop_price\":null,\"extended_hours\":false,\"legs\":null,\"trail_percent\":null,\"trail_price\":null,\"hwm\":null,\"subtag\":null,\"source\":\"access_key\",\"expires_at\":\"2026-09-08T20:00:00Z\"},{\"id\":\"7c35efc7-c452-4c3d-8bb0-fefd77a79782\",\"client_order_id\":\"manual-crypto-20260904T223058556554Z\",\"status\":\"filled\",\"symbol\":\"BTC/USD\",\"side\":\"buy\",\"quantity\":\"0.001\",\"notional\":null,\"filled_quantity\":\"0.001\",\"filled_average_price\":\"79793.284\",\"created_at\":\"2026-09-04T22:30:59.027221Z\",\"updated_at\":\"2026-09-04T22:30:59.034617Z\",\"submitted_at\":\"2026-09-04T22:30:59.027221Z\",\"filled_at\":\"2026-09-04T22:30:59.029136Z\",\"canceled_at\":null,\"expired_at\":null,\"failed_at\":null,\"replaced_at\":null,\"replaced_by\":null,\"replaces\":null,\"asset_id\":\"276e2673-764b-4ab6-a611-caf665ca6340\",\"asset_class\":\"crypto\",\"order_class\":\"\",\"order_type\":\"market\",\"type\":\"market\",\"position_intent\":\"buy_to_open\",\"time_in_force\":\"gtc\",\"limit_price\":null,\"stop_price\":null,\"extended_hours\":false,\"legs\":null,\"trail_percent\":null,\"trail_price\":null,\"hwm\":null,\"subtag\":null,\"source\":\"access_key\",\"expires_at\":\"2026-12-03T21:00:00Z\"},{\"id\":\"b72a264a-02d9-4a43-b331-4d3a535c7505\",\"client_order_id\":\"take-profit-20260905T001800310929Z\",\"status\":\"filled\",\"symbol\":\"BTC/USD\",\"side\":\"sell\",\"quantity\":\"0.0009975\",\"notional\":null,\"filled_quantity\":\"0.0009975\",\"filled_average_price\":\"79591.4\",\"created_at\":\"2026-09-05T00:18:00.236002Z\",\"updated_at\":\"2026-09-05T00:18:00.284667Z\",\"submitted_at\":\"2026-09-05T00:18:00.236002Z\",\"filled_at\":\"2026-09-05T00:18:00.238858Z\",\"canceled_at\":null,\"expired_at\":null,\"failed_at\":null,\"replaced_at\":null,\"replaced_by\":null,\"replaces\":null,\"asset_id\":\"276e2673-764b-4ab6-a611-caf665ca6340\",\"asset_class\":\"crypto\",\"order_class\":\"\",\"order_type\":\"market\",\"type\":\"market\",\"position_intent\":\"sell_to_close\",\"time_in_force\":\"gtc\",\"limit_price\":null,\"stop_price\":null,\"extended_hours\":false,\"legs\":null,\"trail_percent\":null,\"trail_price\":null,\"hwm\":null,\"subtag\":null,\"source\":\"access_key\",\"expires_at\":\"2026-12-03T21:00:00Z\"},{\"id\":\"dd9ba5c8-8319-4466-83c0-af3cc9911c73\",\"client_order_id\":\"ta-probe-20260909-0020-aapl\",\"status\":\"canceled\",\"symbol\":\"AAPL\",\"side\":\"buy\",\"quantity\":\"0.1\",\"notional\":null,\"filled_quantity\":\"0\",\"filled_average_price\":null,\"created_at\":\"2026-09-09T04:37:09.535181Z\",\"updated_at\":\"2026-09-09T04:37:09.716009Z\",\"submitted_at\":\"2026-09-09T04:37:09.535181Z\",\"filled_at\":null,\"canceled_at\":\"2026-09-09T04:37:09.716008Z\",\"expired_at\":null,\"failed_at\":null,\"replaced_at\":null,\"replaced_by\":null,\"replaces\":null,\"asset_id\":\"b0b6dd9d-8b9b-48a9-ba46-b9d54906e415\",\"asset_class\":\"us_equity\",\"order_class\":\"\",\"order_type\":\"limit\",\"type\":\"limit\",\"position_intent\":\"buy_to_open\",\"time_in_force\":\"day\",\"limit_price\":\"100\",\"stop_price\":null,\"extended_hours\":false,\"legs\":null,\"trail_percent\":null,\"trail_price\":null,\"hwm\":null,\"subtag\":null,\"source\":\"access_key\",\"expires_at\":\"2026-09-09T20:00:00Z\"},{\"id\":\"385947be-92ac-4215-98f4-54380075a145\",\"client_order_id\":\"ta-crypto-test-20260909-0151-buy\",\"status\":\"filled\",\"symbol\":\"BTC/USD\",\"side\":\"buy\",\"quantity\":null,\"notional\":\"20\",\"filled_quantity\":\"0.000247676\",\"filled_average_price\":\"79217.31\",\"created_at\":\"2026-09-09T06:20:49.376591Z\",\"updated_at\":\"2026-09-09T06:20:49.385365Z\",\"submitted_at\":\"2026-09-09T06:20:49.376591Z\",\"filled_at\":\"2026-09-09T06:20:49.378751Z\",\"canceled_at\":null,\"expired_at\":null,\"failed_at\":null,\"replaced_at\":null,\"replaced_by\":null,\"replaces\":null,\"asset_id\":\"276e2673-764b-4ab6-a611-caf665ca6340\",\"asset_class\":\"crypto\",\"order_class\":\"\",\"order_type\":\"market\",\"type\":\"market\",\"position_intent\":\"buy_to_open\",\"time_in_force\":\"gtc\",\"limit_price\":null,\"stop_price\":null,\"extended_hours\":false,\"legs\":null,\"trail_percent\":null,\"trail_price\":null,\"hwm\":null,\"subtag\":null,\"source\":\"access_key\",\"expires_at\":\"2026-12-07T21:00:00Z\"},{\"id\":\"1d9dad72-351e-4478-bf2f-3f7d1079b8dd\",\"client_order_id\":\"ta-crypto-test-20260909-0151-s0\",\"status\":\"filled\",\"symbol\":\"BTC/USD\",\"side\":\"sell\",\"quantity\":\"0.000247056\",\"notional\":null,\"filled_quantity\":\"0.000247056\",\"filled_average_price\":\"79103.5\",\"created_at\":\"2026-09-09T06:21:28.130083Z\",\"updated_at\":\"2026-09-09T06:21:28.134918Z\",\"submitted_at\":\"2026-09-09T06:21:28.130083Z\",\"filled_at\":\"2026-09-09T06:21:28.132488Z\",\"canceled_at\":null,\"expired_at\":null,\"failed_at\":null,\"replaced_at\":null,\"replaced_by\":null,\"replaces\":null,\"asset_id\":\"276e2673-764b-4ab6-a611-caf665ca6340\",\"asset_class\":\"crypto\",\"order_class\":\"\",\"order_type\":\"market\",\"type\":\"market\",\"position_intent\":\"sell_to_close\",\"time_in_force\":\"gtc\",\"limit_price\":null,\"stop_price\":null,\"extended_hours\":false,\"legs\":null,\"trail_percent\":null,\"trail_price\":null,\"hwm\":null,\"subtag\":null,\"source\":\"access_key\",\"expires_at\":\"2026-12-07T21:00:00Z\"}],\"activities\":[{\"id\":\"20260904000000000::9e615b2f-2995-4463-8fe3-b333f81d8fca\",\"activity_type\":\"JNLC\",\"date\":\"2026-09-04\",\"created_at\":\"2026-09-04T22:20:26.814503Z\",\"net_amount\":\"100000\",\"description\":\"\",\"status\":\"executed\",\"currency\":\"USD\"},{\"id\":\"20260904000000000::e1282dea-0330-4601-9fee-9499033dd67b\",\"activity_type\":\"CFEE\",\"date\":\"2026-09-04\",\"created_at\":\"2026-09-04T22:31:02.812309Z\",\"net_amount\":\"0\",\"description\":\"Coin Pair Transaction Fee (Non USD)\",\"symbol\":\"BTCUSD\",\"cusip\":\"BTC123456\",\"qty\":\"-0.0000025\",\"price\":\"79793.28\",\"status\":\"executed\",\"currency\":\"USD\"},{\"id\":\"20260904183059029::2012865d-2943-4fed-b2eb-120fbc0b6441\",\"activity_type\":\"FILL\",\"transaction_time\":\"2026-09-04T22:30:59.029136Z\",\"type\":\"fill\",\"price\":\"79793.284\",\"qty\":\"0.001\",\"side\":\"buy\",\"symbol\":\"BTC/USD\",\"leaves_qty\":\"0\",\"order_id\":\"7c35efc7-c452-4c3d-8bb0-fefd77a79782\",\"cum_qty\":\"0.001\",\"order_status\":\"filled\",\"swap_rate\":\"1\"},{\"id\":\"20260904201800238::da2c2497-5ae8-4b96-a79a-c8ea0e0b4ad2\",\"activity_type\":\"FILL\",\"transaction_time\":\"2026-09-05T00:18:00.238858Z\",\"type\":\"fill\",\"price\":\"79591.4\",\"qty\":\"0.0009975\",\"side\":\"sell\",\"symbol\":\"BTC/USD\",\"leaves_qty\":\"0\",\"order_id\":\"b72a264a-02d9-4a43-b331-4d3a535c7505\",\"cum_qty\":\"0.0009975\",\"order_status\":\"filled\",\"swap_rate\":\"1\"},{\"id\":\"20260909000000000::2e623c8a-debb-4226-a4e9-d7a676de7d17\",\"activity_type\":\"CFEE\",\"date\":\"2026-09-09\",\"created_at\":\"2026-09-09T06:21:31.935539Z\",\"net_amount\":\"-0.05\",\"description\":\"Coin Pair Transaction Fee (USD)\",\"status\":\"executed\",\"currency\":\"USD\"},{\"id\":\"20260909000000000::bd134c62-19dd-49d7-bde3-9a150857a1ca\",\"activity_type\":\"CFEE\",\"date\":\"2026-09-09\",\"created_at\":\"2026-09-09T06:20:49.923271Z\",\"net_amount\":\"0\",\"description\":\"Coin Pair Transaction Fee (Non USD)\",\"symbol\":\"BTCUSD\",\"cusip\":\"BTC123456\",\"qty\":\"-0.00000062\",\"price\":\"79217.31\",\"status\":\"executed\",\"currency\":\"USD\"},{\"id\":\"20260909022049378::b81c2780-1ead-43e5-b749-5be3feac0a81\",\"activity_type\":\"FILL\",\"transaction_time\":\"2026-09-09T06:20:49.378751Z\",\"type\":\"fill\",\"price\":\"79217.31\",\"qty\":\"0.000247676\",\"side\":\"buy\",\"symbol\":\"BTC/USD\",\"leaves_qty\":\"0\",\"order_id\":\"385947be-92ac-4215-98f4-54380075a145\",\"cum_qty\":\"0.000247676\",\"order_status\":\"filled\",\"swap_rate\":\"1\"},{\"id\":\"20260909022128132::64e75807-3bc9-45a9-adc5-0931565da312\",\"activity_type\":\"FILL\",\"transaction_time\":\"2026-09-09T06:21:28.132488Z\",\"type\":\"fill\",\"price\":\"79103.5\",\"qty\":\"0.000247056\",\"side\":\"sell\",\"symbol\":\"BTC/USD\",\"leaves_qty\":\"0\",\"order_id\":\"1d9dad72-351e-4478-bf2f-3f7d1079b8dd\",\"cum_qty\":\"0.000247056\",\"order_status\":\"filled\",\"swap_rate\":\"1\"}]},\"reviewed_history_sha256\":\"9d66aa5df74b6993a11a9a76d26ce988c3ba772ca6063cb8e61c2cec121cb200\",\"nightly_acceptance_sha256\":\"261ef0aa5336198f53a4db6b5e31097cfbc724109ae3b98e21805a49f08c4ae7\",\"nightly_acceptance_at\":\"2026-09-11T00:58:28.358091Z\",\"checks\":{\"reviewed_release\":true,\"reviewed_exact_host_pause\":true,\"nightly_resource_acceptance\":true,\"owner_tomorrow_authorization\":true,\"complete_history_review\":true},\"control_versions\":{\"kill_switch\":[\"active\",\"2026-09-08T23:33:26.789305+00:00\"],\"paper-scheduled-20260911:pause\":[\"R1_EVENT_REQUIRES_POSITION_REVIEW\",\"2026-09-11T00:23:00.972903+00:00\"],\"operator-paper-f88ec4f218ef5b84bd0b39babe1e914a:pause\":[null,null]},\"action\":\"one_paper_AAPL_round_trip\",\"maximum_notional_usd\":25,\"maximum_scheduled_entries\":1,\"maximum_account_day_buys\":2,\"continuous_readiness_seconds\":1800,\"maximum_observation_gap_seconds\":90,\"physical_progress_window_seconds\":600,\"maximum_physical_progress_window_seconds\":1200,\"readiness_certificate_ttl_seconds\":90,\"maximum_process_rss_mib\":400,\"infrastructure_capacity_basis\":\"reviewed-nightly-not-live-market-metrics\"}",
+          "updated_at": "2026-09-11 00:59:00.508858+00:00"
+        },
+        {
+          "control_key": "scheduled-paper-host:paper-scheduled-20260911",
+          "control_value": "{\"published_at\": \"2026-09-11T00:59:00.508858+00:00\", \"session_id\": \"7b922299-817c-5655-98e8-261bf947a1cb\", \"sha256\": \"4bbe94c98a6dde03e658947d92fb577b3630549ed3cadd1e96a5296d9ea35e74\"}",
+          "updated_at": "2026-09-11 00:59:00.508858+00:00"
+        }
+      ],
+      "stream": {
+        "authentication": [
+          {
+            "T": "success",
+            "msg": "authenticated"
+          }
+        ],
+        "counts": {
+          "BTC/USD:o": 49,
+          "BTC/USD:q": 24,
+          "ETH/USD:o": 21,
+          "ETH/USD:q": 5
+        },
+        "endpoint": "wss://stream.data.alpaca.markets/v1beta3/crypto/us",
+        "exact_queue_position_available": false,
+        "order_ids_available": false,
+        "samples": {
+          "BTC/USD:o": {
+            "S": "BTC/USD",
+            "T": "o",
+            "a": [
+              {
+                "p": 77259.346,
+                "s": 0.0010034
+              },
+              {
+                "p": 77265.83,
+                "s": 0.001997
+              },
+              {
+                "p": 77278.7,
+                "s": 1.1179
+              },
+              {
+                "p": 77294.7,
+                "s": 2.2299
+              },
+              {
+                "p": 77332.147,
+                "s": 3.3611
+              },
+              {
+                "p": 77444.911,
+                "s": 2.3706
+              },
+              {
+                "p": 77564.22,
+                "s": 4.77413
+              },
+              {
+                "p": 77572.747,
+                "s": 5.633e-05
+              },
+              {
+                "p": 78472.822,
+                "s": 7.10507
+              },
+              {
+                "p": 78700,
+                "s": 0.00962
+              },
+              {
+                "p": 79477.496,
+                "s": 9.04975
+              },
+              {
+                "p": 80133.99,
+                "s": 0.000133214
+              },
+              {
+                "p": 80539.006,
+                "s": 18.05
+              },
+              {
+                "p": 80718.61045636,
+                "s": 0.000361396
+              },
+              {
+                "p": 80839.85562575,
+                "s": 0.00023292
+              },
+              {
+                "p": 80964.467005076,
+                "s": 0.0012
+              },
+              {
+                "p": 81011.74,
+                "s": 0.003538441
+              },
+              {
+                "p": 81218.274111675,
+                "s": 1.109162176
+              },
+              {
+                "p": 82233.502538071,
+                "s": 0.0064177
+              },
+              {
+                "p": 82274,
+                "s": 0.0127
+              },
+              {
+                "p": 82319.796954314,
+                "s": 0.003
+              },
+              {
+                "p": 82388.832487309,
+                "s": 0.02
+              },
+              {
+                "p": 82741.116751269,
+                "s": 0.01
+              },
+              {
+                "p": 82893.401015228,
+                "s": 0.00515
+              },
+              {
+                "p": 83083.083083083,
+                "s": 0.0015
+              },
+              {
+                "p": 83248.730964467,
+                "s": 0.405142053
+              },
+              {
+                "p": 83756.345177664,
+                "s": 0.0025
+              },
+              {
+                "p": 84365.00373,
+                "s": 0.009482045
+              },
+              {
+                "p": 84554.405886367,
+                "s": 0.000130075
+              },
+              {
+                "p": 85279.187817258,
+                "s": 0.009417053
+              },
+              {
+                "p": 86294.416243654,
+                "s": 0.230155807
+              },
+              {
+                "p": 87641.270025003,
+                "s": 0.000274017
+              },
+              {
+                "p": 88324.873096446,
+                "s": 0.0015
+              },
+              {
+                "p": 88625.625625625,
+                "s": 0.067251767
+              },
+              {
+                "p": 91370.558375634,
+                "s": 0.121071887
+              },
+              {
+                "p": 92385.78680203,
+                "s": 0.07
+              },
+              {
+                "p": 93401.015228426,
+                "s": 0.184592152
+              },
+              {
+                "p": 96446.700507614,
+                "s": 0.00494064
+              },
+              {
+                "p": 97461.92893401,
+                "s": 0.1
+              },
+              {
+                "p": 100100.1001001,
+                "s": 0.003737326
+              },
+              {
+                "p": 101522.842639593,
+                "s": 0.085283789
+              },
+              {
+                "p": 101848.918916247,
+                "s": 0.000185305
+              },
+              {
+                "p": 106598.984771573,
+                "s": 0.1246
+              },
+              {
+                "p": 109644.670050761,
+                "s": 0.65
+              },
+              {
+                "p": 111618.745662398,
+                "s": 6.431e-05
+              },
+              {
+                "p": 111675.126903553,
+                "s": 0.055
+              },
+              {
+                "p": 113000,
+                "s": 0.016943109
+              },
+              {
+                "p": 121827.411167512,
+                "s": 0.039812649
+              },
+              {
+                "p": 126903.553299492,
+                "s": 0.000100962
+              },
+              {
+                "p": 131979.695431472,
+                "s": 0.017414295
+              },
+              {
+                "p": 197969.543147208,
+                "s": 0.007072614
+              },
+              {
+                "p": 246802.030456852,
+                "s": 0.048
+              },
+              {
+                "p": 797157.360406091,
+                "s": 0.0012
+              }
+            ],
+            "b": [
+              {
+                "p": 77241.605,
+                "s": 0.00099234
+              },
+              {
+                "p": 77235.85,
+                "s": 0.0019862
+              },
+              {
+                "p": 77200,
+                "s": 1.3e-05
+              },
+              {
+                "p": 77196.7,
+                "s": 1.112
+              },
+              {
+                "p": 77172.762,
+                "s": 2.2386
+              },
+              {
+                "p": 77133.162,
+                "s": 3.3319
+              },
+              {
+                "p": 77100,
+                "s": 1.3e-05
+              },
+              {
+                "p": 77064.4,
+                "s": 2.4025
+              },
+              {
+                "p": 77000,
+                "s": 1.3e-05
+              },
+              {
+                "p": 76939.43,
+                "s": 4.806
+              },
+              {
+                "p": 76900,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76876.44,
+                "s": 0.000390236
+              },
+              {
+                "p": 76800,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76700,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76600,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76500,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76423.576423576,
+                "s": 0.00035
+              },
+              {
+                "p": 76400,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76300,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76200,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76100,
+                "s": 1.35e-05
+              },
+              {
+                "p": 76022.255,
+                "s": 7.0948
+              },
+              {
+                "p": 76000,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75924.075924075,
+                "s": 0.0002
+              },
+              {
+                "p": 75900,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75888.6811,
+                "s": 6.009e-05
+              },
+              {
+                "p": 75862.068965517,
+                "s": 0.3058
+              },
+              {
+                "p": 75800,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75724.275724275,
+                "s": 7.9156e-05
+              },
+              {
+                "p": 75700,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75606.31,
+                "s": 0.04629243
+              },
+              {
+                "p": 75600,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75500,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75400,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75369.458128078,
+                "s": 0.000353
+              },
+              {
+                "p": 75300,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75200,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75100,
+                "s": 1.35e-05
+              },
+              {
+                "p": 75000,
+                "s": 1.35e-05
+              },
+              {
+                "p": 74876.84729064,
+                "s": 0.0006
+              },
+              {
+                "p": 74798.02955665,
+                "s": 0.0002295
+              },
+              {
+                "p": 74665.46,
+                "s": 8.983
+              },
+              {
+                "p": 74300,
+                "s": 0.080754
+              },
+              {
+                "p": 73891.625615763,
+                "s": 0.03097
+              },
+              {
+                "p": 73730.64,
+                "s": 0.00948039
+              },
+              {
+                "p": 73610.9,
+                "s": 17.953
+              },
+              {
+                "p": 73426.573426573,
+                "s": 0.000133333
+              },
+              {
+                "p": 72906.403940886,
+                "s": 0.3
+              },
+              {
+                "p": 72400,
+                "s": 0.110497
+              },
+              {
+                "p": 70935.960591133,
+                "s": 0.013
+              },
+              {
+                "p": 70500,
+                "s": 0.141844
+              },
+              {
+                "p": 69930.069930069,
+                "s": 0.001
+              },
+              {
+                "p": 68965.517241379,
+                "s": 0.00101
+              },
+              {
+                "p": 67980.295566502,
+                "s": 0.0045
+              },
+              {
+                "p": 63936.063936063,
+                "s": 0.0045935
+              },
+              {
+                "p": 62131.034482758,
+                "s": 0.1
+              },
+              {
+                "p": 62068.965517241,
+                "s": 0.0261
+              },
+              {
+                "p": 61970.443349753,
+                "s": 0.002
+              },
+              {
+                "p": 61576.354679802,
+                "s": 0.01
+              },
+              {
+                "p": 61280.788177339,
+                "s": 0.002
+              },
+              {
+                "p": 60591.133004926,
+                "s": 0.002
+              },
+              {
+                "p": 60098.522167487,
+                "s": 0.0516
+              },
+              {
+                "p": 59901.477832512,
+                "s": 0.002
+              },
+              {
+                "p": 59285.282610936,
+                "s": 1.6867e-05
+              },
+              {
+                "p": 59113.30049261,
+                "s": 0.012958
+              },
+              {
+                "p": 58669.950738916,
+                "s": 0.05
+              },
+              {
+                "p": 58128.078817733,
+                "s": 0.0068
+              },
+              {
+                "p": 57635.467980295,
+                "s": 0.00338
+              },
+              {
+                "p": 57536.945812807,
+                "s": 0.0057344
+              },
+              {
+                "p": 57263.054187192,
+                "s": 0.018
+              },
+              {
+                "p": 57241.379310344,
+                "s": 0.002
+              },
+              {
+                "p": 57142.857142857,
+                "s": 0.0595
+              },
+              {
+                "p": 56157.63546798,
+                "s": 0.008
+              },
+              {
+                "p": 55900,
+                "s": 0.004478
+              },
+              {
+                "p": 55683.087910543,
+                "s": 1.7958e-05
+              },
+              {
+                "p": 54187.192118226,
+                "s": 0.0309
+              },
+              {
+                "p": 52709.359605911,
+                "s": 0.005
+              },
+              {
+                "p": 50449.076175844,
+                "s": 1.9821e-05
+              },
+              {
+                "p": 49261.083743842,
+                "s": 0.0115
+              },
+              {
+                "p": 48823.645320197,
+                "s": 0.068032
+              },
+              {
+                "p": 47397.004868466,
+                "s": 2.1098e-05
+              },
+              {
+                "p": 47073.891625615,
+                "s": 0.0067
+              },
+              {
+                "p": 46798.02955665,
+                "s": 0.063156
+              },
+              {
+                "p": 44517.146120518,
+                "s": 2.2463e-05
+              },
+              {
+                "p": 44334.975369458,
+                "s": 0.0122
+              },
+              {
+                "p": 38313.30049261,
+                "s": 0.002
+              },
+              {
+                "p": 29556.650246305,
+                "s": 0.007
+              },
+              {
+                "p": 492.610837438,
+                "s": 0.07
+              }
+            ],
+            "r": true,
+            "t": "2026-09-11T06:29:13.686138825Z"
+          },
+          "BTC/USD:q": {
+            "S": "BTC/USD",
+            "T": "q",
+            "ap": 77259.346,
+            "as": 0.0010034,
+            "bp": 77235.85,
+            "bs": 0.0019862,
+            "t": "2026-09-11T06:30:05.525257729Z"
+          },
+          "ETH/USD:o": {
+            "S": "ETH/USD",
+            "T": "o",
+            "a": [
+              {
+                "p": 2465.85,
+                "s": 0.03339
+              },
+              {
+                "p": 2466.1,
+                "s": 0.067077
+              },
+              {
+                "p": 2467.2,
+                "s": 14.952
+              },
+              {
+                "p": 2467.85,
+                "s": 29.859
+              },
+              {
+                "p": 2468.88,
+                "s": 44.7
+              },
+              {
+                "p": 2471.7,
+                "s": 42.52
+              },
+              {
+                "p": 2475.4,
+                "s": 85.195
+              },
+              {
+                "p": 2485.14457004,
+                "s": 0.006743004
+              },
+              {
+                "p": 2495.042,
+                "s": 0.00084303
+              },
+              {
+                "p": 2504.672,
+                "s": 128.33
+              },
+              {
+                "p": 2505.151749019,
+                "s": 0.006710366
+              },
+              {
+                "p": 2525.32,
+                "s": 0.006622576
+              },
+              {
+                "p": 2538.071065989,
+                "s": 0.4
+              },
+              {
+                "p": 2546.9,
+                "s": 137.6
+              },
+              {
+                "p": 2548.223350253,
+                "s": 0.02562331
+              },
+              {
+                "p": 2563.451776649,
+                "s": 0.715
+              },
+              {
+                "p": 2564.17882,
+                "s": 0.848396677
+              },
+              {
+                "p": 2568.527918781,
+                "s": 3
+              },
+              {
+                "p": 2581.21,
+                "s": 272.714
+              },
+              {
+                "p": 2583.756345177,
+                "s": 1
+              },
+              {
+                "p": 2588.832487309,
+                "s": 1.283594423
+              },
+              {
+                "p": 2597.155820666,
+                "s": 0.004226582
+              },
+              {
+                "p": 2639.593908629,
+                "s": 0.262
+              },
+              {
+                "p": 2646.241741741,
+                "s": 0.035
+              },
+              {
+                "p": 2690.355329949,
+                "s": 0.1
+              },
+              {
+                "p": 2741.116751269,
+                "s": 3.410078654
+              },
+              {
+                "p": 2782.31355154,
+                "s": 0.01124372
+              },
+              {
+                "p": 2842.639593908,
+                "s": 0.732644156
+              },
+              {
+                "p": 2902.902902902,
+                "s": 0.02503898
+              },
+              {
+                "p": 3045.685279187,
+                "s": 1.335265184
+              },
+              {
+                "p": 3235.841329285,
+                "s": 0.008835646
+              },
+              {
+                "p": 3248.730964467,
+                "s": 3
+              },
+              {
+                "p": 3301.725765374,
+                "s": 0.003827865
+              },
+              {
+                "p": 3350.253807106,
+                "s": 1.621131747
+              },
+              {
+                "p": 3501.522842639,
+                "s": 0.029400006
+              },
+              {
+                "p": 3553.299492385,
+                "s": 0.06
+              },
+              {
+                "p": 3857.868020304,
+                "s": 3.5
+              },
+              {
+                "p": 3862.294416243,
+                "s": 1.391513798
+              },
+              {
+                "p": 3959.390862944,
+                "s": 0.07
+              },
+              {
+                "p": 4050.761421319,
+                "s": 3
+              },
+              {
+                "p": 4060.913705583,
+                "s": 0.301369844
+              },
+              {
+                "p": 4263.959390862,
+                "s": 4.964183407
+              },
+              {
+                "p": 4873.0964467,
+                "s": 2
+              },
+              {
+                "p": 5075.126903553,
+                "s": 0.2
+              }
+            ],
+            "b": [
+              {
+                "p": 2465.4,
+                "s": 0.033038
+              },
+              {
+                "p": 2465.358,
+                "s": 0.06713
+              },
+              {
+                "p": 2464.4,
+                "s": 14.987
+              },
+              {
+                "p": 2463.49,
+                "s": 29.69
+              },
+              {
+                "p": 2462.315,
+                "s": 44.864
+              },
+              {
+                "p": 2459.538,
+                "s": 42.396
+              },
+              {
+                "p": 2455.954,
+                "s": 85.7212
+              },
+              {
+                "p": 2446.1,
+                "s": 0.00408814
+              },
+              {
+                "p": 2445.608292809,
+                "s": 0.006827749
+              },
+              {
+                "p": 2442.2553,
+                "s": 0.00088952
+              },
+              {
+                "p": 2426.737,
+                "s": 128.324
+              },
+              {
+                "p": 2426.076652522,
+                "s": 0.00684055
+              },
+              {
+                "p": 2413.15,
+                "s": 1.45038642
+              },
+              {
+                "p": 2406.701,
+                "s": 0.006853115
+              },
+              {
+                "p": 2392.81,
+                "s": 138.8
+              },
+              {
+                "p": 2379.310344827,
+                "s": 0.5
+              },
+              {
+                "p": 2365.83,
+                "s": 1.47939624
+              },
+              {
+                "p": 2364.532019704,
+                "s": 0.5
+              },
+              {
+                "p": 2358.62,
+                "s": 274.502
+              },
+              {
+                "p": 2339.901477832,
+                "s": 1.5
+              },
+              {
+                "p": 2315.27093596,
+                "s": 0.158
+              },
+              {
+                "p": 2290.640394088,
+                "s": 0.1
+              },
+              {
+                "p": 2258.128078817,
+                "s": 0.2
+              },
+              {
+                "p": 2200,
+                "s": 0.009486363
+              },
+              {
+                "p": 2175.369458128,
+                "s": 1.36
+              },
+              {
+                "p": 2053.201970443,
+                "s": 3
+              },
+              {
+                "p": 2023.645320197,
+                "s": 1.71
+              },
+              {
+                "p": 1970.443349753,
+                "s": 0.025
+              },
+              {
+                "p": 1952.709359605,
+                "s": 4
+              },
+              {
+                "p": 1935.960591133,
+                "s": 3
+              },
+              {
+                "p": 1871.921182266,
+                "s": 0.125
+              },
+              {
+                "p": 1847.290640394,
+                "s": 0.1
+              },
+              {
+                "p": 1837.536945812,
+                "s": 1.28
+              },
+              {
+                "p": 1832.51231527,
+                "s": 0.00065
+              },
+              {
+                "p": 1822.660098522,
+                "s": 0.19
+              },
+              {
+                "p": 1773.399014778,
+                "s": 0.000683
+              },
+              {
+                "p": 1753.69458128,
+                "s": 1
+              },
+              {
+                "p": 1743.842364532,
+                "s": 0.035
+              },
+              {
+                "p": 1660,
+                "s": 0.14321
+              },
+              {
+                "p": 1625.615763546,
+                "s": 0.06
+              },
+              {
+                "p": 1576.354679802,
+                "s": 0.0625
+              },
+              {
+                "p": 1556.650246305,
+                "s": 0.4
+              },
+              {
+                "p": 1527.093596059,
+                "s": 0.25
+              },
+              {
+                "p": 1507.389162561,
+                "s": 2
+              },
+              {
+                "p": 1497.536945812,
+                "s": 0.32
+              },
+              {
+                "p": 1477.832512315,
+                "s": 0.166
+              },
+              {
+                "p": 1413.151876936,
+                "s": 0.000707638
+              },
+              {
+                "p": 1400,
+                "s": 0.179
+              },
+              {
+                "p": 1307.562072425,
+                "s": 0.000764782
+              },
+              {
+                "p": 1281.132439868,
+                "s": 0.000780559
+              },
+              {
+                "p": 1009.114128925,
+                "s": 0.000990968
+              },
+              {
+                "p": 914.840695607,
+                "s": 0.001093086
+              },
+              {
+                "p": 492.610837438,
+                "s": 10
+              }
+            ],
+            "r": true,
+            "t": "2026-09-11T06:28:42.637501962Z"
+          },
+          "ETH/USD:q": {
+            "S": "ETH/USD",
+            "T": "q",
+            "ap": 2465.85,
+            "as": 0.03339,
+            "bp": 2465.358,
+            "bs": 0.06713,
+            "t": "2026-09-11T06:30:11.993086617Z"
+          }
+        },
+        "seconds": 45.415385615080595,
+        "subscription": [
+          {
+            "T": "subscription",
+            "bars": [],
+            "dailyBars": [],
+            "orderbooks": [
+              "BTC/USD",
+              "ETH/USD"
+            ],
+            "quotes": [
+              "BTC/USD",
+              "ETH/USD"
+            ],
+            "trades": [
+              "BTC/USD",
+              "ETH/USD"
+            ],
+            "updatedBars": []
+          }
+        ],
+        "venue_sequence_available": false
+      },
+      "unresolved_local": []
+    }
+  ]
+}

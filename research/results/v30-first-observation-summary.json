@@ -1,0 +1,16 @@
+{
+  "kind": "actual_v30_paper_runtime_resource_and_flow_observation",
+  "started_at": "2026-09-11T12:12:50.260731+00:00",
+  "finished_at": "2026-09-11T12:42:53.904262+00:00",
+  "duration_seconds": 1803.643531,
+  "requests": 660,
+  "http_errors": 0,
+  "failures": [
+    "runtime_reported_error"
+  ],
+  "archive": "v30-live-observation.json.gz",
+  "uncompressed_sha256": "d85c7a98cceb19b6d5a20bc0e71dc949484492c835c8f55085f451c2154bc820",
+  "raw_bytes": 62731401,
+  "archive_bytes": 5433144,
+  "note": "Failed first v30 observation retained; actual broker backoffs and subsequent recovery are recorded separately."
+}

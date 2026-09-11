@@ -1,0 +1,25 @@
+{
+  "reviewed_commit": "ba1b6dec962f93bfe8dec35055147714e172d389",
+  "compared_with": "b6d7c5616b21db26e22a09510f72bc3801fc38c7",
+  "review_scope": "Correction of the marketable-entry replay/live contract mismatch",
+  "source_sha256": "2b5560f1eb0f5edeb9181647d0029a9724960220d19940ae64a7c439ccf9449e",
+  "targeted_tests_passed": 106,
+  "independent_review": "No significant issues found in the reviewed changes.",
+  "reviewer": "19862ff5-f706-4cc9-b471-b5abb3ea799e",
+  "behavior": {
+    "marketable_entry": "decision-ask priced limit",
+    "remainder": "resting limit with TTL/cancellation",
+    "initial_crossing_fee": "taker",
+    "subsequent_resting_fill_fee": "maker",
+    "owned_exit": "market"
+  },
+  "unretuned_development_capture": {
+    "hold_decisions": 59,
+    "orders": 0,
+    "fills": 0,
+    "profitability_validated": false
+  },
+  "overall_release_approved": false,
+  "remaining_issue": "High-severity foreign-inventory entitlement correction and focused review",
+  "v30_production_changes": false
+}

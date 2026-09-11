@@ -1,0 +1,82 @@
+{
+  "at": "2026-09-11T13:42:38.035497+00:00",
+  "before": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T17:18:37.334019Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent scalp-run --cohort-id v30-paper-scalper-20260911 --account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --approved-at 2026-09-11T02:18:28.634-04:00 --symbols BTC/USD,ETH/USD --notional 100 --entry-style passive --decision-seconds 1 --horizon-seconds 5 --holding-seconds 15 --order-ttl-seconds 3 --email-digest-seconds 1800 --confirm-paper-unrestricted"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-news-worker",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-11T12:05:46.776185Z"
+  },
+  "after": {
+    "autoDeploy": "no",
+    "autoDeployTrigger": "off",
+    "branch": "main",
+    "createdAt": "2026-09-05T17:18:37.334019Z",
+    "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+    "environmentId": "evm-daf34jn40ujc739c8530",
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "notifyOnFail": "default",
+    "ownerId": "tea-d9dqrkr7uimc73c2e240",
+    "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+    "rootDir": "",
+    "serviceDetails": {
+      "buildPlan": "starter",
+      "env": "python",
+      "envSpecificDetails": {
+        "buildCommand": "pip install .",
+        "preDeployCommand": "alembic upgrade head",
+        "startCommand": "tradeagent scalp-run --cohort-id v30-paper-scalper-20260911-r2 --account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --approved-at 2026-09-11T02:18:28.634-04:00 --symbols BTC/USD,ETH/USD --notional 100 --entry-style passive --decision-seconds 1 --horizon-seconds 5 --holding-seconds 15 --order-ttl-seconds 3 --email-digest-seconds 1800 --confirm-paper-unrestricted"
+      },
+      "numInstances": 1,
+      "plan": "starter",
+      "previews": {
+        "generation": "off"
+      },
+      "pullRequestPreviewsEnabled": "no",
+      "region": "oregon",
+      "runtime": "python",
+      "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+    },
+    "slug": "tradeagent-news-worker",
+    "suspended": "not_suspended",
+    "suspenders": [],
+    "type": "background_worker",
+    "updatedAt": "2026-09-11T13:42:37.736984Z"
+  },
+  "env_sha256": "ff69bd0ceded505d87aaeae92c682b9d0715422fb53b3ebbb0157bb9577dd3fb",
+  "environment_unchanged": true,
+  "only_cohort_name_changed": true,
+  "strategy_settings_unchanged": true,
+  "reviewed_code_sha": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1"
+}

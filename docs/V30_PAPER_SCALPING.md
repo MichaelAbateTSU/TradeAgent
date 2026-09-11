@@ -124,9 +124,10 @@ a daily approval prompt. Do not start another worker against the same account.
 
 ## Release status
 
-**v30 is deployed in paper mode; new entries are temporarily paused for
-corrective maintenance.** Recovery, data recording and notifications remain
-active. The current reviewed release is
+**The corrected v30 run is active in paper mode**, with autonomous entries
+resumed at 09:48 Eastern. Current execution code is
+`211347c82b2f4b04aa0dd22e042dfa3eae434ee1`; its final observation is described
+below. It remains enabled without another chat or daily approval. The first deployed release was
 `cfc0c275ccb78e32e04f98449e58cf40cd449542`; its full validation passed 1,466
 tests, with two skipped and 87.92% coverage. Earlier passing suites did not
 catch several execution defects: all original findings and failed regression
@@ -217,6 +218,77 @@ Evidence: [09:00 read-only summary](../research/results/v30-0900-readonly-summar
 [broker and ledger snapshot](../research/results/v30-0900-readonly-proof.json),
 and [existing digest acceptance](../research/results/v30-digest-proof.json).
 
+### Corrective run, unchanged paper mandate
+
+The request-load correction and its settlement regressions passed 1,475 tests
+(two skipped, 87.92% coverage) and focused independent review. A targeted
+reproduction dropped from **260 broker reads over ten unchanged unresolved
+ticks to at most four**. This is broker-I/O efficiency, not a trade quota or a
+paper loss/approval gate.
+
+Only the event service was redeployed:
+`dep-dai0almk1f9s73fii4fg`, code
+`211347c82b2f4b04aa0dd22e042dfa3eae434ee1`.
+Dashboard/notifier remain on reviewed `cfc0c27`; recorder remains `68c2e8f`.
+Plans, instances, environment fingerprints, database schema/capacity and
+strategy parameters were unchanged.
+
+The immutable replacement is `v30-paper-scalper-20260911-r2`, run ID
+`45b62cc787d4558a76262b5bbf3ad701aa4445b7b2651ce1a78e97fa58d6b432`,
+config
+`80604de3d2012f9944bb560c73158304b7ac7fb7271bfd10ba7c8aeab3e1cb97`.
+It preserves the actual 02:18 owner approval and all prior runs, orders and
+fees. The old run's maintenance stop remains historical; the new run reports
+`operator_stop: false` and does not reset the account's economic history.
+
+At **09:48:24 Eastern**, fresh ownership was verified for
+`srv-dae4tr7qj5pc73a9e0k0-7cd574cbb5-lz6d7`.
+The new startup notice
+`1dc806b6-5343-52ad-9597-cd234cd18469` was accepted once at
+09:48:20.638375 Eastern, provider
+`cc1c2f02-a2a6-446c-a04a-f4f8b67bd995`.
+This is startup acceptance, not proof of new fills.
+
+A new observation ran from **09:48:54 to 10:18:58 Eastern**, lasting
+**1,803.83 seconds**. All 604 dashboard requests returned 200; the sampled
+runtime/resource evaluator reported no failures. Persisted market-event
+progress advanced from 1,254 to 88,128 under one unchanged current owner.
+The complete four-page PostgreSQL log window contained 3,646 records and no
+searched backend termination/recovery or out-of-memory indicator.
+
+Peak memory was 155.11 MiB for the event worker, 138.50 MiB for the dashboard,
+114.50 MiB for the notifier, 142.75 MiB for the recorder and 757.49 MiB for
+PostgreSQL, within the unchanged reviewed capacity bounds.
+
+The **10:20:52 Eastern** broker read confirmed ACTIVE/unblocked status, no
+positions and no open orders. The current run had **26 completed paper round
+trips**, no unresolved order/ownership state and no reported runtime error.
+Its maximum recorded holding interval was **17.83 seconds**, versus the
+approximately seven-minute delayed exit in the retained first-run incident.
+The strategy's 15-second exit remains a target rather than a fill guarantee.
+
+There were **no broker 429 records in the corrected run** at that read.
+Two broker 422 responses reported that an order was already filled during a
+cancel/fill race; both recovered through the original order identity with a
+one-second retry. These audit facts are retained even though the ten-second
+HTTP sampler did not observe a failing runtime snapshot. This is not a claim
+that every broker request returned success.
+
+Corrected-run gross cash flow was `-$6.063478242665711576`; modeled net P&L
+was `-$14.456783356942432475`. All 26 cycles still had pending/inferred fee
+attribution, so **final actual per-cycle net P&L is not confirmed**. The
+broker's cash balance was $99,982.84 at the readback. These initial results
+are negative, not proof of a profitable strategy.
+
+The 10:00 digest was accepted once by the existing notifier:
+notification `db2cb6eb-8eb3-5b7b-b846-58745e59ee57`, provider
+`cc288871-c30e-401e-be9d-56af740fadbe`.
+The corrected worker remains running with its original unrestricted paper
+policy, not stopped after the observation. Prior code, orders, failed
+observations, maintenance records and the old AAPL revocation remain intact.
+An independent **12:00 Eastern read-only follow-up** is scheduled in this
+session; execution does not depend on that wake or another chat message.
+
 Paper trading has no real investment loss, but APIs, compute, storage,
 credentials and operational failures still have real consequences. Neither
 the research attachment, a paper fill nor a passing software test establishes
@@ -229,6 +301,12 @@ profitability.
 - [Actual initial deployed state](../research/results/v30-initial-proof.json)
 - [Legacy authority supersession](../research/results/v30-legacy-supersession.json)
 - [Actual intermediate order and email proof](../research/results/v30-interim-proof.json)
+- [Corrective release review](../research/results/v30-r2-review-final.json)
+- [Corrective deployed run](../research/results/v30-r2-initial-proof.json)
+- [Final corrected-run summary](../research/results/v30-final-summary.json)
+- [Final broker and ledger proof](../research/results/v30-r2-final-proof.json)
+- [Lossless corrected observation](../research/results/v30-r2-live-observation.json.gz)
+- [Final notifier evidence](../research/results/v30-r2-final-notifier.json)
 - [Alpaca real-time crypto data](https://docs.alpaca.markets/docs/real-time-crypto-pricing-data)
 - The owner-supplied 1,234-line scalping research attachment, received September
   11, 2026. Its CME/MBO, neural-model and co-location recommendations are not

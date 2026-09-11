@@ -1,0 +1,16 @@
+{
+  "owner_request_at": "2026-09-11T02:18:28.634-04:00",
+  "attachment_filename": "pasted-text-b39d8fc6-9cfb-4974-9bf9-e411c99f5cd8.txt",
+  "attachment_lines": 1234,
+  "attachment_sha256": "ee3788ea27495dd33662c4bb30488196a490970da872047937b47e659e1711fc",
+  "implementation_scope": "Available 24/7 Alpaca paper crypto, canonical L2/events, deterministic momentum/reversion, shared replay and persistent execution",
+  "unconfigured_capabilities_not_claimed": [
+    "CME futures brokerage and MBO data entitlement",
+    "L3 order identities or exact exchange queue position",
+    "Co-location or a millisecond execution guarantee",
+    "Validated profitable model, neural strategy or autonomous model promotion"
+  ],
+  "paper_policy": "v30-paper-unrestricted",
+  "operator_preference_document": "docs/OPERATOR_PREFERENCES.md",
+  "new_paid_services_or_live_funds_authorized": false
+}

@@ -1,0 +1,28 @@
+{
+  "job_id": "job-dahv4v3m8hqs73dgmrrg",
+  "status": "succeeded",
+  "results": [
+    {
+      "at": "2026-09-11T12:22:39.713292+00:00",
+      "code_sha": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+      "email_enqueued": false,
+      "normal_18_et_schedule_unchanged": true,
+      "notifications": [
+        {
+          "attempts": 1,
+          "notification_id": "c5e09693-f346-5768-9bfb-ae95934581e2",
+          "provider_message_id": "d912a284-72a9-4387-aedf-47f22449b09f",
+          "sent_at": "2026-09-11 12:11:27.805030+00:00",
+          "status": "sent",
+          "subject": "[TradeAgent PAPER v30] Autonomous scalper started"
+        }
+      ],
+      "read_only": true,
+      "report_bytes": 62432,
+      "report_profile": "v30-paper-unrestricted",
+      "report_sha256": "f6f3cb2350cd6c3c41099d04b782a9001699abdde24211d603e39b9c1f5926a6",
+      "report_state": "running",
+      "report_subject": "[TradeAgent PAPER v30] Daily scalping status - 2026-09-11"
+    }
+  ]
+}

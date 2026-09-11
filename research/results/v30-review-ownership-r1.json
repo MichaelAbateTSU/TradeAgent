@@ -1,0 +1,28 @@
+{
+  "reviewed_commit": "218fa4a22680a29a459ba67544931d8b27296c18",
+  "compared_with": "ba1b6dec962f93bfe8dec35055147714e172d389",
+  "reviewer": "19862ff5-f706-4cc9-b471-b5abb3ea799e",
+  "deployment_approved": false,
+  "full_validation": {
+    "passed": 1446,
+    "skipped": 2,
+    "coverage_percent": 87.81
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "issue": "Concurrent foreign acquisitions and additional owned partial fills can mask the new fill's unposted base fee.",
+      "reproduction": "Observed owned 0.4 gross/0.399 net, then manual 9.975 net and another owned 0.2 gross/0.1995 net before reconciliation. The engine sells 0.599 rather than 0.5985, consuming 0.0005 foreign units.",
+      "required_resolution": "Reconcile external flow before crediting new net ownership; ambiguous combined balances remain unresolved rather than becoming owned."
+    },
+    {
+      "severity": "high",
+      "issue": "A lagged position response is latched as a permanent ownership debit.",
+      "reproduction": "One empty position response immediately after acknowledged BUY 1, followed by correct 0.9975 responses and actual fee activities, leaves inventory empty and the cycle residual through 60 seconds with cumulative_reduction 1.",
+      "required_resolution": "Distinguish unsettled observations from corroborated debits and preserve recovery of acknowledged fills."
+    }
+  ],
+  "note": "The initial net-entitlement fix covered the earlier example but not these additional settlement cases. Passing tests do not waive either finding.",
+  "v30_production_changes": false,
+  "v30_broker_orders_submitted": 0
+}

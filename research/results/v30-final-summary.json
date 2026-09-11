@@ -1,0 +1,140 @@
+{
+  "kind": "v30_corrective_release_actual_final_summary",
+  "as_of": "2026-09-11T14:20:52.044936+00:00",
+  "code_sha": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+  "cohort_id": "v30-paper-scalper-20260911-r2",
+  "run_id": "45b62cc787d4558a76262b5bbf3ad701aa4445b7b2651ce1a78e97fa58d6b432",
+  "config_hash": "80604de3d2012f9944bb560c73158304b7ac7fb7271bfd10ba7c8aeab3e1cb97",
+  "owner": "srv-dae4tr7qj5pc73a9e0k0-7cd574cbb5-lz6d7",
+  "mode": "paper",
+  "profile": "v30-paper-unrestricted",
+  "autonomous_entries_enabled": true,
+  "financial_policy": {
+    "automatic_loss_kill": false,
+    "autonomous": true,
+    "catastrophic_stop": null,
+    "daily_approval_required": false,
+    "entry_window": "24/7 crypto",
+    "macro_veto": false,
+    "news_risk_veto": false,
+    "order_notional_is_strategy_parameter_not_risk_ceiling": true,
+    "paper_daily_loss_limit": null,
+    "paper_daily_trade_limit": null,
+    "paper_drawdown_limit": null,
+    "paper_exposure_limit": null,
+    "paper_only": true,
+    "profile": "v30-paper-unrestricted",
+    "profitability_validated": false,
+    "qualification_required": false,
+    "shadow_required": false,
+    "technical_requirements": [
+      "paper endpoint and pinned account",
+      "current valid market state",
+      "singleton ownership and durable client-order identities",
+      "broker-supported orders and confirmed owned exits",
+      "reconciliation and automatic recovery"
+    ]
+  },
+  "observation": {
+    "started_at": "2026-09-11T13:48:54.315268+00:00",
+    "finished_at": "2026-09-11T14:18:58.144927+00:00",
+    "seconds": 1803.829659,
+    "http_requests": 604,
+    "http_errors": 0,
+    "sampled_failures": [],
+    "committed_market_events": [
+      1254,
+      88128
+    ],
+    "archive": "v30-r2-live-observation.json.gz",
+    "uncompressed_sha256": "2128fde919d9da7af8d9e52a03f4ac2a2d19434f9255ce623043d4a9c2a4229b"
+  },
+  "memory": [
+    {
+      "resource": "srv-dadoa3740ujc73cb09c0",
+      "peak_mib": 138.50000381469727,
+      "samples": 31
+    },
+    {
+      "resource": "dpg-dadn7nht0dsc73f9jja0-a",
+      "peak_mib": 757.4921607971191,
+      "samples": 31
+    },
+    {
+      "resource": "srv-dadn8son74is73apqcc0",
+      "peak_mib": 142.74609565734863,
+      "samples": 31
+    },
+    {
+      "resource": "srv-dadnn6mq1p3s73ef7ef0",
+      "peak_mib": 114.49999809265137,
+      "samples": 31
+    },
+    {
+      "resource": "srv-dae4tr7qj5pc73a9e0k0",
+      "peak_mib": 155.10937690734863,
+      "samples": 31
+    }
+  ],
+  "pg_logs": {
+    "complete": true,
+    "pages": 4,
+    "unique_logs": 3646,
+    "flagged_messages": []
+  },
+  "corrected_run_results": {
+    "completed_round_trips": 26,
+    "fees_pending_cycles": 26,
+    "gross_cash_flow": "-6.063478242665711576",
+    "maximum_holding_seconds": "17.827264",
+    "modeled_net_pnl": "-14.456783356942432475"
+  },
+  "actual_final_net_pnl_known": false,
+  "broker": {
+    "account_blocked": false,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "at": "2026-09-11T14:20:52.044936+00:00",
+    "cash": "99982.84",
+    "open_orders": [],
+    "positions": [],
+    "status": "ACTIVE",
+    "trading_blocked": false
+  },
+  "unresolved_orders": 0,
+  "unresolved_ownership": 0,
+  "legacy_cohorts_unchanged": true,
+  "old_aapl_authority_remains_revoked": true,
+  "startup_notification": [
+    {
+      "attempts": 1,
+      "notification_id": "1dc806b6-5343-52ad-9597-cd234cd18469",
+      "provider_message_id": "cc1c2f02-a2a6-446c-a04a-f4f8b67bd995",
+      "sent_at": "2026-09-11 13:48:20.638375+00:00",
+      "status": "sent"
+    }
+  ],
+  "recovered_cancel_fill_races": [
+    {
+      "event_id": "3fe02c31-f247-4b8e-b1a7-2a45a3b21bf9",
+      "at": "2026-09-11 14:09:34.566748+00:00",
+      "http_status": 422,
+      "response": "{\"code\":42210000,\"message\":\"order is already in \\\"filled\\\" state\"}",
+      "retry_after": "2026-09-11T14:09:35.566748+00:00"
+    },
+    {
+      "event_id": "0bffc49c-87a2-44f1-8334-790931eb01ad",
+      "at": "2026-09-11 13:58:18.639522+00:00",
+      "http_status": 422,
+      "response": "{\"code\":42210000,\"message\":\"order is already in \\\"filled\\\" state\"}",
+      "retry_after": "2026-09-11T13:58:19.639522+00:00"
+    }
+  ],
+  "broker_429_in_corrected_run": false,
+  "limitations": [
+    "Paper and modeled outcomes do not establish live profitability.",
+    "Fees remain pending/inferred, not confirmed per-cycle actual net P&L.",
+    "L2 data has no exchange sequence or exact queue position.",
+    "The 15-second strategy exit is a target, not a guaranteed fill deadline."
+  ],
+  "continuous_operation_retained": true
+}

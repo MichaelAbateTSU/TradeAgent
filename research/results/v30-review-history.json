@@ -1,0 +1,63 @@
+{
+  "scope": "Retained execution-correctness findings; intentional unrestricted paper financial policy was not treated as a defect.",
+  "iterations": [
+    {
+      "commit": "b6d7c5616b21db26e22a09510f72bc3801fc38c7",
+      "passed": false,
+      "findings": [
+        "New external holdings can restore inferred fee deductions and be consumed by owned exits.",
+        "Marketable replay entries can fill above the live ask-priced limit."
+      ]
+    },
+    {
+      "commit": "ba1b6dec962f93bfe8dec35055147714e172d389",
+      "scope": "Replay correction only",
+      "passed": true
+    },
+    {
+      "commit": "218fa4a22680a29a459ba67544931d8b27296c18",
+      "passed": false,
+      "findings": [
+        "Concurrent external acquisitions and owned partial fills can still mask unposted fees.",
+        "A lagged empty position response can become a permanent ownership debit."
+      ]
+    },
+    {
+      "commit": "f153bf6440e4397e384245d8b0678b60468f6e07",
+      "passed": false,
+      "findings": [
+        "Positive partial position lag with unposted fees can strand acknowledged owned credits.",
+        "Separate cycle/account-projection commits can apply an external disposal twice after interruption."
+      ]
+    },
+    {
+      "commit": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+      "passed": true,
+      "production_observation": "Actual fills completed, but false mixed-inventory classification and redundant broker reads caused repeated 429 responses and a delayed exit."
+    },
+    {
+      "commit": "f912b34593a05a13454cd0927abaa2de884564d6",
+      "passed": false,
+      "findings": [
+        "Foreign segregation omitted unacknowledged dispatched owned BUY exposure."
+      ]
+    },
+    {
+      "commit": "9d141dc5fd3529d4d62928f1634c635827e4b9f1",
+      "passed": false,
+      "findings": [
+        "A lagged external-position response could permanently reduce the foreign reserve despite later attributable fee and balance evidence."
+      ]
+    },
+    {
+      "commit": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+      "passed": true,
+      "full_tests_passed": 1475,
+      "full_tests_skipped": 2,
+      "coverage_percent": 87.92,
+      "actual_corrected_observation": "1803.83 seconds, 604 successful dashboard requests, no sampled runtime/resource failures, no broker 429 records in the corrected run at final readback. Two already-filled cancel races recovered and remain in the audit."
+    }
+  ],
+  "earlier_failed_evidence_overwritten": false,
+  "profitability_established": false
+}

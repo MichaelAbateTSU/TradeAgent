@@ -1,0 +1,13 @@
+{
+  "kind": "same_session_read_only_followup",
+  "session_id": "d889264f-50d4-4da4-be00-be99b5089546",
+  "next_run_at": "2026-09-11T16:00:00.000Z",
+  "local_time": "September 11, 2026, 12:00 America/New_York",
+  "persisted_at": "2026-09-11T14:25:48.694Z",
+  "execution_dependency": false,
+  "purpose": "Observe the already-running corrective v30 paper worker, broker reconciliation, resource status and existing digests without changing policy or submitting orders.",
+  "live_event_code_sha": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+  "cohort_id": "v30-paper-scalper-20260911-r2",
+  "risk_policy": "Existing v30 unrestricted-paper policy; legacy limits must not be silently reapplied.",
+  "new_order_or_rearm_authority_created": false
+}

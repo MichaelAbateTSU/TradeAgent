@@ -1,0 +1,38 @@
+{
+  "candidate": "b6d7c5616b21db26e22a09510f72bc3801fc38c7",
+  "initial_code_candidate": "b2820aaccc4a80f3feee13d268d7e837b30a714d",
+  "reviewer": "19862ff5-f706-4cc9-b471-b5abb3ea799e",
+  "deployment_approved": false,
+  "findings": [
+    {
+      "severity": "high",
+      "file": "src/tradeagent/scalping_execution.py",
+      "issue": "Later foreign acquisitions can restore previously observed deductions from net-owned inventory while base fees are unposted.",
+      "reproduction": "An owned 1-unit BUY yields 0.9975 net; a later manual BUY adds 9.975 net; the engine exits 1 instead of 0.9975, consuming 0.0025 foreign units.",
+      "required_resolution": "Durable net-owned entitlement and segregation of later external acquisitions; no double fee deduction or invented ownership restoration."
+    },
+    {
+      "severity": "medium",
+      "file": "src/tradeagent/scalping_replay.py",
+      "issue": "Marketable entry replay uses an unlimited market order rather than the live ask-priced limit.",
+      "reproduction": "Decision ask 100.06 with 0.1 available there and deeper liquidity at 200; replay fills remaining quantity at 200 although the live limit cannot.",
+      "required_resolution": "Match live entry limit, partial remainder and TTL semantics; retain market execution only for applicable exits."
+    }
+  ],
+  "full_validation_before_application_fixes": {
+    "passed": 1428,
+    "skipped": 2,
+    "coverage_percent": 87.78,
+    "note": "These passing tests did not cover the reproduced review failures."
+  },
+  "earlier_full_suite_failure": {
+    "passed": 1427,
+    "failed": 1,
+    "skipped": 2,
+    "cause": "Earlier in-process Alembic logging configuration disabled the logger observed by a new caplog test.",
+    "reproduction": "Run test_candidate_state_migration.py before the affected scalping-market logging test.",
+    "fix": "Isolate and restore the test logger state while retaining all recovery and redaction assertions."
+  },
+  "production_v30_changes_performed": false,
+  "v30_broker_orders_submitted": 0
+}
