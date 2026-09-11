@@ -24,6 +24,130 @@ def filled_tape(*, end: int = 23) -> list[MarketEvent]:
     return events
 
 
+def marketable_depth_tape() -> tuple[Tape, list[MarketEvent]]:
+    tape = Tape()
+    events = rising(tape)
+    events.append(tape.event("o", 5.005, a=[{"p": "200", "s": "5"}]))
+    return tape, events
+
+
+def test_marketable_entry_cannot_sweep_depth_above_the_decision_ask_limit() -> None:
+    tape, events = marketable_depth_tape()
+    events.append(tape.event("q", 5.1, bp="100.05", bs="5", ap="100.06", **{"as": "0.1"}))
+    report = replay_events(events, config(entry_style="marketable"))
+    assert [(Decimal(fill["price"]), Decimal(fill["quantity"])) for fill in report["fills"]] == [
+        (Decimal("100.06"), Decimal("0.1"))
+    ]
+    order = report["orders"][0]
+    assert Decimal(order["limit_price"]) == Decimal("100.06")
+    assert order["status"] == "partially_filled"
+    assert order["cancel_requested_at_ns"] is None
+    assert Decimal(order["unfilled_quantity"]) == Decimal(order["quantity"]) - Decimal("0.1")
+
+
+def test_marketable_entry_can_cross_multiple_levels_but_only_within_its_frozen_limit() -> None:
+    tape, events = marketable_depth_tape()
+    events.append(
+        tape.event(
+            "o",
+            5.015,
+            b=[{"p": "100.05", "s": "0"}, {"p": "100.03", "s": "5"}],
+            a=[{"p": "100.04", "s": "0.1"}, {"p": "100.05", "s": "0.2"}],
+        )
+    )
+    events.append(tape.event("q", 5.1, bp="100.03", bs="5", ap="100.04", **{"as": "0.1"}))
+    report = replay_events(events, config(entry_style="marketable"))
+    order = report["orders"][0]
+    assert Decimal(order["limit_price"]) == Decimal("100.06")
+    assert [(Decimal(fill["price"]), Decimal(fill["quantity"])) for fill in report["fills"]] == [
+        (Decimal("100.04"), Decimal("0.1")),
+        (Decimal("100.05"), Decimal("0.2")),
+        (Decimal("100.06"), Decimal("0.1")),
+    ]
+    assert all(fill["liquidity"] == "taker" for fill in report["fills"])
+    assert order["status"] == "partially_filled" and order["cancel_requested_at_ns"] is None
+    assert sum(
+        Decimal(fill["price"]) * Decimal(fill["quantity"]) for fill in report["fills"]
+    ) <= Decimal(order["quantity"]) * Decimal(order["limit_price"])
+
+
+@pytest.mark.parametrize(
+    ("race_quantity", "expected_status"),
+    [("0.2", "canceled"), ("2", "filled")],
+)
+def test_marketable_remainder_waits_for_ttl_and_counts_maker_fills_during_cancel_race(
+    race_quantity: str, expected_status: str
+) -> None:
+    tape, events = marketable_depth_tape()
+    events.append(tape.trade(5.1, price="100.07", quantity="100", side="S", trade_id="above-limit"))
+    events.extend(rising(tape, 6, 8))
+    events.append(
+        tape.trade(8.1, price="100.06", quantity=race_quantity, side="S", trade_id="cancel-race")
+    )
+    events.append(
+        tape.trade(8.3, price="100.06", quantity="100", side="S", trade_id="after-cancel")
+    )
+    report = replay_events(
+        events,
+        config(entry_style="marketable"),
+        latency=ReplayLatency(send_to_arrival_ms=20, arrival_to_ack_ms=20, cancel_latency_ms=200),
+    )
+    order = report["orders"][0]
+    assert len(report["orders"]) == 1
+    assert Decimal(order["limit_price"]) == Decimal("100.06")
+    assert order["cancel_reason"] == "entry_ttl"
+    assert order["cancel_requested_at_ns"] == order["decision_at_ns"] + 3 * NS
+    assert order["cancel_arrived_at_ns"] == order["cancel_requested_at_ns"] + 200_000_000
+    assert order["status"] == expected_status and order["terminal_reported"]
+    assert len(report["fills"]) == 2
+    initial, resting = report["fills"]
+    assert initial["liquidity"] == "taker" and Decimal(initial["quantity"]) == Decimal("0.1")
+    assert Decimal(initial["fee_bps"]) == 25
+    assert resting["liquidity"] == "maker" and Decimal(resting["fee_bps"]) == 15
+    assert order["cancel_requested_at_ns"] < resting["filled_at_ns"] < order["cancel_arrived_at_ns"]
+    for fill in report["fills"]:
+        assert Decimal(fill["price"]) == Decimal(order["limit_price"])
+        assert Decimal(fill["fee_usd"]) == (
+            Decimal(fill["quantity"]) * Decimal(fill["price"]) * Decimal(fill["fee_bps"]) / 10000
+        )
+    expected_quantity = (
+        Decimal("0.3") if expected_status == "canceled" else Decimal(order["quantity"])
+    )
+    assert Decimal(order["filled_quantity"]) == expected_quantity
+    assert Decimal(order["unfilled_quantity"]) == Decimal(order["quantity"]) - expected_quantity
+    assert Decimal(report["open_positions"][0]["quantity"]) == expected_quantity
+    assert Decimal(report["pnl"]["fees_paid_usd"]) == sum(
+        Decimal(fill["fee_usd"]) for fill in report["fills"]
+    )
+    assert not report["closed_positions"]
+
+
+def test_marketable_entry_that_misses_the_ask_rests_and_its_first_fill_is_maker() -> None:
+    tape, events = marketable_depth_tape()
+    events.append(tape.event("q", 5.02, bp="100.05", bs="5", ap="100.10", **{"as": "0.1"}))
+    events.append(tape.trade(5.2, price="100.06", quantity="0.2", side="S"))
+    report = replay_events(events, config(entry_style="marketable"), latency_ms=50)
+    order = report["orders"][0]
+    assert Decimal(order["limit_price"]) == Decimal("100.06")
+    assert order["status"] == "partially_filled" and order["cancel_requested_at_ns"] is None
+    assert len(report["fills"]) == 1
+    fill = report["fills"][0]
+    assert fill["liquidity"] == "maker" and Decimal(fill["fee_bps"]) == 15
+    assert Decimal(fill["price"]) == Decimal("100.06")
+    assert Decimal(fill["quantity"]) == Decimal("0.2")
+
+
+def test_slippage_cannot_turn_marketable_entry_into_a_fill_above_its_ask_limit() -> None:
+    tape, events = marketable_depth_tape()
+    events.append(tape.event("q", 5.1, bp="100.05", bs="5", ap="100.06", **{"as": "0.1"}))
+    report = replay_events(events, config(entry_style="marketable"), slippage_bps=Decimal("1"))
+    order = report["orders"][0]
+    assert Decimal(order["limit_price"]) == Decimal("100.06")
+    assert not report["fills"]
+    assert order["status"] == "resting" and order["cancel_requested_at_ns"] is None
+    assert report["open_order_count"] == 1
+
+
 def test_replay_is_repeatable_for_models_dicts_and_canonical_jsonl() -> None:
     events = filled_tape()
     first = replay_events(events, config())
@@ -189,7 +313,7 @@ def test_partial_fill_can_race_a_cancel_and_is_not_lost_or_oversold() -> None:
     assert Decimal(report["open_positions"][0]["quantity"]) == Decimal("0.4")
 
 
-def test_market_order_uses_observed_depth_with_partial_ioc_remainder_and_taker_fee() -> None:
+def test_marketable_limit_uses_observed_depth_and_keeps_its_partial_remainder() -> None:
     tape = Tape()
     events = rising(tape)
     events.extend(rising(tape, 6, 6))
@@ -197,8 +321,9 @@ def test_market_order_uses_observed_depth_with_partial_ioc_remainder_and_taker_f
         events, config(entry_style="marketable"), participation_rate=Decimal("0.5")
     )
     first = report["orders"][0]
-    assert first["status"] == "canceled"
-    assert first["cancel_reason"] == "modeled_ioc_unfilled_remainder"
+    assert first["status"] == "partially_filled"
+    assert first["cancel_reason"] is None and first["cancel_requested_at_ns"] is None
+    assert Decimal(first["limit_price"]) == Decimal("100.06")
     assert Decimal(first["filled_quantity"]) == Decimal("0.05")
     assert report["fills"][0]["liquidity"] == "taker"
     assert Decimal(report["fills"][0]["fee_bps"]) == 25
@@ -278,7 +403,8 @@ def test_aggressive_fill_cannot_use_l2_prices_contradicted_by_a_newer_bbo() -> N
     events.append(tape.trade(5.2, trade_id="later", side=None))
     report = replay_events(events, config(entry_style="marketable"), latency_ms=50)
     assert not report["fills"]
-    assert report["orders"][0]["status"] == "canceled"
+    assert report["orders"][0]["status"] == "resting"
+    assert Decimal(report["orders"][0]["limit_price"]) == Decimal("100.06")
 
 
 def test_passive_arrival_accounts_for_more_recent_visible_bbo_depth() -> None:
@@ -316,8 +442,16 @@ def test_market_partial_exit_cannot_reconsume_unchanged_displayed_depth() -> Non
     events.append(tape.book(6, bid="100.06", ask="100.07", bid_size="0.04", ask_size="0.1"))
     events.append(tape.event("q", 6.4, bp="100.06", bs="0.04", ap="100.07", **{"as": "0.1"}))
     events.append(tape.trade(7.2, trade_id="later", side=None))
+    events.append(tape.trade(8.2, trade_id="retry", side=None))
     report = replay_events(events, config(entry_style="marketable", exit_after_seconds=0.5))
+    entries = [order for order in report["orders"] if order["side"] == "buy"]
+    exits = [order for order in report["orders"] if order["side"] == "sell"]
+    assert len(entries) == 1 and entries[0]["status"] == "canceled"
+    assert entries[0]["cancel_reason"] == "entry_signal_invalidated"
+    assert len(exits) == 2 and all(order["limit_price"] is None for order in exits)
+    assert all(order["sent_at_ns"] >= entries[0]["cancel_acknowledged_at_ns"] for order in exits)
     sells = [fill for fill in report["fills"] if fill["side"] == "sell"]
+    assert all(fill["liquidity"] == "taker" for fill in sells)
     assert sum(Decimal(fill["quantity"]) for fill in sells) == Decimal("0.04")
     assert Decimal(report["open_positions"][0]["quantity"]) == Decimal("0.06")
     assert not report["closed_positions"]

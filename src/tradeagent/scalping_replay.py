@@ -283,9 +283,11 @@ class _Replay:
             if signal.action == "hold":
                 continue
             if signal.action == "buy":
-                limit = signal.quote.bid if self.config.entry_style == "passive" else None
-                price = limit if limit is not None else signal.quote.ask
+                price = (
+                    signal.quote.bid if self.config.entry_style == "passive" else signal.quote.ask
+                )
                 quantity = self.config.order_notional_usd / price
+                limit: Decimal | None = price
             else:
                 owned = self.reported_positions.get(symbol)
                 if owned is None or owned.quantity <= 0:
@@ -777,9 +779,13 @@ class _Replay:
                 "exact_queue_position_available": False,
                 "exchange_gap_coverage": "unprovable without an exchange sequence",
                 "unknown_taker_side": "does not fill a passive order",
+                "entry_order": (
+                    "BUY LIMIT fixed at the decision bid (passive) or ask (marketable); "
+                    "GTC remainder stays at that limit until entry TTL or cancellation"
+                ),
                 "aggressive_fill": (
                     "BBO-consistent observed L2 depth, adverse slippage, "
-                    "IOC unfilled market remainder"
+                    "entry-limit price bound; only MARKET exit remainders are modeled as IOC"
                 ),
                 "market_impact": "not modeled; historical tape is exogenous",
                 "fees": "actual simulated partial-fill notional times configured maker/taker bps",
