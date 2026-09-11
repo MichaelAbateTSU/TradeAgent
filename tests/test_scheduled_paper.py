@@ -1109,3 +1109,180 @@ def test_critical_recorder_ten_second_freshness_owner_and_gaps_reset_proof(prepa
         assert result["continuous_since"] is None
         assert ("recorder_quote" if failure == "quotes_stale" else "recorder") in result["failures"]
     assert runtime.broker.submissions == 0
+
+
+@pytest.mark.parametrize("slow_component", ["context", "market", "news"])
+@pytest.mark.parametrize("outcome", ["filled", "partial", "unknown"])
+def test_owned_operator_stop_skips_slow_ingestion(prepared, monkeypatch, slow_component, outcome):
+    runtime, session, result = warmed(prepared, monkeypatch)
+    assert result["state"] == "delegated"
+    runtime.broker.partial = outcome != "filled"
+    runtime.broker.timeout = outcome == "unknown"
+    submitted = operator_calibration.step(runtime, observed_at=ENTRY)
+    assert submitted["_operator_active"]
+    assert runtime.broker.submissions == 1
+
+    original_state = runtime.market.state
+    slow_calls = []
+    quote_calls = []
+
+    def protective_quote(state):
+        quote_calls.append(Clock.current)
+        fresh = original_state(state.symbol, Clock.current)
+        if Clock.current >= ENTRY + timedelta(seconds=22):
+            fresh = fresh.model_copy(update={"bid": Decimal("99"), "ask": Decimal("99.01")})
+        return fresh
+
+    monkeypatch.setattr(runtime.market, "refresh_quote", protective_quote)
+    target, method = {
+        "context": (runtime.context_client, "poll"),
+        "market": (runtime.market, "state"),
+        "news": (runtime.source, "poll"),
+    }[slow_component]
+    original_call = getattr(target, method)
+
+    def slow_call(*args, **kwargs):
+        slow_calls.append(Clock.current)
+        advance(runtime, Clock.current + timedelta(seconds=60))
+        return original_call(*args, **kwargs)
+
+    monkeypatch.setattr(target, method, slow_call)
+    holding = tick(runtime, ENTRY + timedelta(seconds=2))
+    assert quote_calls
+    if outcome != "unknown":
+        assert holding["_operator_active"]
+        assert Clock.current == ENTRY + timedelta(seconds=2)
+        assert slow_calls == []
+        assert runtime.broker.submissions == 1
+        # Full collection may resume only once owned exposure has actually been exited.
+        tick(runtime, ENTRY + timedelta(seconds=22))
+    buys = [order for order in runtime.broker.values.values() if order.side == "buy"]
+    sells = [order for order in runtime.broker.values.values() if order.side == "sell"]
+    assert len(buys) == len(sells) == 1
+    # Unknown acknowledgements already pause and exit immediately after reconciliation.
+    assert sells[0].created_at == ENTRY + timedelta(seconds=2 if outcome == "unknown" else 22)
+    assert sells[0].filled_quantity == buys[0].filled_quantity
+    assert not runtime.broker.positions() and not runtime.broker.open_orders()
+    assert runtime.store.linked_orders(session.operator_cohort_id)
+
+
+@pytest.mark.parametrize("collection_delay_seconds", [30, 60])
+def test_completed_readiness_collection_rechecks_observation_gap(
+    prepared, monkeypatch, collection_delay_seconds
+):
+    runtime, session = prepared
+    start = OPEN + timedelta(seconds=2)
+    for index in range(69):
+        sparse_observe(runtime, session, start + timedelta(seconds=30 * index))
+    prior = json.loads(runtime.repo.get_control(f"{session.key}:progress"))
+    assert prior["last_at"] == (ENTRY - timedelta(seconds=58)).isoformat()
+    assert len(prior["physical_proofs"]) == 3
+    began = ENTRY + timedelta(seconds=2)
+    finished = began + timedelta(seconds=collection_delay_seconds)
+    advance(runtime, began)
+    bar = runtime.market_states["AAPL"].completed_bar.model_copy(
+        update={"timestamp": ENTRY - timedelta(minutes=5)}
+    )
+    runtime.market.changes["completed_bar"] = bar
+    runtime.first_bar_receipts[("AAPL", bar.timestamp)] = began
+    original_collect = scheduled_paper.collect_readiness
+
+    def slow_collect(runtime, session, now, since, *, include_physical=True):
+        assert now == began
+        Clock.current = runtime.broker.now = finished
+        runtime.context = runtime.context_client.poll(symbols=["AAPL"])
+        runtime.last_source_success = finished
+        runtime.source.poll(start=OPEN, end=finished)
+        runtime.market_states["AAPL"] = runtime.market.state("AAPL", finished)
+        seed_durable_recorder(runtime, finished)
+        sample = original_collect(
+            runtime, session, finished, since, include_physical=include_physical
+        )
+        assert sample["observed_at"] == finished.isoformat()
+        assert all(sample["checks"].values()), sample
+        return sample
+
+    monkeypatch.setattr(scheduled_paper, "collect_readiness", slow_collect)
+    result = scheduled_paper.step(runtime, now=began)
+    if collection_delay_seconds == 30:
+        assert result["state"] == "delegated", result
+        assert operator_calibration.step(runtime, observed_at=finished)["state"] == "filled"
+    else:
+        assert result["state"] == "warming_up", result
+        assert result["continuous_since"] == finished.isoformat()
+        assert result["completed_physical_windows"] == 0
+        current = json.loads(runtime.repo.get_control(f"{session.key}:progress"))
+        assert current["physical_proofs"] == []
+        assert current["anchor"]["market_count_scope"]["since_exchange_at"] == finished.isoformat()
+        assert runtime.repo.get_control(f"{session.key}:delegation") is None
+        assert (
+            runtime.repo.get_control(f"operator-paper-request:{session.worker_cohort_id}") is None
+        )
+        assert runtime.broker.submissions == 0
+
+
+def test_partial_remainder_cancel_and_timed_exit_do_not_wait_for_news(prepared, monkeypatch):
+    runtime, session, result = warmed(prepared, monkeypatch)
+    assert result["state"] == "delegated"
+    runtime.broker.partial = True
+    assert operator_calibration.step(runtime, observed_at=ENTRY)["state"] == "partially_filled"
+    original_poll = runtime.source.poll
+    calls = []
+
+    def slow_news(**kwargs):
+        calls.append(Clock.current)
+        advance(runtime, Clock.current + timedelta(seconds=60))
+        return original_poll(**kwargs)
+
+    monkeypatch.setattr(runtime.source, "poll", slow_news)
+    for seconds in (2, 31):
+        at = ENTRY + timedelta(seconds=seconds)
+        assert tick(runtime, at)["_operator_active"]
+        assert Clock.current == at
+        assert calls == []
+    buy = next(order for order in runtime.broker.values.values() if order.side == "buy")
+    assert buy.status.value == "canceled"
+    rows = runtime.store.linked_orders(session.operator_cohort_id)
+    assert rows[0]["link"]["cancel_requested_at"] == (ENTRY + timedelta(seconds=31)).isoformat()
+    tick(runtime, ENTRY + timedelta(seconds=61))
+    sell = next(order for order in runtime.broker.values.values() if order.side == "sell")
+    assert sell.created_at == ENTRY + timedelta(seconds=61)
+    assert sell.filled_quantity == buy.filled_quantity
+    assert runtime.broker.submissions == 2
+
+
+def test_unknown_order_with_invalid_pointer_keeps_recovery_fast_and_entry_free(
+    prepared, monkeypatch
+):
+    runtime, _session, result = warmed(prepared, monkeypatch)
+    assert result["state"] == "delegated"
+    runtime.broker.partial = runtime.broker.timeout = True
+    assert (
+        operator_calibration.step(runtime, observed_at=ENTRY)["state"]
+        == "submission_outcome_unknown"
+    )
+    runtime.repo.set_control("operator-paper-active", "invalid-pointer")
+    original_find = runtime.broker.find_order_by_client_id
+    monkeypatch.setattr(runtime.broker, "find_order_by_client_id", lambda client_id: None)
+    source_calls = []
+    original_poll = runtime.source.poll
+
+    def slow_news(**kwargs):
+        source_calls.append(Clock.current)
+        advance(runtime, Clock.current + timedelta(seconds=60))
+        return original_poll(**kwargs)
+
+    monkeypatch.setattr(runtime.source, "poll", slow_news)
+    pending = tick(runtime, ENTRY + timedelta(seconds=2))
+    assert pending["_operator_active"]
+    assert pending["ordinary_entries_enabled"] is False
+    assert source_calls == []
+    assert runtime.broker.submissions == 1
+    monkeypatch.setattr(runtime.broker, "find_order_by_client_id", original_find)
+    tick(runtime, ENTRY + timedelta(seconds=3))
+    buys = [order for order in runtime.broker.values.values() if order.side == "buy"]
+    sells = [order for order in runtime.broker.values.values() if order.side == "sell"]
+    assert len(buys) == len(sells) == 1
+    assert sells[0].created_at == ENTRY + timedelta(seconds=3)
+    assert sells[0].filled_quantity == buys[0].filled_quantity
+    assert not runtime.broker.positions()

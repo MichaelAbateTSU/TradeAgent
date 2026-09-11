@@ -11,7 +11,7 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 import httpx
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
-from sqlalchemy import exists, literal, select
+from sqlalchemy import case, exists, func, literal, or_, select
 
 from tradeagent.event_demo import _write_control
 from tradeagent.event_session import (
@@ -19,7 +19,7 @@ from tradeagent.event_session import (
     save_session_budget,
     session_control_key,
 )
-from tradeagent.event_store import EventStore, event_cohorts
+from tradeagent.event_store import EventStore, event_cohorts, event_order_links
 from tradeagent.notifications import RoundTripNotificationRepository
 from tradeagent.operator_calibration import OperatorPaperRequest, control_versions
 from tradeagent.paper_account_history import (
@@ -34,6 +34,7 @@ from tradeagent.persistence import (
     controls,
     heartbeats,
     market_quotes,
+    orders,
     worker_locks,
 )
 from tradeagent.shadow_health import read_shadow_recorder_snapshot
@@ -826,6 +827,42 @@ def _entry_observation_valid(runtime: Any, now: datetime) -> bool:
     )
 
 
+def owned_execution_pending(runtime: Any) -> bool:
+    """Entry-free selector after recovery; command pointers are not ownership evidence."""
+    from tradeagent.event_orders import FINAL
+
+    query = (
+        select(event_order_links.c.cohort_id)
+        .join(orders, orders.c.client_order_id == event_order_links.c.client_order_id)
+        .join(event_cohorts, event_cohorts.c.cohort_id == event_order_links.c.cohort_id)
+        .where(
+            or_(
+                event_order_links.c.cohort_id == runtime.settings.cohort_id,
+                event_order_links.c.payload["account_digest"].as_string()
+                == runtime.settings.news_account_digest,
+                event_cohorts.c.manifest["settings"]["entry_policy"].as_string()
+                == "operator-calibration",
+            )
+        )
+        .group_by(event_order_links.c.cohort_id, orders.c.symbol)
+        .having(
+            or_(
+                func.sum(case((orders.c.status.not_in(FINAL), 1), else_=0)) > 0,
+                func.sum(
+                    case(
+                        (orders.c.side == "buy", orders.c.filled_quantity),
+                        else_=-orders.c.filled_quantity,
+                    )
+                )
+                != 0,
+            )
+        )
+        .limit(1)
+    )
+    with runtime.store.database.begin() as connection:
+        return connection.scalar(query) is not None
+
+
 def _notice(
     runtime: Any, session: ScheduledPaperSession, state: str, detail: dict[str, Any], now: datetime
 ) -> None:
@@ -1122,6 +1159,17 @@ def step(
         now = stamp(sample["observed_at"])
         if now >= session.entry_deadline:
             return _terminal(runtime, session, "entry deadline elapsed during collection", now)
+        previous_observation = progress.get("last_at")
+        if previous_observation is not None and not timedelta(0) <= (
+            now - stamp(previous_observation)
+        ) <= timedelta(seconds=session.maximum_observation_gap_seconds):
+            sample["continuity_reset"] = {
+                "reason": "completed_observation_gap",
+                "previous_observation_at": previous_observation,
+                "gap_seconds": (now - stamp(previous_observation)).total_seconds(),
+            }
+            progress = {"started_at": None, "anchor": None, "physical_proofs": []}
+            anchor = None
         failures = [name for name, passed in sample["checks"].items() if passed is not True]
         observation_identity = _observation_identity(runtime, sample)
         if progress.get("observation_identity") != observation_identity:

@@ -401,6 +401,17 @@ class EventRuntime:
 
         scheduled_host = self.settings.entry_policy == "scheduled-operator"
         operator_result = operator_step(self, observed_at=tick_at, recovery_only=scheduled_host)
+        if scheduled_host:
+            from tradeagent.scheduled_paper import owned_execution_pending
+
+            # Recovery already refreshed protective quotes and reconciled client IDs.
+            # While exposure is unsettled, never put full ingestion ahead of its next tick.
+            if owned_execution_pending(self):
+                operator_result = {
+                    "state": "supervising",
+                    "source_collection": "deferred_for_existing_execution",
+                    "_operator_active": True,
+                }
         if operator_result is not None:
             result = {
                 "state": "operator_calibration",
@@ -413,6 +424,13 @@ class EventRuntime:
                 "operator_paper": operator_result,
                 "_operator_active": operator_result.get("_operator_active", False),
             }
+            if scheduled_host:
+                result.update(
+                    entry_policy=self.settings.entry_policy,
+                    ordinary_entries_enabled=False,
+                    global_strategy_kill=self.repo.get_control("kill_switch"),
+                    scheduled_paper={"state": "execution_supervision"},
+                )
             self.repo.heartbeat("tradeagent-event-worker", self.instance_id, result)
             return result
         if scheduled_host:

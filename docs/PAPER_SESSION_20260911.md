@@ -85,6 +85,23 @@ Preparation, deployment, durable schedule and final verification evidence are
 still required before claiming the agent is ready. Tomorrow's fill cannot be
 promised in advance.
 
+## Initial release review
+
+Candidate `71f248306e00d2d4aed2357b1bd42a80d9615545` passed 1,224 tests
+(two skipped), but independent review reproduced two timing defects and
+**blocked deployment and arming**:
+
+- Synchronous source collection could delay local protection of an already
+  filled operator position. In the reproduction, a stop crossing during a
+  60-second source poll was not acted on until that poll returned.
+- Continuity was checked before readiness collection, but not against its
+  completed observation time. A 120-second actual gap could incorrectly retain
+  the original 30-minute readiness interval.
+
+Both require targeted regression coverage, a corrected reviewed release and
+actual deployment before tonight's authority can be published. The initial
+passing suite is not proof that these timing scenarios were safe.
+
 ## Evidence
 
 - [Actual calendar, account and full history precheck](../research/results/paper-sep11-precheck.json)
