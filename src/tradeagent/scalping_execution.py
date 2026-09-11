@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Mapping
-from contextlib import suppress
+from contextlib import nullcontext, suppress
 from datetime import UTC, datetime, timedelta
 from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal
 from email.utils import parsedate_to_datetime
@@ -14,6 +14,7 @@ from uuid import NAMESPACE_URL, uuid5
 
 import httpx
 from sqlalchemy import func, or_, select, update
+from sqlalchemy.engine import Connection
 
 from tradeagent.alpaca_paper import (
     AlpacaPaperOrder,
@@ -140,9 +141,12 @@ class ScalpOrderEngine:
             )
         return json.loads(raw) if raw else {}
 
-    def _save_account_state(self, patch: dict[str, Any]) -> None:
+    def _save_account_state(
+        self, patch: dict[str, Any], *, connection: Connection | None = None
+    ) -> None:
         now = self.clock()
-        with self.database.begin() as connection:
+        transaction = self.database.begin() if connection is None else nullcontext(connection)
+        with transaction as connection:
             self._lease(connection, now)
             raw = connection.scalar(
                 select(controls.c.control_value)
@@ -1528,6 +1532,8 @@ class ScalpOrderEngine:
             )
             total_disposal = previous_disposal + disposal
             upper = max(Decimal(0), bought - sold - proven_fee - total_disposal)
+            acknowledged_upper = upper
+            recovery_credit = closed and paid > 0 and upper > 0
             carry = min(upper, max(Decimal(0), previous_claim - (sold - previous_sold) - disposal))
             safe_carry = min(
                 carry, max(Decimal(0), previous_safe - (sold - previous_sold) - disposal)
@@ -1538,7 +1544,9 @@ class ScalpOrderEngine:
             if previous.get("version") != 2 and bought > 0 and previous_safe == 0 and sold == 0:
                 pending_buy = max(pending_buy, bought)
             if closed:
-                upper = carry = safe_carry = pending_buy = Decimal(0)
+                carry = safe_carry = pending_buy = Decimal(0)
+                if not recovery_credit:
+                    upper = Decimal(0)
             mixed = previous.get("settlement_state") == "mixed_unresolved" or (
                 pending_buy > 0 and cycle["symbol"] in acquisition_symbols
             )
@@ -1549,6 +1557,8 @@ class ScalpOrderEngine:
                 "pending_buy": pending_buy,
                 "mixed": mixed,
                 "closed": closed,
+                "recovery_credit": recovery_credit,
+                "acknowledged_upper": acknowledged_upper,
                 "proven_fee": proven_fee,
                 "disposal": total_disposal,
                 "new_buys": bought - previous_bought,
@@ -1571,6 +1581,8 @@ class ScalpOrderEngine:
                 )
                 previous_foreign = number(account_state.get("unowned_positions", {}).get(symbol, 0))
                 if observed >= 0 and (symbol == protect_before_buy or observed > previous_foreign):
+                    if upper_totals.get(symbol, Decimal(0)) > carry_totals.get(symbol, Decimal(0)):
+                        observed = min(observed, protected.get(symbol, Decimal(0)))
                     reduction = max(Decimal(0), protected.get(symbol, Decimal(0)) - observed)
                     protected[symbol] = observed
                     if symbol in foreign_evidence:
@@ -1586,6 +1598,8 @@ class ScalpOrderEngine:
             key: max(Decimal(0), value - protected.get(key, Decimal(0)))
             for key, value in self._positions.items()
         }
+        cycle_writes: list[dict[str, Any]] = []
+        ownership_audits: list[tuple[str, dict[str, Any]]] = []
         for cycle in sorted(cycles.values(), key=lambda row: row["created_at"]):
             rows = order_rows[cycle["cycle_id"]]
             bought = sold = buy_value = sell_value = Decimal(0)
@@ -1633,7 +1647,9 @@ class ScalpOrderEngine:
             claim = fact["claim"]
             pending_buy = fact["pending_buy"]
             mixed = fact["mixed"]
-            already_closed = fact["closed"]
+            already_closed = fact["closed"] and not (
+                fact["recovery_credit"] and joint_settled.get(cycle["symbol"], False)
+            )
             observed = remaining.get(cycle["symbol"], Decimal(0))
             grow_from_position = (
                 bool(previous_ownership.get("balance_settlement_allowed", previous_owned == 0))
@@ -1658,6 +1674,13 @@ class ScalpOrderEngine:
             elif mixed and not joint_settled.get(cycle["symbol"], False):
                 owned = min(fact["safe_carry"], observed)
                 settlement = "mixed_unresolved"
+            elif buy_fee_evidence and joint_settled.get(cycle["symbol"], False):
+                claim = qty_cap
+                owned = min(claim, observed)
+                pending_buy = max(Decimal(0), qty_cap - owned)
+                mixed = False
+                settlement = "settled" if pending_buy == 0 else "position_pending"
+                grow_from_position = False
             elif mixed or (pending_buy > 0 and joint_settled.get(cycle["symbol"], False)):
                 claim = qty_cap
                 owned = min(claim, observed)
@@ -1710,6 +1733,9 @@ class ScalpOrderEngine:
                 "net_entitlement": str(owned),
                 "established_entitlement": str(claim),
                 "acknowledged_net_upper_bound": str(qty_cap),
+                "unresolved_acknowledged_credit": str(
+                    max(Decimal(0), fact["acknowledged_upper"] - claim)
+                ),
                 "cumulative_owned_buys": str(bought),
                 "cumulative_owned_sells": str(sold),
                 "cumulative_reduction": str(reduction),
@@ -1875,34 +1901,36 @@ class ScalpOrderEngine:
                 },
             }
             closed_at = cycle["closed_at"] or now if state in CLOSED else None
-            with self.database.begin() as connection:
-                connection.execute(
-                    update(scalping_cycles)
-                    .where(scalping_cycles.c.cycle_id == cycle["cycle_id"])
-                    .values(
-                        state=state,
-                        updated_at=now,
-                        opened_at=opened,
-                        exit_due_at=exit_due,
-                        closed_at=closed_at,
-                        owned_quantity=owned,
-                        entry_quantity=bought,
-                        entry_value=buy_value if priced else None,
-                        exit_quantity=sold,
-                        exit_value=sell_value if priced else None,
-                        actual_cash_fees=cash_fees,
-                        actual_base_fees=base_fees,
-                        gross_cash_flow=gross if state in CLOSED else None,
-                        actual_net_pnl=gross - cash_fees
+            cycle_writes.append(
+                {
+                    "cycle_id": cycle["cycle_id"],
+                    "previous_updated_at": cycle["updated_at"],
+                    "values": {
+                        "state": state,
+                        "updated_at": now,
+                        "opened_at": opened,
+                        "exit_due_at": exit_due,
+                        "closed_at": closed_at,
+                        "owned_quantity": owned,
+                        "entry_quantity": bought,
+                        "entry_value": buy_value if priced else None,
+                        "exit_quantity": sold,
+                        "exit_value": sell_value if priced else None,
+                        "actual_cash_fees": cash_fees,
+                        "actual_base_fees": base_fees,
+                        "gross_cash_flow": gross if state in CLOSED else None,
+                        "actual_net_pnl": gross - cash_fees
                         if state in CLOSED and not fee_pending and gross is not None
                         else None,
-                        modeled_net_pnl=modeled if state in CLOSED else None,
-                        fees_pending=fee_pending,
-                        payload=payload,
-                    )
-                )
-                if cycle["state"] != state:
-                    self.store.audit(
+                        "modeled_net_pnl": modeled if state in CLOSED else None,
+                        "fees_pending": fee_pending,
+                        "payload": payload,
+                    },
+                }
+            )
+            if cycle["state"] != state:
+                ownership_audits.append(
+                    (
                         "cycle_state",
                         {
                             "cycle_id": cycle["cycle_id"],
@@ -1914,15 +1942,15 @@ class ScalpOrderEngine:
                             "fees_pending": fee_pending,
                             "gross_cash_flow": str(gross) if gross is not None else None,
                         },
-                        at=now,
-                        connection=connection,
                     )
-                if (
-                    previous_owned != owned
-                    or previous_reduction != reduction
-                    or "ownership" not in cycle["payload"]
-                ):
-                    self.store.audit(
+                )
+            if (
+                previous_owned != owned
+                or previous_reduction != reduction
+                or "ownership" not in cycle["payload"]
+            ):
+                ownership_audits.append(
+                    (
                         "net_ownership",
                         {
                             "cycle_id": cycle["cycle_id"],
@@ -1932,23 +1960,48 @@ class ScalpOrderEngine:
                             "previous_reduction": str(previous_reduction),
                             "ownership": ownership,
                         },
-                        at=now,
-                        connection=connection,
                     )
+                )
         updated_protected = {symbol: str(quantity) for symbol, quantity in protected.items()}
         position_snapshot = {symbol: str(quantity) for symbol, quantity in self._positions.items()}
-        if (
+        projection_changed = (
             updated_protected != account_state.get("unowned_positions", {})
             or foreign_evidence != account_state.get("ownership_foreign_evidence", {})
             or position_snapshot != account_state.get("ownership_positions", {})
-        ):
-            self._save_account_state(
-                {
-                    "unowned_positions": updated_protected,
-                    "ownership_foreign_evidence": foreign_evidence,
-                    "ownership_positions": position_snapshot,
-                }
+        )
+        with self.database.begin() as connection:
+            self._lease(connection, now)
+            current_raw = connection.scalar(
+                select(controls.c.control_value)
+                .where(controls.c.control_key == self.account_key)
+                .with_for_update()
             )
+            current_state = json.loads(current_raw) if current_raw else {}
+            for key in ("unowned_positions", "ownership_foreign_evidence", "ownership_positions"):
+                if current_state.get(key, {}) != account_state.get(key, {}):
+                    raise ValueError("ownership projection changed during reconciliation")
+            for change in cycle_writes:
+                changed = connection.execute(
+                    update(scalping_cycles)
+                    .where(
+                        scalping_cycles.c.cycle_id == change["cycle_id"],
+                        scalping_cycles.c.updated_at == change["previous_updated_at"],
+                    )
+                    .values(**change["values"])
+                )
+                if changed.rowcount != 1:
+                    raise ValueError("cycle changed during ownership reconciliation")
+            if projection_changed:
+                self._save_account_state(
+                    {
+                        "unowned_positions": updated_protected,
+                        "ownership_foreign_evidence": foreign_evidence,
+                        "ownership_positions": position_snapshot,
+                    },
+                    connection=connection,
+                )
+            for kind, audit_payload in ownership_audits:
+                self.store.audit(kind, audit_payload, at=now, connection=connection)
             if updated_protected != account_state.get("unowned_positions", {}):
                 self.store.audit(
                     "unowned_inventory_segregated",
@@ -1958,7 +2011,8 @@ class ScalpOrderEngine:
                         "after": updated_protected,
                         "owned_entitlements_increased": False,
                     },
-                    at=self.clock(),
+                    at=now,
+                    connection=connection,
                 )
 
     def _request_exits(self, signals: tuple[ScalpSignal, ...], now: datetime) -> None:

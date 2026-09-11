@@ -9,6 +9,7 @@ from types import SimpleNamespace
 import httpx
 import pytest
 from sqlalchemy import func, select, update
+from sqlalchemy.exc import OperationalError
 
 from tradeagent.alpaca_paper import AlpacaPaperOrder, AlpacaPaperPosition, PaperCryptoAsset
 from tradeagent.persistence import (
@@ -683,6 +684,109 @@ def test_position_lag_does_not_destroy_acknowledged_owned_fill(setup, lagged_qua
         cycle = connection.execute(select(scalping_cycles)).mappings().one()
     assert cycle["state"] == "closed_owned_flat"
     assert D(cycle["payload"]["ownership"]["cumulative_reduction"]) == D(".0025")
+
+
+@pytest.mark.parametrize("restart", [False, True])
+@pytest.mark.parametrize(
+    "lagged_quantity,base_fee", [(".3", ".0025"), (".8", ".0025"), (".9975", ".0015")]
+)
+def test_unposted_fees_and_partial_position_lag_do_not_lose_later_owned_credit(
+    setup, restart, lagged_quantity, base_fee
+):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.base_fee = D(base_fee)
+    engine = make()
+    engine.initialize()
+    actual_positions = broker.positions
+    lagged = []
+
+    def positions():
+        if broker.posts and not lagged:
+            lagged.append(True)
+            return (
+                actual_positions()[0].model_copy(
+                    update={
+                        "quantity": D(lagged_quantity),
+                        "available_quantity": D(lagged_quantity),
+                    }
+                ),
+            )
+        return actual_positions()
+
+    broker.positions = positions
+    engine.step((signal(NOW, "unsettled-positive"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    with engine.database.begin() as connection:
+        initial = connection.scalar(select(scalping_cycles.c.payload))["ownership"]
+    assert D(initial["unresolved_acknowledged_credit"]) == D(1) - D(lagged_quantity)
+    now = advance(setup, 1)
+    external_fill(broker, "manual-during-position-lag", "buy", "10")
+    engine.reconcile(now=now)
+    if restart:
+        engine = make()
+        engine.initialize()
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    now = advance(setup, 16)
+    post_fee(broker, "settled-owned-fee", buy_id, base=base_fee)
+    post_fee(
+        broker, "settled-foreign-fee", "manual-during-position-lag", base=str(10 * D(base_fee))
+    )
+    for seconds in (16, 30, 60):
+        now = advance(setup, seconds)
+        engine.reconcile(now=now)
+        engine.step((), {}, now=now)
+    assert sum(
+        (request.quantity for request in broker.posts if request.side.value == "sell"), D(0)
+    ) == D(1) - D(base_fee)
+    assert broker.balances["BTC/USD"] == 10 * (D(1) - D(base_fee))
+    cycle = engine.summary()["recent_cycles"][0]
+    assert cycle["state"] == "closed_owned_flat"
+    assert D(cycle["payload"]["ownership"]["unresolved_buy_quantity"]) == 0
+    assert D(cycle["payload"]["ownership"]["unresolved_acknowledged_credit"]) == 0
+
+
+@pytest.mark.parametrize("after_projection", [False, True])
+def test_external_disposal_projection_and_cycle_debit_commit_atomically(
+    setup, monkeypatch, after_projection
+):
+    database, broker, _, _, make = setup
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "atomic-disposal"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 1)
+    external_fill(broker, "foreign-before-disposal", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 2)
+    external_fill(broker, "manual-disposal", "sell", "10")
+    save = engine._save_account_state
+    failed = []
+
+    def fail_projection(patch, **kwargs):
+        if "ownership_foreign_evidence" in patch and not failed:
+            failed.append(True)
+            if after_projection:
+                save(patch, **kwargs)
+            raise OperationalError("injected account projection failure", {}, None)
+        save(patch, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(engine, "_save_account_state", fail_projection)
+        with pytest.raises(OperationalError):
+            engine.reconcile(now=now)
+    with database.begin() as connection:
+        cycle = connection.execute(select(scalping_cycles)).mappings().one()
+    assert D(cycle["payload"]["ownership"]["proven_external_disposals"]) == 0
+    assert D(cycle["payload"]["ownership"]["established_entitlement"]) == D(".9975")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    for _ in range(3):
+        engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9725")
+    with database.begin() as connection:
+        cycle = connection.execute(select(scalping_cycles)).mappings().one()
+    assert D(cycle["payload"]["ownership"]["proven_external_disposals"]) == D(".025")
 
 
 def test_ambiguous_unkeyed_fees_do_not_invent_a_mixed_flow_allocation(setup):
