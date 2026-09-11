@@ -990,6 +990,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                 ),
                 poll_seconds=args.poll_seconds,
                 daily_scheduler=DailyStatusScheduler(database, daily_settings),
+                wait_for_lease=args.command == "notifier-daily",
             )
             if args.once:
                 dispatched = service.run_once()

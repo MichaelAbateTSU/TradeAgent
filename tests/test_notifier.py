@@ -89,3 +89,70 @@ def test_notifier_validates_timing(tmp_path: Path) -> None:
             poll_seconds=0,
         )
     database.dispose()
+
+
+def test_daily_notifier_waits_for_natural_lease_handoff_without_dispatching(tmp_path: Path) -> None:
+    database = Database(f"sqlite:///{tmp_path / 'handoff.db'}")
+    database.initialize()
+    repository = ProductionRepository(database)
+    assert repository.acquire_worker_lock("tradeagent-notifier", "maintenance", observed_at=NOW)
+    repository.heartbeat("tradeagent-notifier", "prior", {"state": "stopped"}, observed_at=NOW)
+
+    async def exercise() -> None:
+        stop = asyncio.Event()
+
+        class StopDispatcher(FakeDispatcher):
+            def dispatch_one(self) -> bool:
+                stop.set()
+                return super().dispatch_one()
+
+        dispatcher = StopDispatcher([False])
+        service = NotifierService(
+            dispatcher,
+            repository,
+            instance_id="new-daily-sender",
+            poll_seconds=0.01,
+            clock=lambda: NOW,
+            wait_for_lease=True,
+        )
+        task = asyncio.create_task(service.run(stop))
+        await asyncio.sleep(0.03)
+        assert dispatcher.calls == 0
+        heartbeat = repository.latest_heartbeat("tradeagent-notifier")
+        assert heartbeat is not None and heartbeat[0] == "prior"
+        assert repository.release_worker_lock("tradeagent-notifier", "maintenance")
+        await asyncio.wait_for(task, timeout=1)
+        assert dispatcher.calls == 1
+        heartbeat = repository.latest_heartbeat("tradeagent-notifier")
+        assert heartbeat is not None and heartbeat[0] == "new-daily-sender"
+        assert heartbeat[2]["state"] == "stopped"
+
+    try:
+        asyncio.run(exercise())
+    finally:
+        database.dispose()
+
+
+def test_stopping_a_waiting_sender_does_not_release_another_owners_lease(tmp_path: Path) -> None:
+    database = Database(f"sqlite:///{tmp_path / 'waiting-stop.db'}")
+    database.initialize()
+    repository = ProductionRepository(database)
+    assert repository.acquire_worker_lock("tradeagent-notifier", "maintenance", observed_at=NOW)
+    dispatcher = FakeDispatcher([])
+    service = NotifierService(
+        dispatcher,
+        repository,
+        instance_id="waiting",
+        poll_seconds=0.01,
+        clock=lambda: NOW,
+        wait_for_lease=True,
+    )
+    stop = asyncio.Event()
+    stop.set()
+    try:
+        asyncio.run(service.run(stop))
+        assert dispatcher.calls == 0
+        assert repository.latest_heartbeat("tradeagent-notifier") is None
+        assert repository.refresh_worker_lock("tradeagent-notifier", "maintenance", observed_at=NOW)
+    finally:
+        database.dispose()

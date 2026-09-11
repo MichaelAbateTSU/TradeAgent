@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Protocol
@@ -32,6 +33,7 @@ class NotifierService:
         maximum_backoff_seconds: float = 60,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         daily_scheduler: DueNotificationScheduler | None = None,
+        wait_for_lease: bool = False,
     ) -> None:
         if poll_seconds <= 0 or maximum_backoff_seconds <= 0:
             raise ValueError("notifier timing values must be positive")
@@ -42,6 +44,7 @@ class NotifierService:
         self._maximum_backoff_seconds = maximum_backoff_seconds
         self._clock = clock
         self._daily_scheduler = daily_scheduler
+        self._wait_for_lease = wait_for_lease
 
     def run_once(self) -> bool:
         self._acquire_lock()
@@ -54,7 +57,8 @@ class NotifierService:
 
     async def run(self, stop_event: asyncio.Event | None = None) -> None:
         stop = stop_event or asyncio.Event()
-        self._acquire_lock()
+        if not await self._acquire_initial_lock(stop):
+            return
         backoff = self._poll_seconds
         try:
             self._heartbeat("starting", dispatched=False)
@@ -74,8 +78,28 @@ class NotifierService:
             self._heartbeat("stopped", dispatched=False)
             self._repository.release_worker_lock("tradeagent-notifier", self._instance_id)
 
+    async def _acquire_initial_lock(self, stop: asyncio.Event) -> bool:
+        waiting_logged = False
+        while True:
+            try:
+                self._acquire_lock()
+                return True
+            except NotifierAlreadyRunningError:
+                if not self._wait_for_lease:
+                    raise
+                if not waiting_logged:
+                    logging.getLogger(__name__).info(
+                        "Waiting for the existing delivery lease; no email will be sent"
+                    )
+                    waiting_logged = True
+                await self._wait(stop, self._poll_seconds)
+                if stop.is_set():
+                    return False
+
     def _acquire_lock(self) -> None:
-        if not self._repository.acquire_worker_lock("tradeagent-notifier", self._instance_id):
+        if not self._repository.acquire_worker_lock(
+            "tradeagent-notifier", self._instance_id, observed_at=self._clock()
+        ):
             raise NotifierAlreadyRunningError("another notifier owns the delivery lock")
 
     def _dispatch_one(self) -> bool:

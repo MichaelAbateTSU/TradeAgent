@@ -42,11 +42,18 @@ worker, its financial policy, credentials, resource plan and ownership are
 not changed. Older producer code may still create status records, but the
 notifier suppresses them rather than emailing them.
 
-The notifier's `notifier-daily` command is an alias for the same daily-only
-sender. Older releases do not recognize this command and exit before delivery,
-so it can also prevent an old image from sending queued digests during the
-suspended-service rollout. There is no command-line option to restore per-trade
-delivery.
+The notifier's `notifier-daily` command selects the same daily-only sender and
+waits for the existing delivery lease without dispatching or overwriting its
+owner's heartbeat. Older releases do not recognize this command.
+
+Render rejects deployment while a service is suspended. Its pending command
+change alone is not sufficient protection when resuming an old image. The
+transition therefore also uses a notifier-only maintenance lease, acquired
+only after the suspended sender's old lease has naturally expired. The
+maintenance job cannot send mail. Release follows verification of the new
+live deployment and the old instance's shutdown grace period. Trading
+ownership is never acquired or changed. There is no command-line option to
+restore per-trade delivery.
 
 ## Deployment status
 
