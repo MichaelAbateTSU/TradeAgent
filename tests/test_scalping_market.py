@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from copy import deepcopy
@@ -881,7 +882,11 @@ def test_feed_keeps_old_resets_without_reporting_instant_freshness_or_observed_t
 
 def test_data_failures_notify_once_and_cannot_rearm_with_a_delta(
     caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # In-process Alembic tests disable previously created application loggers.
+    monkeypatch.setattr(logging.getLogger("tradeagent.scalping_market"), "disabled", False)
+    caplog.set_level(logging.WARNING, logger="tradeagent.scalping_market")
     tape, engine = Tape(), BookFeatureEngine(config())
     requests = []
     engine.on_resnapshot = lambda reason, connection: requests.append((reason, connection))
