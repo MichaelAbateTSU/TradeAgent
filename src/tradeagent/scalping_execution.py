@@ -1452,13 +1452,18 @@ class ScalpOrderEngine:
         position_changed = {
             key: str(value) for key, value in self._positions.items()
         } != previous_positions
-        unresolved_before = any(
-            row["payload"].get("ownership", {}).get("unresolved") for row in cycles.values()
+        evidence_stale = (
+            bool(cycles or protect_before_buy is not None)
+            and self._positions_at is not None
+            and (
+                not account_state.get("activity_watermark")
+                or stamp(account_state["activity_watermark"]) < self._positions_at
+            )
         )
         if (
             not _evidence_current
             and self._positions_at is not None
-            and (changed_fills or position_changed or unresolved_before)
+            and (changed_fills or position_changed or evidence_stale)
         ):
             refreshed_cycles = self._sync_activities(self.clock(), pages=5)
             account_state = self._account_state()
@@ -1547,8 +1552,20 @@ class ScalpOrderEngine:
                 carry = safe_carry = pending_buy = Decimal(0)
                 if not recovery_credit:
                     upper = Decimal(0)
-            mixed = previous.get("settlement_state") == "mixed_unresolved" or (
-                pending_buy > 0 and cycle["symbol"] in acquisition_symbols
+            mixed = previous.get(
+                "mixed_flow_pending", previous.get("settlement_state") == "mixed_unresolved"
+            ) or (pending_buy > 0 and cycle["symbol"] in acquisition_symbols)
+            unacknowledged_buy = sum(
+                (
+                    max(
+                        Decimal(0),
+                        number(row["quantity"])
+                        - number((row["broker"] or {}).get("filled_quantity", 0)),
+                    )
+                    for row in order_rows[identity]
+                    if row["side"] == "buy" and row["status"] not in FINAL
+                ),
+                Decimal(0),
             )
             facts[identity] = {
                 "upper": upper,
@@ -1563,6 +1580,7 @@ class ScalpOrderEngine:
                 "disposal": total_disposal,
                 "new_buys": bought - previous_bought,
                 "new_sells": sold - previous_sold,
+                "unacknowledged_buy": unacknowledged_buy,
             }
             carry_totals[cycle["symbol"]] = (
                 carry_totals.get(cycle["symbol"], Decimal(0)) + safe_carry
@@ -1705,9 +1723,18 @@ class ScalpOrderEngine:
                     )
                 else:
                     owned = min(fact["safe_carry"], observed)
-                    settlement = "mixed_unresolved"
-                    mixed = True
-                    grow_from_position = False
+                    if (
+                        not mixed
+                        and cycle["symbol"] not in acquisition_symbols
+                        and fact["unacknowledged_buy"] > 0
+                        and observed <= qty_cap + fact["unacknowledged_buy"]
+                    ):
+                        settlement = "order_position_pending"
+                        grow_from_position = True
+                    else:
+                        settlement = "mixed_unresolved"
+                        mixed = True
+                        grow_from_position = False
             else:
                 owned = min(claim, observed)
                 settlement = (
@@ -1717,9 +1744,12 @@ class ScalpOrderEngine:
                     if owned < qty_cap
                     else "settled"
                 )
-            unresolved = settlement in {"evidence_pending", "mixed_unresolved", "position_pending"}
-            if unresolved:
-                self._positions_dirty = True
+            unresolved = settlement in {
+                "evidence_pending",
+                "mixed_unresolved",
+                "position_pending",
+                "order_position_pending",
+            }
             remaining[cycle["symbol"]] = max(
                 Decimal(0), remaining.get(cycle["symbol"], Decimal(0)) - owned
             )
@@ -1745,6 +1775,7 @@ class ScalpOrderEngine:
                 "unresolved_settlement_quantity": str(max(Decimal(0), qty_cap - owned)),
                 "unresolved_buy_quantity": str(pending_buy),
                 "settlement_state": settlement,
+                "mixed_flow_pending": bool(mixed),
                 "unresolved": unresolved,
                 "balance_settlement_allowed": grow_from_position,
                 "position_observed_at": self._positions_at.isoformat()
@@ -2058,6 +2089,8 @@ class ScalpOrderEngine:
     def _exit_owned(self, quotes: Mapping[str, ScalpQuote], now: datetime) -> None:
         for cycle in self._cycles():
             if not cycle["payload"].get("exit_requested"):
+                continue
+            if ledger_amount(cycle, "owned_quantity") <= 0:
                 continue
             rows = self.store.cycle_orders(cycle["cycle_id"])
             if any(row["status"] not in FINAL for row in rows):

@@ -789,6 +789,113 @@ def test_external_disposal_projection_and_cycle_debit_commit_atomically(
     assert D(cycle["payload"]["ownership"]["proven_external_disposals"]) == D(".025")
 
 
+def test_position_ahead_of_order_ack_recovers_without_foreign_flow_or_fee_posting(setup):
+    _, broker, _, clock, make = setup
+    broker.emit_fees = False
+    submit = broker.submit_crypto_limit_order
+    find = broker.find_order_by_client_id
+    pending = {}
+
+    def lagged_submit(request, limit_price, *, asset):
+        actual = submit(request, limit_price, asset=asset)
+        pending[request.client_order_id] = actual.model_copy(
+            update={
+                "status": type(actual.status)("pending_new"),
+                "filled_quantity": D(0),
+                "filled_average_price": None,
+                "filled_at": None,
+            }
+        )
+        return pending[request.client_order_id]
+
+    def lagged_find(identity):
+        if clock[0] < NOW + timedelta(seconds=2) and identity in pending:
+            return pending[identity]
+        return find(identity)
+
+    broker.submit_crypto_limit_order = lagged_submit
+    broker.find_order_by_client_id = lagged_find
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "position-before-ack"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 1)
+    engine.reconcile(now=now)
+    with engine.database.begin() as connection:
+        ownership = connection.scalar(select(scalping_cycles.c.payload))["ownership"]
+    assert ownership["settlement_state"] == "order_position_pending"
+    assert ownership["mixed_flow_pending"] is False
+    now = advance(setup, 2)
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".9975")
+    assert engine.status()["unresolved_ownership_count"] == 0
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    assert broker.posts[-1].side.value == "sell"
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == 0
+
+
+def test_unresolved_settlement_does_not_repeat_identical_broker_reads_every_tick(
+    setup, monkeypatch
+):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.partial = D(".4")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "paced-unresolved"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    now = advance(setup, 1)
+    external_fill(broker, "paced-foreign", "buy", "10")
+    broker.fill_more(buy_id, D(".2"))
+    engine.reconcile(now=now)
+    now = advance(setup, 4)
+    engine.step((signal(now, "paced-known-exit", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D(".399")
+    calls = []
+    for name in (
+        "account",
+        "positions",
+        "open_orders",
+        "account_activity_page",
+        "find_order_by_client_id",
+    ):
+        original = getattr(broker, name)
+
+        def observed(*args, _name=name, _original=original, **kwargs):
+            calls.append(_name)
+            return _original(*args, **kwargs)
+
+        monkeypatch.setattr(broker, name, observed)
+    for seconds in range(5, 15):
+        now = advance(setup, seconds)
+        engine.step((), {}, now=now)
+    assert len(calls) <= 4, calls
+    assert engine.status()["unresolved_ownership_count"] == 1
+
+
+def test_mixed_inventory_reason_survives_temporarily_incomplete_activity_coverage(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.partial = D(".4")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "sticky-mixed"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 1)
+    external_fill(broker, "sticky-foreign", "buy", "10")
+    broker.fill_more(broker.posts[0].client_order_id, D(".2"))
+    engine.reconcile(now=now)
+    state = engine._account_state()
+    engine._save_account_state({"activity_window_until": (now + timedelta(seconds=1)).isoformat()})
+    engine._refresh_cycles(now, _evidence_current=True)
+    engine._save_account_state(
+        {"activity_window_until": None, "activity_watermark": state["activity_watermark"]}
+    )
+    engine._refresh_cycles(now, _evidence_current=True)
+    assert engine.inventory()["BTC/USD"].quantity == D(".399")
+    assert engine.status()["unresolved_ownership_count"] == 1
+
+
 def test_ambiguous_unkeyed_fees_do_not_invent_a_mixed_flow_allocation(setup):
     _, broker, _, _, make = setup
     broker.emit_fees = False
