@@ -587,6 +587,173 @@ def test_additional_partial_fill_credits_only_new_net_coins_and_late_fee_is_not_
     assert broker.balances["BTC/USD"] == D("9.975")
 
 
+@pytest.mark.parametrize("restart", ["none", "before_reconcile", "after_reconcile"])
+@pytest.mark.parametrize("fee_order", ["owned_first", "foreign_first"])
+def test_mixed_foreign_and_owned_fills_wait_for_attributable_settlement(setup, restart, fee_order):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.partial = D(".4")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "mixed-fills"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    assert engine.inventory()["BTC/USD"].quantity == D(".399")
+    now = advance(setup, 1)
+    external_fill(broker, "concurrent-foreign", "buy", "10")
+    broker.fill_more(buy_id, D(".2"))
+    if restart == "before_reconcile":
+        engine = make(exit_after_seconds=None)
+        engine.initialize()
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".399")
+    with engine.database.begin() as connection:
+        ownership = connection.scalar(select(scalping_cycles.c.payload))["ownership"]
+    assert ownership["settlement_state"] == "mixed_unresolved"
+    assert D(ownership["unresolved_buy_quantity"]) == D(".2")
+    if restart == "after_reconcile":
+        engine = make(exit_after_seconds=None)
+        engine.initialize()
+        assert engine.inventory()["BTC/USD"].quantity == D(".399")
+    now = advance(setup, 4)
+    engine.step((signal(now, "exit-known-mixed", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D(".399")
+    assert broker.balances["BTC/USD"] == D("10.1745")
+    postings = [
+        ("mixed-own-fee", buy_id, ".0015"),
+        ("mixed-foreign-fee", "concurrent-foreign", ".025"),
+    ]
+    if fee_order == "foreign_first":
+        postings.reverse()
+    for index, (identity, order_id, base_fee) in enumerate(postings):
+        now = advance(setup, 5 + index)
+        post_fee(broker, identity, order_id, base=base_fee)
+        engine.reconcile(now=now)
+        engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".1995")
+    now = advance(setup, 7)
+    engine.step((), {}, now=now)
+    assert broker.posts[-1].quantity == D(".1995")
+    assert broker.balances["BTC/USD"] == D("9.975")
+
+
+@pytest.mark.parametrize("lagged_quantity", ["0", ".3"])
+@pytest.mark.parametrize("restart", [False, True])
+def test_position_lag_does_not_destroy_acknowledged_owned_fill(setup, lagged_quantity, restart):
+    _, broker, _, _, make = setup
+    engine = make()
+    engine.initialize()
+    actual_positions = broker.positions
+    lagged = []
+
+    def positions():
+        if broker.posts and not lagged:
+            lagged.append(True)
+            if D(lagged_quantity) == 0:
+                return ()
+            actual = actual_positions()[0]
+            return (
+                actual.model_copy(
+                    update={
+                        "quantity": D(lagged_quantity),
+                        "available_quantity": D(lagged_quantity),
+                    }
+                ),
+            )
+        return actual_positions()
+
+    broker.positions = positions
+    engine.step((signal(NOW, "lagged-position"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    with engine.database.begin() as connection:
+        pending = connection.execute(select(scalping_cycles)).mappings().one()
+    assert pending["state"] == "ownership_pending"
+    assert pending["closed_at"] is None
+    assert D(pending["payload"]["ownership"]["proven_base_fees"]) == D(".0025")
+    assert D(pending["payload"]["ownership"]["established_entitlement"]) == D(".9975")
+    if restart:
+        engine = make()
+        engine.initialize()
+    for seconds in (2, 15, 30, 60):
+        now = advance(setup, seconds)
+        engine.step((), {}, now=now)
+    assert lagged
+    assert len(broker.posts) == 2
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == 0
+    with engine.database.begin() as connection:
+        cycle = connection.execute(select(scalping_cycles)).mappings().one()
+    assert cycle["state"] == "closed_owned_flat"
+    assert D(cycle["payload"]["ownership"]["cumulative_reduction"]) == D(".0025")
+
+
+def test_ambiguous_unkeyed_fees_do_not_invent_a_mixed_flow_allocation(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    broker.partial = D(".4")
+    engine = make(exit_after_seconds=None)
+    engine.initialize()
+    engine.step((signal(NOW, "unkeyed-mixed"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    buy_id = broker.posts[0].client_order_id
+    now = advance(setup, 1)
+    external_fill(broker, "unkeyed-foreign", "buy", "10")
+    broker.fill_more(buy_id, D(".2"))
+    engine.reconcile(now=now)
+    for identity, amount in (("unknown-owned-fee", ".0015"), ("unknown-foreign-fee", ".025")):
+        broker.activities.append(
+            {
+                "id": identity,
+                "activity_type": "CFEE",
+                "symbol": "BTCUSD",
+                "qty": str(-D(amount)),
+                "net_amount": "0",
+                "status": "executed",
+                "currency": "USD",
+                "created_at": now.isoformat(),
+            }
+        )
+    engine.reconcile(now=now)
+    assert engine.inventory()["BTC/USD"].quantity == D(".399")
+    now = advance(setup, 4)
+    result = engine.step((signal(now, "exit-unkeyed-known", "sell"),), {}, now=now)
+    assert broker.posts[-1].quantity == D(".399")
+    assert broker.balances["BTC/USD"] == D("10.1745")
+    assert result["unresolved_ownership_count"] == 1
+    with engine.database.begin() as connection:
+        cycle = connection.execute(select(scalping_cycles)).mappings().one()
+    assert cycle["closed_at"] is None and cycle["actual_net_pnl"] is None
+    assert cycle["payload"]["ownership"]["settlement_state"] == "mixed_unresolved"
+
+
+def test_closed_pending_fee_cycle_cannot_absorb_a_later_external_disposal(setup):
+    _, broker, _, _, make = setup
+    broker.emit_fees = False
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "closed-disposal-first"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    first_buy = broker.posts[0].client_order_id
+    now = advance(setup, 5)
+    external_fill(broker, "foreign-disposal-reserve", "buy", "10")
+    engine.reconcile(now=now)
+    now = advance(setup, 15)
+    engine.step((), {}, now=now)
+    now = advance(setup, 20)
+    engine.step((signal(now, "open-disposal-second"),), {"BTC/USD": quote(now)}, now=now)
+    now = advance(setup, 25)
+    external_fill(broker, "manual-sale-exceeds-foreign", "sell", "10")
+    post_fee(broker, "partial-old-fee", first_buy, base=".0015")
+    engine.reconcile(now=now)
+    with engine.database.begin() as connection:
+        rows = list(
+            connection.execute(
+                select(scalping_cycles).order_by(scalping_cycles.c.created_at)
+            ).mappings()
+        )
+    assert rows[0]["state"] == "closed_owned_flat"
+    assert D(rows[0]["payload"]["ownership"]["proven_external_disposals"]) == 0
+    assert D(rows[1]["payload"]["ownership"]["proven_external_disposals"]) == D(".025")
+    assert engine.inventory()["BTC/USD"].quantity == D(".9725")
+    assert not rows[1]["payload"]["ownership"]["unresolved"]
+
+
 def test_external_sell_and_add_are_segregated_once_without_consuming_owned_coins(setup):
     _, broker, _, _, make = setup
     broker.emit_fees = False
@@ -821,7 +988,15 @@ def test_incremental_activity_cursor_passes_500_records_without_legacy_history(s
     assert result["state"] == "running", result
     assert len(broker.posts) == 1
     with database.begin() as connection:
-        assert connection.scalar(select(func.count()).select_from(scalping_activities)) == 650
+        assert (
+            connection.scalar(
+                select(func.count())
+                .select_from(scalping_activities)
+                .where(scalping_activities.c.kind == "JNLC")
+            )
+            == 650
+        )
+        assert connection.scalar(select(func.count()).select_from(scalping_activities)) == 652
     assert any(token is not None for _, _, token in broker.page_calls)
 
 

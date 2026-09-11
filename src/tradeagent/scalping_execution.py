@@ -379,6 +379,20 @@ class ScalpOrderEngine:
                 )
             )
 
+    def _unresolved_inventory(self) -> int:
+        with self.database.begin() as connection:
+            return int(
+                connection.scalar(
+                    select(func.count())
+                    .select_from(scalping_cycles)
+                    .where(
+                        scalping_cycles.c.account_digest == self.config.account_digest,
+                        scalping_cycles.c.state == "ownership_pending",
+                    )
+                )
+                or 0
+            )
+
     def _cash_capacity(
         self, connection: Any, *, exclude_client_id: str | None = None
     ) -> dict[str, Any]:
@@ -1278,13 +1292,14 @@ class ScalpOrderEngine:
 
     def _external_inventory_debits(
         self, account_state: dict[str, Any]
-    ) -> tuple[dict[str, Decimal], dict[str, str], dict[str, str], set[str]]:
+    ) -> tuple[dict[str, Decimal], dict[str, Any], dict[str, Decimal], set[str]]:
         protected = {
             symbol: number(quantity)
             for symbol, quantity in account_state.get("unowned_positions", {}).items()
         }
-        applied = dict(account_state.get("ownership_external_debits", {}))
-        acquisitions = dict(account_state.get("ownership_external_acquisitions", {}))
+        prior = account_state.get("ownership_foreign_evidence", {})
+        evidence: dict[str, Any] = {}
+        disposals: dict[str, Decimal] = {}
         acquisition_symbols: set[str] = set()
         with self.database.begin() as connection:
             rows = (
@@ -1306,25 +1321,33 @@ class ScalpOrderEngine:
                 .mappings()
                 .all()
             )
+        totals: dict[str, dict[str, Decimal]] = {}
+        legacy: dict[str, dict[str, Decimal]] = {}
         for row in rows:
             raw = row["payload"]
             symbol = row["symbol"]
-            if not symbol:
-                continue
-            quantity = number(raw.get("qty", 0))
             if (
-                row["kind"] == "FILL"
-                and row["side"] == "buy"
-                and quantity > 0
-                and self._positions_at is not None
-                and utc(row["occurred_at"]) <= self._positions_at
+                not symbol
+                or self._positions_at is None
+                or utc(row["occurred_at"]) > self._positions_at
             ):
-                if quantity > number(acquisitions.get(row["activity_key"], 0)):
-                    acquisitions[row["activity_key"]] = str(quantity)
-                    acquisition_symbols.add(symbol)
                 continue
-            if row["kind"] == "FILL" and row["side"] == "sell" and quantity > 0:
-                debit = quantity
+            total = totals.setdefault(
+                symbol, {"buys": Decimal(0), "sells": Decimal(0), "fees": Decimal(0)}
+            )
+            old = legacy.setdefault(
+                symbol, {"buys": Decimal(0), "sells": Decimal(0), "fees": Decimal(0)}
+            )
+            quantity = number(raw.get("qty", 0))
+            if row["kind"] == "FILL" and row["side"] in {"buy", "sell"} and quantity > 0:
+                field = "buys" if row["side"] == "buy" else "sells"
+                total[field] += quantity
+                key = (
+                    "ownership_external_acquisitions"
+                    if field == "buys"
+                    else "ownership_external_debits"
+                )
+                old[field] += number(account_state.get(key, {}).get(row["activity_key"], 0))
             elif (
                 row["kind"] in {"CFEE", "FEE"}
                 and quantity < 0
@@ -1332,14 +1355,49 @@ class ScalpOrderEngine:
                 and raw.get("status") == "executed"
                 and raw.get("currency") == "USD"
             ):
-                debit = -quantity
-            else:
-                continue
-            previous = number(applied.get(row["activity_key"], 0))
-            increment = max(Decimal(0), debit - previous)
-            protected[symbol] = max(Decimal(0), protected.get(symbol, Decimal(0)) - increment)
-            applied[row["activity_key"]] = str(max(previous, debit))
-        return protected, applied, acquisitions, acquisition_symbols
+                total["fees"] -= quantity
+                old["fees"] += number(
+                    account_state.get("ownership_external_debits", {}).get(row["activity_key"], 0)
+                )
+        for symbol in set(protected) | set(totals) | set(prior):
+            total = totals.get(
+                symbol, {"buys": Decimal(0), "sells": Decimal(0), "fees": Decimal(0)}
+            )
+            previous = prior.get(symbol, legacy.get(symbol, {}))
+            old_buys = number(previous.get("buys", 0))
+            old_sells = number(previous.get("sells", 0))
+            old_fees = number(previous.get("fees", 0))
+            old_provisional = number(
+                previous.get(
+                    "provisional_reduction",
+                    max(
+                        Decimal(0),
+                        number(account_state.get("initial_unowned_positions", {}).get(symbol, 0))
+                        + old_buys
+                        - old_sells
+                        - old_fees
+                        - protected.get(symbol, Decimal(0)),
+                    ),
+                )
+            )
+            new_buys = max(Decimal(0), total["buys"] - old_buys)
+            new_sells = max(Decimal(0), total["sells"] - old_sells)
+            new_fees = max(Decimal(0), total["fees"] - old_fees)
+            if new_buys:
+                acquisition_symbols.add(symbol)
+            fee_overlap = min(old_provisional, new_fees)
+            available = protected.get(symbol, Decimal(0)) + new_buys
+            debit = new_sells + new_fees - fee_overlap
+            disposals[symbol] = max(Decimal(0), debit - available)
+            protected[symbol] = max(Decimal(0), available - debit)
+            evidence[symbol] = {
+                "buys": str(max(old_buys, total["buys"])),
+                "sells": str(max(old_sells, total["sells"])),
+                "fees": str(max(old_fees, total["fees"])),
+                "provisional_reduction": str(old_provisional - fee_overlap),
+                "new_buys": str(new_buys),
+            }
+        return protected, evidence, disposals, acquisition_symbols
 
     def _refresh_cycles(
         self,
@@ -1347,6 +1405,7 @@ class ScalpOrderEngine:
         extra: set[str] | None = None,
         *,
         protect_before_buy: str | None = None,
+        _evidence_current: bool = False,
     ) -> None:
         if self._positions_dirty:
             self._read_positions(force=True)
@@ -1362,8 +1421,17 @@ class ScalpOrderEngine:
                     cycles[stored_cycle["cycle_id"]] = dict(stored_cycle)
         account_state = self._account_state()
         order_rows = {identity: self.store.cycle_orders(identity) for identity in cycles}
-        own_sells: dict[str, Decimal] = {}
+        acknowledged: dict[str, tuple[Decimal, Decimal]] = {}
+        changed_fills = False
         for identity, cycle in cycles.items():
+            bought = sum(
+                (
+                    number((row["broker"] or {}).get("filled_quantity", 0))
+                    for row in order_rows[identity]
+                    if row["side"] == "buy"
+                ),
+                Decimal(0),
+            )
             sold = sum(
                 (
                     number((row["broker"] or {}).get("filled_quantity", 0))
@@ -1372,42 +1440,148 @@ class ScalpOrderEngine:
                 ),
                 Decimal(0),
             )
-            own_sells[cycle["symbol"]] = own_sells.get(cycle["symbol"], Decimal(0)) + max(
-                Decimal(0), sold - ledger_amount(cycle, "exit_quantity")
-            )
+            acknowledged[identity] = (bought, sold)
+            changed_fills |= bought != ledger_amount(
+                cycle, "entry_quantity"
+            ) or sold != ledger_amount(cycle, "exit_quantity")
         previous_positions = account_state.get("ownership_positions", {})
-        foreign_drop = any(
-            number(account_state.get("unowned_positions", {}).get(symbol, 0)) > 0
-            and number(previous) - self._positions.get(symbol, Decimal(0))
-            > own_sells.get(symbol, Decimal(0))
-            for symbol, previous in previous_positions.items()
+        position_changed = {
+            key: str(value) for key, value in self._positions.items()
+        } != previous_positions
+        unresolved_before = any(
+            row["payload"].get("ownership", {}).get("unresolved") for row in cycles.values()
         )
         if (
-            foreign_drop
+            not _evidence_current
             and self._positions_at is not None
-            and stamp(account_state["activity_watermark"]) < self._positions_at
+            and (changed_fills or position_changed or unresolved_before)
         ):
             refreshed_cycles = self._sync_activities(self.clock(), pages=5)
             account_state = self._account_state()
-            if (
-                account_state.get("activity_window_until") is not None
-                or stamp(account_state["activity_watermark"]) < self._positions_at
-            ):
-                raise ValueError(
-                    "foreign inventory decrease awaits current activity reconciliation"
-                )
-            if refreshed_cycles or self._positions_dirty:
-                self._refresh_cycles(
-                    self.clock(),
-                    (extra or set()) | refreshed_cycles,
-                    protect_before_buy=protect_before_buy,
-                )
-                return
-        protected, external_debits, external_acquisitions, protect_symbols = (
+            self._refresh_cycles(
+                self.clock(),
+                (extra or set()) | refreshed_cycles,
+                protect_before_buy=protect_before_buy,
+                _evidence_current=True,
+            )
+            return
+        evidence_ready = bool(
+            account_state.get("activity_initial_complete")
+            and account_state.get("activity_window_until") is None
+            and self._positions_at is not None
+            and stamp(account_state["activity_watermark"]) >= self._positions_at
+        )
+        protected, foreign_evidence, disposal_deltas, acquisition_symbols = (
             self._external_inventory_debits(account_state)
         )
-        if protect_before_buy is not None:
-            protect_symbols.add(protect_before_buy)
+        fee_rows: dict[str, list[dict[str, Any]]] = {identity: [] for identity in cycles}
+        with self.database.begin() as connection:
+            for fee in connection.execute(
+                select(scalping_activities).where(
+                    scalping_activities.c.cycle_id.in_(cycles),
+                    scalping_activities.c.kind.in_(("CFEE", "FEE")),
+                )
+            ).mappings():
+                fee_rows[fee["cycle_id"]].append(dict(fee))
+        facts: dict[str, dict[str, Any]] = {}
+        carry_totals: dict[str, Decimal] = {}
+        upper_totals: dict[str, Decimal] = {}
+        pending_symbols: set[str] = set()
+        for identity, cycle in sorted(cycles.items(), key=lambda item: item[1]["created_at"]):
+            bought, sold = acknowledged[identity]
+            previous = cycle["payload"].get("ownership", {})
+            previous_bought = ledger_amount(cycle, "entry_quantity")
+            previous_sold = ledger_amount(cycle, "exit_quantity")
+            previous_safe = ledger_amount(cycle, "owned_quantity")
+            previous_claim = number(previous.get("established_entitlement", previous_safe))
+            paid = sum(
+                (
+                    -number(row["payload"].get("qty", 0))
+                    for row in fee_rows[identity]
+                    if row["attribution_basis"] == "broker_order_id"
+                ),
+                Decimal(0),
+            )
+            proven_fee = max(
+                paid,
+                number(
+                    previous.get(
+                        "proven_base_fees",
+                        cycle["payload"].get("ledger", {}).get("actual_base_fees", 0),
+                    )
+                ),
+            )
+            closed = (
+                cycle["state"] in CLOSED and bought == previous_bought and sold == previous_sold
+            )
+            previous_disposal = number(previous.get("proven_external_disposals", 0))
+            disposal = (
+                min(
+                    disposal_deltas.get(cycle["symbol"], Decimal(0)),
+                    max(Decimal(0), bought - sold - proven_fee - previous_disposal),
+                )
+                if not closed
+                else Decimal(0)
+            )
+            disposal_deltas[cycle["symbol"]] = max(
+                Decimal(0), disposal_deltas.get(cycle["symbol"], Decimal(0)) - disposal
+            )
+            total_disposal = previous_disposal + disposal
+            upper = max(Decimal(0), bought - sold - proven_fee - total_disposal)
+            carry = min(upper, max(Decimal(0), previous_claim - (sold - previous_sold) - disposal))
+            safe_carry = min(
+                carry, max(Decimal(0), previous_safe - (sold - previous_sold) - disposal)
+            )
+            pending_buy = number(previous.get("unresolved_buy_quantity", 0)) + (
+                bought - previous_bought
+            )
+            if previous.get("version") != 2 and bought > 0 and previous_safe == 0 and sold == 0:
+                pending_buy = max(pending_buy, bought)
+            if closed:
+                upper = carry = safe_carry = pending_buy = Decimal(0)
+            mixed = previous.get("settlement_state") == "mixed_unresolved" or (
+                pending_buy > 0 and cycle["symbol"] in acquisition_symbols
+            )
+            facts[identity] = {
+                "upper": upper,
+                "claim": carry,
+                "safe_carry": safe_carry,
+                "pending_buy": pending_buy,
+                "mixed": mixed,
+                "closed": closed,
+                "proven_fee": proven_fee,
+                "disposal": total_disposal,
+                "new_buys": bought - previous_bought,
+                "new_sells": sold - previous_sold,
+            }
+            carry_totals[cycle["symbol"]] = (
+                carry_totals.get(cycle["symbol"], Decimal(0)) + safe_carry
+            )
+            upper_totals[cycle["symbol"]] = upper_totals.get(cycle["symbol"], Decimal(0)) + upper
+            if pending_buy > 0 or mixed:
+                pending_symbols.add(cycle["symbol"])
+        if evidence_ready:
+            for symbol in acquisition_symbols | (
+                {protect_before_buy} if protect_before_buy else set()
+            ):
+                if symbol in pending_symbols:
+                    continue
+                observed = self._positions.get(symbol, Decimal(0)) - carry_totals.get(
+                    symbol, Decimal(0)
+                )
+                previous_foreign = number(account_state.get("unowned_positions", {}).get(symbol, 0))
+                if observed >= 0 and (symbol == protect_before_buy or observed > previous_foreign):
+                    reduction = max(Decimal(0), protected.get(symbol, Decimal(0)) - observed)
+                    protected[symbol] = observed
+                    if symbol in foreign_evidence:
+                        foreign_evidence[symbol]["provisional_reduction"] = str(
+                            number(foreign_evidence[symbol]["provisional_reduction"]) + reduction
+                        )
+        joint_settled = {
+            symbol: evidence_ready
+            and self._positions.get(symbol, Decimal(0)) == protected.get(symbol, Decimal(0)) + upper
+            for symbol, upper in upper_totals.items()
+        }
         remaining = {
             key: max(Decimal(0), value - protected.get(key, Decimal(0)))
             for key, value in self._positions.items()
@@ -1432,15 +1606,7 @@ class ScalpOrderEngine:
                 else:
                     sold += qty
                     sell_value += value
-            with self.database.begin() as connection:
-                fees = list(
-                    connection.execute(
-                        select(scalping_activities).where(
-                            scalping_activities.c.cycle_id == cycle["cycle_id"],
-                            scalping_activities.c.kind.in_(("CFEE", "FEE")),
-                        )
-                    ).mappings()
-                )
+            fees = fee_rows[cycle["cycle_id"]]
             confirmed = [row for row in fees if row["attribution_basis"] == "broker_order_id"]
             inferred = [row for row in fees if row["attribution_basis"] != "broker_order_id"]
             cash_fees = sum(
@@ -1460,40 +1626,101 @@ class ScalpOrderEngine:
             previous_owned = ledger_amount(cycle, "owned_quantity")
             if bought < previous_bought or sold < previous_sold:
                 raise ValueError("owned cumulative fills regressed")
-            previous_reduction = max(
-                Decimal(0),
-                previous_bought - previous_sold - previous_owned,
-                number(cycle["payload"].get("ownership", {}).get("cumulative_reduction", 0)),
+            previous_ownership = cycle["payload"].get("ownership", {})
+            previous_reduction = number(previous_ownership.get("cumulative_reduction", 0))
+            fact = facts[cycle["cycle_id"]]
+            qty_cap = fact["upper"]
+            claim = fact["claim"]
+            pending_buy = fact["pending_buy"]
+            mixed = fact["mixed"]
+            already_closed = fact["closed"]
+            observed = remaining.get(cycle["symbol"], Decimal(0))
+            grow_from_position = (
+                bool(previous_ownership.get("balance_settlement_allowed", previous_owned == 0))
+                or fact["new_buys"] > 0
             )
-            # An observed debit is durable, even before its fee/activity record arrives.
-            # Only additional owned BUY fills can increase this entitlement.
-            known_reduction = max(previous_reduction, base_fees)
-            qty_cap = max(Decimal(0), bought - sold - known_reduction)
-            if (
-                (cycle["state"] not in CLOSED or bought > previous_bought)
-                and rows
-                and all(row["status"] in FINAL for row in rows)
-            ):
-                protect_symbols.add(cycle["symbol"])
-            already_closed = cycle["state"] in CLOSED and (
-                bought == ledger_amount(cycle, "entry_quantity")
-                and sold == ledger_amount(cycle, "exit_quantity")
-            )
-            owned = (
-                Decimal(0)
-                if already_closed
-                else min(qty_cap, remaining.get(cycle["symbol"], Decimal(0)))
-            )
+            if cycle["symbol"] in acquisition_symbols or fact["new_sells"] > 0 or mixed:
+                grow_from_position = False
+            known_buy_ids = {
+                row["broker_order_id"]
+                for row in rows
+                if row["side"] == "buy"
+                and number((row["broker"] or {}).get("filled_quantity", 0)) > 0
+            }
+            exact_fee_ids = {row["broker_order_id"] for row in confirmed}
+            buy_fee_evidence = bool(known_buy_ids) and known_buy_ids <= exact_fee_ids
+            settlement = "settled"
+            if already_closed:
+                owned = claim = pending_buy = Decimal(0)
+            elif not evidence_ready:
+                owned = min(fact["safe_carry"], observed)
+                settlement = "evidence_pending"
+            elif mixed and not joint_settled.get(cycle["symbol"], False):
+                owned = min(fact["safe_carry"], observed)
+                settlement = "mixed_unresolved"
+            elif mixed or (pending_buy > 0 and joint_settled.get(cycle["symbol"], False)):
+                claim = qty_cap
+                owned = min(claim, observed)
+                pending_buy = Decimal(0) if owned == claim else pending_buy
+                mixed = False
+                settlement = "settled" if owned == claim else "position_pending"
+                grow_from_position = False
+            elif grow_from_position or pending_buy > 0:
+                if observed <= qty_cap:
+                    claim = max(claim, observed)
+                    if pending_buy > 0 and buy_fee_evidence:
+                        claim = qty_cap
+                    owned = min(claim, observed)
+                    if owned > 0 and (not buy_fee_evidence or owned == claim):
+                        pending_buy = Decimal(0)
+                    settlement = (
+                        "position_pending"
+                        if owned < claim or (pending_buy > 0 and owned == 0)
+                        else "provisional_net"
+                        if owned < qty_cap
+                        else "settled"
+                    )
+                else:
+                    owned = min(fact["safe_carry"], observed)
+                    settlement = "mixed_unresolved"
+                    mixed = True
+                    grow_from_position = False
+            else:
+                owned = min(claim, observed)
+                settlement = (
+                    "position_pending"
+                    if owned < claim
+                    else "provisional_net"
+                    if owned < qty_cap
+                    else "settled"
+                )
+            unresolved = settlement in {"evidence_pending", "mixed_unresolved", "position_pending"}
+            if unresolved:
+                self._positions_dirty = True
             remaining[cycle["symbol"]] = max(
                 Decimal(0), remaining.get(cycle["symbol"], Decimal(0)) - owned
             )
-            reduction = max(known_reduction, bought - sold - owned)
+            provisional_debit = max(
+                Decimal(0),
+                bought - sold - claim - fact["proven_fee"] - fact["disposal"] - pending_buy,
+            )
+            reduction = fact["proven_fee"] + fact["disposal"] + provisional_debit
             ownership = {
-                "version": 1,
+                "version": 2,
                 "net_entitlement": str(owned),
+                "established_entitlement": str(claim),
+                "acknowledged_net_upper_bound": str(qty_cap),
                 "cumulative_owned_buys": str(bought),
                 "cumulative_owned_sells": str(sold),
                 "cumulative_reduction": str(reduction),
+                "proven_base_fees": str(fact["proven_fee"]),
+                "proven_external_disposals": str(fact["disposal"]),
+                "provisional_reduction": str(max(Decimal(0), provisional_debit)),
+                "unresolved_settlement_quantity": str(max(Decimal(0), qty_cap - owned)),
+                "unresolved_buy_quantity": str(pending_buy),
+                "settlement_state": settlement,
+                "unresolved": unresolved,
+                "balance_settlement_allowed": grow_from_position,
                 "position_observed_at": self._positions_at.isoformat()
                 if self._positions_at
                 else None,
@@ -1502,13 +1729,16 @@ class ScalpOrderEngine:
             all_final = bool(rows) and not pending
             if not rows or (all_final and bought == 0):
                 state = "no_fill"
+            elif unresolved:
+                state = "ownership_pending"
             elif (
                 all_final
                 and owned == 0
+                and claim == 0
                 and sold > 0
                 and (
                     already_closed
-                    or max(Decimal(0), bought - sold - reduction) == 0
+                    or qty_cap == 0
                     or self._positions.get(cycle["symbol"], Decimal(0))
                     <= number(protected.get(cycle["symbol"], 0))
                 )
@@ -1705,22 +1935,17 @@ class ScalpOrderEngine:
                         at=now,
                         connection=connection,
                     )
-        for symbol, amount in remaining.items():
-            if symbol in protect_symbols:
-                protected[symbol] = protected.get(symbol, Decimal(0)) + amount
         updated_protected = {symbol: str(quantity) for symbol, quantity in protected.items()}
         position_snapshot = {symbol: str(quantity) for symbol, quantity in self._positions.items()}
         if (
             updated_protected != account_state.get("unowned_positions", {})
-            or external_debits != account_state.get("ownership_external_debits", {})
-            or external_acquisitions != account_state.get("ownership_external_acquisitions", {})
+            or foreign_evidence != account_state.get("ownership_foreign_evidence", {})
             or position_snapshot != account_state.get("ownership_positions", {})
         ):
             self._save_account_state(
                 {
                     "unowned_positions": updated_protected,
-                    "ownership_external_debits": external_debits,
-                    "ownership_external_acquisitions": external_acquisitions,
+                    "ownership_foreign_evidence": foreign_evidence,
                     "ownership_positions": position_snapshot,
                 }
             )
@@ -2225,6 +2450,7 @@ class ScalpOrderEngine:
                 self._account_state().get("activity_initial_complete")
                 and not self._external_open
                 and self._unresolved_orders() == 0
+                and self._unresolved_inventory() == 0
                 and not self._manual_stop()
             ):
                 pending_symbols = self._pending_symbols()
@@ -2250,7 +2476,13 @@ class ScalpOrderEngine:
                     pending_symbols.add(symbol)
             self._read_positions()
             self._refresh_cycles(self.clock())
-            self._state = "order_reconciliation" if self._unresolved_orders() else "running"
+            self._state = (
+                "order_reconciliation"
+                if self._unresolved_orders()
+                else "ownership_reconciliation"
+                if self._unresolved_inventory()
+                else "running"
+            )
             self._error = None
             self._backoff_seconds = 1
         except httpx.HTTPError as error:
@@ -2291,6 +2523,7 @@ class ScalpOrderEngine:
             },
             "cycle_counts": counts,
             "unresolved_order_count": self._unresolved_orders(),
+            "unresolved_ownership_count": self._unresolved_inventory(),
             "unowned_open_order_ids": self._external_open,
             "positions_observed_at": self._positions_at.isoformat() if self._positions_at else None,
             "manual_stop_key": self.manual_stop_key,
