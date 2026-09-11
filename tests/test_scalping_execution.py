@@ -835,6 +835,56 @@ def test_position_ahead_of_order_ack_recovers_without_foreign_flow_or_fee_postin
     assert broker.balances["BTC/USD"] == 0
 
 
+@pytest.mark.parametrize("restart", [False, True])
+def test_manual_acquisition_during_order_ack_lag_preserves_unacknowledged_owned_credit(
+    setup, restart
+):
+    _, broker, _, clock, make = setup
+    submit = broker.submit_crypto_limit_order
+    find = broker.find_order_by_client_id
+    pending = {}
+
+    def lagged_submit(request, limit_price, *, asset):
+        actual = submit(request, limit_price, asset=asset)
+        pending[request.client_order_id] = actual.model_copy(
+            update={
+                "status": type(actual.status)("pending_new"),
+                "filled_quantity": D(0),
+                "filled_average_price": None,
+                "filled_at": None,
+            }
+        )
+        return pending[request.client_order_id]
+
+    def lagged_find(identity):
+        if clock[0] < NOW + timedelta(seconds=3) and identity in pending:
+            return pending[identity]
+        return find(identity)
+
+    broker.submit_crypto_limit_order = lagged_submit
+    broker.find_order_by_client_id = lagged_find
+    engine = make()
+    engine.initialize()
+    engine.step((signal(NOW, "manual-during-ack"),), {"BTC/USD": quote(NOW)}, now=NOW)
+    now = advance(setup, 1)
+    engine.reconcile(now=now)
+    external_fill(broker, "manual-ahead-of-ack", "buy", "10")
+    now = advance(setup, 2)
+    engine.reconcile(now=now)
+    assert D(engine._account_state()["unowned_positions"]["BTC/USD"]) <= 10
+    if restart:
+        engine = make()
+        engine.initialize()
+    for seconds in (3, 15, 30, 60):
+        now = advance(setup, seconds)
+        engine.reconcile(now=now)
+        engine.step((), {}, now=now)
+    assert len(broker.posts) == 2
+    assert broker.posts[-1].quantity == D(".9975")
+    assert broker.balances["BTC/USD"] == D("9.975")
+    assert engine.status()["unresolved_ownership_count"] == 0
+
+
 def test_unresolved_settlement_does_not_repeat_identical_broker_reads_every_tick(
     setup, monkeypatch
 ):

@@ -1563,7 +1563,9 @@ class ScalpOrderEngine:
                         - number((row["broker"] or {}).get("filled_quantity", 0)),
                     )
                     for row in order_rows[identity]
-                    if row["side"] == "buy" and row["status"] not in FINAL
+                    if row["side"] == "buy"
+                    and row["status"] not in FINAL
+                    and row["submission_started_at"] is not None
                 ),
                 Decimal(0),
             )
@@ -1586,17 +1588,27 @@ class ScalpOrderEngine:
                 carry_totals.get(cycle["symbol"], Decimal(0)) + safe_carry
             )
             upper_totals[cycle["symbol"]] = upper_totals.get(cycle["symbol"], Decimal(0)) + upper
-            if pending_buy > 0 or mixed:
+            if pending_buy > 0 or mixed or unacknowledged_buy > 0:
                 pending_symbols.add(cycle["symbol"])
         if evidence_ready:
             for symbol in acquisition_symbols | (
                 {protect_before_buy} if protect_before_buy else set()
             ):
-                if symbol in pending_symbols:
-                    continue
                 observed = self._positions.get(symbol, Decimal(0)) - carry_totals.get(
                     symbol, Decimal(0)
                 )
+                if symbol in pending_symbols:
+                    # Pending owned fills forbid adopting surplus as foreign. Established
+                    # safe inventory still bounds how much of the balance can be reserved.
+                    if observed >= 0 and observed < protected.get(symbol, Decimal(0)):
+                        reduction = protected[symbol] - observed
+                        protected[symbol] = observed
+                        if symbol in foreign_evidence:
+                            foreign_evidence[symbol]["provisional_reduction"] = str(
+                                number(foreign_evidence[symbol]["provisional_reduction"])
+                                + reduction
+                            )
+                    continue
                 previous_foreign = number(account_state.get("unowned_positions", {}).get(symbol, 0))
                 if observed >= 0 and (symbol == protect_before_buy or observed > previous_foreign):
                     if upper_totals.get(symbol, Decimal(0)) > carry_totals.get(symbol, Decimal(0)):
