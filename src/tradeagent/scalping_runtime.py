@@ -101,11 +101,7 @@ class ScalpingRuntime:
         self._market_lock = RLock()
         self._state_lock = RLock()
         self.store = ScalpStore(database)
-        self.market = (
-            BookFeatureEngine(config, stale_after_seconds=config.maximum_quote_age_seconds)
-            if config.decision_policy == "action-value-v1"
-            else BookFeatureEngine(config)
-        )
+        self.market = BookFeatureEngine(config, stale_after_seconds=config.feature_horizon_seconds)
         self.economic_model = load_economic_model(config)
         self.strategy = ScalpStrategy(config, self.economic_model)
         self.engine = ScalpOrderEngine(
@@ -396,7 +392,7 @@ async def run_scalping_service(
             LOGGER.info("v30 is waiting for the prior worker's natural lease handoff")
             await asyncio.sleep(5)
         feed = CryptoMarketFeed(
-            config.symbols, settings, stale_after_seconds=config.maximum_quote_age_seconds
+            config.symbols, settings, stale_after_seconds=config.feature_horizon_seconds
         )
         updates = AlpacaPaperTradeUpdatesStream(settings)
         runtime = ScalpingRuntime(

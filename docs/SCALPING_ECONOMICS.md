@@ -166,6 +166,12 @@ elapsed latency, current spread and current midpoint. A fresh quote cannot
 reset an old prediction. A passive limit that has left the current bid or an
 aggressive limit that no longer reaches the ask is rejected without a POST.
 
+Feature construction may use the configured five-second observation window so
+the worker can retain abstention and calibration candidates during quieter
+crypto periods. This does not weaken execution: the final order fence still
+requires a quote no older than the one-second decision interval, plus the
+model's own observed support and remaining-horizon checks.
+
 The paper order stream is applied to cumulative owned order state before the
 normal execution step. A stream gap still triggers REST reconciliation, and
 REST remains authoritative at startup and periodically; an ordinary valid

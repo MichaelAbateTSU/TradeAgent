@@ -50,7 +50,7 @@ def runtime_fixture(
     engine.summary.return_value = {"closed_round_trips": 0}
     engine.inventory.return_value = {}
     engine.step.return_value = {"state": "observing"}
-    monkeypatch.setattr("tradeagent.scalping_runtime.BookFeatureEngine", lambda *_: market)
+    monkeypatch.setattr("tradeagent.scalping_runtime.BookFeatureEngine", lambda *a, **k: market)
     monkeypatch.setattr("tradeagent.scalping_runtime.ScalpStrategy", lambda *_: strategy)
     monkeypatch.setattr("tradeagent.scalping_runtime.ScalpStore", lambda *_: store)
     monkeypatch.setattr("tradeagent.scalping_runtime.ScalpOrderEngine", lambda *a, **k: engine)
@@ -240,7 +240,7 @@ def test_service_coordinates_background_tasks_and_releases_ownership(
     source.__enter__.return_value = source
     source.articles.return_value = ()
     monkeypatch.setattr("tradeagent.scalping_runtime.CryptoMarketFeed", lambda *a, **k: feed)
-    monkeypatch.setattr("tradeagent.scalping_runtime.BookFeatureEngine", lambda *_: market)
+    monkeypatch.setattr("tradeagent.scalping_runtime.BookFeatureEngine", lambda *a, **k: market)
     monkeypatch.setattr("tradeagent.scalping_runtime.ScalpStore", lambda *_: store)
     monkeypatch.setattr("tradeagent.scalping_runtime.ScalpOrderEngine", lambda *a, **k: engine)
     monkeypatch.setattr(

@@ -186,9 +186,7 @@ class _Replay:
         self, config: ScalpingConfig, latency: ReplayLatency, assumptions: _ExecutionAssumptions
     ) -> None:
         self.config, self.latency, self.assumptions = config, latency, assumptions
-        self.market = BookFeatureEngine(
-            config, stale_after_seconds=config.maximum_quote_age_seconds
-        )
+        self.market = BookFeatureEngine(config, stale_after_seconds=config.feature_horizon_seconds)
         self.economic_model = load_economic_model(config)
         self.strategy = ScalpStrategy(config, self.economic_model)
         self.orders: dict[str, _Order] = {}
