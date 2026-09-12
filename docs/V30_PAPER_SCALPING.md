@@ -7,7 +7,7 @@
 > their original policies below are not rewritten.
 >
 > The action-value implementation was subsequently deployed by explicit owner
-> request as release `42901a99c19b46624aaa0625bfea509fa0482732`; see
+> request as release `25cd90acb538b3ac83c435b748acf2b11ea7946f`; see
 > [SCALPING_ECONOMICS.md](SCALPING_ECONOMICS.md) for the current cohort and
 > evidence. Its pinned model is `no_support`, so the running method abstains
 > rather than falling back to legacy heuristic entries.

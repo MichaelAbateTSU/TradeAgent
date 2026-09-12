@@ -1,0 +1,209 @@
+{
+  "started_at": "2026-09-12T03:13:28.383501+00:00",
+  "release": "25cd90acb538b3ac83c435b748acf2b11ea7946f",
+  "roles": {
+    "event": {
+      "id": "dep-daic6mbm8hqs73c8pgag",
+      "commit": {
+        "id": "25cd90acb538b3ac83c435b748acf2b11ea7946f",
+        "message": "Separate feature observation from order freshness\n\nAllow the five-second feature engine to retain abstention and calibration candidates during sparse crypto updates while preserving the one-second final order freshness fence. Record the bounded no-decision observation that exposed the mismatch.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+        "createdAt": "2026-09-12T03:13:07Z"
+      },
+      "status": "live",
+      "trigger": "api",
+      "createdAt": "2026-09-12T03:13:29.34377Z",
+      "updatedAt": "2026-09-12T03:14:50.388798Z",
+      "startedAt": "2026-09-12T03:13:29.342232Z",
+      "finishedAt": "2026-09-12T03:14:50.388629Z"
+    },
+    "dashboard": {
+      "id": "dep-daic6m95efls73cu5hag",
+      "commit": {
+        "id": "25cd90acb538b3ac83c435b748acf2b11ea7946f",
+        "message": "Separate feature observation from order freshness\n\nAllow the five-second feature engine to retain abstention and calibration candidates during sparse crypto updates while preserving the one-second final order freshness fence. Record the bounded no-decision observation that exposed the mismatch.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+        "createdAt": "2026-09-12T03:13:07Z"
+      },
+      "status": "live",
+      "trigger": "api",
+      "createdAt": "2026-09-12T03:13:29.806567Z",
+      "updatedAt": "2026-09-12T03:14:47.764206Z",
+      "startedAt": "2026-09-12T03:13:29.775881Z",
+      "finishedAt": "2026-09-12T03:14:47.764012Z"
+    }
+  },
+  "final_services": {
+    "event": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T17:18:37.334019Z",
+      "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dae4tr7qj5pc73a9e0k0",
+      "name": "tradeagent-news-worker",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent scalp-run --cohort-id v30-action-value-20260911-r1 --account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --approved-at 2026-09-11T22:20:17.939-04:00 --symbols BTC/USD,ETH/USD --notional 100 --decision-seconds 1 --horizon-seconds 5 --order-ttl-seconds 3 --latency-grace-seconds 0 --catastrophic-stop-bps 100 --economic-model research/results/v30-economics-20260911-model.json --model-sha256 db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52 --confirm-paper-unrestricted"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+      },
+      "slug": "tradeagent-news-worker",
+      "suspended": "not_suspended",
+      "suspenders": [],
+      "type": "background_worker",
+      "updatedAt": "2026-09-12T03:14:50.389779Z"
+    },
+    "recorder": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T01:46:27.63386Z",
+      "dashboardUrl": "https://dashboard.render.com/worker/srv-dadn8son74is73apqcc0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dadn8son74is73apqcc0",
+      "name": "tradeagent-shadow-worker",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadn8son74is73apqcc0@ssh.oregon.render.com"
+      },
+      "slug": "tradeagent-shadow-worker",
+      "suspended": "suspended",
+      "suspenders": [
+        "user"
+      ],
+      "type": "background_worker",
+      "updatedAt": "2026-09-12T00:34:23.593995Z"
+    },
+    "notifier": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T02:16:58.892375Z",
+      "dashboardUrl": "https://dashboard.render.com/worker/srv-dadnn6mq1p3s73ef7ef0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dadnn6mq1p3s73ef7ef0",
+      "name": "tradeagent-notifier",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent notifier-daily"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+      },
+      "slug": "tradeagent-notifier",
+      "suspended": "suspended",
+      "suspenders": [
+        "user"
+      ],
+      "type": "background_worker",
+      "updatedAt": "2026-09-12T00:34:23.100322Z"
+    },
+    "dashboard": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T02:57:16.739538Z",
+      "dashboardUrl": "https://dashboard.render.com/web/srv-dadoa3740ujc73cb09c0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dadoa3740ujc73cb09c0",
+      "name": "tradeagent-runtime-dashboard",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "cache": {
+          "profile": "no-cache"
+        },
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "startCommand": "tradeagent serve --host 0.0.0.0 --port $PORT --production"
+        },
+        "healthCheckPath": "/health",
+        "ipAllowList": [
+          {
+            "cidrBlock": "0.0.0.0/0",
+            "description": "everywhere"
+          }
+        ],
+        "maintenanceMode": {
+          "enabled": false,
+          "uri": ""
+        },
+        "numInstances": 1,
+        "openPorts": [
+          {
+            "port": 10000,
+            "protocol": "TCP"
+          }
+        ],
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadoa3740ujc73cb09c0@ssh.oregon.render.com",
+        "url": "https://tradeagent-runtime-dashboard.onrender.com"
+      },
+      "slug": "tradeagent-runtime-dashboard",
+      "suspended": "not_suspended",
+      "suspenders": [],
+      "type": "web_service",
+      "updatedAt": "2026-09-12T03:14:47.765102Z"
+    }
+  },
+  "finished_at": "2026-09-12T03:14:52.427793+00:00"
+}

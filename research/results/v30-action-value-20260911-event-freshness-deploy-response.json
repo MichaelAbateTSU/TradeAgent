@@ -1,0 +1,16 @@
+{
+  "status": 201,
+  "body": {
+    "id": "dep-daic6mbm8hqs73c8pgag",
+    "commit": {
+      "id": "25cd90acb538b3ac83c435b748acf2b11ea7946f",
+      "message": "Separate feature observation from order freshness\n\nAllow the five-second feature engine to retain abstention and calibration candidates during sparse crypto updates while preserving the one-second final order freshness fence. Record the bounded no-decision observation that exposed the mismatch.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+      "createdAt": "2026-09-12T03:13:07Z"
+    },
+    "status": "build_in_progress",
+    "trigger": "api",
+    "createdAt": "2026-09-12T03:13:29.34377Z",
+    "updatedAt": "2026-09-12T03:13:29.34377Z",
+    "startedAt": "2026-09-12T03:13:29.342232Z"
+  }
+}

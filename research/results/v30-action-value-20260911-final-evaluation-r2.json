@@ -1,0 +1,318 @@
+{
+  "observed_at": "2026-09-12T03:21:50.273378+00:00",
+  "code_sha": "25cd90acb538b3ac83c435b748acf2b11ea7946f",
+  "cohort_id": "v30-action-value-20260911-r1",
+  "state": "waiting_for_market_data",
+  "active": true,
+  "economics": {
+    "artifact_loaded": true,
+    "model_id": "adb76e65b74528a8f8e5d017b4da7e675d63de2ce724da912d1572f84052837b",
+    "model_status": "no_support",
+    "profitability_validated": false,
+    "reason_codes": [
+      "NO_SAMPLES"
+    ]
+  },
+  "market": {
+    "automatic_resnapshot_callback": true,
+    "change_measurement": "aggregate additions/removals, not identified cancellations",
+    "connection_id": "50a601b8-9e82-47f0-a60b-212909b850fb",
+    "data_kind": "aggregate_l2",
+    "exact_queue_position_available": false,
+    "exchange_gap_coverage": "unprovable",
+    "exchange_sequence_available": false,
+    "local_receive_gaps": 0,
+    "market_by_order_available": false,
+    "market_silence_is_sequence_gap": false,
+    "max_events_per_window": 20000,
+    "max_levels_per_side": 2000,
+    "resnapshot_generation": 0,
+    "resnapshot_reasons": {},
+    "resnapshot_required": false,
+    "stale_after_seconds": 5.0,
+    "symbols": {
+      "BTC/USD": {
+        "ask_levels": 55,
+        "awaiting_current_book_update": false,
+        "bbo_samples": 106,
+        "bid_levels": 90,
+        "book_exchange_at_ns": 1789183307195932618,
+        "book_received_at_ns": 1789183307229073000,
+        "book_valid": true,
+        "change_samples": 76,
+        "connection_id": "50a601b8-9e82-47f0-a60b-212909b850fb",
+        "counters": {
+          "accepted_events": 186,
+          "connected_snapshot_required": 1,
+          "connection_changed": 1,
+          "native_taker_trades": 2,
+          "observed_trades": 2,
+          "old_snapshot_awaiting_current_update": 1
+        },
+        "dedup_identities": 2,
+        "event_samples": 109,
+        "native_taker_side_observed": true,
+        "observed_trades": 2,
+        "reason": "valid",
+        "receive_sequence": 264,
+        "reconstruction_valid": true,
+        "resnapshot_reason": null,
+        "resnapshot_required": false,
+        "session_poc_available": true,
+        "trade_samples": 0
+      },
+      "ETH/USD": {
+        "ask_levels": 36,
+        "awaiting_current_book_update": false,
+        "bbo_samples": 75,
+        "bid_levels": 57,
+        "book_exchange_at_ns": 1789183271992969746,
+        "book_received_at_ns": 1789183272031303000,
+        "book_valid": true,
+        "change_samples": 59,
+        "connection_id": "50a601b8-9e82-47f0-a60b-212909b850fb",
+        "counters": {
+          "accepted_events": 76,
+          "connected_snapshot_required": 1,
+          "connection_changed": 1,
+          "old_snapshot_awaiting_current_update": 1
+        },
+        "dedup_identities": 0,
+        "event_samples": 75,
+        "native_taker_side_observed": false,
+        "observed_trades": 0,
+        "reason": "valid",
+        "receive_sequence": 192,
+        "reconstruction_valid": true,
+        "resnapshot_reason": null,
+        "resnapshot_required": false,
+        "session_poc_available": false,
+        "trade_samples": 0
+      }
+    },
+    "trade_deduplication": "bounded venue/symbol/trade_id/exchange_ns; older trades rejected",
+    "venue": "alpaca-crypto-us"
+  },
+  "signals": [],
+  "execution": {
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "cohort_id": "v30-action-value-20260911-r1",
+    "cycle_counts": {
+      "closed_owned_flat": 64,
+      "no_fill": 178
+    },
+    "error": null,
+    "inventory": {},
+    "legacy_risk_and_approval_gates_apply": false,
+    "manual_stop": false,
+    "manual_stop_key": "v30-stop:b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "mode": "paper",
+    "overdue_owned_cycles": [],
+    "positions_observed_at": "2026-09-12T03:21:31.946322+00:00",
+    "profile": "v30-paper-unrestricted",
+    "profitability_validated": false,
+    "retry_after": null,
+    "run_id": "c6ff5deb79ccb185ecb613989464f6fe3a68f8202938c045cd9042b67386f299",
+    "state": "running",
+    "unowned_open_order_ids": [],
+    "unresolved_order_count": 0,
+    "unresolved_ownership_count": 0
+  },
+  "telemetry": {
+    "diagnostic_reports": 0,
+    "execution_pipeline_latency": {
+      "basis": "measured stage timestamps; missing or reversed clocks are not zero latency",
+      "stages": {
+        "ack_fill": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "decision_fill": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "decision_send": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "feature": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "feature_compute": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "feed_processing": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "model": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "risk": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "send_ack": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "state_update": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "total_end_to_end": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        }
+      },
+      "units": "milliseconds",
+      "window": "latest 2000 samples per stage in this process"
+    },
+    "neutral_observations_pending_flush": 16,
+    "pipeline_latency": {
+      "basis": "measured stage timestamps; missing or reversed clocks are not zero latency",
+      "stages": {
+        "ack_fill": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "decision_fill": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "decision_send": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "feature": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": 2015.604,
+          "p95": 4664.092,
+          "p99": 4900.123,
+          "samples": 49
+        },
+        "feature_compute": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": 0.412,
+          "p95": 0.751,
+          "p99": 2.444,
+          "samples": 49
+        },
+        "feed_processing": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": 0.083,
+          "p95": 0.243,
+          "p99": 0.243,
+          "samples": 49
+        },
+        "model": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": 0.157,
+          "p95": 0.228,
+          "p99": 0.933,
+          "samples": 49
+        },
+        "risk": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "send_ack": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        },
+        "state_update": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": 13.173,
+          "p95": 14.688,
+          "p99": 19.434,
+          "samples": 49
+        },
+        "total_end_to_end": {
+          "invalid_or_fill_before_ack_samples": 0,
+          "missing_samples": 0,
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "samples": 0
+        }
+      },
+      "units": "milliseconds",
+      "window": "latest 2000 samples per stage in this process"
+    },
+    "quote_cache_evictions": 0,
+    "quote_cache_size": 253,
+    "raw_tape_backfill_available": true
+  }
+}

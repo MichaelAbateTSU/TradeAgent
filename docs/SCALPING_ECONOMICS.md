@@ -194,7 +194,7 @@ and 88.33% coverage; whole-project Ruff, formatting and strict mypy also pass.
 ## Current deployment
 
 The owner explicitly authorized deployment in the September 11, 22:20 Eastern
-prompt. Release `42901a99c19b46624aaa0625bfea509fa0482732` is running on the
+prompt. Release `25cd90acb538b3ac83c435b748acf2b11ea7946f` is running on the
 existing event worker as cohort `v30-action-value-20260911-r1`, configuration
 `cc56a298ade989d7997728cb777616b796abb9ae9147f0e9a6c6fcc9216c61b4`.
 The dashboard uses the same release. The notifier and recorder remain
@@ -207,6 +207,13 @@ was independently observed ACTIVE, unblocked, flat and without open orders.
 This is an active evaluation/telemetry deployment, not a claim that a trade
 occurred. Starting the new method cannot truthfully mean bypassing its
 NO_TRADE decision.
+
+At the final observation the authenticated market stream had received its
+initial BTC and ETH books, but both snapshots were older than the five-second
+feature freshness bound and awaited a current update. The order-update stream
+was authenticated and subscribed with no gaps. The runtime therefore reported
+`waiting_for_market_data`, correctly created no decision, cycle or order, and
+did not substitute stale snapshot prices.
 
 The release and postdeploy evidence are stored under
 `research/results/v30-action-value-20260911-*`. No automation or follow-up wake
