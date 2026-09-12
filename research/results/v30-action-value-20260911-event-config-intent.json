@@ -1,0 +1,10 @@
+{
+  "at": "2026-09-12 02:53:03.387864+00:00",
+  "body": {
+    "serviceDetails": {
+      "envSpecificDetails": {
+        "startCommand": "tradeagent scalp-run --cohort-id v30-action-value-20260911-r1 --account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --approved-at 2026-09-11T22:20:17.939-04:00 --symbols BTC/USD,ETH/USD --notional 100 --decision-seconds 1 --horizon-seconds 5 --order-ttl-seconds 3 --latency-grace-seconds 0 --catastrophic-stop-bps 100 --economic-model research/results/v30-economics-20260911-model.json --model-sha256 db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52 --confirm-paper-unrestricted"
+      }
+    }
+  }
+}

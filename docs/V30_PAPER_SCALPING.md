@@ -4,8 +4,13 @@
 > [prospective action economics and execution diagnostics](SCALPING_ECONOMICS.md).
 > This supersedes the initial permission to ignore economic entry gates while
 > retaining short-horizon paper scalping. The historical deployed releases and
-> their original policies below are not rewritten. Repair deployment evidence
-> is recorded separately; local changes are not a live-release claim.
+> their original policies below are not rewritten.
+>
+> The action-value implementation was subsequently deployed by explicit owner
+> request as release `42901a99c19b46624aaa0625bfea509fa0482732`; see
+> [SCALPING_ECONOMICS.md](SCALPING_ECONOMICS.md) for the current cohort and
+> evidence. Its pinned model is `no_support`, so the running method abstains
+> rather than falling back to legacy heuristic entries.
 
 ## Operating decision
 

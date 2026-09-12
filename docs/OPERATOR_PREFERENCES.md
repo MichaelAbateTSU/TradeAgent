@@ -24,6 +24,19 @@ when given a prompt.
 
 The dated instructions below are retained as history, not current authority.
 
+### Explicit September 11, 22:20 Eastern exception
+
+The owner explicitly requested, in a direct prompt, that the reviewed
+action-value implementation be tested, committed, pushed and deployed and
+that the paper agent be started. This authorizes the existing event worker and
+dashboard for that deployment only. It does not restore scheduled assistant
+work, background coding agents, the recorder, or the notifier.
+
+The actual historical model is `no_support`, so the new method must run and
+observe while choosing NO_TRADE. This prompt does not authorize bypassing the
+model, restoring legacy heuristic entries, or describing an active process as
+a filled or profitable trade.
+
 ## September 11, 2026: v30 autonomous paper scalping
 
 At **02:18:28.634 America/New_York**, the owner requested v30 implementation

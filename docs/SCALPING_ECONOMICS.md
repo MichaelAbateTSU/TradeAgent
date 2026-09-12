@@ -185,6 +185,23 @@ The final local implementation summary is
 The full repository validation completed with 1,823 tests passed, two skipped,
 and 88.33% coverage; whole-project Ruff, formatting and strict mypy also pass.
 
-This change is implemented and tested locally. The owner previously stopped
-all services and requested prompt-only operation. Nothing in this document
-authorizes a deployment, process restart, automation or paper order.
+## Current deployment
+
+The owner explicitly authorized deployment in the September 11, 22:20 Eastern
+prompt. Release `42901a99c19b46624aaa0625bfea509fa0482732` is running on the
+existing event worker as cohort `v30-action-value-20260911-r1`, configuration
+`cc56a298ade989d7997728cb777616b796abb9ae9147f0e9a6c6fcc9216c61b4`.
+The dashboard uses the same release. The notifier and recorder remain
+suspended because the prompt authorized starting the new trading method, not
+restoring every stopped process.
+
+The worker loaded the pinned `no_support` model and is current, but it has
+created **zero cycles and zero orders** for the new cohort. The paper account
+was independently observed ACTIVE, unblocked, flat and without open orders.
+This is an active evaluation/telemetry deployment, not a claim that a trade
+occurred. Starting the new method cannot truthfully mean bypassing its
+NO_TRADE decision.
+
+The release and postdeploy evidence are stored under
+`research/results/v30-action-value-20260911-*`. No automation or follow-up wake
+was created.

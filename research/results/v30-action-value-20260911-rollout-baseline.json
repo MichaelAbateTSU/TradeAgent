@@ -1,0 +1,334 @@
+{
+  "event": {
+    "service": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T17:18:37.334019Z",
+      "dashboardUrl": "https://dashboard.render.com/worker/srv-dae4tr7qj5pc73a9e0k0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dae4tr7qj5pc73a9e0k0",
+      "name": "tradeagent-news-worker",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent scalp-run --cohort-id v30-paper-scalper-20260911-r2 --account-digest b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f --approved-at 2026-09-11T02:18:28.634-04:00 --symbols BTC/USD,ETH/USD --notional 100 --entry-style passive --decision-seconds 1 --horizon-seconds 5 --holding-seconds 15 --order-ttl-seconds 3 --email-digest-seconds 1800 --confirm-paper-unrestricted"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dae4tr7qj5pc73a9e0k0@ssh.oregon.render.com"
+      },
+      "slug": "tradeagent-news-worker",
+      "suspended": "suspended",
+      "suspenders": [
+        "user"
+      ],
+      "type": "background_worker",
+      "updatedAt": "2026-09-12T00:34:22.575707Z"
+    },
+    "deploys": [
+      {
+        "deploy": {
+          "id": "dep-dai0almk1f9s73fii4fg",
+          "commit": {
+            "id": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+            "message": "Recover unsettled external credits after corroborated fee and balance updates\n\nRetain provisional external credits through lagged position observations. Restore their protected quantity only after attributable fee evidence and sufficient catch-up balance, preserving established owned entitlements and restart recovery.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-11T13:33:36Z"
+          },
+          "status": "live",
+          "trigger": "api",
+          "createdAt": "2026-09-11T13:42:46.043889Z",
+          "updatedAt": "2026-09-12T00:34:22.752114Z",
+          "startedAt": "2026-09-11T13:42:46.041905Z",
+          "finishedAt": "2026-09-11T13:44:19.441823Z"
+        },
+        "cursor": "TfG4kwNLpMBhbG1rMWY5czczZmlpNGZn"
+      },
+      {
+        "deploy": {
+          "id": "dep-dahusfid0e5s7391qbj0",
+          "commit": {
+            "id": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+            "message": "Commit ownership projections atomically and retain acknowledged recovery credits\n\nBound foreign inventory adoption by observed external-flow capacity while owned credits remain. Recover unsettled credits when attributed fees and aggregate positions corroborate them, including corrections to provisional closures. Keep cycle changes, activity checkpoints and audits in one transaction with version checks.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-11T11:54:10Z"
+          },
+          "status": "deactivated",
+          "trigger": "api",
+          "createdAt": "2026-09-11T12:04:14.514938Z",
+          "updatedAt": "2026-09-11T13:44:19.44093Z",
+          "startedAt": "2026-09-11T12:04:14.51302Z",
+          "finishedAt": "2026-09-11T12:05:46.774526Z"
+        },
+        "cursor": "rkTBEv5zH2FzZmlkMGU1czczOTFxYmow"
+      }
+    ],
+    "environment_sha256": "9f826a4a3c58905d4fce4ef75b04c7c42725d1b0966a9bb485ac16ce2ca71451"
+  },
+  "recorder": {
+    "service": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T01:46:27.63386Z",
+      "dashboardUrl": "https://dashboard.render.com/worker/srv-dadn8son74is73apqcc0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dadn8son74is73apqcc0",
+      "name": "tradeagent-shadow-worker",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent worker-shadow --symbols SPY,QQQ,IWM,TLT,GLD"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadn8son74is73apqcc0@ssh.oregon.render.com"
+      },
+      "slug": "tradeagent-shadow-worker",
+      "suspended": "suspended",
+      "suspenders": [
+        "user"
+      ],
+      "type": "background_worker",
+      "updatedAt": "2026-09-12T00:34:23.593995Z"
+    },
+    "deploys": [
+      {
+        "deploy": {
+          "id": "dep-dagps3dbedkc739omglg",
+          "commit": {
+            "id": "68c2e8fe086af06c548e7064014c8f1d927ff952",
+            "message": "Scope persisted trade identity to venue and event time\n\nPreserve originals while accepting provider IDs reused on another day or venue. Add bounded concurrent-index migration, atomic conflict-aware generic writes, cross-session regressions and a private rollback-only PostgreSQL fixture. No historical backfill or trading-risk changes.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-09T17:45:51Z"
+          },
+          "status": "live",
+          "trigger": "api",
+          "createdAt": "2026-09-09T17:57:34.004393Z",
+          "updatedAt": "2026-09-12T00:34:23.77039Z",
+          "startedAt": "2026-09-09T17:57:34.002443Z",
+          "finishedAt": "2026-09-09T17:59:13.18722Z"
+        },
+        "cursor": "ZuhQ-LM3vPhzM2RiZWRrYzczOW9tZ2xn"
+      },
+      {
+        "deploy": {
+          "id": "dep-dagmh2mk1f9s73diissg",
+          "commit": {
+            "id": "645714bf4c21aa8a9cbd73849f94119dc0b563a6",
+            "message": "Reduce recorder batch SQL construction overhead\n\nPreserve paged atomic conflict and retry semantics; record the failed opening conditions and local throughput evidence. Production acceptance remains required.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-09T13:52:24Z"
+          },
+          "status": "deactivated",
+          "trigger": "api",
+          "createdAt": "2026-09-09T14:09:14.047612Z",
+          "updatedAt": "2026-09-09T17:59:13.186206Z",
+          "startedAt": "2026-09-09T14:09:14.045615Z",
+          "finishedAt": "2026-09-09T14:10:48.353907Z"
+        },
+        "cursor": "Jkj14DMVdcpoMm1rMWY5czczZGlpc3Nn"
+      }
+    ],
+    "environment_sha256": "d31762e842086d088377c491f8a8ce97df3476b816a46ce10aa26bfa1a2566fb"
+  },
+  "notifier": {
+    "service": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T02:16:58.892375Z",
+      "dashboardUrl": "https://dashboard.render.com/worker/srv-dadnn6mq1p3s73ef7ef0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dadnn6mq1p3s73ef7ef0",
+      "name": "tradeagent-notifier",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "preDeployCommand": "alembic upgrade head",
+          "startCommand": "tradeagent notifier-daily"
+        },
+        "numInstances": 1,
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadnn6mq1p3s73ef7ef0@ssh.oregon.render.com"
+      },
+      "slug": "tradeagent-notifier",
+      "suspended": "suspended",
+      "suspenders": [
+        "user"
+      ],
+      "type": "background_worker",
+      "updatedAt": "2026-09-12T00:34:23.100322Z"
+    },
+    "deploys": [
+      {
+        "deploy": {
+          "id": "dep-dai3ftrm8hqs738kdtmg",
+          "commit": {
+            "id": "282f0d91079425f6f5760706a8f8810bd07f65da",
+            "message": "Wait for a safe notifier delivery-lease handoff\n\nAllow the daily-only command to wait without dispatching or altering the current owner's heartbeat. Keep a notifier-only maintenance lease during the suspended Render service transition, and use the injected clock consistently for lease acquisition.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-11T17:11:09Z"
+          },
+          "status": "live",
+          "trigger": "service_resumed",
+          "createdAt": "2026-09-11T17:18:47.242676Z",
+          "updatedAt": "2026-09-12T00:34:23.250975Z",
+          "startedAt": "2026-09-11T17:18:47.241092Z",
+          "finishedAt": "2026-09-11T17:20:25.983901Z"
+        },
+        "cursor": "VxVlE0xFPgtmdHJtOGhxczczOGtkdG1n"
+      },
+      {
+        "deploy": {
+          "id": "dep-dai3d97n948s73dvu12g",
+          "commit": {
+            "id": "282f0d91079425f6f5760706a8f8810bd07f65da",
+            "message": "Wait for a safe notifier delivery-lease handoff\n\nAllow the daily-only command to wait without dispatching or altering the current owner's heartbeat. Keep a notifier-only maintenance lease during the suspended Render service transition, and use the injected clock consistently for lease acquisition.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-11T17:11:09Z"
+          },
+          "status": "canceled",
+          "trigger": "api",
+          "createdAt": "2026-09-11T17:13:09.352968Z",
+          "updatedAt": "2026-09-11T17:18:47.56637Z",
+          "startedAt": "2026-09-11T17:13:09.549154Z",
+          "finishedAt": "2026-09-11T17:18:47.565735Z"
+        },
+        "cursor": "VxVlE0xFPgtkOTduOTQ4czczZHZ1MTJn"
+      }
+    ],
+    "environment_sha256": "36e155953217463ae4066df5447b665c766d88284c285a9f793eeeec5d6826ce"
+  },
+  "dashboard": {
+    "service": {
+      "autoDeploy": "no",
+      "autoDeployTrigger": "off",
+      "branch": "main",
+      "createdAt": "2026-09-05T02:57:16.739538Z",
+      "dashboardUrl": "https://dashboard.render.com/web/srv-dadoa3740ujc73cb09c0",
+      "environmentId": "evm-daf34jn40ujc739c8530",
+      "id": "srv-dadoa3740ujc73cb09c0",
+      "name": "tradeagent-runtime-dashboard",
+      "notifyOnFail": "default",
+      "ownerId": "tea-d9dqrkr7uimc73c2e240",
+      "repo": "https://github.com/MichaelAbateTSU/TradeAgent",
+      "rootDir": "",
+      "serviceDetails": {
+        "buildPlan": "starter",
+        "cache": {
+          "profile": "no-cache"
+        },
+        "env": "python",
+        "envSpecificDetails": {
+          "buildCommand": "pip install .",
+          "startCommand": "tradeagent serve --host 0.0.0.0 --port $PORT --production"
+        },
+        "healthCheckPath": "/health",
+        "ipAllowList": [
+          {
+            "cidrBlock": "0.0.0.0/0",
+            "description": "everywhere"
+          }
+        ],
+        "maintenanceMode": {
+          "enabled": false,
+          "uri": ""
+        },
+        "numInstances": 1,
+        "openPorts": [
+          {
+            "port": 10000,
+            "protocol": "TCP"
+          }
+        ],
+        "plan": "starter",
+        "previews": {
+          "generation": "off"
+        },
+        "pullRequestPreviewsEnabled": "no",
+        "region": "oregon",
+        "runtime": "python",
+        "sshAddress": "srv-dadoa3740ujc73cb09c0@ssh.oregon.render.com",
+        "url": "https://tradeagent-runtime-dashboard.onrender.com"
+      },
+      "slug": "tradeagent-runtime-dashboard",
+      "suspended": "suspended",
+      "suspenders": [
+        "user"
+      ],
+      "type": "web_service",
+      "updatedAt": "2026-09-12T00:34:24.132647Z"
+    },
+    "deploys": [
+      {
+        "deploy": {
+          "id": "dep-dahut69594qs738mlad0",
+          "commit": {
+            "id": "cfc0c275ccb78e32e04f98449e58cf40cd449542",
+            "message": "Commit ownership projections atomically and retain acknowledged recovery credits\n\nBound foreign inventory adoption by observed external-flow capacity while owned credits remain. Recover unsettled credits when attributed fees and aggregate positions corroborate them, including corrections to provisional closures. Keep cycle changes, activity checkpoints and audits in one transaction with version checks.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-11T11:54:10Z"
+          },
+          "status": "live",
+          "trigger": "api",
+          "createdAt": "2026-09-11T12:05:45.963593Z",
+          "updatedAt": "2026-09-12T00:34:24.587269Z",
+          "startedAt": "2026-09-11T12:05:45.938414Z",
+          "finishedAt": "2026-09-11T12:07:08.685229Z"
+        },
+        "cursor": "rkTBEv5zH2F0Njk1OTRxczczOG1sYWQw"
+      },
+      {
+        "deploy": {
+          "id": "dep-dahkfnad0e5s73fp38pg",
+          "commit": {
+            "id": "21a3d4186824a85746e10b5fb36f4060a09f3515",
+            "message": "Keep scheduled paper protection independent of source polling\n\nRecheck completed observation continuity before extending readiness or delegating. Preserve the initial review failures and add timing regressions.\n\nCo-authored-by: Copilot App <223556219+Copilot@users.noreply.github.com>",
+            "createdAt": "2026-09-11T00:06:47Z"
+          },
+          "status": "deactivated",
+          "trigger": "api",
+          "createdAt": "2026-09-11T00:14:21.156206Z",
+          "updatedAt": "2026-09-11T12:07:08.684489Z",
+          "startedAt": "2026-09-11T00:14:21.131695Z",
+          "finishedAt": "2026-09-11T00:15:30.457303Z"
+        },
+        "cursor": "Mak-4eDK9o1mbmFkMGU1czczZnAzOHBn"
+      }
+    ],
+    "environment_sha256": "0e6adda93ffb9fed0badb0e41517497f7425df1438f424cce64d00d636081271"
+  }
+}
