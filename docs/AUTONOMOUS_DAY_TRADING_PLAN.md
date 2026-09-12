@@ -4,7 +4,9 @@
 > September 11 v30 instruction introduces a separate unrestricted,
 > always-on paper-crypto scalping profile. See
 > [v30 paper scalping](V30_PAPER_SCALPING.md) and
-> [operator preferences](OPERATOR_PREFERENCES.md). The dated baseline and
+> [operator preferences](OPERATOR_PREFERENCES.md). The September 11, 18:11
+> instruction additionally requires [scalping action economics](SCALPING_ECONOMICS.md),
+> not a return to this roadmap's low-frequency strategy. The dated baseline and
 > conservative gates below remain historical context, not v30 entry policy.
 
 ## Executive decision

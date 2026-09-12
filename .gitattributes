@@ -1,5 +1,7 @@
 research/results/v30-*.json -text
 research/results/v30-*.txt -text
 research/results/v30-*.jsonl text eol=lf
+research/results/v30-*.json.gz -text
+research/results/v30-*.txt.gz -text
 research/results/email-daily-*.json -text
 research/results/email-daily-*.txt -text

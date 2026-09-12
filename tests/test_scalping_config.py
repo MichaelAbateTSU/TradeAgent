@@ -141,7 +141,25 @@ def test_cli_selects_standing_crypto_profile_without_dated_entry_window() -> Non
     settings = configuration(args)
     assert settings.profile == "v30-paper-unrestricted"
     assert settings.order_notional_usd == 100
+    assert settings.decision_policy == "action-value-v1"
+    assert settings.maximum_quote_age_seconds == 1
+    assert settings.exit_after_seconds == settings.feature_horizon_seconds == 5
+    assert settings.policy_description()["prospective_economic_gate"] is True
+    assert settings.catastrophic_stop_bps == 100
     assert "entry_deadline" not in ScalpingConfig.model_fields
     args.confirm_paper_unrestricted = False
     with pytest.raises(ValueError, match="explicit selection"):
         configuration(args)
+
+
+def test_economic_model_requires_a_hash_and_exit_grace_is_horizon_bounded():
+    with pytest.raises(ValidationError, match="immutable hash"):
+        config(economic_model_path="unreviewed-model.json")
+    with pytest.raises(ValidationError, match="catastrophic stop"):
+        config(decision_policy="action-value-v1")
+    with pytest.raises(ValidationError, match="prediction horizon"):
+        config(
+            decision_policy="action-value-v1",
+            catastrophic_stop_bps="100",
+            latency_grace_seconds=300,
+        )

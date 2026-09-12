@@ -1,0 +1,48 @@
+{
+  "job_id": "job-daibn4gae00c73drgvc0",
+  "status": "succeeded",
+  "results": [
+    {
+      "account": {
+        "account_blocked": false,
+        "buying_power": "399883.24",
+        "cash": "99970.81",
+        "currency": "USD",
+        "non_marginable_buying_power": "99970.81",
+        "pattern_day_trader": false,
+        "portfolio_value": "99970.81",
+        "status": "ACTIVE",
+        "trading_blocked": false,
+        "transfers_blocked": false
+      },
+      "active_cycles": [],
+      "actual_image_sha": "211347c82b2f4b04aa0dd22e042dfa3eae434ee1",
+      "controls_changed": false,
+      "leases": [
+        {
+          "acquired_at": "2026-09-12 00:35:21.444302+00:00",
+          "lock_name": "tradeagent-event-worker",
+          "owner_id": "srv-dae4tr7qj5pc73a9e0k0-7cd574cbb5-lz6d7"
+        },
+        {
+          "acquired_at": "2026-09-12 00:34:42.186783+00:00",
+          "lock_name": "tradeagent-news-worker",
+          "owner_id": "srv-dae4tr7qj5pc73a9e0k0-7cd574cbb5-lz6d7-news"
+        },
+        {
+          "acquired_at": "2026-09-12 00:35:21.427940+00:00",
+          "lock_name": "tradeagent-notifier",
+          "owner_id": "srv-dadnn6mq1p3s73ef7ef0-858b98d886-zqx8z"
+        }
+      ],
+      "leases_changed": false,
+      "nonfinal_orders": [],
+      "observed_at": "2026-09-12T02:40:28.171422+00:00",
+      "open_orders": [],
+      "orders_submitted": false,
+      "positions": [],
+      "schema": "0014_scalping_runtime",
+      "scope": "read-only account and existing ownership before action-value rollout"
+    }
+  ]
+}

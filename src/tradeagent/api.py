@@ -98,6 +98,7 @@ EVENT_HEARTBEAT_FIELDS = (
     "scheduled_paper",
     "operator_paper",
     "ordinary_entries_enabled",
+    "economic_entries_enabled",
     "global_strategy_kill",
     "scalping",
     "paper_policy",
@@ -150,6 +151,7 @@ ROLE_HEARTBEAT_FIELDS = (
     "scheduled_paper",
     "operator_paper",
     "ordinary_entries_enabled",
+    "economic_entries_enabled",
     "global_strategy_kill",
     "scalping",
     "paper_policy",
@@ -437,7 +439,7 @@ DASHBOARD = """<!doctype html>
   <section class="card" aria-labelledby="scalping-heading">
     <h2 id="scalping-heading">v30 autonomous paper scalping</h2>
     <p id="scalp-state" role="status">Loading the current worker and its execution state...</p>
-    <p>24/7 crypto experiments with no paper loss, drawdown, exposure, trade-count or approval limits. Order ownership, reconciliation and broker constraints still apply.</p>
+    <p>24/7 paper crypto using the configured decision policy. Order ownership, reconciliation and broker constraints always apply. Economic forecasts and local exits are not guarantees.</p>
     <dl id="scalp-facts" class="scalp-facts"></dl>
     <h3>Execution and accounting</h3>
     <pre id="scalp-accounting" class="scalp-details">No current observation yet.</pre>
@@ -535,6 +537,7 @@ DASHBOARD = """<!doctype html>
         : `${state} | ${status.active ? 'current owner observation' : 'not a current owned observation'} | ${status.status_at || 'no timestamp'}`;
       const facts = {
         'Profile': status.profile || 'not reported',
+        'Decision policy': status.decision_policy || 'legacy-v30',
         'Run': status.cohort_id || 'not reported',
         'Mode': status.mode || 'not reported',
         'Symbols': (status.symbols || []).join(', ') || 'not reported',
@@ -554,7 +557,8 @@ DASHBOARD = """<!doctype html>
       }, null, 2);
       document.querySelector('#scalp-signals').textContent = JSON.stringify({
         last_signals: status.last_signals, market: status.market, raw: status.raw,
-        latency: status.latency, errors: status.errors
+        latency: status.latency, telemetry: status.telemetry, economics: status.economics,
+        errors: status.errors
       }, null, 2);
       document.querySelector('#kill-label').textContent = status.profile === 'v30-paper-unrestricted'
         ? 'Legacy strategy kill (not v30 policy)' : 'Kill switch';
@@ -826,6 +830,26 @@ def create_app(
                 return scalping_status(database, cohort_id=cohort_id)
         except (SQLAlchemyError, ValueError) as error:
             raise HTTPException(status_code=503, detail="Scalping status unavailable") from error
+
+    @app.get("/api/scalping/diagnostics")
+    def scalping_diagnostics(
+        cohort_id: str | None = None, limit: int = Query(default=20, ge=1, le=100)
+    ) -> dict[str, Any]:
+        from tradeagent.scalping_reporting import scalping_diagnostic_journal
+
+        if production_database_url is None:
+            return {
+                "state": "database_not_configured",
+                "records": [],
+                "profitability_validated": False,
+            }
+        try:
+            with production_database() as database:
+                return scalping_diagnostic_journal(database, cohort_id=cohort_id, limit=limit)
+        except (SQLAlchemyError, ValueError) as error:
+            raise HTTPException(
+                status_code=503, detail="Scalping diagnostics unavailable"
+            ) from error
 
     def build_event_product() -> dict[str, object]:
         now = datetime.now(UTC)

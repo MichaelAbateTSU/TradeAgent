@@ -72,6 +72,22 @@ def test_run_freezes_config_plus_code_and_does_not_overwrite_old_runs(tmp_path):
             assert connection.scalar(select(func.count()).select_from(scalping_runs)) == 2
 
 
+def test_market_batch_range_uses_canonical_exchange_at_ns_without_rewriting_history(tmp_path):
+    with Database(f"sqlite:///{tmp_path / 'canonical-times.db'}") as database:
+        database.initialize()
+        store = ScalpStore(database)
+        batch = [
+            {"event_type": "quote", "exchange_at_ns": 1789110000000000001},
+            {"event_type": "trade", "exchange_at_ns": 1789110000000000009},
+        ]
+        store.persist_market_batch(batch, at=NOW)
+        with database.begin() as connection:
+            row = connection.execute(select(scalping_market_batches)).mappings().one()
+            assert row["first_exchange_ns"] == 1789110000000000001
+            assert row["last_exchange_ns"] == 1789110000000000009
+            assert zlib.decompress(row["raw"]).decode() == canonical(batch)
+
+
 def test_audit_and_reporting_metadata_rollback_together(tmp_path):
     with Database(f"sqlite:///{tmp_path / 'rollback.db'}") as database:
         database.initialize()

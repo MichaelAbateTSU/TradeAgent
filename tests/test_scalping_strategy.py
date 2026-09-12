@@ -201,3 +201,28 @@ def test_liquidity_reversion_accepts_explicitly_unobserved_trade_inputs() -> Non
     signal = ScalpStrategy(config()).decide(value, inventory=None, now=value.as_of)
     assert signal.action == "buy" and signal.family == "reversion"
     assert signal.features["taker_delta_5s"] is None and signal.features["session_vwap"] is None
+
+
+def test_economic_policy_does_not_switch_an_open_reversion_thesis_to_momentum():
+    value = features()
+    strategy = ScalpStrategy(config(decision_policy="action-value-v1", catastrophic_stop_bps="100"))
+    owned = inventory(
+        value,
+        family="reversion",
+        exit_due_at=value.as_of + timedelta(seconds=2),
+    )
+    result = strategy.decide(value, inventory=owned, now=value.as_of)
+    assert result.action == "sell"
+    assert result.reasons == ("original_regime_invalidated",)
+    consistent = owned.model_copy(update={"family": "momentum"})
+    assert strategy.decide(value, inventory=consistent, now=value.as_of).action == "hold"
+
+
+def test_economic_policy_uses_recorded_prediction_deadline_not_a_new_minimum_hold():
+    value = features()
+    strategy = ScalpStrategy(config(decision_policy="action-value-v1", catastrophic_stop_bps="100"))
+    owned = inventory(value, family="momentum", exit_due_at=value.as_of)
+    assert strategy.decide(value, inventory=owned, now=value.as_of).action == "sell"
+    unknown = owned.model_copy(update={"exit_due_at": None})
+    result = strategy.decide(value, inventory=unknown, now=value.as_of)
+    assert result.action == "sell" and result.reasons == ("missing_entry_horizon",)

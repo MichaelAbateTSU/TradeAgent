@@ -2,12 +2,14 @@ import asyncio
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 
-from tradeagent.alpaca_paper import AlpacaPaperClient
+from tradeagent.alpaca_paper import AlpacaOrderStatus, AlpacaPaperClient
+from tradeagent.event_order_stream import PaperTradeUpdate
 from tradeagent.persistence import Database, ProductionRepository
 from tradeagent.scalping_config import ScalpingConfig, ScalpQuote, ScalpSignal
 from tradeagent.scalping_runtime import ScalpingRuntime, _blocking, run_scalping_service
@@ -145,6 +147,46 @@ def test_lost_lease_cannot_publish_a_current_owned_heartbeat(
         with pytest.raises(RuntimeError, match="ownership"):
             runtime.heartbeat(feed={"state": "subscribed"}, queued_events=0)
         assert runtime.repo.get_control("scalping:v30-runtime:status") is None
+
+
+def test_order_stream_updates_are_applied_without_forcing_rest_reconciliation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    now = datetime.now(UTC)
+    with Database(f"sqlite:///{tmp_path / 'stream.db'}") as database:
+        database.initialize()
+        runtime, engine, _, _ = runtime_fixture(database, monkeypatch, now)
+        stream = MagicMock()
+        stream.health_snapshot.return_value = {"gap_count": 0}
+        stream.drain.return_value = (
+            PaperTradeUpdate(
+                event="partial_fill",
+                timestamp=now,
+                received_at=now,
+                sequence=1,
+                connection_id=1,
+                order_id="broker",
+                client_order_id="owned",
+                symbol="BTCUSD",
+                side="buy",
+                status=AlpacaOrderStatus.PARTIALLY_FILLED,
+                quantity=Decimal(1),
+                notional=None,
+                filled_quantity=Decimal(".25"),
+                filled_average_price=Decimal(100),
+                order_created_at=now - timedelta(seconds=1),
+                order_updated_at=now,
+                execution_id="execution",
+                event_id="event",
+                fill_quantity=Decimal(".25"),
+                fill_price=Decimal(100),
+                position_quantity=Decimal(".25"),
+            ),
+        )
+        runtime.order_stream = stream
+        runtime.tick()
+        engine.consume_order_update.assert_called_once()
+        assert engine.reconcile.call_count == 0
 
 
 def test_cancel_waits_for_inflight_thread_before_releasing_caller() -> None:

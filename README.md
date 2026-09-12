@@ -15,6 +15,8 @@ durable order identities, broker-authoritative reconciliation and honest executi
 
 - v30 paper crypto scalping with an explicit unrestricted experimental operating policy
 - Venue-specific L2 order-book features, deterministic momentum/reversion and shared replay logic
+- Fill-conditioned passive/aggressive/NO_TRADE economics with chronological validation
+- Per-trade reconstruction, seven-horizon markouts, MFE/MAE, failure attribution and stage latency
 - Persistent order/cycle recovery, measured costs, and one five-paragraph daily email at 18:00 Eastern
 - Separate v30 dashboard status; legacy risk controls are not misrepresented as v30 permissions
 - v20 event-driven shadow collection with immutable receipt-time evidence and visible abstentions

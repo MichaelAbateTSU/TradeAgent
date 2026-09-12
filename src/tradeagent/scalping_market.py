@@ -125,6 +125,8 @@ class MarketEvent(BaseModel):
     received_at: AwareDatetime
     received_at_ns: int = Field(gt=0)
     received_monotonic_ns: int = Field(ge=0)
+    decoded_at_ns: int | None = Field(default=None, gt=0)
+    decoded_monotonic_ns: int | None = Field(default=None, ge=0)
     connection_id: UUID
     receive_sequence: int = Field(gt=0)
     bids: tuple[BookLevel, ...] = ()
@@ -150,6 +152,11 @@ class MarketEvent(BaseModel):
             or datetime_ns(self.received_at) != self.received_at_ns // 1000 * 1000
         ):
             raise ValueError("canonical timestamp fields disagree")
+        if (self.decoded_at_ns is not None and self.decoded_at_ns < self.received_at_ns) or (
+            self.decoded_monotonic_ns is not None
+            and self.decoded_monotonic_ns < self.received_monotonic_ns
+        ):
+            raise ValueError("decode timestamps cannot precede the recorded receipt")
         for levels in (self.bids, self.asks):
             if len({level.price for level in levels}) != len(levels):
                 raise ValueError("duplicate prices within a book side")
@@ -722,6 +729,13 @@ class CryptoMarketFeed:
                     received_at=at,
                     received_monotonic_ns=monotonic,
                 )
+                event = MarketEvent.model_validate(
+                    {
+                        **event.model_dump(),
+                        "decoded_at_ns": datetime_ns(self._clock()),
+                        "decoded_monotonic_ns": self._monotonic_ns(),
+                    }
+                )
             except (ValueError, TypeError, OverflowError) as exc:
                 raise _IntegrityError("invalid_market_message") from exc
             if event.symbol not in self._books:
@@ -931,6 +945,10 @@ class BookFeatures(BaseModel):
     session_observed_volume: Decimal = Field(ge=0)
     session_vwap_displacement_bps: float | None
     atr_1m: float | None = Field(default=None, ge=0)
+    book_exchange_at_ns: int | None = Field(default=None, gt=0)
+    book_received_at_ns: int | None = Field(default=None, gt=0)
+    quote_book_time_difference_ms: float | None = Field(default=None, ge=0)
+    cancellation_intensity_5s: None = None
     aggregate_change_proxies: Literal[True] = True
     exact_queue_position_available: Literal[False] = False
     session_coverage: Literal["observed_trades_only"] = "observed_trades_only"
@@ -1561,6 +1579,10 @@ class BookFeatureEngine:
                 atr_1m=_float(sum(state.true_ranges, ZERO) / 14)
                 if len(state.true_ranges) == 14
                 else None,
+                book_exchange_at_ns=state.book.exchange_ns,
+                book_received_at_ns=state.book.received_ns,
+                quote_book_time_difference_ms=abs(quote.exchange_time_ns - state.book.exchange_ns)
+                / 1_000_000,
                 return_1s_bps=return_one,
                 return_5s_bps=return_five,
                 return_15s_bps=return_fifteen,

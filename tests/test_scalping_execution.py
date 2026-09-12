@@ -256,11 +256,12 @@ def setup(tmp_path):
         repo = ProductionRepository(database)
         repo.acquire_worker_lock("tradeagent-event-worker", "worker", observed_at=NOW)
 
-        def make(**changes):
+        def make(*, economic_model=None, quote_provider=None, **changes):
+            approved_at = changes.pop("approved_at", NOW - timedelta(hours=1))
             config = ScalpingConfig(
                 cohort_id="v30-fixture",
                 account_digest=ACCOUNT,
-                approved_at=NOW - timedelta(hours=1),
+                approved_at=approved_at,
                 symbols=("BTC/USD",),
                 **changes,
             )
@@ -271,6 +272,8 @@ def setup(tmp_path):
                 owner_id="worker",
                 code_sha="a" * 40,
                 clock=lambda: clock[0],
+                economic_model=economic_model,
+                quote_provider=quote_provider,
             )
             return engine
 

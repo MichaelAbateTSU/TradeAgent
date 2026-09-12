@@ -1,5 +1,29 @@
 # Operator preferences
 
+## Current instruction: prompt-only operation
+
+At **September 11, 2026, 20:32:59 Eastern**, the owner explicitly requested:
+stop background work, stop processes, stop all automations, and operate only
+when given a prompt.
+
+**This supersedes all earlier unattended-operation instructions below.**
+
+- Work synchronously only in response to the user's prompt. A generic request
+  to implement something is not permission to spawn background agents or
+  continue later. Background execution requires separate, explicit authorization.
+- Do not run, resume or schedule background agents, unattended repairs,
+  trading workers, local servers, watchers, jobs, or follow-up automations
+  without a new explicit user prompt authorizing that scope.
+- Earlier standing autonomous-paper and while-asleep permissions are revoked.
+- Keep TradeAgent's stopped Render services stopped. Do not rearm trading or
+  resume the email sender automatically.
+- Preserve unfinished files, historical evidence and the database. Do not
+  automatically finish, test, commit, deploy or clean up canceled work.
+- After responding to a prompt, stop. Do not create a follow-up wake or
+  infer permission to continue later.
+
+The dated instructions below are retained as history, not current authority.
+
 ## September 11, 2026: v30 autonomous paper scalping
 
 At **02:18:28.634 America/New_York**, the owner requested v30 implementation
@@ -41,3 +65,24 @@ paragraphs** explaining the reporting day's trading and profit or loss.
 Do not include raw trade details, order identifiers, JSON dumps or additional
 automatic startup/incident messages. Preserve honest loss reporting and
 uncertain fee attribution. See [DAILY_EMAIL.md](DAILY_EMAIL.md).
+
+## September 11, 2026, 18:11 Eastern: scalping economics repair
+
+The new implementation instruction retains short-horizon microstructure
+scalping. It explicitly rejects arbitrary daily trade caps, a five-minute
+minimum hold, replacing scalping with news-only trading, or generic indicators.
+The earlier context's recommendation to abandon short holds is not the
+implementation scope.
+
+For the repaired execution policy, prospective action values must account for
+fill-conditioned returns, costs, adverse selection, latency and uncertainty.
+An unsupported or non-positive economic action means **NO_TRADE**, even when
+the directional heuristic is bullish. This supersedes the earlier permission
+to ignore economic entry gates; it does not reinstate old dated approvals,
+news/R1 gates, trade quotas or a shadow-mode requirement.
+
+Keep momentum and reversion separate. Preserve the original entry thesis,
+prediction-horizon exits and owned recovery, and add an explicit local
+catastrophic stop. Do not label that stop a guaranteed execution price.
+Historical fills, fees, cohorts and unknowns must remain intact. The paper-only
+endpoint/account boundary and once-daily five-paragraph email remain unchanged.

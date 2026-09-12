@@ -1,0 +1,1069 @@
+{
+  "completed_at": "2026-09-12T01:33:36.776451+00:00",
+  "implementation_status": "local_complete_not_deployed",
+  "actual_diagnostic_summary": {
+    "accounting_failures_proven": 0,
+    "completed_by_family": {
+      "momentum": 59,
+      "reversion": 3
+    },
+    "completed_by_symbol": {
+      "BTC/USD": 47,
+      "ETH/USD": 15
+    },
+    "completed_trades": 62,
+    "cycles": 229,
+    "failure_labels": {
+      "ACCOUNTING_FAILURE": 0,
+      "ADVERSE_SELECTION": 12,
+      "ALPHA_FAILURE": 0,
+      "COST_FAILURE": 7,
+      "EXECUTION_FAILURE": 0,
+      "EXIT_FAILURE": 0,
+      "LATENCY_FAILURE": 1,
+      "REGIME_FAILURE": 0,
+      "STALE_DATA_FAILURE": 0,
+      "UNKNOWN": 62
+    },
+    "fee_and_inventory_effects": {
+      "estimated_base_reserve_value": {
+        "basis": "estimated_base_reserve_value",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "4.678598408866785000000"
+      },
+      "estimated_cash_reserve": {
+        "basis": "estimated_cash_reserve",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "14.1671251421457625033025"
+      },
+      "quantity_difference_value_already_in_cashflow": {
+        "basis": "quantity_difference_value_already_in_cashflow",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "9.521589010054039037"
+      }
+    },
+    "fee_complete_trades": 0,
+    "fee_records": 0,
+    "no_fill_cycles": 167,
+    "open_or_unresolved_cycles": 0,
+    "outcome_basis": {
+      "modeled_net_pnl": 62
+    },
+    "outcomes": {
+      "loser": 62
+    },
+    "pnl_totals": {
+      "actual_net_pnl": {
+        "basis": "actual_net_pnl",
+        "missing": 62,
+        "reason": "no_known_values",
+        "samples": 0,
+        "value": null
+      },
+      "gross_cash_flow": {
+        "basis": "gross_cash_flow",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "-13.141326540867069736"
+      },
+      "modeled_net_pnl": {
+        "basis": "modeled_net_pnl",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "-31.9870500918796172393025"
+      },
+      "raw_price_pnl": {
+        "basis": "raw_price_pnl",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "-3.619737530813030699"
+      }
+    },
+    "stored_modeled_pnl_total": {
+      "basis": "stored_modeled_net_pnl",
+      "missing": 0,
+      "reason": null,
+      "samples": 62,
+      "value": "-31.987050091879617240"
+    }
+  },
+  "actual_coverage": {
+    "closed_trades_with_both_independent_crosschecks": 62,
+    "closed_trades_with_fill_activity_crosscheck": 62,
+    "closed_trades_with_historical_order_crosscheck": 62,
+    "complete_holding_curves": 0,
+    "coverage_limit": "missing quote samples are not zero returns; sparse 100ms coverage is not 100ms precision",
+    "data_capability": "native aggregate-L2 venue quotes, not MBO/exact queue or exchange sequence",
+    "fill_activity_orders_checked": 124,
+    "filled_orders": 124,
+    "historical_orders_checked": 124,
+    "markouts": {
+      "100ms": {
+        "missing": 53,
+        "samples": 9
+      },
+      "10s": {
+        "missing": 42,
+        "samples": 20
+      },
+      "1s": {
+        "missing": 41,
+        "samples": 21
+      },
+      "250ms": {
+        "missing": 38,
+        "samples": 24
+      },
+      "2s": {
+        "missing": 43,
+        "samples": 19
+      },
+      "500ms": {
+        "missing": 42,
+        "samples": 20
+      },
+      "5s": {
+        "missing": 38,
+        "samples": 24
+      }
+    },
+    "prediction": {
+      "confidence": {
+        "missing": 62,
+        "samples": 0
+      },
+      "expected_net_edge_bps": {
+        "missing": 62,
+        "samples": 0
+      },
+      "predicted_fill_probability": {
+        "missing": 62,
+        "samples": 0
+      },
+      "predicted_horizon_seconds": {
+        "missing": 62,
+        "samples": 0
+      },
+      "predicted_move_bps": {
+        "missing": 62,
+        "samples": 0
+      },
+      "uncertainty": {
+        "missing": 62,
+        "samples": 0
+      }
+    },
+    "quote_rejections": {
+      "lagged_at_capture": 11
+    },
+    "quote_rows": 46517,
+    "tape_source_coverage": {
+      "basis": {
+        "basis": "source snapshot tape selection",
+        "reason": null,
+        "value": "native quote events only; no interpolation or invented BBO from L2 deltas"
+      },
+      "batch_count": {
+        "basis": "source snapshot",
+        "reason": null,
+        "value": 23853
+      },
+      "batch_metadata_sha256": {
+        "basis": "canonical complete batch-metadata list, retained in the source snapshot",
+        "reason": null,
+        "value": "0ebde21acc2c1c5185d5ac03b49728a230da99420b6863d8a01bccb67de6ea89"
+      },
+      "cache_evictions": {
+        "basis": "bounded live-cache telemetry",
+        "reason": "not_recorded_or_invalid",
+        "value": null
+      },
+      "invalid_batches": {
+        "basis": "source snapshot invalid-batch evidence",
+        "reason": null,
+        "value": []
+      },
+      "quote_count": {
+        "basis": "source snapshot",
+        "reason": null,
+        "value": 46517
+      },
+      "retention": "full batch metadata stays in the hashed source; each sampled quote retains its batch_id; the report does not duplicate tens of thousands of unused batch rows",
+      "window_count": {
+        "basis": "source snapshot",
+        "reason": null,
+        "value": 146
+      },
+      "window_total_seconds": {
+        "basis": "source snapshot selected windows",
+        "reason": null,
+        "value": "4167.119348"
+      },
+      "windows": {
+        "basis": "full selected coverage-window list",
+        "reason": null,
+        "value": [
+          [
+            "2026-09-11 12:12:02.612685+00:00",
+            "2026-09-11 12:12:23.612685+00:00"
+          ],
+          [
+            "2026-09-11 12:20:09.198984+00:00",
+            "2026-09-11 12:20:33.591500+00:00"
+          ],
+          [
+            "2026-09-11 12:22:10.148818+00:00",
+            "2026-09-11 12:22:31.148818+00:00"
+          ],
+          [
+            "2026-09-11 12:29:28.041676+00:00",
+            "2026-09-11 12:29:49.041676+00:00"
+          ],
+          [
+            "2026-09-11 12:30:06.166254+00:00",
+            "2026-09-11 12:30:45.058168+00:00"
+          ],
+          [
+            "2026-09-11 12:31:04.110796+00:00",
+            "2026-09-11 12:31:26.691151+00:00"
+          ],
+          [
+            "2026-09-11 12:31:27.457464+00:00",
+            "2026-09-11 12:31:48.457464+00:00"
+          ],
+          [
+            "2026-09-11 12:32:10.482965+00:00",
+            "2026-09-11 12:32:31.482965+00:00"
+          ],
+          [
+            "2026-09-11 12:32:41.181216+00:00",
+            "2026-09-11 12:33:05.014920+00:00"
+          ],
+          [
+            "2026-09-11 12:33:07.319304+00:00",
+            "2026-09-11 12:33:58.083297+00:00"
+          ],
+          [
+            "2026-09-11 12:33:58.584960+00:00",
+            "2026-09-11 12:41:13.896990+00:00"
+          ],
+          [
+            "2026-09-11 12:41:25.129693+00:00",
+            "2026-09-11 12:41:46.129693+00:00"
+          ],
+          [
+            "2026-09-11 12:42:36.883890+00:00",
+            "2026-09-11 12:43:12.128299+00:00"
+          ],
+          [
+            "2026-09-11 12:43:42.121900+00:00",
+            "2026-09-11 12:44:03.121900+00:00"
+          ],
+          [
+            "2026-09-11 12:45:57.270955+00:00",
+            "2026-09-11 12:46:21.963808+00:00"
+          ],
+          [
+            "2026-09-11 12:47:27.460388+00:00",
+            "2026-09-11 12:48:24.513277+00:00"
+          ],
+          [
+            "2026-09-11 12:48:35.777335+00:00",
+            "2026-09-11 12:48:58.877037+00:00"
+          ],
+          [
+            "2026-09-11 12:50:01.132582+00:00",
+            "2026-09-11 12:51:04.296684+00:00"
+          ],
+          [
+            "2026-09-11 12:51:10.168567+00:00",
+            "2026-09-11 12:51:33.416161+00:00"
+          ],
+          [
+            "2026-09-11 12:52:09.028128+00:00",
+            "2026-09-11 12:52:36.928402+00:00"
+          ],
+          [
+            "2026-09-11 13:48:40.641468+00:00",
+            "2026-09-11 13:49:01.641468+00:00"
+          ],
+          [
+            "2026-09-11 13:49:08.233592+00:00",
+            "2026-09-11 13:49:36.545039+00:00"
+          ],
+          [
+            "2026-09-11 13:49:37.563781+00:00",
+            "2026-09-11 13:50:07.410118+00:00"
+          ],
+          [
+            "2026-09-11 13:50:28.601393+00:00",
+            "2026-09-11 13:50:50.754840+00:00"
+          ],
+          [
+            "2026-09-11 13:51:10.878793+00:00",
+            "2026-09-11 13:51:31.878793+00:00"
+          ],
+          [
+            "2026-09-11 13:51:56.296592+00:00",
+            "2026-09-11 13:52:35.601446+00:00"
+          ],
+          [
+            "2026-09-11 13:52:43.738639+00:00",
+            "2026-09-11 13:53:04.738639+00:00"
+          ],
+          [
+            "2026-09-11 13:53:44.279047+00:00",
+            "2026-09-11 13:54:07.675718+00:00"
+          ],
+          [
+            "2026-09-11 13:54:42.424859+00:00",
+            "2026-09-11 13:55:21.199927+00:00"
+          ],
+          [
+            "2026-09-11 13:55:49.634532+00:00",
+            "2026-09-11 13:56:13.815806+00:00"
+          ],
+          [
+            "2026-09-11 13:58:09.945384+00:00",
+            "2026-09-11 13:59:06.524098+00:00"
+          ],
+          [
+            "2026-09-11 13:59:11.806003+00:00",
+            "2026-09-11 13:59:40.186710+00:00"
+          ],
+          [
+            "2026-09-11 14:00:03.131664+00:00",
+            "2026-09-11 14:00:46.902571+00:00"
+          ],
+          [
+            "2026-09-11 14:01:05.153235+00:00",
+            "2026-09-11 14:01:39.262994+00:00"
+          ],
+          [
+            "2026-09-11 14:01:40.686677+00:00",
+            "2026-09-11 14:03:15.627872+00:00"
+          ],
+          [
+            "2026-09-11 14:04:31.216011+00:00",
+            "2026-09-11 14:04:53.535110+00:00"
+          ],
+          [
+            "2026-09-11 14:05:44.344229+00:00",
+            "2026-09-11 14:06:20.437615+00:00"
+          ],
+          [
+            "2026-09-11 14:06:22.564528+00:00",
+            "2026-09-11 14:06:46.914832+00:00"
+          ],
+          [
+            "2026-09-11 14:09:15.475078+00:00",
+            "2026-09-11 14:09:49.610453+00:00"
+          ],
+          [
+            "2026-09-11 14:09:55.685001+00:00",
+            "2026-09-11 14:10:51.347010+00:00"
+          ],
+          [
+            "2026-09-11 14:11:10.084628+00:00",
+            "2026-09-11 14:11:31.084628+00:00"
+          ],
+          [
+            "2026-09-11 14:12:40.668497+00:00",
+            "2026-09-11 14:13:02.767585+00:00"
+          ],
+          [
+            "2026-09-11 14:13:12.232860+00:00",
+            "2026-09-11 14:13:36.601205+00:00"
+          ],
+          [
+            "2026-09-11 14:14:16.306203+00:00",
+            "2026-09-11 14:14:53.752329+00:00"
+          ],
+          [
+            "2026-09-11 14:15:04.781833+00:00",
+            "2026-09-11 14:15:29.122553+00:00"
+          ],
+          [
+            "2026-09-11 14:16:09.075933+00:00",
+            "2026-09-11 14:16:30.075933+00:00"
+          ],
+          [
+            "2026-09-11 14:17:17.698606+00:00",
+            "2026-09-11 14:17:43.274445+00:00"
+          ],
+          [
+            "2026-09-11 14:20:38.208471+00:00",
+            "2026-09-11 14:21:02.263190+00:00"
+          ],
+          [
+            "2026-09-11 14:21:40.854533+00:00",
+            "2026-09-11 14:22:01.854533+00:00"
+          ],
+          [
+            "2026-09-11 14:23:48.658294+00:00",
+            "2026-09-11 14:24:09.658294+00:00"
+          ],
+          [
+            "2026-09-11 14:26:34.073182+00:00",
+            "2026-09-11 14:26:55.073182+00:00"
+          ],
+          [
+            "2026-09-11 14:30:03.170307+00:00",
+            "2026-09-11 14:30:25.467343+00:00"
+          ],
+          [
+            "2026-09-11 14:30:53.367754+00:00",
+            "2026-09-11 14:31:16.771569+00:00"
+          ],
+          [
+            "2026-09-11 14:35:01.378063+00:00",
+            "2026-09-11 14:35:22.378063+00:00"
+          ],
+          [
+            "2026-09-11 14:37:12.295492+00:00",
+            "2026-09-11 14:37:48.785196+00:00"
+          ],
+          [
+            "2026-09-11 14:37:51.886679+00:00",
+            "2026-09-11 14:38:15.930538+00:00"
+          ],
+          [
+            "2026-09-11 14:38:57.567440+00:00",
+            "2026-09-11 14:39:18.567440+00:00"
+          ],
+          [
+            "2026-09-11 14:48:55.390414+00:00",
+            "2026-09-11 14:49:16.390414+00:00"
+          ],
+          [
+            "2026-09-11 14:49:23.047617+00:00",
+            "2026-09-11 14:49:44.047617+00:00"
+          ],
+          [
+            "2026-09-11 14:51:00.931315+00:00",
+            "2026-09-11 14:51:21.931315+00:00"
+          ],
+          [
+            "2026-09-11 14:51:58.817413+00:00",
+            "2026-09-11 14:52:25.584673+00:00"
+          ],
+          [
+            "2026-09-11 14:52:50.990952+00:00",
+            "2026-09-11 14:53:14.747981+00:00"
+          ],
+          [
+            "2026-09-11 14:53:21.576793+00:00",
+            "2026-09-11 14:53:42.576793+00:00"
+          ],
+          [
+            "2026-09-11 14:58:22.501503+00:00",
+            "2026-09-11 14:58:44.502552+00:00"
+          ],
+          [
+            "2026-09-11 15:02:10.289963+00:00",
+            "2026-09-11 15:02:31.289963+00:00"
+          ],
+          [
+            "2026-09-11 15:02:33.669836+00:00",
+            "2026-09-11 15:03:00.868278+00:00"
+          ],
+          [
+            "2026-09-11 15:04:19.259602+00:00",
+            "2026-09-11 15:04:40.259602+00:00"
+          ],
+          [
+            "2026-09-11 15:05:12.783433+00:00",
+            "2026-09-11 15:05:36.848949+00:00"
+          ],
+          [
+            "2026-09-11 15:12:37.966587+00:00",
+            "2026-09-11 15:13:04.303392+00:00"
+          ],
+          [
+            "2026-09-11 15:15:03.389210+00:00",
+            "2026-09-11 15:15:24.389210+00:00"
+          ],
+          [
+            "2026-09-11 15:23:42.097337+00:00",
+            "2026-09-11 15:24:03.097337+00:00"
+          ],
+          [
+            "2026-09-11 15:27:22.549816+00:00",
+            "2026-09-11 15:27:43.549816+00:00"
+          ],
+          [
+            "2026-09-11 15:46:37.150960+00:00",
+            "2026-09-11 15:47:01.042789+00:00"
+          ],
+          [
+            "2026-09-11 15:52:30.154026+00:00",
+            "2026-09-11 15:53:09.198558+00:00"
+          ],
+          [
+            "2026-09-11 15:53:26.619443+00:00",
+            "2026-09-11 15:53:47.619443+00:00"
+          ],
+          [
+            "2026-09-11 15:54:13.924515+00:00",
+            "2026-09-11 15:54:36.171600+00:00"
+          ],
+          [
+            "2026-09-11 15:54:37.984061+00:00",
+            "2026-09-11 15:55:10.669054+00:00"
+          ],
+          [
+            "2026-09-11 15:55:58.278284+00:00",
+            "2026-09-11 15:56:19.278284+00:00"
+          ],
+          [
+            "2026-09-11 15:56:20.004481+00:00",
+            "2026-09-11 15:56:42.089012+00:00"
+          ],
+          [
+            "2026-09-11 15:56:42.376009+00:00",
+            "2026-09-11 15:57:21.825545+00:00"
+          ],
+          [
+            "2026-09-11 15:59:25.051851+00:00",
+            "2026-09-11 15:59:46.051851+00:00"
+          ],
+          [
+            "2026-09-11 16:00:01.416032+00:00",
+            "2026-09-11 16:00:26.844379+00:00"
+          ],
+          [
+            "2026-09-11 16:00:59.620140+00:00",
+            "2026-09-11 16:01:21.794335+00:00"
+          ],
+          [
+            "2026-09-11 16:04:27.692334+00:00",
+            "2026-09-11 16:04:48.692334+00:00"
+          ],
+          [
+            "2026-09-11 16:05:43.605172+00:00",
+            "2026-09-11 16:06:04.605172+00:00"
+          ],
+          [
+            "2026-09-11 16:08:48.822279+00:00",
+            "2026-09-11 16:09:09.822279+00:00"
+          ],
+          [
+            "2026-09-11 16:09:14.140604+00:00",
+            "2026-09-11 16:09:36.723980+00:00"
+          ],
+          [
+            "2026-09-11 16:10:53.313329+00:00",
+            "2026-09-11 16:11:14.313329+00:00"
+          ],
+          [
+            "2026-09-11 16:19:05.271233+00:00",
+            "2026-09-11 16:19:26.271233+00:00"
+          ],
+          [
+            "2026-09-11 16:19:58.811162+00:00",
+            "2026-09-11 16:20:19.811162+00:00"
+          ],
+          [
+            "2026-09-11 16:21:41.428099+00:00",
+            "2026-09-11 16:22:10.626479+00:00"
+          ],
+          [
+            "2026-09-11 16:24:44.348683+00:00",
+            "2026-09-11 16:25:08.648563+00:00"
+          ],
+          [
+            "2026-09-11 16:25:13.244055+00:00",
+            "2026-09-11 16:25:38.246980+00:00"
+          ],
+          [
+            "2026-09-11 16:26:11.804153+00:00",
+            "2026-09-11 16:26:32.804153+00:00"
+          ],
+          [
+            "2026-09-11 16:26:43.044916+00:00",
+            "2026-09-11 16:27:04.044916+00:00"
+          ],
+          [
+            "2026-09-11 16:27:14.068151+00:00",
+            "2026-09-11 16:27:35.068151+00:00"
+          ],
+          [
+            "2026-09-11 16:27:36.448246+00:00",
+            "2026-09-11 16:27:59.401913+00:00"
+          ],
+          [
+            "2026-09-11 16:31:07.101170+00:00",
+            "2026-09-11 16:31:28.101170+00:00"
+          ],
+          [
+            "2026-09-11 16:33:22.148161+00:00",
+            "2026-09-11 16:33:43.148161+00:00"
+          ],
+          [
+            "2026-09-11 16:36:55.438066+00:00",
+            "2026-09-11 16:37:16.438066+00:00"
+          ],
+          [
+            "2026-09-11 16:39:28.986832+00:00",
+            "2026-09-11 16:39:56.840669+00:00"
+          ],
+          [
+            "2026-09-11 16:41:28.434782+00:00",
+            "2026-09-11 16:41:52.652840+00:00"
+          ],
+          [
+            "2026-09-11 16:47:01.130443+00:00",
+            "2026-09-11 16:47:22.130443+00:00"
+          ],
+          [
+            "2026-09-11 16:47:33.366474+00:00",
+            "2026-09-11 16:47:54.366474+00:00"
+          ],
+          [
+            "2026-09-11 16:50:23.127785+00:00",
+            "2026-09-11 16:50:44.127785+00:00"
+          ],
+          [
+            "2026-09-11 16:57:56.119749+00:00",
+            "2026-09-11 16:58:20.237417+00:00"
+          ],
+          [
+            "2026-09-11 17:00:15.274935+00:00",
+            "2026-09-11 17:00:36.274935+00:00"
+          ],
+          [
+            "2026-09-11 17:14:59.334679+00:00",
+            "2026-09-11 17:15:23.147210+00:00"
+          ],
+          [
+            "2026-09-11 17:18:35.331090+00:00",
+            "2026-09-11 17:18:56.331090+00:00"
+          ],
+          [
+            "2026-09-11 17:22:58.521843+00:00",
+            "2026-09-11 17:23:22.709442+00:00"
+          ],
+          [
+            "2026-09-11 17:23:24.412946+00:00",
+            "2026-09-11 17:23:48.565048+00:00"
+          ],
+          [
+            "2026-09-11 17:26:58.720552+00:00",
+            "2026-09-11 17:27:19.720552+00:00"
+          ],
+          [
+            "2026-09-11 17:58:23.017551+00:00",
+            "2026-09-11 17:58:44.017551+00:00"
+          ],
+          [
+            "2026-09-11 18:03:24.598657+00:00",
+            "2026-09-11 18:03:45.598657+00:00"
+          ],
+          [
+            "2026-09-11 18:05:07.260491+00:00",
+            "2026-09-11 18:05:30.444490+00:00"
+          ],
+          [
+            "2026-09-11 18:06:18.838297+00:00",
+            "2026-09-11 18:06:39.838297+00:00"
+          ],
+          [
+            "2026-09-11 18:07:01.309408+00:00",
+            "2026-09-11 18:07:25.452742+00:00"
+          ],
+          [
+            "2026-09-11 18:13:36.202967+00:00",
+            "2026-09-11 18:13:57.202967+00:00"
+          ],
+          [
+            "2026-09-11 18:14:52.586835+00:00",
+            "2026-09-11 18:15:16.280209+00:00"
+          ],
+          [
+            "2026-09-11 18:20:12.301059+00:00",
+            "2026-09-11 18:20:36.654531+00:00"
+          ],
+          [
+            "2026-09-11 18:21:05.200770+00:00",
+            "2026-09-11 18:21:30.281966+00:00"
+          ],
+          [
+            "2026-09-11 18:26:19.015133+00:00",
+            "2026-09-11 18:26:40.015133+00:00"
+          ],
+          [
+            "2026-09-11 18:28:30.304826+00:00",
+            "2026-09-11 18:29:04.835440+00:00"
+          ],
+          [
+            "2026-09-11 18:42:02.571661+00:00",
+            "2026-09-11 18:42:26.865742+00:00"
+          ],
+          [
+            "2026-09-11 18:45:09.970127+00:00",
+            "2026-09-11 18:45:30.970127+00:00"
+          ],
+          [
+            "2026-09-11 18:48:34.928203+00:00",
+            "2026-09-11 18:48:55.928203+00:00"
+          ],
+          [
+            "2026-09-11 18:49:41.372645+00:00",
+            "2026-09-11 18:50:04.507850+00:00"
+          ],
+          [
+            "2026-09-11 18:55:38.226145+00:00",
+            "2026-09-11 18:55:59.226145+00:00"
+          ],
+          [
+            "2026-09-11 18:59:02.973756+00:00",
+            "2026-09-11 18:59:27.283849+00:00"
+          ],
+          [
+            "2026-09-11 18:59:56.056123+00:00",
+            "2026-09-11 19:00:17.056123+00:00"
+          ],
+          [
+            "2026-09-11 19:03:46.263473+00:00",
+            "2026-09-11 19:04:07.263473+00:00"
+          ],
+          [
+            "2026-09-11 19:04:56.604315+00:00",
+            "2026-09-11 19:05:17.604315+00:00"
+          ],
+          [
+            "2026-09-11 19:05:35.911339+00:00",
+            "2026-09-11 19:05:56.911339+00:00"
+          ],
+          [
+            "2026-09-11 19:06:40.250017+00:00",
+            "2026-09-11 19:07:02.479485+00:00"
+          ],
+          [
+            "2026-09-11 19:11:55.165861+00:00",
+            "2026-09-11 19:12:28.772600+00:00"
+          ],
+          [
+            "2026-09-11 19:17:16.566909+00:00",
+            "2026-09-11 19:17:37.566909+00:00"
+          ],
+          [
+            "2026-09-11 19:21:32.791581+00:00",
+            "2026-09-11 19:21:57.203932+00:00"
+          ],
+          [
+            "2026-09-11 19:39:10.308237+00:00",
+            "2026-09-11 19:39:34.516416+00:00"
+          ],
+          [
+            "2026-09-11 19:50:11.521068+00:00",
+            "2026-09-11 19:50:32.521068+00:00"
+          ],
+          [
+            "2026-09-11 19:54:34.951989+00:00",
+            "2026-09-11 19:54:55.951989+00:00"
+          ],
+          [
+            "2026-09-11 20:01:59.248019+00:00",
+            "2026-09-11 20:02:20.248019+00:00"
+          ],
+          [
+            "2026-09-11 20:19:34.108100+00:00",
+            "2026-09-11 20:19:58.407880+00:00"
+          ],
+          [
+            "2026-09-11 20:27:05.794117+00:00",
+            "2026-09-11 20:27:30.074300+00:00"
+          ],
+          [
+            "2026-09-11 20:37:16.929814+00:00",
+            "2026-09-11 20:37:37.929814+00:00"
+          ],
+          [
+            "2026-09-11 21:37:55.436833+00:00",
+            "2026-09-11 21:38:16.436833+00:00"
+          ],
+          [
+            "2026-09-11 21:55:28.144386+00:00",
+            "2026-09-11 21:55:50.384355+00:00"
+          ]
+        ]
+      }
+    },
+    "valid_unique_quotes": 46506
+  },
+  "longest_holding_trade": {
+    "analysis": {
+      "actual_exit_fill_at": {
+        "basis": "last exit execution/completion timestamp",
+        "reason": null,
+        "unix_ns": 1789130471327620000,
+        "value": "2026-09-11T12:41:11.327620000Z"
+      },
+      "actual_exit_request_at": {
+        "basis": "scalp_exit_requested audit",
+        "reason": null,
+        "unix_ns": 1789130065083562000,
+        "value": "2026-09-11T12:34:25.083562000Z"
+      },
+      "backoff_after_deadline_seconds": {
+        "basis": "cooldown union clipped to [intended exit, actual exit]",
+        "reason": null,
+        "value": "300"
+      },
+      "backoff_directive_union_seconds": {
+        "basis": "union of same-run audited cooldown intervals intersecting actual holding lifetime",
+        "reason": null,
+        "value": "300"
+      },
+      "backoff_events": [
+        {
+          "directive_duration_seconds": "60",
+          "event_id": "7650579d-1253-4176-8ea7-512c68e6467d",
+          "occurred_at": "2026-09-11T12:34:26.990443000Z",
+          "operation": "reconcile",
+          "overlap_holding_seconds": "60",
+          "retry_after": "2026-09-11T12:35:26.990443000Z",
+          "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+          "status_code": 429
+        },
+        {
+          "directive_duration_seconds": "60",
+          "event_id": "4272c093-2db0-48dd-8cd5-509e8310afd4",
+          "occurred_at": "2026-09-11T12:35:53.704633000Z",
+          "operation": "reconcile",
+          "overlap_holding_seconds": "60",
+          "retry_after": "2026-09-11T12:36:53.704633000Z",
+          "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+          "status_code": 429
+        },
+        {
+          "directive_duration_seconds": "60",
+          "event_id": "01b5dab6-862c-4a3d-9d6a-6cf4c6378017",
+          "occurred_at": "2026-09-11T12:37:23.093913000Z",
+          "operation": "reconcile",
+          "overlap_holding_seconds": "60",
+          "retry_after": "2026-09-11T12:38:23.093913000Z",
+          "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+          "status_code": 429
+        },
+        {
+          "directive_duration_seconds": "60",
+          "event_id": "873b1201-34e0-4320-9026-c6ebd87f70d7",
+          "occurred_at": "2026-09-11T12:38:48.675994000Z",
+          "operation": "reconcile",
+          "overlap_holding_seconds": "60",
+          "retry_after": "2026-09-11T12:39:48.675994000Z",
+          "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+          "status_code": 429
+        },
+        {
+          "directive_duration_seconds": "60",
+          "event_id": "17f74b89-8aad-42b2-a7ff-7dc9d85367eb",
+          "occurred_at": "2026-09-11T12:40:09.288163000Z",
+          "operation": "reconcile",
+          "overlap_holding_seconds": "60",
+          "retry_after": "2026-09-11T12:41:09.288163000Z",
+          "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+          "status_code": 429
+        }
+      ],
+      "causality_limit": "audits prove cooldown overlap and timer overrun, not lost alpha or the duration of unlogged HTTP requests; overlapping directives are counted once",
+      "deadline_to_exit_fill_ms": {
+        "basis": "signed last execution minus persisted timer due",
+        "reason": null,
+        "value": "407140.415"
+      },
+      "deadline_to_exit_request_ms": {
+        "basis": "signed exit request minus persisted timer due; negative means early signal exit",
+        "reason": null,
+        "value": "896.357"
+      },
+      "delay_outside_documented_backoffs_seconds": {
+        "basis": "residual deadline overrun; request/loop/recovery contribution not separately measured",
+        "reason": null,
+        "value": "107.140415"
+      },
+      "intended_exit_at": {
+        "basis": "persisted strategy timer, not a predicted horizon",
+        "reason": null,
+        "unix_ns": 1789130064187205000,
+        "value": "2026-09-11T12:34:24.187205000Z"
+      },
+      "technical_recovery_counts_during_holding": {}
+    },
+    "cycle_id": "9e9ce95a-304d-5773-83f2-0afc809e4ed8",
+    "holding_seconds": {
+      "basis": "first actual entry execution -> last actual exit execution",
+      "reason": null,
+      "value": "422.150523"
+    }
+  },
+  "calibration": {
+    "accepted_sample_count": 0,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "blocked_groups": [
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 166,
+        "complete_group_required": true,
+        "family": "momentum",
+        "reason_counts": {
+          "adverse_selection": 137,
+          "fill_after_declared_cancellation_horizon": 8,
+          "impact": 145,
+          "missing:decision_latency_seconds": 166,
+          "missing:gross_return_bps": 15,
+          "missing:return_end_at": 15,
+          "slippage": 145,
+          "spread": 145
+        },
+        "symbol": "BTC/USD"
+      },
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 4,
+        "complete_group_required": true,
+        "family": "reversion",
+        "reason_counts": {
+          "adverse_selection": 1,
+          "impact": 1,
+          "missing:decision_latency_seconds": 4,
+          "slippage": 1,
+          "spread": 1
+        },
+        "symbol": "BTC/USD"
+      },
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 58,
+        "complete_group_required": true,
+        "family": "momentum",
+        "reason_counts": {
+          "adverse_selection": 48,
+          "fill_after_declared_cancellation_horizon": 2,
+          "impact": 50,
+          "missing:decision_latency_seconds": 58,
+          "missing:gross_return_bps": 5,
+          "missing:return_end_at": 5,
+          "slippage": 50,
+          "spread": 50
+        },
+        "symbol": "ETH/USD"
+      },
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 1,
+        "complete_group_required": true,
+        "family": "reversion",
+        "reason_counts": {
+          "adverse_selection": 1,
+          "impact": 1,
+          "missing:decision_latency_seconds": 1,
+          "slippage": 1,
+          "spread": 1
+        },
+        "symbol": "ETH/USD"
+      }
+    ],
+    "complete_group_policy": "a partially observed action group is excluded in full; unsupported coverage remains NO_TRADE",
+    "model_file_sha256": "db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52",
+    "model_id": "adb76e65b74528a8f8e5d017b4da7e675d63de2ce724da912d1572f84052837b",
+    "model_path": "research\\results\\v30-economics-20260911-model.json",
+    "model_reason_codes": [
+      "NO_SAMPLES"
+    ],
+    "model_status": "no_support",
+    "no_complete_case_cherry_picking": true,
+    "no_counterfactual_aggressive_samples_created": true,
+    "profitability_validated": false,
+    "raw_candidate_count": 229,
+    "schema": "scalp-calibration-audit-v1",
+    "selected_horizon_seconds": 5.0,
+    "source_sha256": "6922cd9c99fe3759c107666afc1b5c870a818f752051a278e95d61f3c56d2a57"
+  },
+  "model": {
+    "model_id": "adb76e65b74528a8f8e5d017b4da7e675d63de2ce724da912d1572f84052837b",
+    "status": "no_support",
+    "reason_codes": [
+      "NO_SAMPLES"
+    ],
+    "file_sha256": "db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52"
+  },
+  "validation": {
+    "focused": "560 passed",
+    "full": "1820 passed, 2 skipped, 88.30% coverage",
+    "ruff": "passed",
+    "mypy": "passed",
+    "full_log_sha256": "4ee90fc551440aae8107a08b685b4016df0e0b3b8bf7f52271e15886e6f6854d"
+  },
+  "services": {
+    "event": {
+      "id": "srv-dae4tr7qj5pc73a9e0k0",
+      "suspended": "suspended",
+      "autoDeploy": "no",
+      "plan": "starter",
+      "instances": 1
+    },
+    "recorder": {
+      "id": "srv-dadn8son74is73apqcc0",
+      "suspended": "suspended",
+      "autoDeploy": "no",
+      "plan": "starter",
+      "instances": 1
+    },
+    "notifier": {
+      "id": "srv-dadnn6mq1p3s73ef7ef0",
+      "suspended": "suspended",
+      "autoDeploy": "no",
+      "plan": "starter",
+      "instances": 1
+    },
+    "dashboard": {
+      "id": "srv-dadoa3740ujc73cb09c0",
+      "suspended": "suspended",
+      "autoDeploy": "no",
+      "plan": "starter",
+      "instances": 1
+    }
+  },
+  "active_render_jobs": {
+    "event": [],
+    "recorder": [],
+    "notifier": [],
+    "dashboard": []
+  },
+  "automations": "cleared",
+  "deployment_performed": false,
+  "orders_submitted_by_implementation": false,
+  "emails_sent_by_implementation": false,
+  "limitations": [
+    "The historical export has zero model-ready candidates; the pinned artifact correctly produces NO_TRADE.",
+    "Actual final fees remain unknown for all 62 reconstructed trades.",
+    "Sparse quote coverage supports some adverse-selection/cost/latency evidence but not complete causal attribution.",
+    "No repaired production behavior or profitability is claimed because stopped services were not redeployed."
+  ],
+  "source_sha256": {
+    "src\\tradeagent\\scalping_config.py": "c1a743125d4c53511b97f3d1befea5f040187383114ad9f5c09e171a2d0bc7b5",
+    "src\\tradeagent\\scalping_market.py": "4263e65d1976a2257bb74eb73d62c8485714102bcd6ce8aa433705ef66e2c900",
+    "src\\tradeagent\\scalping_strategy.py": "681766a8fc9f0b07ef95c66b11bfc97bfeed480afbe729baafab7993038a3b7b",
+    "src\\tradeagent\\scalping_economics.py": "8fe80fcc316c419798c2da7ffbf968f087d53884ed50afc817529491b09d0ab7",
+    "src\\tradeagent\\scalping_policy.py": "953c6682c0bedadc18f5415317669afab4ae73c2944065221562a642bead7c93",
+    "src\\tradeagent\\scalping_execution.py": "8e946154fc798ac7339fb2e8196dd760dc8bd17514ea575e2d67cead7bc28a10",
+    "src\\tradeagent\\scalping_replay.py": "c7c1fed4a06def081da225ea8c9f568009f43f8f2dd848c33527d5f47bde20a2",
+    "src\\tradeagent\\scalping_runtime.py": "3fac7e631e0059d7f0a9b0663dae281593bb887ec09fea7652161a37f2c35483",
+    "src\\tradeagent\\scalping_telemetry.py": "fd0846f24d28878109b02d8bef08b4c51810dcb4d243c27cdf99c840e6af6c77",
+    "src\\tradeagent\\scalping_diagnostics.py": "41745c05aa84d1aa429982b70ed30c213f6250874db453234071b0e37fae81d2",
+    "src\\tradeagent\\scalping_reporting.py": "e7e8f34be3fb91de560cef73638d2dc1a8638b3359f1bf3d00aa71ef9c7367dc",
+    "src\\tradeagent\\scalping_cli.py": "92840b508f1b0e7317fb32c060d6c9216a474f89ee42f8fa4351eb017d39119e"
+  }
+}

@@ -20,20 +20,22 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from tradeagent.alpaca import AlpacaDataSettings
 from tradeagent.alpaca_news import AlpacaNewsClient
-from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperSettings
+from tradeagent.alpaca_paper import AlpacaPaperClient, AlpacaPaperOrder, AlpacaPaperSettings
 from tradeagent.config import AppConfig
 from tradeagent.event_doctor import code_identity
-from tradeagent.event_order_stream import AlpacaPaperTradeUpdatesStream
+from tradeagent.event_order_stream import AlpacaPaperTradeUpdatesStream, PaperTradeUpdate
 from tradeagent.experimental_policy import reject_live_environment
 from tradeagent.news import NewsRepository
 from tradeagent.news_worker import NewsWorker, NewsWorkerSettings
 from tradeagent.persistence import Database, ProductionRepository
-from tradeagent.scalping_config import ScalpingConfig, ScalpSignal
+from tradeagent.scalping_config import ScalpingConfig, ScalpQuote, ScalpSignal
 from tradeagent.scalping_execution import ScalpOrderEngine
 from tradeagent.scalping_market import BookFeatureEngine, CryptoMarketFeed, MarketEvent
 from tradeagent.scalping_notifications import ScalpingNotifications
+from tradeagent.scalping_policy import load_economic_model
 from tradeagent.scalping_store import ScalpStore
 from tradeagent.scalping_strategy import ScalpStrategy
+from tradeagent.scalping_telemetry import ScalpTelemetry
 
 LOGGER = logging.getLogger(__name__)
 LOCK_NAME = "tradeagent-event-worker"
@@ -47,6 +49,26 @@ async def _blocking[T](function: Callable[[], T]) -> T:
     except asyncio.CancelledError:
         await task
         raise
+
+
+def _stream_order(update: PaperTradeUpdate) -> AlpacaPaperOrder:
+    event_at = update.timestamp or update.received_at
+    return AlpacaPaperOrder(
+        id=update.order_id,
+        client_order_id=update.client_order_id,
+        status=update.status,
+        symbol=update.symbol,
+        side=update.side,
+        qty=update.quantity,
+        notional=update.notional,
+        filled_qty=update.filled_quantity,
+        filled_avg_price=update.filled_average_price,
+        created_at=update.order_created_at,
+        updated_at=update.order_updated_at or event_at,
+        submitted_at=update.order_created_at,
+        filled_at=event_at if update.event in {"fill", "partial_fill"} else None,
+        canceled_at=event_at if update.event == "canceled" else None,
+    )
 
 
 def _percentiles(values: deque[float]) -> dict[str, float | int | None]:
@@ -76,15 +98,30 @@ class ScalpingRuntime:
         self.code_sha = code_sha
         self.clock = clock
         self.order_stream = order_stream
-        self.store = ScalpStore(database)
-        self.market = BookFeatureEngine(config)
-        self.strategy = ScalpStrategy(config)
-        self.engine = ScalpOrderEngine(
-            database, broker, config, owner_id=owner_id, code_sha=code_sha, clock=clock
-        )
-        self.notifications = ScalpingNotifications(database, config, code_sha)
         self._market_lock = RLock()
         self._state_lock = RLock()
+        self.store = ScalpStore(database)
+        self.market = (
+            BookFeatureEngine(config, stale_after_seconds=config.maximum_quote_age_seconds)
+            if config.decision_policy == "action-value-v1"
+            else BookFeatureEngine(config)
+        )
+        self.economic_model = load_economic_model(config)
+        self.strategy = ScalpStrategy(config, self.economic_model)
+        self.engine = ScalpOrderEngine(
+            database,
+            broker,
+            config,
+            owner_id=owner_id,
+            code_sha=code_sha,
+            clock=clock,
+            economic_model=self.economic_model,
+            quote_provider=self._execution_quote,
+        )
+        self.notifications = ScalpingNotifications(database, config, code_sha)
+        self.telemetry = ScalpTelemetry(
+            database, account_digest=config.account_digest, started_at=clock()
+        )
         self._execution: dict[str, Any] = {}
         self._summary: dict[str, Any] = {}
         self._signals: list[dict[str, Any]] = []
@@ -99,6 +136,10 @@ class ScalpingRuntime:
         self._last_stream_gaps = 0
         self._operator_stop = False
         self._state = "initializing"
+
+    def _execution_quote(self, symbol: str) -> ScalpQuote | None:
+        with self._market_lock:
+            return self.market.quote(symbol)
 
     def initialize(self) -> None:
         self.engine.initialize()
@@ -129,7 +170,11 @@ class ScalpingRuntime:
         self.store.persist_market_batch([event.model_dump(mode="json") for event in batch], at=now)
         with self._market_lock:
             for event in batch:
-                self.market.on_event(event)
+                accepted = self.market.on_event(event)
+                if accepted and self.config.decision_policy == "action-value-v1":
+                    self.telemetry.on_market(
+                        event, self.market.quote(event.symbol), state_updated_at=self.clock()
+                    )
         with self._state_lock:
             self._committed_events += len(batch)
             self._committed_batches += 1
@@ -143,7 +188,11 @@ class ScalpingRuntime:
             gaps = self.order_stream.health_snapshot()["gap_count"]
             if not isinstance(gaps, int) or isinstance(gaps, bool):
                 raise ValueError("paper order-stream gap counter is invalid")
-            if updates or gaps != self._last_stream_gaps:
+            for update in updates:
+                self.engine.consume_order_update(
+                    _stream_order(update), observed_at=update.received_at
+                )
+            if gaps != self._last_stream_gaps:
                 self.engine.reconcile(now=self.clock())
                 self._last_stream_gaps = gaps
         now = self.clock()
@@ -157,12 +206,35 @@ class ScalpingRuntime:
                 if (quote := self.market.quote(symbol)) is not None
             }
             for symbol in self.config.symbols:
+                features_started_at = self.clock()
                 features = self.market.features(symbol, now)
                 if features is None:
                     continue
-                signal = self.strategy.decide(features, inventory=inventory.get(symbol), now=now)
+                features_at = self.clock()
+                signal = self.strategy.decide(
+                    features,
+                    inventory=inventory.get(symbol),
+                    now=now,
+                    decision_latency_seconds=max(0.0, (self.clock() - features_at).total_seconds()),
+                )
+                if self.config.decision_policy == "action-value-v1":
+                    signal = signal.model_copy(
+                        update={
+                            "timing": self.telemetry.decision_timing(
+                                features.source_event_id,
+                                features_started_at=features_started_at,
+                                features_at=features_at,
+                                model_at=self.clock(),
+                            )
+                        }
+                    )
                 if signal.action != "buy" or not stopped:
                     signals.append(signal)
+        if self.config.decision_policy == "action-value-v1":
+            if self.engine.run_id is None:
+                raise ValueError("decision journaling requires an initialized immutable run")
+            for signal in signals:
+                self.telemetry.record_decision(signal, run_id=self.engine.run_id, now=self.clock())
         execution = self.engine.step(tuple(signals), quotes, now=self.clock())
         summary = None
         if self._last_summary_at is None or (now - self._last_summary_at).total_seconds() >= 30:
@@ -201,6 +273,20 @@ class ScalpingRuntime:
                 "config_hash": self.config.identity,
                 "symbols": list(self.config.symbols),
                 "policy": self.config.policy_description(),
+                "decision_policy": self.config.decision_policy,
+                "economics": {
+                    "artifact_loaded": self.economic_model is not None,
+                    "model_id": self.economic_model.model_id if self.economic_model else None,
+                    "model_status": self.economic_model.status
+                    if self.economic_model
+                    else "missing",
+                    "reason_codes": list(self.economic_model.reason_codes)
+                    if self.economic_model
+                    else ["MISSING_MODEL"],
+                    "profitability_validated": bool(
+                        self.economic_model and self.economic_model.status == "validated"
+                    ),
+                },
                 "execution": copy.deepcopy(self._execution),
                 "trade_summary": copy.deepcopy(self._summary),
                 "last_signals": copy.deepcopy(self._signals),
@@ -225,6 +311,14 @@ class ScalpingRuntime:
                     "raw_persistence_and_features": _percentiles(self._write_times),
                     "basis": "measured runtime samples, not a latency SLA",
                 },
+                "telemetry": (
+                    {
+                        **self.telemetry.snapshot(),
+                        "execution_pipeline_latency": self.engine.latencies.snapshot(),
+                    }
+                    if self.config.decision_policy == "action-value-v1"
+                    else None
+                ),
             }
         with self._market_lock:
             result["market"] = self.market.health_snapshot()
@@ -258,10 +352,16 @@ class ScalpingRuntime:
                     "raw": snapshot["raw"],
                     "trade_summary": snapshot["trade_summary"],
                     "operator_stop": snapshot["operator_stop"],
+                    "economics": snapshot["economics"],
+                    "telemetry": snapshot["telemetry"],
                 },
                 "paper_policy": self.config.policy_description(),
                 "broker_stream": snapshot["broker_stream"],
                 "ordinary_entries_enabled": False,
+                "economic_entries_enabled": bool(
+                    snapshot["economics"]["profitability_validated"]
+                    and not snapshot["operator_stop"]
+                ),
                 "global_strategy_kill": self.repo.get_control("kill_switch"),
             },
             observed_at=now,
@@ -295,7 +395,9 @@ async def run_scalping_service(
         ):
             LOGGER.info("v30 is waiting for the prior worker's natural lease handoff")
             await asyncio.sleep(5)
-        feed = CryptoMarketFeed(config.symbols, settings)
+        feed = CryptoMarketFeed(
+            config.symbols, settings, stale_after_seconds=config.maximum_quote_age_seconds
+        )
         updates = AlpacaPaperTradeUpdatesStream(settings)
         runtime = ScalpingRuntime(
             database, broker, config, owner_id=owner, code_sha=sha, order_stream=updates
@@ -372,6 +474,22 @@ async def run_scalping_service(
                     runtime.record_error("notification_enqueue", error)
                 await _wait(stop, 30)
 
+        async def diagnostics() -> None:
+            if config.decision_policy != "action-value-v1":
+                return
+            while not stop.is_set():
+                try:
+                    if runtime.engine.run_id is None:
+                        raise ValueError("diagnostic journal requires an initialized run")
+                    await _blocking(
+                        lambda: runtime.telemetry.diagnose_closed(
+                            run_id=str(runtime.engine.run_id), now=runtime.clock()
+                        )
+                    )
+                except (SQLAlchemyError, ValueError) as error:
+                    runtime.record_error("trade_diagnostics", error)
+                await _wait(stop, 15)
+
         async def news() -> None:
             news_settings = NewsWorkerSettings.model_validate({})
             news_owner = owner + "-news"
@@ -417,9 +535,18 @@ async def run_scalping_service(
                 tasks.create_task(execute())
                 tasks.create_task(heartbeat())
                 tasks.create_task(notices())
+                tasks.create_task(diagnostics())
                 tasks.create_task(updates.run(stop))
                 tasks.create_task(news())
         finally:
             stop.set()
             feed.stop()
-            await _blocking(lambda: repo.release_worker_lock(LOCK_NAME, owner))
+            try:
+                if config.decision_policy == "action-value-v1" and runtime.engine.run_id:
+                    await _blocking(
+                        lambda: runtime.telemetry.flush(
+                            run_id=str(runtime.engine.run_id), now=runtime.clock()
+                        )
+                    )
+            finally:
+                await _blocking(lambda: repo.release_worker_lock(LOCK_NAME, owner))

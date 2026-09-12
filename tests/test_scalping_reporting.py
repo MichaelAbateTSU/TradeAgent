@@ -143,3 +143,45 @@ def test_api_and_dashboard_expose_separate_v30_state(tmp_path: Path) -> None:
         page = client.get("/").text
         assert 'id="scalping-heading"' in page
         assert "Legacy strategy kill (not v30 policy)" in page
+        assert client.get("/api/scalping/diagnostics").json()["records"] == []
+        assert client.get("/api/scalping/diagnostics?limit=101").status_code == 422
+
+
+def test_diagnostic_journal_selects_latest_revision_without_mixing_other_runs(tmp_path):
+    from test_daily_email_summary import add_cycle
+
+    from tradeagent.scalping_config import ScalpingConfig
+    from tradeagent.scalping_reporting import scalping_diagnostic_journal
+    from tradeagent.scalping_store import ScalpStore
+
+    now = datetime.now(UTC)
+    with Database(f"sqlite:///{tmp_path / 'journal.db'}") as database:
+        database.initialize()
+        setup_status(database, now)
+        store = ScalpStore(database)
+        config = ScalpingConfig(cohort_id="v30-test", account_digest="a" * 64, approved_at=now)
+        run = store.freeze_run(config, "c" * 40, at=now)
+        cycle = add_cycle(database, run, now - timedelta(seconds=20))
+        other = store.freeze_run(
+            config.model_copy(update={"cohort_id": "unrelated"}), "b" * 40, at=now
+        )
+        other_cycle = add_cycle(database, other, now - timedelta(seconds=10))
+        for identity, when, revision in (
+            (cycle, now - timedelta(seconds=5), "old"),
+            (cycle, now, "new"),
+            (other_cycle, now, "unrelated"),
+            (cycle, now + timedelta(minutes=1), "future"),
+        ):
+            store.audit(
+                "trade_diagnostics",
+                {"cycle_id": identity, "report": {"revision": revision}},
+                at=when,
+            )
+        result = scalping_diagnostic_journal(database)
+        assert len(result["records"]) == 1
+        assert result["records"][0]["payload"]["report"]["revision"] == "new"
+        assert result["profitability_validated"] is False
+        assert (
+            scalping_diagnostic_journal(database, cohort_id="unrelated")["records"][0]["cycle_id"]
+            == other_cycle
+        )

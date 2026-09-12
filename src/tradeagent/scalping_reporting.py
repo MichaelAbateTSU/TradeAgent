@@ -5,12 +5,13 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from tradeagent.persistence import (
     Database,
     ProductionRepository,
     controls,
+    events,
     heartbeats,
     worker_locks,
 )
@@ -120,6 +121,63 @@ def request_scalping_stop(database: Database, cohort_id: str, reason: str) -> di
     repo.set_control(f"scalping:{cohort_id}:stop", json.dumps(command, sort_keys=True))
     repo.append_event("scalping_operator_stop", command, occurred_at=now, trace_id=cohort_id)
     return command
+
+
+def scalping_diagnostic_journal(
+    database: Database, *, cohort_id: str | None = None, limit: int = 20
+) -> dict[str, Any]:
+    from tradeagent.scalping_store import scalping_cycles, scalping_runs
+
+    if not 1 <= limit <= 100:
+        raise ValueError("diagnostic page size must be between 1 and 100")
+    observed_at = datetime.now(UTC)
+    status = scalping_status(database, cohort_id=cohort_id)
+    selected = cohort_id or status.get("cohort_id")
+    with database.begin() as connection:
+        run_ids = select(scalping_runs.c.run_id).where(scalping_runs.c.cohort_id == selected)
+        cycle_ids = select(scalping_cycles.c.cycle_id).where(scalping_cycles.c.run_id.in_(run_ids))
+        latest = (
+            select(
+                events.c.event_id,
+                events.c.occurred_at,
+                events.c.trace_id,
+                events.c.payload,
+                func.row_number()
+                .over(partition_by=events.c.trace_id, order_by=events.c.occurred_at.desc())
+                .label("revision_rank"),
+            )
+            .where(
+                events.c.event_type == "scalp_trade_diagnostics",
+                events.c.trace_id.in_(cycle_ids),
+                events.c.occurred_at <= observed_at,
+            )
+            .subquery()
+        )
+        records = [
+            {
+                "event_id": row["event_id"],
+                "observed_at": _utc(row["occurred_at"]).isoformat(),
+                "cycle_id": row["trace_id"],
+                "payload": row["payload"],
+            }
+            for row in connection.execute(
+                select(latest)
+                .where(latest.c.revision_rank == 1)
+                .order_by(latest.c.occurred_at.desc())
+                .limit(limit)
+            ).mappings()
+        ]
+    return {
+        "cohort_id": selected,
+        "as_of": observed_at.isoformat(),
+        "state": "recorded_diagnostics" if records else "no_completed_diagnostics_recorded",
+        "records": records,
+        "limit": limit,
+        "scope": "latest diagnostic revision per cycle; a bounded page, not daily P&L",
+        "runtime_active": status.get("active", False),
+        "missing_telemetry_is_unknown": True,
+        "profitability_validated": False,
+    }
 
 
 def build_scalping_daily_status(database: Database, now: datetime, timezone: str) -> dict[str, Any]:

@@ -5,6 +5,7 @@ import math
 from collections import Counter
 from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
+from datetime import timedelta
 from decimal import ROUND_CEILING, Decimal
 from itertools import groupby
 from typing import Any, Literal
@@ -12,17 +13,29 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from tradeagent.scalping_config import ScalpingConfig, ScalpInventory, ScalpQuote, ScalpSignal
+from tradeagent.scalping_economics import project_economic_features, revalidate_for_dispatch
 from tradeagent.scalping_market import (
     NS,
     BookFeatureEngine,
     MarketEvent,
+    datetime_ns,
     ns_datetime,
 )
+from tradeagent.scalping_policy import load_economic_model
 from tradeagent.scalping_strategy import ScalpStrategy
 
 ZERO = Decimal(0)
 BPS = Decimal(10000)
 _TERMINAL = {"filled", "canceled", "rejected", "withdrawn"}
+MARKOUT_HORIZONS = {
+    "100ms": NS // 10,
+    "250ms": NS // 4,
+    "500ms": NS // 2,
+    "1s": NS,
+    "2s": 2 * NS,
+    "5s": 5 * NS,
+    "10s": 10 * NS,
+}
 
 
 class ReplayLatency(BaseModel):
@@ -146,8 +159,10 @@ class _Fill:
     reported_at_ns: int | None = None
     mae_bps: float | None = None
     mfe_bps: float | None = None
+    exposure_closed_at_ns: int | None = None
+    base_fee_quantity: Decimal = ZERO
     markouts: dict[str, dict[str, Any] | None] = field(
-        default_factory=lambda: {"100ms": None, "1s": None, "5s": None}
+        default_factory=lambda: dict.fromkeys(MARKOUT_HORIZONS)
     )
 
 
@@ -171,8 +186,11 @@ class _Replay:
         self, config: ScalpingConfig, latency: ReplayLatency, assumptions: _ExecutionAssumptions
     ) -> None:
         self.config, self.latency, self.assumptions = config, latency, assumptions
-        self.market = BookFeatureEngine(config)
-        self.strategy = ScalpStrategy(config)
+        self.market = BookFeatureEngine(
+            config, stale_after_seconds=config.maximum_quote_age_seconds
+        )
+        self.economic_model = load_economic_model(config)
+        self.strategy = ScalpStrategy(config, self.economic_model)
         self.orders: dict[str, _Order] = {}
         self.fills: list[_Fill] = []
         self.positions: dict[str, _Position] = {}
@@ -220,9 +238,21 @@ class _Replay:
         if kind == "fill_report":
             self._report_fill(int(reference))
             return
+        if kind == "markout":
+            index, horizon = reference.split(":")
+            self._sample_markout(self.fills[int(index)], horizon)
+            return
         order = self.orders[reference]
         if kind == "send":
             if order.status != "pending_send":
+                return
+            if self.config.decision_policy == "action-value-v1" and not self._economic_send(order):
+                order.status, order.terminal_at_ns, order.terminal_reported = (
+                    "withdrawn",
+                    self.now_ns,
+                    True,
+                )
+                order.rejection = "final_economic_fence"
                 return
             order.sent_at_ns, order.status = self.now_ns, "in_flight"
             self._schedule(order.arrival_due_ns, "arrival", reference)
@@ -267,7 +297,10 @@ class _Replay:
                     self._cancel(active, "market_data_unavailable")
                 continue
             signal = self.strategy.decide(
-                features, inventory=self.reported_positions.get(symbol), now=now
+                features,
+                inventory=self.reported_positions.get(symbol),
+                now=now,
+                decision_latency_seconds=0,
             )
             self.signals.append(signal)
             if active is not None:
@@ -283,9 +316,12 @@ class _Replay:
             if signal.action == "hold":
                 continue
             if signal.action == "buy":
-                price = (
-                    signal.quote.bid if self.config.entry_style == "passive" else signal.quote.ask
+                aggressive = (
+                    bool(signal.economics and signal.economics.selected_action == "AGGRESSIVE_BUY")
+                    if self.config.decision_policy == "action-value-v1"
+                    else self.config.entry_style == "marketable"
                 )
+                price = signal.quote.ask if aggressive else signal.quote.bid
                 quantity = self.config.order_notional_usd / price
                 limit: Decimal | None = price
             else:
@@ -307,14 +343,52 @@ class _Replay:
             self.orders[order_id] = order
             self._schedule(self.now_ns + self._send_delay, "send", order_id)
             if signal.action == "buy":
+                expiry = self.now_ns + _delay_ns(self.config.entry_order_ttl_seconds * 1000)
+                if self.config.decision_policy == "action-value-v1":
+                    expiry = min(
+                        expiry,
+                        datetime_ns(signal.economics.valid_until)
+                        if signal.economics and signal.economics.valid_until
+                        else self.now_ns,
+                    )
                 self._schedule(
-                    self.now_ns + _delay_ns(self.config.entry_order_ttl_seconds * 1000),
+                    expiry,
                     "expiry",
                     order_id,
                 )
 
     def _current_quote(self, symbol: str) -> ScalpQuote | None:
         return self.market.quote_at_ns(symbol, self.now_ns)
+
+    def _economic_send(self, order: _Order) -> bool:
+        economics = order.decision.economics
+        quote = self._current_quote(order.symbol)
+        if economics is None or self.economic_model is None or quote is None:
+            return False
+        mid = (quote.bid + quote.ask) / 2
+        checked = revalidate_for_dispatch(
+            economics,
+            model=self.economic_model,
+            now=ns_datetime(self.now_ns),
+            account_digest=self.config.account_digest,
+            features=project_economic_features(order.decision.features),
+            quote_age_seconds=max(0.0, (self.now_ns - quote.exchange_time_ns) / NS),
+            decision_latency_seconds=max(
+                0.0, (self.now_ns - datetime_ns(order.decision.observed_at)) / NS
+            ),
+            spread_bps=float((quote.ask - quote.bid) / mid * BPS),
+            current_mid_price=float(mid),
+            notional_usd=float(self.config.order_notional_usd),
+            maker_fee_bps=float(self.config.maker_fee_bps),
+            taker_fee_bps=float(self.config.taker_fee_bps),
+        )
+        expected = checked.selected_action
+        price_matches = (expected == "PASSIVE_BUY" and order.limit_price == quote.bid) or (
+            expected == "AGGRESSIVE_BUY"
+            and order.limit_price is not None
+            and quote.ask <= order.limit_price
+        )
+        return checked.profitability_validated and price_matches
 
     def _arrive(self, order: _Order) -> None:
         order.arrived_at_ns = self.now_ns
@@ -470,6 +544,8 @@ class _Replay:
             trigger.exchange_at_ns if trigger is not None else None,
             trigger.received_at_ns if trigger is not None else None,
         )
+        if self.config.decision_policy == "action-value-v1" and order.side == "buy":
+            fill.base_fee_quantity = fee / price
         index = len(self.fills)
         self.fills.append(fill)
         order.fills.append(index)
@@ -480,17 +556,20 @@ class _Replay:
         self.fees_paid += fee
         self._book_fill(fill)
         self._schedule(self.now_ns + self._ack_delay, "fill_report", str(index))
+        for name, horizon in MARKOUT_HORIZONS.items():
+            self._schedule(self.now_ns + horizon, "markout", f"{index}:{name}")
 
     def _book_fill(self, fill: _Fill) -> None:
         if fill.side == "buy":
             position = self.positions.setdefault(
                 fill.symbol, _Position(fill.symbol, fill.filled_at_ns)
             )
-            position.quantity += fill.quantity
-            position.cost += fill.price * fill.quantity
+            net_quantity = fill.quantity - fill.base_fee_quantity
+            position.quantity += net_quantity
+            position.cost += fill.price * net_quantity
             position.entered_quantity += fill.quantity
             position.entry_fee_remaining += fill.fee
-            self.cash -= fill.price * fill.quantity + fill.fee
+            self.cash -= fill.price * fill.quantity + (ZERO if fill.base_fee_quantity else fill.fee)
             return
         existing = self.positions.get(fill.symbol)
         if existing is None or existing.quantity < fill.quantity:
@@ -511,6 +590,13 @@ class _Replay:
         self.realized_fees += fees
         self.cash += fill.price * fill.quantity - fill.fee
         if position.quantity == 0:
+            for entry in self.fills:
+                if (
+                    entry.symbol == fill.symbol
+                    and entry.side == "buy"
+                    and entry.exposure_closed_at_ns is None
+                ):
+                    entry.exposure_closed_at_ns = fill.filled_at_ns
             self.closed_positions.append(
                 {
                     "symbol": fill.symbol,
@@ -533,13 +619,26 @@ class _Replay:
         fill.reported_at_ns = self.now_ns
         owned = self.reported_positions.get(fill.symbol)
         if fill.side == "buy":
-            quantity = (owned.quantity if owned else ZERO) + fill.quantity
+            net_quantity = fill.quantity - fill.base_fee_quantity
+            quantity = (owned.quantity if owned else ZERO) + net_quantity
             cost = owned.quantity * owned.opening_vwap if owned else ZERO
+            decision = self.orders[fill.order_id].decision
+            exit_due = owned.exit_due_at if owned is not None else None
+            if (
+                exit_due is None
+                and decision.economics is not None
+                and decision.economics.prediction_expires_at is not None
+            ):
+                exit_due = decision.economics.prediction_expires_at + timedelta(
+                    seconds=self.config.latency_grace_seconds
+                )
             self.reported_positions[fill.symbol] = ScalpInventory(
                 symbol=fill.symbol,
                 quantity=quantity,
                 opened_at=owned.opened_at if owned else ns_datetime(fill.filled_at_ns),
-                opening_vwap=(cost + fill.price * fill.quantity) / quantity,
+                opening_vwap=(cost + fill.price * net_quantity) / quantity,
+                family=owned.family if owned else decision.family,
+                exit_due_at=exit_due,
             )
         else:
             if owned is None or owned.quantity < fill.quantity:
@@ -579,29 +678,41 @@ class _Replay:
             order.order_id,
         )
 
+    def _sample_markout(self, fill: _Fill, horizon: str) -> None:
+        quote = self._current_quote(fill.symbol)
+        if quote is None:
+            return
+        age = self.now_ns - quote.exchange_time_ns
+        if not 0 <= age <= min(MARKOUT_HORIZONS[horizon], NS // 4):
+            return
+        mid = (quote.bid + quote.ask) / 2
+        fill.markouts[horizon] = {
+            "target_at_ns": self.now_ns,
+            "observed_at_ns": self.now_ns,
+            "exchange_at_ns": quote.exchange_time_ns,
+            "observation_age_ms": age / 1_000_000,
+            "midpoint": mid,
+            "gross_bps": float((mid / fill.price - 1) * BPS) * (1 if fill.side == "buy" else -1),
+            "basis": "fresh already-received quote at the exact horizon; no interpolation",
+        }
+
     def _observe_markouts(self, symbol: str) -> None:
         quote = self._current_quote(symbol)
         if quote is None:
             return
         mid = (quote.bid + quote.ask) / 2
         for fill in self.fills:
-            if fill.symbol != symbol or quote.exchange_time_ns < fill.filled_at_ns:
+            if (
+                fill.symbol != symbol
+                or quote.exchange_time_ns < fill.filled_at_ns
+                or fill.side != "buy"
+                or fill.exposure_closed_at_ns is not None
+            ):
                 continue
             direction = 1 if fill.side == "buy" else -1
             markout = float((mid / fill.price - 1) * BPS) * direction
             fill.mae_bps = min(fill.mae_bps or 0.0, markout)
             fill.mfe_bps = max(fill.mfe_bps or 0.0, markout)
-            for name, horizon in (("100ms", NS // 10), ("1s", NS), ("5s", 5 * NS)):
-                target = fill.filled_at_ns + horizon
-                if fill.markouts[name] is None and quote.exchange_time_ns >= target:
-                    fill.markouts[name] = {
-                        "target_at_ns": target,
-                        "observed_at_ns": self.now_ns,
-                        "exchange_at_ns": quote.exchange_time_ns,
-                        "observation_lag_ms": (quote.exchange_time_ns - target) / 1_000_000,
-                        "midpoint": mid,
-                        "gross_bps": markout,
-                    }
         position = self.positions.get(symbol)
         if position is not None and quote.exchange_time_ns >= position.opened_at_ns:
             excursion = float((quote.bid / (position.cost / position.quantity) - 1) * BPS)
@@ -788,8 +899,15 @@ class _Replay:
                     "entry-limit price bound; only MARKET exit remainders are modeled as IOC"
                 ),
                 "market_impact": "not modeled; historical tape is exogenous",
-                "fees": "actual simulated partial-fill notional times configured maker/taker bps",
-                "markouts": "first subsequently observed valid midpoint at/after each horizon",
+                "fees": (
+                    "modeled BUY base-coin fee and SELL cash fee; each cost charged once"
+                    if self.config.decision_policy == "action-value-v1"
+                    else "legacy cash-fee simulation; configured maker/taker bps"
+                ),
+                "markouts": (
+                    "already-received midpoint at each exact horizon; maximum quote age "
+                    "is min(horizon, 250ms); missing samples stay censored"
+                ),
                 "fill_clock": (
                     "passive fills are modeled when the eligible print is received, not backdated; "
                     "late prints received after cancellation do not reconstruct lost queue priority"
@@ -810,6 +928,8 @@ class _Replay:
                     "price": fill.price,
                     "fee_usd": fill.fee,
                     "fee_bps": fill.fee_bps,
+                    "base_fee_quantity": fill.base_fee_quantity,
+                    "fee_currency": "base" if fill.base_fee_quantity else "USD",
                     "liquidity": fill.liquidity,
                     "filled_at_ns": fill.filled_at_ns,
                     "reported_at_ns": fill.reported_at_ns,
@@ -824,6 +944,7 @@ class _Replay:
                     ),
                     "mae_bps": fill.mae_bps,
                     "mfe_bps": fill.mfe_bps,
+                    "exposure_closed_at_ns": fill.exposure_closed_at_ns,
                     "markouts": fill.markouts,
                 }
                 for fill in self.fills
@@ -878,7 +999,7 @@ class _Replay:
                     "observed": sum(fill.markouts[name] is not None for fill in self.fills),
                     "censored": sum(fill.markouts[name] is None for fill in self.fills),
                 }
-                for name in ("100ms", "1s", "5s")
+                for name in MARKOUT_HORIZONS
             },
             "market_health": self.market.health_snapshot(),
         }

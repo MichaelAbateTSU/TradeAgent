@@ -1,0 +1,83 @@
+{
+  "accepted_sample_count": 0,
+  "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+  "blocked_groups": [
+    {
+      "action": "PASSIVE_BUY",
+      "candidate_count": 166,
+      "complete_group_required": true,
+      "family": "momentum",
+      "reason_counts": {
+        "adverse_selection": 137,
+        "fill_after_declared_cancellation_horizon": 8,
+        "impact": 145,
+        "missing:decision_latency_seconds": 166,
+        "missing:gross_return_bps": 15,
+        "missing:return_end_at": 15,
+        "slippage": 145,
+        "spread": 145
+      },
+      "symbol": "BTC/USD"
+    },
+    {
+      "action": "PASSIVE_BUY",
+      "candidate_count": 4,
+      "complete_group_required": true,
+      "family": "reversion",
+      "reason_counts": {
+        "adverse_selection": 1,
+        "impact": 1,
+        "missing:decision_latency_seconds": 4,
+        "slippage": 1,
+        "spread": 1
+      },
+      "symbol": "BTC/USD"
+    },
+    {
+      "action": "PASSIVE_BUY",
+      "candidate_count": 58,
+      "complete_group_required": true,
+      "family": "momentum",
+      "reason_counts": {
+        "adverse_selection": 48,
+        "fill_after_declared_cancellation_horizon": 2,
+        "impact": 50,
+        "missing:decision_latency_seconds": 58,
+        "missing:gross_return_bps": 5,
+        "missing:return_end_at": 5,
+        "slippage": 50,
+        "spread": 50
+      },
+      "symbol": "ETH/USD"
+    },
+    {
+      "action": "PASSIVE_BUY",
+      "candidate_count": 1,
+      "complete_group_required": true,
+      "family": "reversion",
+      "reason_counts": {
+        "adverse_selection": 1,
+        "impact": 1,
+        "missing:decision_latency_seconds": 1,
+        "slippage": 1,
+        "spread": 1
+      },
+      "symbol": "ETH/USD"
+    }
+  ],
+  "complete_group_policy": "a partially observed action group is excluded in full; unsupported coverage remains NO_TRADE",
+  "model_file_sha256": "db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52",
+  "model_id": "adb76e65b74528a8f8e5d017b4da7e675d63de2ce724da912d1572f84052837b",
+  "model_path": "research\\results\\v30-economics-20260911-model.json",
+  "model_reason_codes": [
+    "NO_SAMPLES"
+  ],
+  "model_status": "no_support",
+  "no_complete_case_cherry_picking": true,
+  "no_counterfactual_aggressive_samples_created": true,
+  "profitability_validated": false,
+  "raw_candidate_count": 229,
+  "schema": "scalp-calibration-audit-v1",
+  "selected_horizon_seconds": 5.0,
+  "source_sha256": "6922cd9c99fe3759c107666afc1b5c870a818f752051a278e95d61f3c56d2a57"
+}

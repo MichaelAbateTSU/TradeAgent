@@ -1,5 +1,12 @@
 # v30 autonomous paper scalping
 
+> **September 11, 18:11 Eastern update:** the owner now requires
+> [prospective action economics and execution diagnostics](SCALPING_ECONOMICS.md).
+> This supersedes the initial permission to ignore economic entry gates while
+> retaining short-horizon paper scalping. The historical deployed releases and
+> their original policies below are not rewritten. Repair deployment evidence
+> is recorded separately; local changes are not a live-release claim.
+
 ## Operating decision
 
 The owner's September 11, 2026, **02:18:28.634 Eastern** instruction authorizes
@@ -7,11 +14,12 @@ an autonomous, unrestricted **paper** scalper that runs while the owner is
 asleep. This is a new standing experiment, not another dated equipment test.
 The preference is preserved in [OPERATOR_PREFERENCES.md](OPERATOR_PREFERENCES.md).
 
-No paper loss ceiling, drawdown ceiling, gross-exposure ceiling, daily trade
-quota, news/R1 approval requirement, macro veto, fixed morning entry window,
-research qualification or shadow period governs this profile. There is no
-automatic catastrophic stop based on paper P&L. Order size, entry selection
-and short signal/time exits are strategy parameters.
+The initial instruction applied no paper loss ceiling, drawdown ceiling,
+gross-exposure ceiling, daily trade quota, news/R1 approval requirement, macro
+veto, fixed morning entry window, research qualification or shadow period to
+this profile. That release had no automatic catastrophic stop based on paper
+P&L. Order size, entry selection and short signal/time exits are strategy
+parameters.
 
 This does not remove the paper-only broker/account boundary, broker order
 constraints, valid-data requirements, ownership, duplicate prevention,
@@ -115,15 +123,25 @@ tradeagent scalp-run `
   --approved-at 2026-09-11T02:18:28.634-04:00 `
   --symbols BTC/USD,ETH/USD `
   --notional 100 `
+  --horizon-seconds 5 `
+  --order-ttl-seconds 3 `
+  --latency-grace-seconds 0 `
+  --catastrophic-stop-bps 100 `
+  --economic-model .\research\results\reviewed-model.json `
+  --model-sha256 REVIEWED_FILE_SHA256 `
   --confirm-paper-unrestricted
 
 tradeagent scalp-status
 tradeagent scalp-stop --cohort-id v30-paper-scalper-20260911 --reason "Owner requested stop"
 tradeagent scalp-replay --events .\data\crypto-events.jsonl --latency-ms 25 --output .\research\results\scalping-replay.json
+tradeagent scalp-diagnose --snapshot .\research\results\read-only-source.json --output .\research\results\diagnostics.json
 ```
 
-The startup flag selects the unrestricted paper profile explicitly; it is not
-a daily approval prompt. Do not start another worker against the same account.
+The startup flag selects the paper profile explicitly; it is not a daily
+approval prompt. The action-value policy is the command default. Omitting a
+model or loading a `no_support` model permits observation and diagnostics but
+not a heuristic fallback entry. Do not start another worker against the same
+account.
 
 ## Release status
 

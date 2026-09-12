@@ -24,6 +24,12 @@ from tradeagent.alpaca_paper import (
 from tradeagent.domain import OrderRequest, OrderType, Side
 from tradeagent.persistence import Database, controls, orders, worker_locks
 from tradeagent.scalping_config import ScalpingConfig, ScalpInventory, ScalpQuote, ScalpSignal
+from tradeagent.scalping_economics import (
+    EconomicModel,
+    project_economic_features,
+    revalidate_for_dispatch,
+)
+from tradeagent.scalping_market import datetime_ns
 from tradeagent.scalping_store import (
     ScalpStore,
     canonical,
@@ -34,6 +40,7 @@ from tradeagent.scalping_store import (
     scalping_order_links,
     utc,
 )
+from tradeagent.scalping_telemetry import LatencyWindow
 
 FINAL = frozenset({"filled", "canceled", "expired", "rejected"})
 CLOSED = frozenset({"closed_owned_flat", "no_fill"})
@@ -83,9 +90,13 @@ class ScalpOrderEngine:
         owner_id: str,
         code_sha: str,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+        economic_model: EconomicModel | None = None,
+        quote_provider: Callable[[str], ScalpQuote | None] | None = None,
     ):
         self.database, self.broker, self.config = database, broker, config
         self.owner_id, self.code_sha, self.clock = owner_id, code_sha, clock
+        self.economic_model = economic_model
+        self.quote_provider = quote_provider
         self.store = ScalpStore(database)
         self.run_id: str | None = None
         self.account_key = "v30-account:" + config.account_digest
@@ -102,6 +113,8 @@ class ScalpOrderEngine:
         self._next_reconcile: datetime | None = None
         self._retry_after: datetime | None = None
         self._backoff_seconds = 1
+        self.latencies = LatencyWindow()
+        self._acknowledgements: dict[str, int] = {}
 
     def _account(self) -> Any:
         if self.broker.broker_host != PAPER_HOST:
@@ -307,17 +320,25 @@ class ScalpOrderEngine:
                     "quantity": Decimal(0),
                     "cost": Decimal(0),
                     "opened_at": utc(cycle["opened_at"]),
+                    "family": cycle["payload"]["signal"].get("family", "none"),
+                    "exit_due_at": utc(cycle["exit_due_at"]) if cycle["exit_due_at"] else None,
                 },
             )
             group["quantity"] += qty
             group["cost"] += qty * ledger_amount(cycle, "entry_value") / bought
             group["opened_at"] = min(group["opened_at"], utc(cycle["opened_at"]))
+            if cycle["exit_due_at"] is not None:
+                group["exit_due_at"] = min(
+                    group["exit_due_at"] or utc(cycle["exit_due_at"]), utc(cycle["exit_due_at"])
+                )
         return {
             symbol: ScalpInventory(
                 symbol=symbol,
                 quantity=value["quantity"],
                 opened_at=value["opened_at"],
                 opening_vwap=value["cost"] / value["quantity"],
+                family=value["family"],
+                exit_due_at=value["exit_due_at"],
             )
             for symbol, value in combined.items()
         }
@@ -626,6 +647,32 @@ class ScalpOrderEngine:
                 ):
                     raise ValueError("future broker fill")
                 first_fill = min(utc(first_fill), candidate_fill) if first_fill else candidate_fill
+            if quantity > 0 and previous_qty == 0:
+                timing = {
+                    **(row["intent"].get("signal") or {}).get("timing", {}),
+                    "t7_acknowledged_ns": self._acknowledgements.get(client_id),
+                    "t8_filled_ns": (
+                        datetime_ns(stamp(broker_order.filled_at))
+                        if broker_order.filled_at is not None
+                        else None
+                    ),
+                    "fill_timestamp_basis": (
+                        "broker_filled_at" if broker_order.filled_at else "not_yet_observed"
+                    ),
+                }
+                self.latencies.observe(timing, ("ack_fill", "decision_fill", "total_end_to_end"))
+                self.store.audit(
+                    "fill_timing",
+                    {
+                        "cycle_id": row["cycle_id"],
+                        "client_order_id": client_id,
+                        "broker_order_id": broker_order.id,
+                        "timing": timing,
+                    },
+                    at=now,
+                    connection=connection,
+                    identity=f"scalp-first-fill-timing:{client_id}",
+                )
             connection.execute(
                 update(orders)
                 .where(orders.c.client_order_id == client_id)
@@ -733,6 +780,11 @@ class ScalpOrderEngine:
             return
         intent = row["intent"]
         request = OrderRequest.model_validate(intent["request"])
+        signal = (
+            ScalpSignal.model_validate_json(json.dumps(intent["signal"]))
+            if intent.get("signal")
+            else None
+        )
         asset = self._asset(request.symbol)
         if request.side is Side.BUY:
             self._read_positions(force=True)
@@ -762,6 +814,7 @@ class ScalpOrderEngine:
                 connection=connection,
             )
         post_invoked = False
+        timing = dict((intent.get("signal") or {}).get("timing", {}))
         try:
             self._account()
             with self.database.begin() as connection:
@@ -775,6 +828,7 @@ class ScalpOrderEngine:
                         canonical_crypto_symbol(quote.symbol) != request.symbol
                         or not self._quote_valid(quote, self.clock())
                         or self._manual_stop()
+                        or not self._economic_candidate_present(signal)
                     ):
                         self._expire_unsent(connection, client_id)
                         return
@@ -827,6 +881,95 @@ class ScalpOrderEngine:
                 ):
                     self._expire_unsent(connection, client_id)
                     return
+                if request.side is Side.BUY and self.config.decision_policy == "action-value-v1":
+                    current_quote = (
+                        self.quote_provider(request.symbol) if self.quote_provider else None
+                    )
+                    if (
+                        signal is None
+                        or signal.economics is None
+                        or self.economic_model is None
+                        or current_quote is None
+                        or not self._quote_valid(current_quote, self.clock())
+                    ):
+                        self._expire_unsent(connection, client_id)
+                        self.store.audit(
+                            "economic_dispatch_rejected",
+                            {
+                                "cycle_id": row["cycle_id"],
+                                "client_order_id": client_id,
+                                "reasons": ["CURRENT_ECONOMIC_EVIDENCE_UNAVAILABLE"],
+                            },
+                            at=self.clock(),
+                            connection=connection,
+                        )
+                        return
+                    mid = (current_quote.bid + current_quote.ask) / 2
+                    checked = revalidate_for_dispatch(
+                        signal.economics,
+                        model=self.economic_model,
+                        now=self.clock(),
+                        account_digest=self.config.account_digest,
+                        features=project_economic_features(signal.features),
+                        quote_age_seconds=max(
+                            0.0, (self.clock() - current_quote.exchange_at).total_seconds()
+                        ),
+                        decision_latency_seconds=max(
+                            0.0, (self.clock() - signal.observed_at).total_seconds()
+                        ),
+                        spread_bps=float((current_quote.ask - current_quote.bid) / mid * 10000),
+                        current_mid_price=float(mid),
+                        notional_usd=float(self.config.order_notional_usd),
+                        maker_fee_bps=float(self.config.maker_fee_bps),
+                        taker_fee_bps=float(self.config.taker_fee_bps),
+                    )
+                    current_passive = (current_quote.bid / asset.price_increment).to_integral_value(
+                        rounding=ROUND_FLOOR
+                    ) * asset.price_increment
+                    current_aggressive = (
+                        current_quote.ask / asset.price_increment
+                    ).to_integral_value(rounding=ROUND_CEILING) * asset.price_increment
+                    action_matches_price = (
+                        checked.selected_action == "PASSIVE_BUY"
+                        and number(intent["limit_price"]) == current_passive
+                    ) or (
+                        checked.selected_action == "AGGRESSIVE_BUY"
+                        and current_aggressive <= number(intent["limit_price"])
+                    )
+                    if not checked.profitability_validated or not action_matches_price:
+                        self._expire_unsent(connection, client_id)
+                        self.store.audit(
+                            "economic_dispatch_rejected",
+                            {
+                                "cycle_id": row["cycle_id"],
+                                "client_order_id": client_id,
+                                "reasons": [
+                                    *checked.reason_codes,
+                                    *(
+                                        ()
+                                        if action_matches_price
+                                        else ("EXECUTION_PRICE_CONTEXT_CHANGED",)
+                                    ),
+                                ],
+                                "decision": checked.model_dump(mode="json"),
+                            },
+                            at=self.clock(),
+                            connection=connection,
+                        )
+                        return
+                    self.store.audit(
+                        "economic_dispatch_approved",
+                        {
+                            "cycle_id": row["cycle_id"],
+                            "client_order_id": client_id,
+                            "decision": checked.model_dump(mode="json"),
+                            "current_quote": current_quote.model_dump(mode="json"),
+                        },
+                        at=self.clock(),
+                        connection=connection,
+                    )
+                timing["t5_risk_approved_ns"] = datetime_ns(self.clock())
+                timing["t6_submitted_ns"] = datetime_ns(self.clock())
                 post_invoked = True
                 result = (
                     self.broker.submit_crypto_limit_order(
@@ -835,6 +978,10 @@ class ScalpOrderEngine:
                     if request.order_type is OrderType.LIMIT
                     else self.broker.submit_crypto_market_order(request, asset=asset)
                 )
+                timing["t7_acknowledged_ns"] = datetime_ns(self.clock())
+                self._acknowledgements[client_id] = timing["t7_acknowledged_ns"]
+                if len(self._acknowledgements) > 2000:
+                    del self._acknowledgements[next(iter(self._acknowledgements))]
             self._update_order(client_id, result, self.clock())
         except httpx.HTTPError as error:
             definitive = (
@@ -888,6 +1035,22 @@ class ScalpOrderEngine:
                 with self.database.begin() as connection:
                     self._expire_unsent(connection, client_id)
             raise
+        finally:
+            if post_invoked:
+                self.latencies.observe(timing, ("risk", "decision_send", "send_ack"))
+                self.store.audit(
+                    "dispatch_timing",
+                    {
+                        "cycle_id": row["cycle_id"],
+                        "client_order_id": client_id,
+                        "side": request.side.value,
+                        "timing": timing,
+                        "acknowledged": timing.get("t7_acknowledged_ns") is not None,
+                        "timestamps_are_observed_not_guaranteed": True,
+                    },
+                    at=self.clock(),
+                    identity=f"scalp-dispatch-timing:{client_id}",
+                )
 
     def _expire_unsent(self, connection: Any, client_id: str) -> None:
         connection.execute(
@@ -940,6 +1103,11 @@ class ScalpOrderEngine:
             order_type=OrderType.LIMIT if limit_price is not None else OrderType.MARKET,
             submitted_at=now,
         )
+        expiry = now + timedelta(seconds=self.config.entry_order_ttl_seconds)
+        if signal is not None and self.config.decision_policy == "action-value-v1":
+            if signal.economics is None or signal.economics.valid_until is None:
+                raise ValueError("economic entry requires an explicit authorization expiry")
+            expiry = min(expiry, signal.economics.valid_until)
         intent = json_value(
             {
                 "request": request.model_dump(mode="json"),
@@ -1003,9 +1171,7 @@ class ScalpOrderEngine:
                     "intent": intent,
                     "broker": None,
                     "created_at": now,
-                    "expires_at": now + timedelta(seconds=self.config.entry_order_ttl_seconds)
-                    if side is Side.BUY
-                    else None,
+                    "expires_at": expiry if side is Side.BUY else None,
                 },
             )
             self.store.audit(
@@ -1027,7 +1193,18 @@ class ScalpOrderEngine:
             and quote.bid_size > 0
             and quote.ask_size > 0
             and quote.exchange_at <= quote.received_at <= now
-            and now - quote.exchange_at <= timedelta(seconds=self.config.feature_horizon_seconds)
+            and now - quote.exchange_at <= timedelta(seconds=self.config.maximum_quote_age_seconds)
+        )
+
+    def _economic_candidate_present(self, signal: ScalpSignal | None) -> bool:
+        return self.config.decision_policy != "action-value-v1" or bool(
+            self.economic_model is not None
+            and signal is not None
+            and signal.economics is not None
+            and signal.economics.model_id == self.economic_model.model_id
+            and signal.economics.selected_action in {"PASSIVE_BUY", "AGGRESSIVE_BUY"}
+            and signal.economics.profitability_validated
+            and signal.economics.conservative_net_edge_bps > 0
         )
 
     def _new_cycle(self, signal: ScalpSignal, quote: ScalpQuote, now: datetime) -> None:
@@ -1035,7 +1212,11 @@ class ScalpOrderEngine:
             raise ValueError("engine not initialized")
         symbol = canonical_crypto_symbol(signal.symbol)
         asset = self._asset(symbol)
-        marketable = self.config.entry_style == "marketable"
+        marketable = (
+            signal.economics is not None and signal.economics.selected_action == "AGGRESSIVE_BUY"
+            if self.config.decision_policy == "action-value-v1"
+            else self.config.entry_style == "marketable"
+        )
         reference = quote.ask if marketable else quote.bid
         rounding = ROUND_CEILING if marketable else ROUND_FLOOR
         price = (reference / asset.price_increment).to_integral_value(
@@ -1838,11 +2019,22 @@ class ScalpOrderEngine:
             if cycle["opened_at"]:
                 opening_candidates.append(utc(cycle["opened_at"]))
             opened = min(opening_candidates) if opening_candidates else None
-            due_candidate = (
-                opened + timedelta(seconds=config.exit_after_seconds)
-                if opened and config.exit_after_seconds is not None
-                else None
-            )
+            due_candidate: datetime | None
+            economics = cycle["payload"]["signal"].get("economics") or {}
+            if (
+                opened
+                and config.decision_policy == "action-value-v1"
+                and economics.get("prediction_expires_at")
+            ):
+                due_candidate = stamp(economics["prediction_expires_at"]) + timedelta(
+                    seconds=config.latency_grace_seconds
+                )
+            else:
+                due_candidate = (
+                    opened + timedelta(seconds=config.exit_after_seconds)
+                    if opened and config.exit_after_seconds is not None
+                    else None
+                )
             exit_due = utc(cycle["exit_due_at"]) if cycle["exit_due_at"] else due_candidate
             if exit_due is not None and due_candidate is not None:
                 exit_due = min(exit_due, due_candidate)
@@ -2074,7 +2266,12 @@ class ScalpOrderEngine:
                     connection=connection,
                 )
 
-    def _request_exits(self, signals: tuple[ScalpSignal, ...], now: datetime) -> None:
+    def _request_exits(
+        self,
+        signals: tuple[ScalpSignal, ...],
+        now: datetime,
+        quotes: Mapping[str, ScalpQuote] | None = None,
+    ) -> None:
         sells = {
             canonical_crypto_symbol(signal.symbol)
             for signal in signals
@@ -2086,19 +2283,75 @@ class ScalpOrderEngine:
         }
         manual = self._manual_stop()
         for cycle in self._cycles():
+            config = ScalpingConfig.model_validate(cycle["payload"]["config"])
+            economic = config.decision_policy == "action-value-v1"
+            quote = (quotes or {}).get(cycle["symbol"])
+            current_quote = quote is not None and self._quote_valid(quote, now)
+            owned = ledger_amount(cycle, "owned_quantity")
+            bought = ledger_amount(cycle, "entry_quantity")
+            opening_vwap = (
+                ledger_amount(cycle, "entry_value") / bought
+                if bought > 0 and cycle["entry_value"] is not None
+                else None
+            )
+            hard_stop = (
+                opening_vwap * (1 - config.catastrophic_stop_bps / 10000)
+                if economic and opening_vwap and config.catastrophic_stop_bps is not None
+                else None
+            )
+            catastrophic = (
+                owned > 0
+                and current_quote
+                and quote is not None
+                and hard_stop is not None
+                and quote.bid <= hard_stop
+            )
+            pending_invalidated = (
+                economic
+                and owned == 0
+                and any(
+                    signal.symbol == cycle["symbol"]
+                    and signal.action == "hold"
+                    and "positive_alpha_maintained" not in signal.reasons
+                    for signal in signals
+                )
+            )
             due = cycle["exit_due_at"] is not None and now >= utc(cycle["exit_due_at"])
             reason = (
                 "manual_stop"
                 if manual
+                else "catastrophic_stop"
+                if catastrophic
+                else "market_data_unavailable"
+                if economic and not current_quote
+                else "pending_signal_invalidated"
+                if pending_invalidated
                 else "signal"
                 if cycle["symbol"] in sells
-                else "time"
+                else ("model_horizon_expired" if economic else "time")
                 if due
                 else None
             )
             if reason and not cycle["payload"].get("exit_requested"):
                 with self.database.begin() as connection:
-                    payload = {**cycle["payload"], "exit_requested": True, "exit_reason": reason}
+                    exit_evidence = {
+                        "requested_at": now.isoformat(),
+                        "reason": reason,
+                        "opening_vwap": str(opening_vwap) if opening_vwap is not None else None,
+                        "hard_stop_price": str(hard_stop) if hard_stop is not None else None,
+                        "quote": quote.model_dump(mode="json") if current_quote and quote else None,
+                        "fresh_quote_available": current_quote,
+                        "deadline": utc(cycle["exit_due_at"]).isoformat()
+                        if cycle["exit_due_at"]
+                        else None,
+                        "protection_kind": "local_not_guaranteed",
+                    }
+                    payload = {
+                        **cycle["payload"],
+                        "exit_requested": True,
+                        "exit_reason": reason,
+                        "exit_evidence": exit_evidence,
+                    }
                     connection.execute(
                         update(scalping_cycles)
                         .where(scalping_cycles.c.cycle_id == cycle["cycle_id"])
@@ -2109,6 +2362,7 @@ class ScalpOrderEngine:
                         {
                             "cycle_id": cycle["cycle_id"],
                             "reason": reason,
+                            "evidence": exit_evidence,
                         },
                         at=now,
                         connection=connection,
@@ -2539,14 +2793,18 @@ class ScalpOrderEngine:
         if self.run_id is None:
             raise ValueError("initialize the engine before stepping")
         if self._retry_after is not None and self.clock() < self._retry_after:
+            with self.database.begin() as connection:
+                self._lease(connection, self.clock())
+            self._request_exits(signals, self.clock(), quotes)
             return self.status()
         try:
             with self.database.begin() as connection:
                 self._lease(connection, self.clock())
+            self._request_exits(signals, self.clock(), quotes)
             self._reconcile_orders(now)
             self._read_positions()
             self._refresh_cycles(self.clock())
-            self._request_exits(signals, self.clock())
+            self._request_exits(signals, self.clock(), quotes)
             self._cancel_entries(self.clock())
             self._read_positions()
             self._refresh_cycles(self.clock())
@@ -2583,6 +2841,19 @@ class ScalpOrderEngine:
                         <= self.clock() - signal.observed_at
                         <= timedelta(seconds=self.config.feature_horizon_seconds)
                     ):
+                        continue
+                    if not self._economic_candidate_present(signal):
+                        self.store.audit(
+                            "economic_entry_rejected",
+                            {
+                                "run_id": self.run_id,
+                                "decision_id": signal.decision_id,
+                                "reason": "positive_frozen_economic_evidence_required",
+                                "score_is_not_an_execution_approval": True,
+                            },
+                            at=self.clock(),
+                            identity=f"economic-missing:{self.run_id}:{signal.decision_id}",
+                        )
                         continue
                     self._new_cycle(signal, quote, self.clock())
                     if self._retry_after and self.clock() < self._retry_after:
@@ -2647,6 +2918,22 @@ class ScalpOrderEngine:
             if self._retry_after and self.clock() < self._retry_after
             else None,
             "legacy_risk_and_approval_gates_apply": False,
+            "overdue_owned_cycles": [
+                {
+                    "cycle_id": row["cycle_id"],
+                    "symbol": row["symbol"],
+                    "exit_due_at": utc(row["exit_due_at"]).isoformat(),
+                    "overdue_seconds": (self.clock() - utc(row["exit_due_at"])).total_seconds(),
+                    "exit_reason": row["payload"].get("exit_reason"),
+                    "broker_backoff_until": self._retry_after.isoformat()
+                    if self._retry_after and self.clock() < self._retry_after
+                    else None,
+                }
+                for row in self._cycles()
+                if row["exit_due_at"] is not None
+                and self.clock() > utc(row["exit_due_at"])
+                and ledger_amount(row, "owned_quantity") > 0
+            ],
             "profitability_validated": False,
         }
 

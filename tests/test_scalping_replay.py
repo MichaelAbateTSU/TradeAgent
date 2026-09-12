@@ -271,15 +271,74 @@ def test_markouts_require_actual_future_observations_and_unfinished_positions_st
     short = replay_events(filled_tape(end=6), config())
     assert short["open_positions"]
     assert short["closed_positions"] == []
-    assert short["fills"][0]["markouts"]["100ms"]["exchange_at_ns"] == BASE_NS + 6 * NS
+    assert short["fills"][0]["markouts"]["100ms"] is None
     assert short["fills"][0]["markouts"]["1s"] is None
     assert short["fills"][0]["markouts"]["5s"] is None
     assert short["markout_coverage"]["5s"]["censored"] == 2
     extended = replay_events(filled_tape(end=12), config())
     first = extended["fills"][0]
-    assert first["markouts"]["5s"]["exchange_at_ns"] == BASE_NS + 11 * NS
+    assert first["markouts"]["5s"]["exchange_at_ns"] == BASE_NS + 10 * NS
     assert first["markouts"]["5s"]["observed_at_ns"] >= first["markouts"]["5s"]["target_at_ns"]
     assert first["mae_bps"] is not None and first["mfe_bps"] >= first["mae_bps"]
+
+
+def test_replay_exposes_all_seven_bounded_markouts_and_stops_excursions_after_close():
+    short = replay_events(filled_tape(end=23), config())
+    longer = replay_events(filled_tape(end=60), config())
+    first = short["fills"][0]
+    assert set(first["markouts"]) == {"100ms", "250ms", "500ms", "1s", "2s", "5s", "10s"}
+    assert first["markouts"]["100ms"] is None
+    assert first["markouts"]["1s"]["observation_age_ms"] <= 250
+    assert first["exposure_closed_at_ns"] is not None
+    assert first["mfe_bps"] == longer["fills"][0]["mfe_bps"]
+    assert first["mae_bps"] == longer["fills"][0]["mae_bps"]
+
+
+def test_economic_replay_base_coin_fee_matches_cash_conservation_without_double_charge():
+    from tradeagent.scalping_replay import _ExecutionAssumptions, _Fill, _Replay
+
+    replay = _Replay(
+        config(decision_policy="action-value-v1", catastrophic_stop_bps="100"),
+        ReplayLatency(),
+        _ExecutionAssumptions(),
+    )
+    entry = _Fill(
+        fill_id="entry",
+        order_id="buy",
+        symbol="BTC/USD",
+        side="buy",
+        quantity=Decimal(1),
+        price=Decimal(100),
+        fee=Decimal(".25"),
+        fee_bps=Decimal(25),
+        liquidity="maker",
+        filled_at_ns=BASE_NS,
+        midpoint_at_arrival=Decimal(100),
+        base_fee_quantity=Decimal(".0025"),
+    )
+    replay.fills.append(entry)
+    replay._book_fill(entry)
+    owned = replay.positions["BTC/USD"].quantity
+    assert owned == Decimal(".9975") and replay.cash == Decimal("-100")
+    exit_fee = owned * Decimal(101) * Decimal(".0025")
+    exit_fill = _Fill(
+        fill_id="exit",
+        order_id="sell",
+        symbol="BTC/USD",
+        side="sell",
+        quantity=owned,
+        price=Decimal(101),
+        fee=exit_fee,
+        fee_bps=Decimal(25),
+        liquidity="taker",
+        filled_at_ns=BASE_NS + 5 * NS,
+        midpoint_at_arrival=Decimal(101),
+    )
+    replay._book_fill(exit_fill)
+    assert replay.positions == {}
+    assert replay.cash == owned * Decimal(101) - Decimal(100) - exit_fee
+    assert replay.gross_realized - replay.realized_fees == replay.cash
+    assert replay.realized_fees == Decimal(".25") + exit_fee
 
 
 def test_end_of_tape_does_not_acknowledge_or_arrive_an_inflight_order() -> None:
@@ -471,8 +530,10 @@ def test_all_lifecycle_and_markout_evidence_is_causal() -> None:
             assert fill["mae_bps"] <= 0 <= fill["mfe_bps"]
         for mark in fill["markouts"].values():
             if mark is not None:
-                assert fill["filled_at_ns"] < mark["target_at_ns"] <= mark["exchange_at_ns"]
-                assert mark["exchange_at_ns"] <= mark["observed_at_ns"] <= report["ended_at_ns"]
+                assert fill["filled_at_ns"] < mark["target_at_ns"]
+                assert mark["exchange_at_ns"] <= mark["target_at_ns"] == mark["observed_at_ns"]
+                assert mark["observed_at_ns"] <= report["ended_at_ns"]
+                assert mark["observation_age_ms"] <= 250
 
 
 def test_replay_old_reset_and_only_l2_updates_allow_alpha_but_never_fake_passive_fills() -> None:

@@ -12,6 +12,7 @@ from uuid import NAMESPACE_URL, uuid4, uuid5
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
     Column,
     DateTime,
@@ -146,8 +147,8 @@ scalping_market_batches = Table(
     Column("batch_id", String(64), primary_key=True),
     Column("recorded_at", DateTime(timezone=True), nullable=False),
     Column("event_count", Integer, nullable=False),
-    Column("first_exchange_ns", Numeric(30, 0)),
-    Column("last_exchange_ns", Numeric(30, 0)),
+    Column("first_exchange_ns", Numeric(30, 0).with_variant(BigInteger(), "sqlite")),
+    Column("last_exchange_ns", Numeric(30, 0).with_variant(BigInteger(), "sqlite")),
     Column("encoding", String(32), nullable=False),
     Column("raw", LargeBinary, nullable=False),
 )
@@ -260,7 +261,11 @@ class ScalpStore:
             return
         raw = canonical(list(events)).encode()
         identity = sha256(raw).hexdigest()
-        times = [int(item["exchange_time_ns"]) for item in events if item.get("exchange_time_ns")]
+        times = [
+            int(value)
+            for item in events
+            if (value := item.get("exchange_at_ns", item.get("exchange_time_ns"))) is not None
+        ]
         with self.database.begin() as connection:
             if insert_once(
                 connection,

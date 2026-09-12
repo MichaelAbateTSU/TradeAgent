@@ -7,6 +7,8 @@ from typing import Any, Literal, Self
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from tradeagent.scalping_economics import EconomicDecision
+
 
 def crypto_symbol(value: str) -> str:
     symbol = value.strip().upper()
@@ -42,6 +44,34 @@ class ScalpingConfig(BaseSettings):
     email_digest_seconds: int = Field(default=1800, gt=0)
     event_queue_capacity: int = Field(default=5000, gt=0)
     raw_batch_size: int = Field(default=500, gt=0)
+    decision_policy: Literal["legacy-v30", "action-value-v1"] = "legacy-v30"
+    economic_model_path: str | None = None
+    economic_model_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    latency_grace_seconds: float = Field(default=0, ge=0)
+    catastrophic_stop_bps: Decimal | None = Field(default=None, gt=0, lt=10000)
+
+    @model_validator(mode="after")
+    def validate_economic_policy(self) -> Self:
+        if (self.economic_model_path is None) != (self.economic_model_sha256 is None):
+            raise ValueError("an economic artifact requires both its path and immutable hash")
+        if self.decision_policy == "action-value-v1":
+            if self.catastrophic_stop_bps is None:
+                raise ValueError("the action-value policy requires an explicit catastrophic stop")
+            if self.latency_grace_seconds > self.feature_horizon_seconds:
+                raise ValueError("exit grace cannot outlast the prediction horizon")
+        return self
+
+    @property
+    def maximum_quote_age_seconds(self) -> float:
+        return (
+            min(self.feature_horizon_seconds, self.decision_interval_seconds)
+            if self.decision_policy == "action-value-v1"
+            else self.feature_horizon_seconds
+        )
+
+    @property
+    def prediction_lifetime_seconds(self) -> float:
+        return self.feature_horizon_seconds + self.latency_grace_seconds
 
     @field_validator("symbols")
     @classmethod
@@ -71,7 +101,15 @@ class ScalpingConfig(BaseSettings):
             "news_risk_veto": False,
             "macro_veto": False,
             "automatic_loss_kill": False,
-            "catastrophic_stop": None,
+            "catastrophic_stop": (
+                {"bps": str(self.catastrophic_stop_bps), "basis": "local owned-position hard stop"}
+                if self.decision_policy == "action-value-v1"
+                else None
+            ),
+            "decision_policy": self.decision_policy,
+            "prospective_economic_gate": self.decision_policy == "action-value-v1",
+            "uncalibrated_or_unprofitable_action": "NO_TRADE",
+            "economic_model_sha256": self.economic_model_sha256,
             "order_notional_is_strategy_parameter_not_risk_ceiling": True,
             "technical_requirements": [
                 "paper endpoint and pinned account",
@@ -119,12 +157,23 @@ class ScalpSignal(BaseModel):
     features: dict[str, float | int | str | None]
     estimated_round_trip_cost_bps: float = Field(ge=0)
     expected_net_edge_bps: float | None = None
-    profitability_validated: Literal[False] = False
+    economics: EconomicDecision | None = None
+    timing: dict[str, int | float | str | None] = Field(default_factory=dict)
+    profitability_validated: bool = False
 
     @model_validator(mode="after")
     def validate_identity(self) -> Self:
         if self.symbol != self.quote.symbol or self.quote.received_at > self.observed_at:
             raise ValueError("signal must use its own symbol's already-received quote")
+        if self.economics is not None and (
+            self.economics.symbol != self.symbol
+            or self.economics.family != self.family
+            or self.expected_net_edge_bps != self.economics.expected_net_edge_bps
+            or self.profitability_validated != self.economics.profitability_validated
+        ):
+            raise ValueError("signal economics must match its symbol, family and net edge")
+        if self.economics is None and self.profitability_validated:
+            raise ValueError("profitability cannot be validated without an economic decision")
         return self
 
 
@@ -135,3 +184,5 @@ class ScalpInventory(BaseModel):
     quantity: Decimal = Field(ge=0)
     opened_at: AwareDatetime
     opening_vwap: Decimal = Field(gt=0)
+    family: Literal["momentum", "reversion", "none"] = "none"
+    exit_due_at: AwareDatetime | None = None

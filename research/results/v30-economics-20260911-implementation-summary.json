@@ -1,0 +1,355 @@
+{
+  "completed_at": "2026-09-12T04:05:00Z",
+  "scope": "synchronous local implementation and testing only",
+  "attachment_sha256": "f5d05e611638e1681800c7eaf0cd28702eac9b01cdd7874de34d2a8b260d1c1b",
+  "implementation": {
+    "prospective_actions": [
+      "NO_TRADE",
+      "PASSIVE_BUY",
+      "AGGRESSIVE_BUY",
+      "PASSIVE_SELL",
+      "AGGRESSIVE_SELL"
+    ],
+    "chronological_purged_validation": true,
+    "fill_conditioned_economics": true,
+    "uncertainty_and_ood_gates": true,
+    "final_pre_post_revalidation": true,
+    "same_policy_live_and_replay": true,
+    "original_family_and_prediction_deadline_exits": true,
+    "local_catastrophic_stop_bps": "100",
+    "all_seven_markouts": true,
+    "mfe_mae_holding_bounded": true,
+    "failure_attribution": true,
+    "t0_through_t8_latency": true,
+    "order_stream_applied_before_rest_reconciliation": true,
+    "daily_email_policy_unchanged": true
+  },
+  "actual_evidence": {
+    "cycles": 229,
+    "completed": 62,
+    "no_fill": 167,
+    "symbols": {
+      "BTC/USD": 47,
+      "ETH/USD": 15
+    },
+    "families": {
+      "momentum": 59,
+      "reversion": 3
+    },
+    "pnl": {
+      "actual_net_pnl": {
+        "basis": "actual_net_pnl",
+        "missing": 62,
+        "reason": "no_known_values",
+        "samples": 0,
+        "value": null
+      },
+      "gross_cash_flow": {
+        "basis": "gross_cash_flow",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "-13.141326540867069736"
+      },
+      "modeled_net_pnl": {
+        "basis": "modeled_net_pnl",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "-31.9870500918796172393025"
+      },
+      "raw_price_pnl": {
+        "basis": "raw_price_pnl",
+        "missing": 0,
+        "reason": null,
+        "samples": 62,
+        "value": "-3.619737530813030699"
+      }
+    },
+    "failure_labels": {
+      "ACCOUNTING_FAILURE": 0,
+      "ADVERSE_SELECTION": 12,
+      "ALPHA_FAILURE": 0,
+      "COST_FAILURE": 7,
+      "EXECUTION_FAILURE": 0,
+      "EXIT_FAILURE": 0,
+      "LATENCY_FAILURE": 1,
+      "REGIME_FAILURE": 0,
+      "STALE_DATA_FAILURE": 0,
+      "UNKNOWN": 62
+    },
+    "accounting_failures_proven": 0,
+    "both_crosschecked": 62,
+    "markout_coverage": {
+      "100ms": {
+        "missing": 53,
+        "samples": 9
+      },
+      "10s": {
+        "missing": 42,
+        "samples": 20
+      },
+      "1s": {
+        "missing": 41,
+        "samples": 21
+      },
+      "250ms": {
+        "missing": 38,
+        "samples": 24
+      },
+      "2s": {
+        "missing": 43,
+        "samples": 19
+      },
+      "500ms": {
+        "missing": 42,
+        "samples": 20
+      },
+      "5s": {
+        "missing": 38,
+        "samples": 24
+      }
+    },
+    "longest_holding_trade": {
+      "analysis": {
+        "actual_exit_fill_at": {
+          "basis": "last exit execution/completion timestamp",
+          "reason": null,
+          "unix_ns": 1789130471327620000,
+          "value": "2026-09-11T12:41:11.327620000Z"
+        },
+        "actual_exit_request_at": {
+          "basis": "scalp_exit_requested audit",
+          "reason": null,
+          "unix_ns": 1789130065083562000,
+          "value": "2026-09-11T12:34:25.083562000Z"
+        },
+        "backoff_after_deadline_seconds": {
+          "basis": "cooldown union clipped to [intended exit, actual exit]",
+          "reason": null,
+          "value": "300"
+        },
+        "backoff_directive_union_seconds": {
+          "basis": "union of same-run audited cooldown intervals intersecting actual holding lifetime",
+          "reason": null,
+          "value": "300"
+        },
+        "backoff_events": [
+          {
+            "directive_duration_seconds": "60",
+            "event_id": "7650579d-1253-4176-8ea7-512c68e6467d",
+            "occurred_at": "2026-09-11T12:34:26.990443000Z",
+            "operation": "reconcile",
+            "overlap_holding_seconds": "60",
+            "retry_after": "2026-09-11T12:35:26.990443000Z",
+            "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+            "status_code": 429
+          },
+          {
+            "directive_duration_seconds": "60",
+            "event_id": "4272c093-2db0-48dd-8cd5-509e8310afd4",
+            "occurred_at": "2026-09-11T12:35:53.704633000Z",
+            "operation": "reconcile",
+            "overlap_holding_seconds": "60",
+            "retry_after": "2026-09-11T12:36:53.704633000Z",
+            "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+            "status_code": 429
+          },
+          {
+            "directive_duration_seconds": "60",
+            "event_id": "01b5dab6-862c-4a3d-9d6a-6cf4c6378017",
+            "occurred_at": "2026-09-11T12:37:23.093913000Z",
+            "operation": "reconcile",
+            "overlap_holding_seconds": "60",
+            "retry_after": "2026-09-11T12:38:23.093913000Z",
+            "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+            "status_code": 429
+          },
+          {
+            "directive_duration_seconds": "60",
+            "event_id": "873b1201-34e0-4320-9026-c6ebd87f70d7",
+            "occurred_at": "2026-09-11T12:38:48.675994000Z",
+            "operation": "reconcile",
+            "overlap_holding_seconds": "60",
+            "retry_after": "2026-09-11T12:39:48.675994000Z",
+            "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+            "status_code": 429
+          },
+          {
+            "directive_duration_seconds": "60",
+            "event_id": "17f74b89-8aad-42b2-a7ff-7dc9d85367eb",
+            "occurred_at": "2026-09-11T12:40:09.288163000Z",
+            "operation": "reconcile",
+            "overlap_holding_seconds": "60",
+            "retry_after": "2026-09-11T12:41:09.288163000Z",
+            "run_id": "cdb58c1d14b8028c6676e36b49a4240bd49183dfe93f7c274999e678cbe56ede",
+            "status_code": 429
+          }
+        ],
+        "causality_limit": "audits prove cooldown overlap and timer overrun, not lost alpha or the duration of unlogged HTTP requests; overlapping directives are counted once",
+        "deadline_to_exit_fill_ms": {
+          "basis": "signed last execution minus persisted timer due",
+          "reason": null,
+          "value": "407140.415"
+        },
+        "deadline_to_exit_request_ms": {
+          "basis": "signed exit request minus persisted timer due; negative means early signal exit",
+          "reason": null,
+          "value": "896.357"
+        },
+        "delay_outside_documented_backoffs_seconds": {
+          "basis": "residual deadline overrun; request/loop/recovery contribution not separately measured",
+          "reason": null,
+          "value": "107.140415"
+        },
+        "intended_exit_at": {
+          "basis": "persisted strategy timer, not a predicted horizon",
+          "reason": null,
+          "unix_ns": 1789130064187205000,
+          "value": "2026-09-11T12:34:24.187205000Z"
+        },
+        "technical_recovery_counts_during_holding": {}
+      },
+      "cycle_id": "9e9ce95a-304d-5773-83f2-0afc809e4ed8",
+      "holding_seconds": {
+        "basis": "first actual entry execution -> last actual exit execution",
+        "reason": null,
+        "value": "422.150523"
+      }
+    }
+  },
+  "calibration": {
+    "accepted_sample_count": 0,
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "blocked_groups": [
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 166,
+        "complete_group_required": true,
+        "family": "momentum",
+        "reason_counts": {
+          "adverse_selection": 137,
+          "fill_after_declared_cancellation_horizon": 8,
+          "impact": 145,
+          "missing:decision_latency_seconds": 166,
+          "missing:gross_return_bps": 15,
+          "missing:return_end_at": 15,
+          "slippage": 145,
+          "spread": 145
+        },
+        "symbol": "BTC/USD"
+      },
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 4,
+        "complete_group_required": true,
+        "family": "reversion",
+        "reason_counts": {
+          "adverse_selection": 1,
+          "impact": 1,
+          "missing:decision_latency_seconds": 4,
+          "slippage": 1,
+          "spread": 1
+        },
+        "symbol": "BTC/USD"
+      },
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 58,
+        "complete_group_required": true,
+        "family": "momentum",
+        "reason_counts": {
+          "adverse_selection": 48,
+          "fill_after_declared_cancellation_horizon": 2,
+          "impact": 50,
+          "missing:decision_latency_seconds": 58,
+          "missing:gross_return_bps": 5,
+          "missing:return_end_at": 5,
+          "slippage": 50,
+          "spread": 50
+        },
+        "symbol": "ETH/USD"
+      },
+      {
+        "action": "PASSIVE_BUY",
+        "candidate_count": 1,
+        "complete_group_required": true,
+        "family": "reversion",
+        "reason_counts": {
+          "adverse_selection": 1,
+          "impact": 1,
+          "missing:decision_latency_seconds": 1,
+          "slippage": 1,
+          "spread": 1
+        },
+        "symbol": "ETH/USD"
+      }
+    ],
+    "complete_group_policy": "a partially observed action group is excluded in full; unsupported coverage remains NO_TRADE",
+    "model_file_sha256": "db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52",
+    "model_id": "adb76e65b74528a8f8e5d017b4da7e675d63de2ce724da912d1572f84052837b",
+    "model_path": "research\\results\\v30-economics-20260911-model.json",
+    "model_reason_codes": [
+      "NO_SAMPLES"
+    ],
+    "model_status": "no_support",
+    "no_complete_case_cherry_picking": true,
+    "no_counterfactual_aggressive_samples_created": true,
+    "profitability_validated": false,
+    "raw_candidate_count": 229,
+    "schema": "scalp-calibration-audit-v1",
+    "selected_horizon_seconds": 5.0,
+    "source_sha256": "6922cd9c99fe3759c107666afc1b5c870a818f752051a278e95d61f3c56d2a57"
+  },
+  "pinned_model": {
+    "file": "research\\results\\v30-economics-20260911-model.json",
+    "file_sha256": "db755d4064f8cde5461d1295a0e1b418443b423d4034439bba0b926109617d52",
+    "model_id": "adb76e65b74528a8f8e5d017b4da7e675d63de2ce724da912d1572f84052837b",
+    "status": "no_support",
+    "reason_codes": [
+      "NO_SAMPLES"
+    ],
+    "effect": "NO_TRADE; no legacy fallback"
+  },
+  "validation": {
+    "ruff": "passed",
+    "strict_mypy": "passed on 111 source files",
+    "focused": "560 passed plus action-path and review regressions",
+    "full": "1823 passed, 2 skipped, 88.33% coverage",
+    "full_log_sha256": "d5aba0e9fbb0846631750e1c88bfcbfa244f5388b7cb53c3e47910789912a8a1"
+  },
+  "source_sha256": {
+    "src\\tradeagent\\scalping_config.py": "c1a743125d4c53511b97f3d1befea5f040187383114ad9f5c09e171a2d0bc7b5",
+    "src\\tradeagent\\scalping_market.py": "4263e65d1976a2257bb74eb73d62c8485714102bcd6ce8aa433705ef66e2c900",
+    "src\\tradeagent\\scalping_strategy.py": "681766a8fc9f0b07ef95c66b11bfc97bfeed480afbe729baafab7993038a3b7b",
+    "src\\tradeagent\\scalping_economics.py": "8fe80fcc316c419798c2da7ffbf968f087d53884ed50afc817529491b09d0ab7",
+    "src\\tradeagent\\scalping_policy.py": "953c6682c0bedadc18f5415317669afab4ae73c2944065221562a642bead7c93",
+    "src\\tradeagent\\scalping_execution.py": "f5f27382f758326fc72461116643c46cf12a2613208d1e628d704c22e454c2ba",
+    "src\\tradeagent\\scalping_replay.py": "eeb60ad5b56a5aa2975ecfe44814e6942d6fc10ad57361c62ce6a8f567ece2fc",
+    "src\\tradeagent\\scalping_runtime.py": "3fac7e631e0059d7f0a9b0663dae281593bb887ec09fea7652161a37f2c35483",
+    "src\\tradeagent\\scalping_telemetry.py": "fd0846f24d28878109b02d8bef08b4c51810dcb4d243c27cdf99c840e6af6c77",
+    "src\\tradeagent\\scalping_diagnostics.py": "41745c05aa84d1aa429982b70ed30c213f6250874db453234071b0e37fae81d2",
+    "src\\tradeagent\\scalping_reporting.py": "e7e8f34be3fb91de560cef73638d2dc1a8638b3359f1bf3d00aa71ef9c7367dc",
+    "src\\tradeagent\\scalping_cli.py": "f99dae6ea31e72c60dc979a0082107da01eecf873b0c3b37d98c17cd9835f867",
+    "src\\tradeagent\\api.py": "34c340e7a3730f2d2b162ecc94793b0afa67e54149eb0ea7298388c221a2dbb6"
+  },
+  "production": {
+    "deployed": false,
+    "services_remain_suspended": true,
+    "active_render_jobs": 0,
+    "orders_sent": false,
+    "emails_sent": false,
+    "automation_created": false
+  },
+  "limitations": [
+    "Historical exact decision-to-send timing is missing for all 229 candidates, so no historical group was model-ready.",
+    "Actual final fees remain unavailable for the 62 historical trades.",
+    "Aggregate L2 cannot establish MBO, exact queue position, or exchange sequence continuity.",
+    "The local implementation is not proof of profitable future paper or live execution."
+  ],
+  "review_fixes": [
+    "Live and replay exits use EconomicDecision.prediction_expires_at plus declared grace, not a reset horizon.",
+    "Replay decision-to-send latency is counted once at final send revalidation.",
+    "Replay CLI requires the model account digest."
+  ]
+}
