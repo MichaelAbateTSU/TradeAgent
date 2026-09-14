@@ -1079,13 +1079,68 @@ def simulate_database_candidates(
 ) -> tuple[ShadowActionOutcome, ...]:
     if not candidates:
         return ()
-    start = min(row.shadow_send_at for row in candidates) - timedelta(seconds=10)
-    end = max(
-        row.signal.observed_at + timedelta(seconds=row.horizon_seconds + 2) for row in candidates
+    selected_policy = policy or ShadowPolicy()
+    windows = sorted(
+        (
+            row.shadow_send_at - timedelta(seconds=1),
+            row.signal.observed_at + timedelta(seconds=row.horizon_seconds + 1),
+            row,
+        )
+        for row in candidates
     )
-    return simulate_candidates(
-        candidates,
-        read_market_events(database, start=start, end=end),
-        config,
-        policy,
-    )
+    clusters: list[dict[str, Any]] = []
+    for start, end, candidate in windows:
+        if clusters and start <= clusters[-1]["end"] + timedelta(seconds=1):
+            clusters[-1]["end"] = max(clusters[-1]["end"], end)
+            clusters[-1]["candidates"].append(candidate)
+        else:
+            clusters.append({"start": start, "end": end, "candidates": [candidate]})
+    results: list[ShadowActionOutcome] = []
+    for cluster in clusters:
+        evaluator = ShadowActionEvaluator(selected_policy)
+        pending = iter(sorted(cluster["candidates"], key=lambda row: row.shadow_send_at_ns))
+        current = next(pending, None)
+        last_quote: dict[str, ScalpQuote] = {}
+        latest = cluster["end"]
+        for market_event in read_market_events(
+            database,
+            start=cluster["start"],
+            end=cluster["end"] + timedelta(seconds=1),
+        ):
+            if market_event.event_type not in {"quote", "trade"}:
+                continue
+            while current is not None and current.shadow_send_at_ns < market_event.received_at_ns:
+                evaluator.add(current)
+                last_quote.setdefault(current.signal.symbol, current.signal.quote)
+                current = next(pending, None)
+            if market_event.event_type == "quote":
+                bid, ask = market_event.bids[0], market_event.asks[0]
+                last_quote[market_event.symbol] = ScalpQuote(
+                    symbol=market_event.symbol,
+                    exchange_at=market_event.exchange_at,
+                    exchange_time_ns=market_event.exchange_at_ns,
+                    received_at=market_event.received_at,
+                    bid=bid.price,
+                    ask=ask.price,
+                    bid_size=bid.quantity,
+                    ask_size=ask.quantity,
+                )
+            quote = last_quote.get(market_event.symbol)
+            results.extend(
+                evaluator.on_market(
+                    market_event,
+                    quote=quote,
+                    bid_levels=_with_bbo(quote, (), side="bid"),
+                    ask_levels=_with_bbo(quote, (), side="ask"),
+                )
+            )
+            latest = max(latest, market_event.received_at)
+            while current is not None and current.shadow_send_at_ns == market_event.received_at_ns:
+                evaluator.add(current)
+                last_quote.setdefault(current.signal.symbol, current.signal.quote)
+                current = next(pending, None)
+        while current is not None:
+            evaluator.add(current)
+            current = next(pending, None)
+        results.extend(evaluator.flush(latest + timedelta(seconds=1)))
+    return tuple({row.identity: row for row in results}.values())
