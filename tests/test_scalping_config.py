@@ -126,6 +126,7 @@ def test_signal_does_not_invent_profitability_or_future_information() -> None:
 
 
 def test_cli_selects_standing_crypto_profile_without_dated_entry_window() -> None:
+    autonomous_until = NOW + timedelta(days=7)
     args = _parser().parse_args(
         [
             "scalp-run",
@@ -135,6 +136,8 @@ def test_cli_selects_standing_crypto_profile_without_dated_entry_window() -> Non
             "a" * 64,
             "--approved-at",
             NOW.isoformat(),
+            "--autonomous-until",
+            autonomous_until.isoformat(),
             "--confirm-paper-unrestricted",
         ]
     )
@@ -145,6 +148,8 @@ def test_cli_selects_standing_crypto_profile_without_dated_entry_window() -> Non
     assert settings.maximum_quote_age_seconds == 1
     assert settings.exit_after_seconds == settings.feature_horizon_seconds == 5
     assert settings.policy_description()["prospective_economic_gate"] is True
+    assert settings.autonomous_until == autonomous_until
+    assert settings.policy_description()["new_entries_after_autonomous_until"] is False
     assert settings.catastrophic_stop_bps == 100
     assert "entry_deadline" not in ScalpingConfig.model_fields
     args.confirm_paper_unrestricted = False
@@ -163,3 +168,5 @@ def test_economic_model_requires_a_hash_and_exit_grace_is_horizon_bounded():
             catastrophic_stop_bps="100",
             latency_grace_seconds=300,
         )
+    with pytest.raises(ValidationError, match="must end after"):
+        config(autonomous_until=NOW)

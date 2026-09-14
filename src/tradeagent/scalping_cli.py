@@ -29,6 +29,7 @@ def register_scalping_commands(subparsers: Any) -> None:
     run.add_argument("--cohort-id", required=True)
     run.add_argument("--account-digest", required=True)
     run.add_argument("--approved-at", type=datetime.fromisoformat, required=True)
+    run.add_argument("--autonomous-until", type=datetime.fromisoformat)
     run.add_argument("--symbols", default="BTC/USD,ETH/USD")
     run.add_argument("--notional", type=Decimal, default=Decimal("100"))
     run.add_argument("--decision-seconds", type=float, default=1)
@@ -105,6 +106,7 @@ def configuration(args: argparse.Namespace) -> ScalpingConfig:
         cohort_id=args.cohort_id,
         account_digest=args.account_digest,
         approved_at=args.approved_at,
+        autonomous_until=args.autonomous_until,
         symbols=tuple(args.symbols.split(",")),
         order_notional_usd=args.notional,
         decision_interval_seconds=args.decision_seconds,

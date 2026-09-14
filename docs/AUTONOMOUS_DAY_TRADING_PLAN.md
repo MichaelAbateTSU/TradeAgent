@@ -9,6 +9,26 @@
 > not a return to this roadmap's low-frequency strategy. The dated baseline and
 > conservative gates below remain historical context, not v30 entry policy.
 
+## Active September 14 seven-day run
+
+The active implementation is the v30 crypto action-value collector described
+in [scalping economics](SCALPING_ECONOMICS.md), not the historical ETF roadmap
+below. The owner authorized Render autonomy from September 14, 2026 at
+15:22:58.996 Eastern through September 21, 2026 at the same time.
+
+The event worker and dashboard remain always-on during this window. The frozen
+`no_support` model continues to choose NO_TRADE while the worker records
+market, candidate, latency and shadow-outcome evidence. The configuration
+enforces the end timestamp: after it, no new entry or shadow candidate is
+allowed, while owned exits and reconciliation remain available. The legacy ETF
+recorder remains suspended.
+
+The notifier runs independently with `tradeagent notifier-daily`. It may send
+only one canonical five-paragraph plain-English summary at 18:00
+`America/New_York`; per-trade, startup, digest and incident emails remain
+suppressed. This seven-day Render authorization does not create a Copilot
+session automation or an unattended coding task.
+
 ## Executive decision
 
 TradeAgent should become an **always-on, paper-only, low-frequency intraday agent** for

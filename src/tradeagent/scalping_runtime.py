@@ -141,6 +141,7 @@ class ScalpingRuntime:
         self._last_summary_at: datetime | None = None
         self._last_stream_gaps = 0
         self._operator_stop = False
+        self._autonomy_expired = False
         self._state = "initializing"
 
     def _execution_quote(self, symbol: str) -> ScalpQuote | None:
@@ -225,7 +226,13 @@ class ScalpingRuntime:
                 self._last_stream_gaps = gaps
         now = self.clock()
         inventory = self.engine.inventory()
-        stopped = self.repo.get_control(f"scalping:{self.config.cohort_id}:stop") is not None
+        operator_stopped = (
+            self.repo.get_control(f"scalping:{self.config.cohort_id}:stop") is not None
+        )
+        autonomy_expired = bool(
+            self.config.autonomous_until is not None and now >= self.config.autonomous_until
+        )
+        stopped = operator_stopped or autonomy_expired
         signals: list[ScalpSignal] = []
         shadow_candidates = []
         with self._market_lock:
@@ -257,7 +264,7 @@ class ScalpingRuntime:
                             )
                         }
                     )
-                    if inventory.get(symbol) is None and signal.family != "none":
+                    if not stopped and inventory.get(symbol) is None and signal.family != "none":
                         shadow_send_at = self.clock()
                         candidate = candidate_from_signal(
                             signal,
@@ -304,9 +311,12 @@ class ScalpingRuntime:
             self._signals = [signal.model_dump(mode="json") for signal in signals]
             self._last_tick_at = self.clock()
             self._operator_stop = stopped
+            self._autonomy_expired = autonomy_expired
             self._state = (
-                "operator_stopped"
-                if stopped
+                "autonomy_expired"
+                if autonomy_expired
+                else "operator_stopped"
+                if operator_stopped
                 else "running"
                 if signals or inventory
                 else "waiting_for_market_data"
@@ -348,6 +358,12 @@ class ScalpingRuntime:
                 "trade_summary": copy.deepcopy(self._summary),
                 "last_signals": copy.deepcopy(self._signals),
                 "operator_stop": self._operator_stop,
+                "autonomous_until": (
+                    self.config.autonomous_until.isoformat()
+                    if self.config.autonomous_until is not None
+                    else None
+                ),
+                "autonomy_expired": self._autonomy_expired,
                 "errors": list(self._errors),
                 "last_execution_tick_at": self._last_tick_at.isoformat()
                 if self._last_tick_at
@@ -422,6 +438,8 @@ class ScalpingRuntime:
                     "raw": snapshot["raw"],
                     "trade_summary": snapshot["trade_summary"],
                     "operator_stop": snapshot["operator_stop"],
+                    "autonomous_until": snapshot["autonomous_until"],
+                    "autonomy_expired": snapshot["autonomy_expired"],
                     "economics": snapshot["economics"],
                     "telemetry": snapshot["telemetry"],
                 },
@@ -431,6 +449,7 @@ class ScalpingRuntime:
                 "economic_entries_enabled": bool(
                     snapshot["economics"]["profitability_validated"]
                     and not snapshot["operator_stop"]
+                    and not snapshot["autonomy_expired"]
                 ),
                 "global_strategy_kill": self.repo.get_control("kill_switch"),
             },

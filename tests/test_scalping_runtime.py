@@ -11,14 +11,24 @@ import pytest
 from tradeagent.alpaca_paper import AlpacaOrderStatus, AlpacaPaperClient
 from tradeagent.event_order_stream import PaperTradeUpdate
 from tradeagent.persistence import Database, ProductionRepository
-from tradeagent.scalping_config import ScalpingConfig, ScalpQuote, ScalpSignal
+from tradeagent.scalping_config import ScalpingConfig, ScalpInventory, ScalpQuote, ScalpSignal
 from tradeagent.scalping_runtime import ScalpingRuntime, _blocking, run_scalping_service
 
 
 def runtime_fixture(
-    database: Database, monkeypatch: pytest.MonkeyPatch, now: datetime
+    database: Database,
+    monkeypatch: pytest.MonkeyPatch,
+    now: datetime,
+    **config_overrides: object,
 ) -> tuple[ScalpingRuntime, MagicMock, MagicMock, MagicMock]:
-    config = ScalpingConfig(cohort_id="v30-runtime", account_digest="a" * 64, approved_at=now)
+    config = ScalpingConfig.model_validate(
+        {
+            "cohort_id": "v30-runtime",
+            "account_digest": "a" * 64,
+            "approved_at": now,
+            **config_overrides,
+        }
+    )
     quote = ScalpQuote(
         symbol="BTC/USD",
         exchange_at=now - timedelta(milliseconds=20),
@@ -42,8 +52,10 @@ def runtime_fixture(
         estimated_round_trip_cost_bps=40,
     )
     market, strategy, engine, store = MagicMock(), MagicMock(), MagicMock(), MagicMock()
+    features = MagicMock()
+    features.source_event_id = "runtime-source"
     market.quote.side_effect = lambda symbol: quote if symbol == "BTC/USD" else None
-    market.features.side_effect = lambda symbol, at: object() if symbol == "BTC/USD" else None
+    market.features.side_effect = lambda symbol, at: features if symbol == "BTC/USD" else None
     market.health_snapshot.return_value = {"state": "valid", "venue_sequence_available": False}
     strategy.decide.return_value = signal
     engine.status.return_value = {"state": "ready", "pending_orders": 0}
@@ -85,6 +97,49 @@ def test_legacy_kill_does_not_gate_v30_but_operator_stop_keeps_supervision(
         assert engine.step.call_count == 2
         assert runtime.snapshot()["operator_stop"] is True
         assert runtime.repo.get_control("kill_switch") == "active"
+
+
+def test_autonomy_deadline_stops_new_entries_and_shadow_collection_but_keeps_runtime(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    now = datetime.now(UTC)
+    with Database(f"sqlite:///{tmp_path / 'deadline.db'}") as database:
+        database.initialize()
+        runtime, engine, _, store = runtime_fixture(
+            database,
+            monkeypatch,
+            now,
+            approved_at=now - timedelta(days=7, seconds=1),
+            autonomous_until=now,
+            decision_policy="action-value-v1",
+            catastrophic_stop_bps=Decimal(100),
+        )
+        runtime.telemetry = MagicMock()
+        runtime.telemetry.decision_timing.return_value = {}
+        runtime.tick()
+        assert engine.step.call_args.args[0] == ()
+        assert not store.audit.called
+        snapshot = runtime.snapshot()
+        assert snapshot["state"] == "autonomy_expired"
+        assert snapshot["operator_stop"] is True
+        assert snapshot["autonomy_expired"] is True
+        assert snapshot["autonomous_until"] == now.isoformat()
+        sell = runtime.strategy.decide.return_value.model_copy(
+            update={"action": "sell", "reasons": ("strategy_time_exit",)}
+        )
+        runtime.strategy.decide.return_value = sell
+        engine.inventory.return_value = {
+            "BTC/USD": ScalpInventory(
+                symbol="BTC/USD",
+                quantity=Decimal("0.001"),
+                opened_at=now - timedelta(seconds=10),
+                opening_vwap=Decimal(100),
+                family="momentum",
+                exit_due_at=now,
+            )
+        }
+        runtime.tick()
+        assert engine.step.call_args.args[0][0].action == "sell"
 
 
 def test_durable_market_batch_precedes_features(

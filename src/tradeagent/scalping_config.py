@@ -28,6 +28,7 @@ class ScalpingConfig(BaseSettings):
     cohort_id: str = Field(min_length=1, max_length=64)
     account_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     approved_at: AwareDatetime
+    autonomous_until: AwareDatetime | None = None
     symbols: tuple[str, ...] = ("BTC/USD", "ETH/USD")
     order_notional_usd: Decimal = Field(default=Decimal("100"), gt=0)
     decision_interval_seconds: float = Field(default=1, gt=0)
@@ -59,6 +60,8 @@ class ScalpingConfig(BaseSettings):
                 raise ValueError("the action-value policy requires an explicit catastrophic stop")
             if self.latency_grace_seconds > self.feature_horizon_seconds:
                 raise ValueError("exit grace cannot outlast the prediction horizon")
+        if self.autonomous_until is not None and self.autonomous_until <= self.approved_at:
+            raise ValueError("autonomous operation must end after its owner approval")
         return self
 
     @property
@@ -90,6 +93,10 @@ class ScalpingConfig(BaseSettings):
             "profile": self.profile,
             "paper_only": True,
             "autonomous": True,
+            "autonomous_until": (
+                self.autonomous_until.isoformat() if self.autonomous_until is not None else None
+            ),
+            "new_entries_after_autonomous_until": False,
             "daily_approval_required": False,
             "qualification_required": False,
             "shadow_required": False,

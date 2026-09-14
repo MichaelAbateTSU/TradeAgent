@@ -2,6 +2,30 @@
 
 ## Current instruction: prompt-only operation
 
+### Explicit September 14, 2026 seven-day Render exception
+
+At **15:22:58.996 America/New_York**, the owner explicitly authorized the
+existing Render paper-scalping collector to operate autonomously for seven
+days, through **September 21, 2026 at 15:22:58.996 America/New_York**, and
+requested the daily email worker at 18:00 Eastern.
+
+- This exception authorizes the existing event worker, dashboard and
+  daily-only notifier. It does not authorize assistant-side automations,
+  background coding agents, new recipients, live-money routing or new paid
+  resources.
+- The event worker remains on the action-value policy. Its pinned model is
+  currently `no_support`, so it records market/candidate evidence and chooses
+  NO_TRADE rather than falling back to legacy heuristic orders.
+- The deployed configuration must stop new entries and new shadow candidates
+  at the stated deadline. Owned reconciliation and exits remain allowed so a
+  deadline cannot strand an owned paper position.
+- The notifier remains restricted to one canonical five-paragraph
+  plain-English email per day at 18:00 `America/New_York`.
+- The recorder/legacy ETF shadow worker remains suspended because it is not
+  part of the active v30 crypto evidence path.
+- After this synchronous implementation/deployment turn, no chat-side
+  follow-up automation is created. The owner will return with a new prompt.
+
 At **September 11, 2026, 20:32:59 Eastern**, the owner explicitly requested:
 stop background work, stop processes, stop all automations, and operate only
 when given a prompt.
