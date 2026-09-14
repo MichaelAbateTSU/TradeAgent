@@ -17,6 +17,7 @@ durable order identities, broker-authoritative reconciliation and honest executi
 - Venue-specific L2 order-book features, deterministic momentum/reversion and shared replay logic
 - Fill-conditioned passive/aggressive/NO_TRADE economics with chronological validation
 - Per-trade reconstruction, seven-horizon markouts, MFE/MAE, failure attribution and stage latency
+- No-order shadow action outcomes with historical passive-fill validation and support-time estimates
 - Persistent order/cycle recovery, measured costs, and one five-paragraph daily email at 18:00 Eastern
 - Separate v30 dashboard status; legacy risk controls are not misrepresented as v30 permissions
 - v20 event-driven shadow collection with immutable receipt-time evidence and visible abstentions

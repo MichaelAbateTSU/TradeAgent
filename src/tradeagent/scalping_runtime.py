@@ -33,6 +33,13 @@ from tradeagent.scalping_execution import ScalpOrderEngine
 from tradeagent.scalping_market import BookFeatureEngine, CryptoMarketFeed, MarketEvent
 from tradeagent.scalping_notifications import ScalpingNotifications
 from tradeagent.scalping_policy import load_economic_model
+from tradeagent.scalping_shadow import (
+    ShadowActionEvaluator,
+    ShadowActionOutcome,
+    candidate_from_signal,
+    persist_shadow_outcomes,
+    recover_abandoned_candidates,
+)
 from tradeagent.scalping_store import ScalpStore
 from tradeagent.scalping_strategy import ScalpStrategy
 from tradeagent.scalping_telemetry import ScalpTelemetry
@@ -118,6 +125,9 @@ class ScalpingRuntime:
         self.telemetry = ScalpTelemetry(
             database, account_digest=config.account_digest, started_at=clock()
         )
+        self.shadow = ShadowActionEvaluator()
+        self._shadow_candidates = 0
+        self._shadow_outcomes = 0
         self._execution: dict[str, Any] = {}
         self._summary: dict[str, Any] = {}
         self._signals: list[dict[str, Any]] = []
@@ -139,6 +149,14 @@ class ScalpingRuntime:
 
     def initialize(self) -> None:
         self.engine.initialize()
+        if self.config.decision_policy == "action-value-v1" and self.engine.run_id:
+            recover_abandoned_candidates(
+                self.database,
+                run_id=str(self.engine.run_id),
+                account_digest=self.config.account_digest,
+                config=self.config,
+                now=self.clock(),
+            )
         with self._state_lock:
             self._execution = copy.deepcopy(self.engine.status())
             self._summary = copy.deepcopy(self.engine.summary(since=None))
@@ -164,6 +182,7 @@ class ScalpingRuntime:
         started = time.monotonic()
         now = self.clock()
         self.store.persist_market_batch([event.model_dump(mode="json") for event in batch], at=now)
+        shadow_outcomes: list[ShadowActionOutcome] = []
         with self._market_lock:
             for event in batch:
                 accepted = self.market.on_event(event)
@@ -171,6 +190,19 @@ class ScalpingRuntime:
                     self.telemetry.on_market(
                         event, self.market.quote(event.symbol), state_updated_at=self.clock()
                     )
+                    shadow_outcomes.extend(
+                        self.shadow.on_market(
+                            event,
+                            quote=self.market.quote(event.symbol),
+                            bid_levels=self.market.levels(event.symbol, side="bid", depth=2000),
+                            ask_levels=self.market.levels(event.symbol, side="ask", depth=2000),
+                        )
+                    )
+        if shadow_outcomes:
+            recorded = persist_shadow_outcomes(self.store, shadow_outcomes, at=self.clock())
+            self.shadow.acknowledge(shadow_outcomes)
+            with self._state_lock:
+                self._shadow_outcomes += recorded
         with self._state_lock:
             self._committed_events += len(batch)
             self._committed_batches += 1
@@ -195,6 +227,7 @@ class ScalpingRuntime:
         inventory = self.engine.inventory()
         stopped = self.repo.get_control(f"scalping:{self.config.cohort_id}:stop") is not None
         signals: list[ScalpSignal] = []
+        shadow_candidates = []
         with self._market_lock:
             quotes = {
                 symbol: quote
@@ -224,8 +257,36 @@ class ScalpingRuntime:
                             )
                         }
                     )
+                    if inventory.get(symbol) is None and signal.family != "none":
+                        shadow_send_at = self.clock()
+                        candidate = candidate_from_signal(
+                            signal,
+                            run_id=str(self.engine.run_id),
+                            account_digest=self.config.account_digest,
+                            config=self.config,
+                            shadow_send_at=shadow_send_at,
+                            bid_levels=self.market.levels(symbol, side="bid", depth=2000),
+                            ask_levels=self.market.levels(symbol, side="ask", depth=2000),
+                        )
+                        self.shadow.add(candidate)
+                        shadow_candidates.append(candidate)
                 if signal.action != "buy" or not stopped:
                     signals.append(signal)
+            matured = self.shadow.flush(self.clock())
+        for candidate in shadow_candidates:
+            self.store.audit(
+                "shadow_action_candidate",
+                candidate.model_dump(mode="json"),
+                at=candidate.shadow_send_at,
+                identity=f"shadow-candidate:{candidate.candidate_id}",
+            )
+        with self._state_lock:
+            self._shadow_candidates += len(shadow_candidates)
+        if matured:
+            recorded = persist_shadow_outcomes(self.store, matured, at=self.clock())
+            self.shadow.acknowledge(matured)
+            with self._state_lock:
+                self._shadow_outcomes += recorded
         if self.config.decision_policy == "action-value-v1":
             if self.engine.run_id is None:
                 raise ValueError("decision journaling requires an initialized immutable run")
@@ -311,6 +372,19 @@ class ScalpingRuntime:
                     {
                         **self.telemetry.snapshot(),
                         "execution_pipeline_latency": self.engine.latencies.snapshot(),
+                    }
+                    if self.config.decision_policy == "action-value-v1"
+                    else None
+                ),
+                "shadow_calibration": (
+                    {
+                        "policy": self.shadow.policy.model_dump(mode="json"),
+                        "policy_id": self.shadow.policy.identity,
+                        "candidates_recorded": self._shadow_candidates,
+                        "outcomes_recorded": self._shadow_outcomes,
+                        "pending_candidates": self.shadow.pending_count,
+                        "unacknowledged_outcomes": self.shadow.unacknowledged_count,
+                        "broker_orders_submitted": False,
                     }
                     if self.config.decision_policy == "action-value-v1"
                     else None

@@ -177,6 +177,64 @@ normal execution step. A stream gap still triggers REST reconciliation, and
 REST remains authoritative at startup and periodically; an ordinary valid
 stream update no longer forces a full REST reconciliation by itself.
 
+## No-order model bootstrap
+
+Waiting without labels cannot turn `no_support` into a valid model. The
+action-value worker therefore records a calibration-only outcome for each
+positive momentum or reversion state while continuing to submit **no broker
+order**.
+
+For each candidate, the evaluator freezes both actions:
+
+- `PASSIVE_BUY` joins the recorded bid after a conservative 350 ms arrival
+  allowance. The allowance exceeds the historical 331.554 ms p95 from
+  dispatch start to first broker observation. Visible bid size remains ahead;
+  cancellations never grant queue priority; only native sell-aggressor prints
+  at or through the limit reduce the queue.
+- `AGGRESSIVE_BUY` uses the frozen decision ask as a marketable limit. It may
+  consume only already-observed BBO/L2 depth at or below that limit.
+
+Both actions use the same requested notional, three-second entry expiry and
+five-second prediction horizon. The exit is valued from already-received bid
+depth at the horizon. A horizon quote older than 250 ms, insufficient exit
+depth, changed arrival touch or missing native trade evidence produces an
+explicit incomplete outcome rather than a zero return.
+
+The runtime records the exact model-to-shadow-send boundary, entry fill/no-fill,
+fill delay, fill fraction, decision/horizon midpoint, embedded spread/slippage/
+impact/adverse-selection result, and a separate worst-configured entry plus
+taker-exit fee allowance. These records never call Alpaca's order endpoint.
+
+Historical passive outcomes validate the simulator before its samples can be
+treated as `validated_simulation`. The predeclared validation requires at least
+100 candidates, precision of at least 80%, and a false-positive rate no higher
+than 10%. Aggregate L2 cannot validate aggressive execution against the old
+passive-only broker history, so aggressive outcomes remain diagnostic until
+separate execution evidence exists.
+
+Shadow calibration requires at least 95% complete outcomes per cell and seven
+calendar days of observation. It then uses the same purged chronological
+fit/validation and positive conservative held-out net-edge requirements as the
+main model. A complete but unprofitable dataset still produces NO_TRADE.
+
+The read-only `/api/scalping/shadow` endpoint reports candidate and outcome
+coverage. `tradeagent scalp-shadow-calibrate` freezes a reviewed artifact from
+a validated report. The collection-time estimate targets 200 candidates and
+30 simulated fills per cell plus seven calendar days; it estimates statistical
+support, never guaranteed profitability.
+
+The collector keeps completed outcomes in an acknowledgement buffer until the
+deterministic audit record is committed. On restart, mature candidates without
+outcomes become explicit incomplete records, so database errors and process
+replacement cannot make the denominator look better. Per-outcome provenance is
+bounded to first/last event identity, count and digest; the full tape remains in
+compressed market batches.
+
+Execution-validation hashes are recomputed and bound to one simulation policy,
+symbol population and candidate-ID digest. Only historically passive entry
+orders filled within the same cancellation window contribute ground truth.
+Aggressive simulation is never promoted using passive broker outcomes.
+
 ## Release evidence
 
 Implementation, chronological economic validation and the new deployment

@@ -180,6 +180,66 @@ def scalping_diagnostic_journal(
     }
 
 
+def scalping_shadow_status(database: Database, *, cohort_id: str | None = None) -> dict[str, Any]:
+    from tradeagent.scalping_store import scalping_runs
+
+    status = scalping_status(database, cohort_id=cohort_id)
+    selected = cohort_id or status.get("cohort_id")
+    observed_at = datetime.now(UTC)
+    since = observed_at - timedelta(days=30)
+    with database.begin() as connection:
+        run_ids = select(scalping_runs.c.run_id).where(scalping_runs.c.cohort_id == selected)
+        candidates = [
+            dict(row)
+            for row in connection.execute(
+                select(
+                    events.c.payload["candidate_id"].as_string().label("candidate_id"),
+                    events.c.payload["signal"]["symbol"].as_string().label("symbol"),
+                    events.c.payload["signal"]["family"].as_string().label("family"),
+                    events.c.occurred_at,
+                )
+                .where(
+                    events.c.event_type == "scalp_shadow_action_candidate",
+                    events.c.payload["run_id"].as_string().in_(run_ids),
+                    events.c.occurred_at >= since,
+                )
+                .order_by(events.c.occurred_at.desc())
+                .limit(100)
+            ).mappings()
+        ]
+        outcomes = [
+            dict(row)
+            for row in connection.execute(
+                select(
+                    events.c.payload["action"].as_string().label("action"),
+                    events.c.payload["symbol"].as_string().label("symbol"),
+                    events.c.payload["family"].as_string().label("family"),
+                    events.c.payload["complete"].as_boolean().label("complete"),
+                    events.c.payload["filled"].as_boolean().label("filled"),
+                    func.count().label("count"),
+                )
+                .where(
+                    events.c.event_type == "scalp_shadow_action_outcome",
+                    events.c.payload["run_id"].as_string().in_(run_ids),
+                    events.c.occurred_at >= since,
+                )
+                .group_by("action", "symbol", "family", "complete", "filled")
+            ).mappings()
+        ]
+    return {
+        "cohort_id": selected,
+        "observed_at": observed_at.isoformat(),
+        "window_start": since.isoformat(),
+        "runtime_active": status.get("active", False),
+        "recent_candidate_count": len(candidates),
+        "recent_candidates": candidates,
+        "outcome_groups": outcomes,
+        "no_order_submission": True,
+        "model_status": (status.get("economics") or {}).get("model_status"),
+        "profitability_validated": False,
+    }
+
+
 def build_scalping_daily_status(database: Database, now: datetime, timezone: str) -> dict[str, Any]:
     local = now.astimezone(ZoneInfo(timezone))
     status = scalping_status(database, now=now)

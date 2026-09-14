@@ -20,6 +20,7 @@ COMMANDS = {
     "scalp-replay",
     "scalp-diagnose",
     "scalp-calibrate",
+    "scalp-shadow-calibrate",
 }
 
 
@@ -78,6 +79,18 @@ def register_scalping_commands(subparsers: Any) -> None:
     calibrate.add_argument("--taker-fee-bps", type=float, default=25)
     calibrate.add_argument("--calibrated-at", type=datetime.fromisoformat, required=True)
     calibrate.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
+    shadow_calibrate = subparsers.add_parser(
+        "scalp-shadow-calibrate",
+        help="freeze a model from validated no-order action outcomes",
+    )
+    shadow_calibrate.add_argument("--report", type=Path, required=True)
+    shadow_calibrate.add_argument("--model-output", type=Path, required=True)
+    shadow_calibrate.add_argument("--audit-output", type=Path, required=True)
+    shadow_calibrate.add_argument("--cohort-id", required=True)
+    shadow_calibrate.add_argument("--account-digest", required=True)
+    shadow_calibrate.add_argument("--approved-at", type=datetime.fromisoformat, required=True)
+    shadow_calibrate.add_argument("--calibrated-at", type=datetime.fromisoformat, required=True)
+    shadow_calibrate.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
 
 
 def configuration(args: argparse.Namespace) -> ScalpingConfig:
@@ -116,7 +129,34 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
 
         asyncio.run(run_scalping_service(configuration(args)))
         return True
-    if args.command == "scalp-calibrate":
+    if args.command == "scalp-shadow-calibrate":
+        from tradeagent.scalping_policy import (
+            calibrate_from_shadow_report,
+            write_model_artifact,
+        )
+
+        report = json.loads(args.report.read_text(encoding="utf-8"))
+        config = ScalpingConfig(
+            cohort_id=args.cohort_id,
+            account_digest=args.account_digest,
+            approved_at=args.approved_at,
+            decision_policy="action-value-v1",
+            catastrophic_stop_bps=Decimal(100),
+        )
+        model, audit = calibrate_from_shadow_report(
+            report,
+            config=config,
+            calibrated_at=args.calibrated_at,
+            valid_until=args.valid_until,
+        )
+        digest = write_model_artifact(model, args.model_output)
+        result = {**audit, "model_file_sha256": digest}
+        args.audit_output.write_text(
+            json.dumps(result, indent=2, sort_keys=True, default=str) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+    elif args.command == "scalp-calibrate":
         from tradeagent.scalping_policy import calibrate_from_diagnostics, write_model_artifact
 
         if args.diagnostics.suffix == ".gz":
