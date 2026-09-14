@@ -218,16 +218,49 @@ def calibrate_from_shadow_report(
             validation_policy = ShadowPolicy.model_validate(validation.get("policy"))
         except ValidationError:
             validation_policy = None
+        schema = validation.get("schema")
+        exact_v1_population = (
+            schema == "shadow-execution-validation-v1"
+            and validation.get("symbols") == symbols
+            and validation.get("candidate_ids_sha256") == _digest(passive_ids)
+        )
+        raw_per_symbol = validation.get("per_symbol")
+        passive_by_symbol = {
+            symbol: {
+                row.candidate_id
+                for row in outcomes
+                if row.symbol == symbol
+                and row.action == "PASSIVE_BUY"
+                and row.actual_passive_comparable
+                and row.actual_filled is not None
+            }
+            for symbol in symbols
+        }
+        verified_v2_subset = False
+        if schema == "shadow-execution-validation-v2" and isinstance(raw_per_symbol, Mapping):
+            verified_v2_subset = (
+                bool(symbols)
+                and set(symbols).issubset(set(validation.get("symbols") or []))
+                and all(
+                    (
+                        isinstance(entry := raw_per_symbol.get(symbol), Mapping)
+                        and isinstance(candidate_ids := entry.get("candidate_ids"), list)
+                        and all(isinstance(candidate_id, str) for candidate_id in candidate_ids)
+                        and bool(passive_by_symbol[symbol])
+                        and entry.get("passed") is True
+                        and entry.get("candidate_ids_sha256") == _digest(sorted(candidate_ids))
+                        and passive_by_symbol[symbol].issubset(set(candidate_ids))
+                    )
+                    for symbol in symbols
+                )
+            )
         validation_sha = (
             supplied_sha
-            if validation.get("schema") == "shadow-execution-validation-v1"
-            and validation.get("passed") is True
-            and supplied_sha == _digest(raw_validation)
+            if supplied_sha == _digest(raw_validation)
             and validation_policy is not None
             and validation.get("policy_ids") == [validation_policy.identity]
             and policy_ids == [validation_policy.identity]
-            and validation.get("symbols") == symbols
-            and validation.get("candidate_ids_sha256") == _digest(passive_ids)
+            and ((validation.get("passed") is True and exact_v1_population) or verified_v2_subset)
             else None
         )
     groups: dict[tuple[str, str, str], list[ShadowActionOutcome]] = defaultdict(list)

@@ -575,40 +575,62 @@ def validate_passive_simulation(
         and row.actual_passive_comparable
         and row.actual_filled is not None
     ]
-    counts = Counter(
-        (
-            "true_positive"
-            if row.filled and row.actual_filled
-            else "false_positive"
-            if row.filled and not row.actual_filled
-            else "false_negative"
-            if not row.filled and row.actual_filled
-            else "true_negative"
+
+    def metrics(selected: Sequence[ShadowActionOutcome]) -> dict[str, Any]:
+        counts = Counter(
+            (
+                "true_positive"
+                if row.filled and row.actual_filled
+                else "false_positive"
+                if row.filled and not row.actual_filled
+                else "false_negative"
+                if not row.filled and row.actual_filled
+                else "true_negative"
+            )
+            for row in selected
         )
-        for row in rows
-    )
-    predicted_positive = counts["true_positive"] + counts["false_positive"]
-    actual_negative = counts["false_positive"] + counts["true_negative"]
-    precision = counts["true_positive"] / predicted_positive if predicted_positive else 0.0
-    false_positive_rate = counts["false_positive"] / actual_negative if actual_negative else 0.0
-    passed = (
-        len(rows) >= policy.minimum_validation_candidates
-        and precision >= policy.minimum_precision
-        and false_positive_rate <= policy.maximum_false_positive_rate
-    )
+        predicted_positive = counts["true_positive"] + counts["false_positive"]
+        actual_negative = counts["false_positive"] + counts["true_negative"]
+        precision = counts["true_positive"] / predicted_positive if predicted_positive else 0.0
+        false_positive_rate = counts["false_positive"] / actual_negative if actual_negative else 0.0
+        return {
+            "candidate_count": len(selected),
+            "confusion": dict(counts),
+            "precision": precision,
+            "false_positive_rate": false_positive_rate,
+            "passed": (
+                len(selected) >= policy.minimum_validation_candidates
+                and precision >= policy.minimum_precision
+                and false_positive_rate <= policy.maximum_false_positive_rate
+            ),
+        }
+
+    aggregate = metrics(rows)
+    per_symbol = {
+        symbol: {
+            **metrics(symbol_rows),
+            "candidate_ids": sorted(row.candidate_id for row in symbol_rows),
+            "candidate_ids_sha256": _digest(sorted(row.candidate_id for row in symbol_rows)),
+        }
+        for symbol in sorted({row.symbol for row in rows})
+        if (symbol_rows := [row for row in rows if row.symbol == symbol])
+    }
+    passed = bool(per_symbol) and all(item["passed"] for item in per_symbol.values())
     population = sorted(row.candidate_id for row in rows)
     policy_ids = sorted({row.simulation_policy.identity for row in rows})
     symbols = sorted({row.symbol for row in rows})
     payload = {
-        "schema": "shadow-execution-validation-v1",
+        "schema": "shadow-execution-validation-v2",
         "policy": policy.model_dump(mode="json"),
         "policy_ids": policy_ids,
         "symbols": symbols,
         "candidate_ids_sha256": _digest(population),
-        "candidate_count": len(rows),
-        "confusion": dict(counts),
-        "precision": precision,
-        "false_positive_rate": false_positive_rate,
+        "aggregate": aggregate,
+        "candidate_count": aggregate["candidate_count"],
+        "confusion": aggregate["confusion"],
+        "precision": aggregate["precision"],
+        "false_positive_rate": aggregate["false_positive_rate"],
+        "per_symbol": per_symbol,
         "minimum_precision": policy.minimum_precision,
         "maximum_false_positive_rate": policy.maximum_false_positive_rate,
         "passed": passed,
@@ -860,7 +882,13 @@ def shadow_report(
                 "incomplete_fraction": fraction,
                 "calibration_population_supported": (
                     key[2] == "PASSIVE_BUY"
-                    and bool((passive_validation or {}).get("passed"))
+                    and bool(
+                        (
+                            (passive_validation or {}).get("per_symbol", {}).get(key[0], {})
+                            or passive_validation
+                            or {}
+                        ).get("passed")
+                    )
                     and fraction <= maximum_incomplete_fraction
                 ),
                 "missing_reasons": dict(
