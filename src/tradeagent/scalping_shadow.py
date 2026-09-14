@@ -1110,11 +1110,14 @@ def simulate_database_candidates(
     selected_policy = policy or ShadowPolicy()
     windows = sorted(
         (
-            row.shadow_send_at - timedelta(seconds=1),
-            row.signal.observed_at + timedelta(seconds=row.horizon_seconds + 1),
-            row,
-        )
-        for row in candidates
+            (
+                row.shadow_send_at - timedelta(seconds=1),
+                row.signal.observed_at + timedelta(seconds=row.horizon_seconds + 1),
+                row,
+            )
+            for row in candidates
+        ),
+        key=lambda window: (window[0], window[1], window[2].candidate_id),
     )
     clusters: list[dict[str, Any]] = []
     for start, end, candidate in windows:

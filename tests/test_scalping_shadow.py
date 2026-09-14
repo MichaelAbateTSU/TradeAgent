@@ -18,6 +18,7 @@ from tradeagent.scalping_shadow import (
     persist_shadow_outcomes,
     recover_abandoned_candidates,
     shadow_report,
+    simulate_database_candidates,
     validate_passive_simulation,
 )
 
@@ -166,6 +167,33 @@ def test_large_shadow_outcome_set_persists_idempotently_in_bounded_transactions(
                 )
                 == 205
             )
+
+
+def test_database_simulation_orders_candidates_with_identical_windows(monkeypatch, tmp_path):
+    first = candidate_from_signal(
+        signal(),
+        run_id="run",
+        account_digest="a" * 64,
+        config=action_config(),
+        shadow_send_at=NOW,
+    )
+    second = first.model_copy(
+        update={
+            "candidate_id": "second-candidate",
+            "signal": first.signal.model_copy(update={"decision_id": "second-decision"}),
+        }
+    )
+    monkeypatch.setattr(
+        "tradeagent.scalping_shadow.read_market_events", lambda *_args, **_kwargs: ()
+    )
+    with Database(f"sqlite:///{tmp_path / 'window-order.db'}") as database:
+        outcomes = simulate_database_candidates(
+            database,
+            (second, first),
+            action_config(),
+        )
+    assert len(outcomes) == 4
+    assert {row.candidate_id for row in outcomes} == {first.candidate_id, second.candidate_id}
 
 
 def test_completed_outcomes_remain_retryable_until_durable_acknowledgement():
