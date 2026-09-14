@@ -15,6 +15,7 @@ from tradeagent.scalping_shadow import (
     ShadowPolicy,
     candidate_from_signal,
     estimate_collection_days,
+    persist_shadow_outcomes,
     recover_abandoned_candidates,
     shadow_report,
     validate_passive_simulation,
@@ -142,6 +143,29 @@ def test_shadow_evaluator_compares_passive_and_aggressive_without_orders():
     assert aggressive.entry_value == aggressive.entry_quantity * Decimal("100.01")
     assert passive.gross_return_bps > aggressive.gross_return_bps > 0
     assert evaluator_pending(outcomes) == 0
+
+
+def test_large_shadow_outcome_set_persists_idempotently_in_bounded_transactions(tmp_path):
+    from tradeagent.scalping_store import ScalpStore
+
+    outcomes = [
+        synthetic_outcome(index).model_copy(update={"candidate_id": f"batch-{index}"})
+        for index in range(205)
+    ]
+    with Database(f"sqlite:///{tmp_path / 'batch.db'}") as database:
+        database.initialize()
+        store = ScalpStore(database)
+        assert persist_shadow_outcomes(store, outcomes, at=NOW) == 205
+        assert persist_shadow_outcomes(store, outcomes, at=NOW) == 205
+        with database.begin() as connection:
+            assert (
+                connection.scalar(
+                    select(func.count())
+                    .select_from(events)
+                    .where(events.c.event_type == "scalp_shadow_action_outcome")
+                )
+                == 205
+            )
 
 
 def test_completed_outcomes_remain_retryable_until_durable_acknowledgement():

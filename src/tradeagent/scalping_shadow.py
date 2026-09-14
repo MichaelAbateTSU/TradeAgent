@@ -625,15 +625,19 @@ def validate_passive_simulation(
 def persist_shadow_outcomes(
     store: ScalpStore, outcomes: Iterable[ShadowActionOutcome], *, at: datetime
 ) -> int:
+    rows = list(outcomes)
     count = 0
-    for outcome in outcomes:
-        store.audit(
-            "shadow_action_outcome",
-            outcome.model_dump(mode="json"),
-            at=at,
-            identity=f"shadow-action:{outcome.identity}",
-        )
-        count += 1
+    for start in range(0, len(rows), 100):
+        with store.database.begin() as connection:
+            for outcome in rows[start : start + 100]:
+                store.audit(
+                    "shadow_action_outcome",
+                    outcome.model_dump(mode="json"),
+                    at=at,
+                    connection=connection,
+                    identity=f"shadow-action:{outcome.identity}",
+                )
+                count += 1
     return count
 
 
