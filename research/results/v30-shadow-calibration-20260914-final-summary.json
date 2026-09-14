@@ -1,0 +1,100 @@
+{
+  "schema": "v30-shadow-calibration-final-summary-v1",
+  "observed_at": "2026-09-14T18:41:58.971341+00:00",
+  "release": {
+    "commit": "455760b0e04b643d6b703724fa2740c71ad9f818",
+    "event_deployment": "dep-dak3svad0e5s738jui5g",
+    "dashboard_deployment": "dep-dak3sv8jo6nc73bddrq0",
+    "event_worker_fresh": true,
+    "owner_matches_lease": true,
+    "runtime_active": true
+  },
+  "backfill": {
+    "job_id": "job-dak3uijm8hqs739amoa0",
+    "status": "succeeded",
+    "started_at": "2026-09-14T18:39:25.643249+00:00",
+    "finished_at": "2026-09-14T18:39:46.844011+00:00",
+    "candidate_run_id": "c6ff5deb79ccb185ecb613989464f6fe3a68f8202938c045cd9042b67386f299",
+    "historical_candidates": 229,
+    "historical_outcomes": 458,
+    "current_candidates": 595,
+    "current_outcomes": 1190,
+    "outcomes_persisted": 1190,
+    "orders_submitted": false,
+    "broker_called": false,
+    "execution_lease_acquired": false
+  },
+  "passive_validation": {
+    "candidate_count": 227,
+    "confusion": {
+      "false_negative": 52,
+      "true_negative": 175
+    },
+    "precision": 0.0,
+    "false_positive_rate": 0.0,
+    "passed": false,
+    "per_symbol": {
+      "BTC/USD": {
+        "candidate_count": 168,
+        "false_negative": 39,
+        "true_negative": 129,
+        "precision": 0.0,
+        "false_positive_rate": 0.0,
+        "passed": false
+      },
+      "ETH/USD": {
+        "candidate_count": 59,
+        "false_negative": 13,
+        "true_negative": 46,
+        "precision": 0.0,
+        "false_positive_rate": 0.0,
+        "passed": false
+      }
+    }
+  },
+  "current_outcome_completeness": {
+    "BTC/USD:momentum:AGGRESSIVE_BUY": {
+      "candidates": 344,
+      "complete": 22,
+      "incomplete_fraction": 0.936046511627907
+    },
+    "BTC/USD:momentum:PASSIVE_BUY": {
+      "candidates": 344,
+      "complete": 0,
+      "incomplete_fraction": 1.0
+    },
+    "ETH/USD:momentum:AGGRESSIVE_BUY": {
+      "candidates": 249,
+      "complete": 0,
+      "incomplete_fraction": 1.0
+    },
+    "ETH/USD:momentum:PASSIVE_BUY": {
+      "candidates": 249,
+      "complete": 0,
+      "incomplete_fraction": 1.0
+    }
+  },
+  "model": {
+    "model_id": "b33ac6aec1ba9fd9962161f26750cfbacbea93d4aadf90c072720d484a349fba",
+    "status": "no_support",
+    "accepted_samples": 0,
+    "profitability_validated": false
+  },
+  "live_execution": {
+    "cohort_id": "v30-action-value-20260911-r1",
+    "model_status": "no_support",
+    "inventory": {},
+    "unresolved_order_count": 0,
+    "unowned_open_order_ids": []
+  },
+  "wait_estimate": {
+    "finite_under_current_no_order_pipeline": false,
+    "reason": "Historical passive execution validation failed and current passive cells have no complete fills, so waiting alone cannot satisfy the execution-evidence gate.",
+    "minimum_days_after_valid_execution_ground_truth_starts": 7,
+    "practical_planning_range_days": [
+      14,
+      30
+    ],
+    "valid_profitable_model_guaranteed": false
+  }
+}

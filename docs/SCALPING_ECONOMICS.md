@@ -230,10 +230,50 @@ replacement cannot make the denominator look better. Per-outcome provenance is
 bounded to first/last event identity, count and digest; the full tape remains in
 compressed market batches.
 
-Execution-validation hashes are recomputed and bound to one simulation policy,
-symbol population and candidate-ID digest. Only historically passive entry
+Execution-validation hashes are recomputed and bound to one simulation policy
+and per-symbol candidate manifests. A calibration subset must contain
+non-empty comparable candidates that belong to the validated manifest for the
+same symbol. Version-one validation artifacts remain valid only for their exact
+original symbol and candidate population. Only historically passive entry
 orders filled within the same cancellation window contribute ground truth.
 Aggressive simulation is never promoted using passive broker outcomes.
+
+### September 14 collection result
+
+The reviewed collector release is commit
+`455760b0e04b643d6b703724fa2740c71ad9f818`. Render deployed it as event
+deployment `dep-dak3svad0e5s738jui5g` and dashboard deployment
+`dep-dak3sv8jo6nc73bddrq0`. The worker returned with a fresh matching lease,
+the same paper-only cohort and the pinned `no_support` model. Its execution
+inventory was empty with no unresolved or unowned orders.
+
+The corrected one-off backfill `job-dak3uijm8hqs739amoa0` succeeded without
+calling the broker or acquiring the execution lease. It reconstructed 229
+historical candidates into 458 counterfactual outcomes and 595 current
+candidates into 1,190 outcomes, all of which were persisted idempotently.
+
+The historical passive simulator did **not** validate. Of 227 comparable
+passive candidates, it predicted no fill for every case while 52 actual orders
+filled inside the comparable window: 39 false negatives among 168 BTC/USD
+candidates and 13 among 59 ETH/USD candidates. Aggregate precision was zero;
+the zero false-positive rate does not offset the absence of any predicted
+positive. These outcomes therefore remain unsupported counterfactuals.
+
+The current outcome population also failed completeness requirements. BTC/USD
+momentum had 22 complete aggressive outcomes out of 344 and zero complete
+passive outcomes; ETH/USD momentum had zero complete outcomes out of 249 for
+either action. Most failures were caused by horizon quote freshness, a changed
+passive touch before simulated arrival, action expiry, or missing observed exit
+depth. Sparse reversion cells had one candidate per symbol.
+
+Consequently the model remains `no_support` with zero accepted calibration
+samples. The estimator returned no finite support date for the required passive
+cells: merely leaving this exact no-order collector running cannot validate its
+own fill model. After a separately reviewed source of exact-policy execution
+ground truth exists, the predeclared calendar gate still imposes a seven-day
+minimum; a practical planning range is 14-30 calendar days for enough complete
+multi-regime evidence, with no guarantee that held-out net edge will be
+positive.
 
 ## Release evidence
 
