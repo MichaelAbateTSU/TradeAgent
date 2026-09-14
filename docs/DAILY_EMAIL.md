@@ -103,3 +103,19 @@ Evidence is under `research/results/email-daily-20260911-*`, including the
 original suspension, outbox before/after reads, guarded deployment, final
 resource state and actual preview. The normal notifier, not a chat-side order
 or email job, owns the daily send.
+
+## September 14 seven-day resumption
+
+The owner explicitly restored the daily notifier for the seven-day autonomous
+Render run. Service `srv-dadnn6mq1p3s73ef7ef0` resumed on deployment
+`dep-dak4p0bm8hqs73d8p1l0`, commit
+`1d109990b9a969aab519184fa5c5fba3f0b83d1a`, with command
+`tradeagent notifier-daily`.
+
+The resumed process reported a fresh matching notifier lease. A separate
+same-image read-only job confirmed `enabled=true`, timezone
+`America/New_York`, hour `18`, minute `0`. At 15:44 Eastern the canonical
+September 14 daily identity did not yet exist, was not eligible before the
+scheduled boundary, and the verification made no provider call or outbox
+change. The running notifier owns the normal 18:00 enqueue, delivery and
+idempotent retry.

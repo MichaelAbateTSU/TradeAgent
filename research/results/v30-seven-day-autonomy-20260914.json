@@ -1,0 +1,54 @@
+{
+  "schema": "v30-seven-day-autonomy-v1",
+  "authorized_at": "2026-09-14T15:22:58.996-04:00",
+  "autonomous_until": "2026-09-21T15:22:58.996-04:00",
+  "code_commit": "1d109990b9a969aab519184fa5c5fba3f0b83d1a",
+  "event_worker": {
+    "service_id": "srv-dae4tr7qj5pc73a9e0k0",
+    "deployment_id": "dep-dak4p26k1f9s73edj6s0",
+    "cohort_id": "v30-action-value-20260914-seven-day-r1",
+    "config_hash": "7f7fe2cce864291e4537f936ff45e6e098367607af8c6b92ba6e82b35c62228f",
+    "fresh": true,
+    "owner_matches_lease": true,
+    "state": "waiting_for_market_data",
+    "mode": "paper",
+    "model_status": "no_support",
+    "profitability_validated": false,
+    "inventory": {},
+    "unresolved_order_count": 0,
+    "unowned_open_order_ids": [],
+    "new_entries_after_deadline": false,
+    "new_shadow_candidates_after_deadline": false,
+    "owned_exit_and_reconciliation_after_deadline": true
+  },
+  "dashboard": {
+    "service_id": "srv-dadoa3740ujc73cb09c0",
+    "deployment_id": "dep-dak4p20ae00c73fltm00",
+    "commit": "1d109990b9a969aab519184fa5c5fba3f0b83d1a",
+    "suspended": false
+  },
+  "daily_notifier": {
+    "service_id": "srv-dadnn6mq1p3s73ef7ef0",
+    "deployment_id": "dep-dak4p0bm8hqs73d8p1l0",
+    "command": "tradeagent notifier-daily",
+    "fresh": true,
+    "owner_matches_lease": true,
+    "settings": {
+      "enabled": true,
+      "timezone": "America/New_York",
+      "hour": 18,
+      "minute": 0,
+      "paragraphs": 5,
+      "daily_only": true
+    },
+    "read_only_verification_job": "job-dak4sntg1s2s738833lg",
+    "provider_called_by_verification": false,
+    "notification_enqueued_by_verification": false
+  },
+  "legacy_recorder": {
+    "service_id": "srv-dadn8son74is73apqcc0",
+    "suspended": true,
+    "reason": "Not part of the active v30 crypto evidence path"
+  },
+  "assistant_automation_created": false
+}

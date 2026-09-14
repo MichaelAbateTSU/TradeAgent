@@ -29,6 +29,15 @@ only one canonical five-paragraph plain-English summary at 18:00
 suppressed. This seven-day Render authorization does not create a Copilot
 session automation or an unattended coding task.
 
+Deployment `dep-dak4p26k1f9s73edj6s0` runs event-worker commit
+`1d109990b9a969aab519184fa5c5fba3f0b83d1a` with cohort
+`v30-action-value-20260914-seven-day-r1`, configuration hash
+`7f7fe2cce864291e4537f936ff45e6e098367607af8c6b92ba6e82b35c62228f`,
+and the enforced September 21 deadline. Dashboard deployment
+`dep-dak4p20ae00c73fltm00` exposes the same release. The natural singleton
+handoff completed to a fresh matching event-worker lease with empty inventory,
+zero unresolved orders and the unchanged `no_support` model.
+
 ## Executive decision
 
 TradeAgent should become an **always-on, paper-only, low-frequency intraday agent** for
