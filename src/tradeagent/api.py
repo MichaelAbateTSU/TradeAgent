@@ -886,6 +886,23 @@ def create_app(
                 status_code=503, detail="Scalping shadow calibration unavailable"
             ) from error
 
+    @app.get("/api/scalping-probes")
+    def scalping_probes(cohort_id: str | None = None) -> dict[str, Any]:
+        from tradeagent.scalping_reporting import scalping_probe_status
+
+        if production_database_url is None:
+            return {
+                "state": "database_not_configured",
+                "actual_broker_labels_only": True,
+            }
+        try:
+            with production_database() as database:
+                return scalping_probe_status(database, cohort_id=cohort_id)
+        except (SQLAlchemyError, ValueError) as error:
+            raise HTTPException(
+                status_code=503, detail="Scalping probe status unavailable"
+            ) from error
+
     def build_event_product() -> dict[str, object]:
         now = datetime.now(UTC)
         settings = ExperimentalSettings()

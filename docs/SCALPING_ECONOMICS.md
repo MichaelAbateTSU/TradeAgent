@@ -179,6 +179,27 @@ stream update no longer forces a full REST reconciliation by itself.
 
 ## No-order model bootstrap
 
+## Controlled paper execution-validation probes
+
+The action-value strategy remains `no_support` and must continue to submit no
+strategy entries. Separately, `execution-validation-probe-20260916-r1` is an
+immutable, paper-only BTC/USD and ETH/USD cohort that collects prospective
+broker fill, cancel, partial-fill, and owned-exit labels. A probe is a small
+passive BUY at the current bid with a short TTL; there is one global outstanding
+probe order or owned probe exposure, plus finite daily submission and filled
+cycle caps. Its client IDs, durable payload classification, and reporting are
+separate from strategy P&L and cannot promote a model.
+
+The cohort may not initiate at or after `2026-09-21T15:22:58.996-04:00`.
+After that deadline, cancellation, reconciliation, and broker market-sale
+recovery of already proven owned probe inventory remain allowed. It uses the
+same pinned paper-account checks, singleton lease, native asset validation,
+idempotent client-ID lookup after ambiguous acknowledgements, and
+never-sell-foreign-inventory fence as the regular OMS. A held-out report uses
+only chronologically partitioned, actually resolved broker labels and reports
+`not eligible` until enough exist; it makes no profitability or model-validity
+claim.
+
 Waiting without labels cannot turn `no_support` into a valid model. The
 action-value worker therefore records a calibration-only outcome for each
 positive momentum or reversion state while continuing to submit **no broker

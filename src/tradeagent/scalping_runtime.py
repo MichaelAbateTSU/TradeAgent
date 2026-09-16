@@ -30,9 +30,14 @@ from tradeagent.news_worker import NewsWorker, NewsWorkerSettings
 from tradeagent.persistence import Database, ProductionRepository
 from tradeagent.scalping_config import ScalpingConfig, ScalpQuote, ScalpSignal
 from tradeagent.scalping_execution import ScalpOrderEngine
+from tradeagent.scalping_execution import ScalpOrderEngine as _ScalpOrderEngine
 from tradeagent.scalping_market import BookFeatureEngine, CryptoMarketFeed, MarketEvent
 from tradeagent.scalping_notifications import ScalpingNotifications
 from tradeagent.scalping_policy import load_economic_model
+from tradeagent.scalping_probes import (
+    ExecutionValidationProbeCohort,
+    ExecutionValidationProbePolicy,
+)
 from tradeagent.scalping_shadow import (
     ShadowActionEvaluator,
     candidate_from_signal,
@@ -121,6 +126,9 @@ class ScalpingRuntime:
             quote_provider=self._execution_quote,
         )
         self.notifications = ScalpingNotifications(database, config, code_sha)
+        self.probe_policy = ExecutionValidationProbePolicy()
+        self.probes = ExecutionValidationProbeCohort(self.engine, self.probe_policy)
+        self._probes_enabled = isinstance(self.engine, _ScalpOrderEngine)
         self.telemetry = ScalpTelemetry(
             database, account_digest=config.account_digest, started_at=clock()
         )
@@ -329,12 +337,21 @@ class ScalpingRuntime:
             for signal in signals:
                 self.telemetry.record_decision(signal, run_id=self.engine.run_id, now=self.clock())
         execution = self.engine.step(tuple(signals), quotes, now=self.clock())
+        # Probe labels are intentionally independent of action-value support and
+        # use the same lease/OMS; normal strategy orders remain NO_TRADE.
+        probe_status = (
+            self.probes.step(quotes, now=self.clock())
+            if self._probes_enabled and not stopped
+            else None
+        )
         summary = None
         if self._last_summary_at is None or (now - self._last_summary_at).total_seconds() >= 30:
             summary = self.engine.summary(since=None)
             self._last_summary_at = now
         with self._state_lock:
             self._execution = copy.deepcopy(execution)
+            if probe_status is not None:
+                self._execution["execution_validation_probes"] = copy.deepcopy(probe_status)
             if summary is not None:
                 self._summary = copy.deepcopy(summary)
             self._signals = [signal.model_dump(mode="json") for signal in signals]
@@ -437,6 +454,9 @@ class ScalpingRuntime:
                     if self.config.decision_policy == "action-value-v1"
                     else None
                 ),
+                "execution_validation_probes": (
+                    self.probes.status(now=now) if self._probes_enabled else None
+                ),
             }
         with self._market_lock:
             result["market"] = self.market.health_snapshot()
@@ -473,6 +493,7 @@ class ScalpingRuntime:
                     "autonomous_until": snapshot["autonomous_until"],
                     "autonomy_expired": snapshot["autonomy_expired"],
                     "economics": snapshot["economics"],
+                    "execution_validation_probes": snapshot["execution_validation_probes"],
                     "telemetry": snapshot["telemetry"],
                 },
                 "paper_policy": self.config.policy_description(),

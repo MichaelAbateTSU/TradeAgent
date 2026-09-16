@@ -24,7 +24,9 @@ from sqlalchemy import (
     String,
     Table,
     UniqueConstraint,
+    and_,
     func,
+    or_,
     select,
 )
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -320,7 +322,14 @@ class ScalpStore:
             ]
 
     def summary(self, *, account_digest: str, since: datetime | None = None) -> dict[str, Any]:
-        condition = scalping_cycles.c.account_digest == account_digest
+        condition = and_(
+            scalping_cycles.c.account_digest == account_digest,
+            or_(
+                scalping_cycles.c.payload["classification"].as_string().is_(None),
+                scalping_cycles.c.payload["classification"].as_string()
+                != "execution_validation_probe",
+            ),
+        )
         closed_condition = condition & scalping_cycles.c.closed_at.is_not(None)
         if since is not None:
             condition &= scalping_cycles.c.updated_at >= since

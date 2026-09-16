@@ -22,6 +22,7 @@ COMMANDS = {
     "scalp-calibrate",
     "scalp-shadow-calibrate",
     "scalp-shadow-audit",
+    "scalp-probe-report",
 }
 
 
@@ -103,6 +104,12 @@ def register_scalping_commands(subparsers: Any) -> None:
     audit.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
     audit.add_argument("--output-dir", type=Path, required=True)
     audit.add_argument("--maximum-candidate-bytes", type=int, default=8 * 1024 * 1024)
+    probe_report = subparsers.add_parser(
+        "scalp-probe-report",
+        help="read actual resolved paper execution-validation labels without model calibration",
+    )
+    probe_report.add_argument("--account-digest", required=True)
+    probe_report.add_argument("--at", type=datetime.fromisoformat, required=True)
 
 
 def configuration(args: argparse.Namespace) -> ScalpingConfig:
@@ -155,6 +162,19 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
                 valid_until=args.valid_until,
                 output_dir=args.output_dir,
                 maximum_candidate_bytes=args.maximum_candidate_bytes,
+            )
+    elif args.command == "scalp-probe-report":
+        from tradeagent.scalping_probes import (
+            ExecutionValidationProbePolicy,
+            held_out_probe_report,
+        )
+
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            result = held_out_probe_report(
+                database,
+                args.account_digest,
+                ExecutionValidationProbePolicy(),
+                now=args.at,
             )
     elif args.command == "scalp-shadow-calibrate":
         from tradeagent.scalping_policy import (

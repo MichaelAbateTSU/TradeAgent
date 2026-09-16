@@ -240,6 +240,26 @@ def scalping_shadow_status(database: Database, *, cohort_id: str | None = None) 
     }
 
 
+def scalping_probe_status(database: Database, *, cohort_id: str | None = None) -> dict[str, Any]:
+    """Return the recorded probe projection without contacting a broker."""
+    status = scalping_status(database, cohort_id=cohort_id)
+    probe = status.get("execution_validation_probes")
+    if not isinstance(probe, dict):
+        probe = status.get("execution", {}).get("execution_validation_probes")
+    if not isinstance(probe, dict):
+        return {
+            "state": "not_started",
+            "cohort_id": cohort_id,
+            "actual_broker_labels_only": True,
+            "message": "No recorded execution-validation probe status is available.",
+        }
+    return {
+        **probe,
+        "runtime_active": status.get("active", False),
+        "read_model": "recorded runtime projection, not a fresh broker request",
+    }
+
+
 def build_scalping_daily_status(database: Database, now: datetime, timezone: str) -> dict[str, Any]:
     local = now.astimezone(ZoneInfo(timezone))
     status = scalping_status(database, now=now)

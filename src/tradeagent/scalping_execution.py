@@ -780,6 +780,7 @@ class ScalpOrderEngine:
             return
         intent = row["intent"]
         request = OrderRequest.model_validate(intent["request"])
+        is_probe = bool(intent.get("probe_policy"))
         signal = (
             ScalpSignal.model_validate_json(json.dumps(intent["signal"]))
             if intent.get("signal")
@@ -828,7 +829,12 @@ class ScalpOrderEngine:
                         canonical_crypto_symbol(quote.symbol) != request.symbol
                         or not self._quote_valid(quote, self.clock())
                         or self._manual_stop()
-                        or not self._economic_candidate_present(signal)
+                        or (not is_probe and not self._economic_candidate_present(signal))
+                        or (
+                            is_probe
+                            and self.clock()
+                            >= stamp(intent["probe_policy"]["authorization_cutoff"])
+                        )
                     ):
                         self._expire_unsent(connection, client_id)
                         return
@@ -878,10 +884,18 @@ class ScalpOrderEngine:
                     not self._quote_valid(ScalpQuote.model_validate(intent["quote"]), self.clock())
                     or self._manual_stop()
                     or (row["expires_at"] is not None and self.clock() >= utc(row["expires_at"]))
+                    or (
+                        is_probe
+                        and self.clock() >= stamp(intent["probe_policy"]["authorization_cutoff"])
+                    )
                 ):
                     self._expire_unsent(connection, client_id)
                     return
-                if request.side is Side.BUY and self.config.decision_policy == "action-value-v1":
+                if (
+                    request.side is Side.BUY
+                    and self.config.decision_policy == "action-value-v1"
+                    and not is_probe
+                ):
                     current_quote = (
                         self.quote_provider(request.symbol) if self.quote_provider else None
                     )
@@ -1085,25 +1099,39 @@ class ScalpOrderEngine:
             else None
         )
         client_id = (
-            "ta30-"
-            + (
-                decision_key
-                or sha256(f"{cycle['cycle_id']}:{side.value}:{sequence}".encode()).hexdigest()
-            )[:40]
-        )
+            "ta30p-"
+            if cycle["payload"].get("classification") == "execution_validation_probe"
+            else "ta30-"
+        ) + (
+            decision_key
+            or sha256(f"{cycle['cycle_id']}:{side.value}:{sequence}".encode()).hexdigest()
+        )[:40]
         request = OrderRequest(
             client_order_id=client_id,
             decision_id=sha256(
                 (signal.decision_id if signal else cycle["decision_id"]).encode()
             ).hexdigest(),
-            strategy_id="v30:" + cycle["run_id"],
+            strategy_id=(
+                "v30-probe:" + cycle["payload"]["probe_policy"]["cohort_id"]
+                if cycle["payload"].get("classification") == "execution_validation_probe"
+                else "v30:" + cycle["run_id"]
+            ),
             symbol=cycle["symbol"],
             side=side,
             quantity=quantity,
             order_type=OrderType.LIMIT if limit_price is not None else OrderType.MARKET,
             submitted_at=now,
         )
-        expiry = now + timedelta(seconds=self.config.entry_order_ttl_seconds)
+        probe_policy = cycle["payload"].get("probe_policy")
+        if probe_policy is not None:
+            if not isinstance(probe_policy, dict):
+                raise ValueError("probe order requires an immutable policy record")
+            entry_ttl = probe_policy.get("entry_ttl_seconds")
+            if not isinstance(entry_ttl, int) or isinstance(entry_ttl, bool) or entry_ttl <= 0:
+                raise ValueError("probe entry TTL is invalid")
+            expiry = now + timedelta(seconds=entry_ttl)
+        else:
+            expiry = now + timedelta(seconds=self.config.entry_order_ttl_seconds)
         if signal is not None and self.config.decision_policy == "action-value-v1":
             if signal.economics is None or signal.economics.valid_until is None:
                 raise ValueError("economic entry requires an explicit authorization expiry")
@@ -1118,6 +1146,8 @@ class ScalpOrderEngine:
                 "asset": self._asset(cycle["symbol"]).model_dump(mode="json"),
                 "asset_observed_at": self._asset_observed_at[cycle["symbol"]].isoformat(),
                 "signal": signal.model_dump(mode="json") if signal else None,
+                "probe_policy": cycle["payload"].get("probe_policy"),
+                "classification": cycle["payload"].get("classification"),
                 "execution_run_id": self.run_id,
                 "execution_code_sha": self.code_sha,
             }
@@ -1361,6 +1391,112 @@ class ScalpOrderEngine:
             signal=signal,
         )
         self._dispatch(client_id)
+
+    def submit_execution_validation_probe(
+        self, *, policy: Any, quote: ScalpQuote, now: datetime
+    ) -> str | None:
+        """Submit a bounded passive paper probe without treating it as a strategy decision.
+
+        The caller owns schedule and cap checks. This deliberately shares the hardened
+        account, lease, idempotency, reconciliation and owned-exit machinery.
+        """
+        if self.run_id is None:
+            raise ValueError("engine not initialized")
+        if now >= policy.authorization_cutoff or quote.symbol not in policy.symbols:
+            return None
+        if not self._quote_valid(quote, now):
+            return None
+        symbol = canonical_crypto_symbol(quote.symbol)
+        asset = self._asset(symbol)
+        price = (quote.bid / asset.price_increment).to_integral_value(
+            rounding=ROUND_FLOOR
+        ) * asset.price_increment
+        quantity = floor_quantity(policy.max_order_notional_usd / price, asset.min_trade_increment)
+        if quantity < asset.min_order_size:
+            return None
+        # The interval slot is stable across retries/restarts, but lets the
+        # frozen policy collect more than one resolved label per symbol/day.
+        schedule_slot = int(now.timestamp()) // policy.schedule_interval_seconds
+        decision_id = f"probe:{policy.identity[:16]}:{schedule_slot}:{symbol}"
+        cycle_id = str(uuid5(NAMESPACE_URL, f"{policy.cohort_id}:{decision_id}"))
+        payload = {
+            "classification": "execution_validation_probe",
+            "probe_policy": policy.model_dump(mode="json"),
+            "config": self.config.model_dump(mode="json"),
+            "signal": {
+                "decision_id": decision_id,
+                "symbol": symbol,
+                "family": "none",
+                "action": "buy",
+                "profitability_validated": False,
+            },
+            "exit_requested": False,
+            "exit_reason": None,
+            "strategy_pnl_excluded": True,
+        }
+        with self.database.begin() as connection:
+            self._lease(connection, now)
+            active = connection.scalar(
+                select(scalping_cycles.c.cycle_id).where(
+                    scalping_cycles.c.account_digest == self.config.account_digest,
+                    scalping_cycles.c.payload["classification"].as_string()
+                    == "execution_validation_probe",
+                    scalping_cycles.c.state.not_in(CLOSED),
+                )
+            )
+            if active is not None:
+                return None
+            if (
+                connection.scalar(
+                    select(scalping_cycles.c.cycle_id).where(scalping_cycles.c.cycle_id == cycle_id)
+                )
+                is not None
+            ):
+                return None
+            insert_once(
+                connection,
+                scalping_cycles,
+                {
+                    "cycle_id": cycle_id,
+                    "run_id": self.run_id,
+                    "account_digest": self.config.account_digest,
+                    "symbol": symbol,
+                    "decision_id": decision_id,
+                    "state": "entry_pending",
+                    "created_at": now,
+                    "updated_at": now,
+                    "owned_quantity": 0,
+                    "entry_quantity": 0,
+                    "exit_quantity": 0,
+                    "actual_cash_fees": 0,
+                    "actual_base_fees": 0,
+                    "fees_pending": True,
+                    "payload": json_value(payload),
+                },
+            )
+            self.store.audit(
+                "execution_validation_probe_intent",
+                {"cycle_id": cycle_id, **payload},
+                at=now,
+                connection=connection,
+            )
+        cycle = {
+            "cycle_id": cycle_id,
+            "run_id": self.run_id,
+            "decision_id": decision_id,
+            "symbol": symbol,
+            "payload": payload,
+        }
+        client_id = self._reserve_order(
+            cycle,
+            side=Side.BUY,
+            quantity=quantity,
+            now=now,
+            quote=quote,
+            limit_price=price,
+        )
+        self._dispatch(client_id)
+        return client_id
 
     def _cancel_entries(self, now: datetime) -> None:
         for cycle in self._cycles():
@@ -2015,13 +2151,26 @@ class ScalpOrderEngine:
             else:
                 state = "entry_pending" if pending else "open"
             config = ScalpingConfig.model_validate(cycle["payload"]["config"])
+            is_probe = cycle["payload"].get("classification") == "execution_validation_probe"
             opening_candidates = [*fill_times]
             if cycle["opened_at"]:
                 opening_candidates.append(utc(cycle["opened_at"]))
             opened = min(opening_candidates) if opening_candidates else None
             due_candidate: datetime | None
             economics = cycle["payload"]["signal"].get("economics") or {}
-            if (
+            probe_policy = cycle["payload"].get("probe_policy")
+            if is_probe:
+                if not isinstance(probe_policy, dict):
+                    raise ValueError("probe cycle requires an immutable policy record")
+                exit_after = probe_policy.get("exit_after_seconds")
+                if (
+                    not isinstance(exit_after, int)
+                    or isinstance(exit_after, bool)
+                    or exit_after <= 0
+                ):
+                    raise ValueError("probe exit horizon is invalid")
+                due_candidate = opened + timedelta(seconds=exit_after) if opened else None
+            elif (
                 opened
                 and config.decision_policy == "action-value-v1"
                 and economics.get("prediction_expires_at")
@@ -2284,7 +2433,8 @@ class ScalpOrderEngine:
         manual = self._manual_stop()
         for cycle in self._cycles():
             config = ScalpingConfig.model_validate(cycle["payload"]["config"])
-            economic = config.decision_policy == "action-value-v1"
+            is_probe = cycle["payload"].get("classification") == "execution_validation_probe"
+            economic = config.decision_policy == "action-value-v1" and not is_probe
             quote = (quotes or {}).get(cycle["symbol"])
             current_quote = quote is not None and self._quote_valid(quote, now)
             owned = ledger_amount(cycle, "owned_quantity")
@@ -2328,7 +2478,13 @@ class ScalpOrderEngine:
                 if pending_invalidated
                 else "signal"
                 if cycle["symbol"] in sells
-                else ("model_horizon_expired" if economic else "time")
+                else (
+                    "probe_exit_due"
+                    if is_probe
+                    else "model_horizon_expired"
+                    if economic
+                    else "time"
+                )
                 if due
                 else None
             )

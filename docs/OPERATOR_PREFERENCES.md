@@ -21,6 +21,10 @@ requested the daily email worker at 18:00 Eastern.
   deadline cannot strand an owned paper position.
 - The notifier remains restricted to one canonical five-paragraph
   plain-English email per day at 18:00 `America/New_York`.
+- A separately classified, capped paper execution-validation probe cohort may
+  collect prospective BTC/USD and ETH/USD broker fill/cancel labels before the
+  same cutoff. It is not strategy trading: it cannot alter P&L/profit reports
+  or model promotion, and only reconciled owned probe inventory may be exited.
 - The recorder/legacy ETF shadow worker remains suspended because it is not
   part of the active v30 crypto evidence path.
 - After this synchronous implementation/deployment turn, no chat-side

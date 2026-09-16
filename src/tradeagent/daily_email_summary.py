@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import func, inspect, select
+from sqlalchemy import func, inspect, or_, select
 
 from tradeagent.email_schedule import DAILY_SUMMARY_FORMAT, DailyEmailPolicy, DailyStatusSettings
 from tradeagent.event_store import event_order_links
@@ -150,6 +150,11 @@ def _read_facts(
                 scalping_cycles.c.account_digest == account,
                 scalping_cycles.c.closed_at >= start,
                 scalping_cycles.c.closed_at < end,
+                or_(
+                    scalping_cycles.c.payload["classification"].as_string().is_(None),
+                    scalping_cycles.c.payload["classification"].as_string()
+                    != "execution_validation_probe",
+                ),
             )
             rows = connection.execute(
                 select(

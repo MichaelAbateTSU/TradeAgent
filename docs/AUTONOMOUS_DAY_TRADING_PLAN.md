@@ -29,6 +29,13 @@ only one canonical five-paragraph plain-English summary at 18:00
 suppressed. This seven-day Render authorization does not create a Copilot
 session automation or an unattended coding task.
 
+The controlled `execution-validation-probe-20260916-r1` paper cohort is not a
+strategy authorization. It is capped, uses only passive BTC/USD and ETH/USD
+buys to collect real broker execution labels, and is isolated from strategy
+P&L, profitability reporting, and promotion. It shares the same finite
+September 21 cutoff for new probes; owned cancellation, reconciliation and exit
+recovery continue afterwards.
+
 Deployment `dep-dak4p26k1f9s73edj6s0` runs event-worker commit
 `1d109990b9a969aab519184fa5c5fba3f0b83d1a` with cohort
 `v30-action-value-20260914-seven-day-r1`, configuration hash
