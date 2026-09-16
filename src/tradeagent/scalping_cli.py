@@ -21,6 +21,7 @@ COMMANDS = {
     "scalp-diagnose",
     "scalp-calibrate",
     "scalp-shadow-calibrate",
+    "scalp-shadow-audit",
 }
 
 
@@ -92,6 +93,15 @@ def register_scalping_commands(subparsers: Any) -> None:
     shadow_calibrate.add_argument("--approved-at", type=datetime.fromisoformat, required=True)
     shadow_calibrate.add_argument("--calibrated-at", type=datetime.fromisoformat, required=True)
     shadow_calibrate.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
+    audit = subparsers.add_parser(
+        "scalp-shadow-audit", help="read-only tape replay, execution validation and model audit"
+    )
+    audit.add_argument("--cohort-id", required=True)
+    audit.add_argument("--historical-start", type=datetime.fromisoformat, required=True)
+    audit.add_argument("--historical-end", type=datetime.fromisoformat, required=True)
+    audit.add_argument("--at", type=datetime.fromisoformat, required=True)
+    audit.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
+    audit.add_argument("--output-dir", type=Path, required=True)
 
 
 def configuration(args: argparse.Namespace) -> ScalpingConfig:
@@ -131,7 +141,20 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
 
         asyncio.run(run_scalping_service(configuration(args)))
         return True
-    if args.command == "scalp-shadow-calibrate":
+    if args.command == "scalp-shadow-audit":
+        from tradeagent.scalping_audit import audit_shadow_pipeline
+
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            result = audit_shadow_pipeline(
+                database,
+                cohort_id=args.cohort_id,
+                historical_start=args.historical_start,
+                historical_end=args.historical_end,
+                at=args.at,
+                valid_until=args.valid_until,
+                output_dir=args.output_dir,
+            )
+    elif args.command == "scalp-shadow-calibrate":
         from tradeagent.scalping_policy import (
             calibrate_from_shadow_report,
             write_model_artifact,
@@ -153,6 +176,7 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
         )
         digest = write_model_artifact(model, args.model_output)
         result = {**audit, "model_file_sha256": digest}
+        args.audit_output.parent.mkdir(parents=True, exist_ok=True)
         args.audit_output.write_text(
             json.dumps(result, indent=2, sort_keys=True, default=str) + "\n",
             encoding="utf-8",

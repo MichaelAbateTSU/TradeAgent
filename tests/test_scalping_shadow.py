@@ -92,11 +92,12 @@ def completed_outcomes(actual_filled=True):
     )
     evaluator.add(candidate)
     tape = Tape()
-    arrival = tape.event("q", 0.4, bp="100", bs="1", ap="100.01", **{"as": "10"})
+    # The quote must be received before the 350ms arrival, not afterwards.
+    arrival = tape.event("q", 0.3, bp="100", bs="1", ap="100.01", **{"as": "10"})
     assert (
         evaluator.on_market(
             arrival,
-            quote=market_quote(arrival),
+            quote=market_quote(arrival, size="1"),
             bid_levels=(BookLevel(price=100, quantity=1),),
             ask_levels=(BookLevel(price="100.01", quantity=10),),
         )
@@ -106,7 +107,7 @@ def completed_outcomes(actual_filled=True):
     assert (
         evaluator.on_market(
             trade,
-            quote=market_quote(arrival),
+            quote=market_quote(arrival, size="1"),
             bid_levels=(BookLevel(price=100, quantity=1),),
             ask_levels=(BookLevel(price="100.01", quantity=10),),
         )

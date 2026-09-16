@@ -15,6 +15,7 @@ from tradeagent.scalping_shadow import (
     ShadowActionOutcome,
     ShadowPolicy,
     outcome_sample,
+    validate_passive_simulation,
 )
 
 
@@ -197,10 +198,13 @@ def calibrate_from_shadow_report(
     minimum_filled_samples: int = 5,
     minimum_observation_days: float = 7,
 ) -> tuple[EconomicModel, dict[str, Any]]:
-    if report.get("schema") != "shadow-action-report-v1":
-        raise ValueError("a shadow-action-report-v1 payload is required")
+    if report.get("schema") not in {"shadow-action-report-v1", "shadow-action-report-v2"}:
+        raise ValueError("a shadow-action-report-v1 or v2 payload is required")
     validation = report.get("passive_validation")
     outcomes = [ShadowActionOutcome.model_validate(row) for row in report.get("outcomes", [])]
+    keys = [(row.candidate_id, row.action) for row in outcomes]
+    if len(keys) != len(set(keys)):
+        raise ValueError("duplicate candidate/action outcomes cannot calibrate a model")
     policy_ids = sorted({row.simulation_policy.identity for row in outcomes})
     symbols = sorted({row.symbol for row in outcomes if row.action == "PASSIVE_BUY"})
     passive_ids = sorted(
@@ -263,12 +267,43 @@ def calibrate_from_shadow_report(
             and ((validation.get("passed") is True and exact_v1_population) or verified_v2_subset)
             else None
         )
+        if report.get("schema") == "shadow-action-report-v2":
+            # Execution ground truth and economic training are separate datasets.
+            # Recompute the full validation proof instead of requiring training
+            # candidates to be old broker orders or trusting a supplied pass flag.
+            evidence = [
+                ShadowActionOutcome.model_validate(row)
+                for row in report.get("validation_outcomes", [])
+            ]
+            evidence_keys = [(row.candidate_id, row.action) for row in evidence]
+            if len(evidence_keys) != len(set(evidence_keys)):
+                raise ValueError("duplicate execution-validation outcomes")
+            if set(keys).intersection(evidence_keys):
+                raise ValueError("execution validation and economic training must be disjoint")
+            recomputed = (
+                validate_passive_simulation(evidence, validation_policy)
+                if validation_policy is not None
+                else {}
+            )
+            validation_sha = (
+                supplied_sha
+                if recomputed == dict(validation)
+                and recomputed.get("passed") is True
+                and validation_policy is not None
+                and policy_ids == [validation_policy.identity]
+                and recomputed.get("policy_ids") == policy_ids
+                and set(symbols).issubset(set(recomputed.get("symbols", [])))
+                and all(row.account_digest == config.account_digest for row in evidence)
+                else None
+            )
     groups: dict[tuple[str, str, str], list[ShadowActionOutcome]] = defaultdict(list)
     for outcome in outcomes:
         groups[(outcome.symbol, outcome.family, outcome.action)].append(outcome)
     samples: list[EconomicSample] = []
     blocked = []
-    source_sha = _digest([row.model_dump(mode="json") for row in outcomes])
+    # Verify exactly the supplied envelope; optional fields added in later
+    # schema readers must not invalidate immutable historical hashes.
+    source_sha = _digest(report.get("outcomes", []))
     if report.get("source_sha256") != source_sha:
         raise ValueError("shadow report outcome hash does not match its contents")
     for key, rows in sorted(groups.items()):
@@ -338,4 +373,6 @@ def calibrate_from_shadow_report(
         "passive_validation_sha256": validation_sha,
         "aggressive_execution_supported": False,
         "no_complete_case_cherry_picking": True,
+        "deployment_ready": model.status == "validated",
+        "deployment_requires_reviewed_artifact": True,
     }

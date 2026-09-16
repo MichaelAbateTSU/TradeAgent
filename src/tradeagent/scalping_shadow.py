@@ -74,14 +74,26 @@ def _with_bbo(
         return tuple(levels)
     price = quote.bid if side == "bid" else quote.ask
     quantity = quote.bid_size if side == "bid" else quote.ask_size
-    deeper = [level for level in levels if level.price != price]
+    # A newer BBO supersedes levels at or through its touch. Keeping an old,
+    # better level would invent executable depth and can reverse the ladder.
+    deeper = sorted(
+        (
+            level
+            for level in levels
+            if (level.price < price if side == "bid" else level.price > price)
+        ),
+        key=lambda level: level.price,
+        reverse=side == "bid",
+    )
     return (BookLevel(price=price, quantity=quantity), *deeper)
 
 
 class ShadowPolicy(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
-    schema_version: Literal["shadow-action-policy-v1"] = "shadow-action-policy-v1"
+    schema_version: Literal["shadow-action-policy-v1", "shadow-action-policy-v2"] = (
+        "shadow-action-policy-v2"
+    )
     arrival_latency_ms: int = Field(default=350, ge=0)
     horizon_quote_max_age_ms: int = Field(default=250, gt=0)
     arrival_market_max_age_ms: int = Field(default=250, gt=0)
@@ -159,6 +171,8 @@ class _Pending:
     horizon_quote: ScalpQuote | None = None
     horizon_bid_levels: tuple[BookLevel, ...] = ()
     completed: bool = False
+    integrity_lost: bool = False
+    horizon_depth_at_ns: int = 0
 
 
 class ShadowActionOutcome(BaseModel):
@@ -203,6 +217,7 @@ class ShadowActionOutcome(BaseModel):
     actual_filled: bool | None
     actual_first_fill_at: datetime | None
     actual_passive_comparable: bool
+    cancellation_horizon_seconds: float = Field(default=3, gt=0)
 
     @property
     def identity(self) -> str:
@@ -214,12 +229,16 @@ class ShadowActionEvaluator:
 
     def __init__(self, policy: ShadowPolicy | None = None) -> None:
         self.policy = policy or ShadowPolicy()
+        if self.policy.schema_version != "shadow-action-policy-v2":
+            raise ValueError("replay requires v2 policy; archived v1 outcomes remain read-only")
         self._pending: dict[str, _Pending] = {}
         self._last_quote: dict[str, ScalpQuote] = {}
         self._last_bids: dict[str, tuple[BookLevel, ...]] = {}
         self._last_asks: dict[str, tuple[BookLevel, ...]] = {}
+        self._last_depth_at_ns: dict[str, int] = {}
         self._source_ids: dict[str, list[str]] = {}
         self._ready: dict[str, ShadowActionOutcome] = {}
+        self._last_event_ns = 0
 
     def add(self, candidate: ShadowCandidate) -> None:
         if candidate.candidate_id in self._pending:
@@ -254,6 +273,16 @@ class ShadowActionEvaluator:
         self._source_ids[candidate.candidate_id] = [
             str(candidate.signal.features["source_event_id"])
         ]
+        symbol = candidate.signal.symbol
+        previous = self._last_quote.get(symbol)
+        if previous is None or previous.received_at <= candidate.signal.quote.received_at:
+            self._last_quote[symbol] = candidate.signal.quote
+            self._last_bids[symbol] = _with_bbo(candidate.signal.quote, (), side="bid")
+            self._last_asks[symbol] = _with_bbo(candidate.signal.quote, (), side="ask")
+        self._pending[candidate.candidate_id].horizon_quote = candidate.signal.quote
+        self._pending[candidate.candidate_id].horizon_bid_levels = _with_bbo(
+            candidate.signal.quote, (), side="bid"
+        )
 
     def on_market(
         self,
@@ -262,66 +291,93 @@ class ShadowActionEvaluator:
         quote: ScalpQuote | None,
         bid_levels: Sequence[BookLevel],
         ask_levels: Sequence[BookLevel],
+        depth_at_ns: int | None = None,
     ) -> tuple[ShadowActionOutcome, ...]:
+        if event.received_at_ns < self._last_event_ns:
+            raise ValueError("shadow market events must be in receive-time order")
+        self._last_event_ns = event.received_at_ns
+        # Resolve deadlines with the state available BEFORE this event. An event
+        # arriving later must not change the price or freshness at order arrival.
+        self._advance_time(event.received_at_ns, inclusive=False)
         if quote is not None:
+            self._last_depth_at_ns[event.symbol] = (
+                event.exchange_at_ns if depth_at_ns is None else depth_at_ns
+            )
             self._last_quote[event.symbol] = quote
             self._last_bids[event.symbol] = _with_bbo(quote, bid_levels, side="bid")
             self._last_asks[event.symbol] = _with_bbo(quote, ask_levels, side="ask")
-        completed: list[ShadowActionOutcome] = list(self._ready.values())
+        else:
+            self._last_quote.pop(event.symbol, None)
+            self._last_bids.pop(event.symbol, None)
+            self._last_asks.pop(event.symbol, None)
         for identity, pending in tuple(self._pending.items()):
             if pending.candidate.signal.symbol != event.symbol:
                 continue
             self._source_ids[identity].append(event.event_id)
+            if quote is None:
+                pending.integrity_lost = True
             for state in pending.actions.values():
-                self._advance_action(state, pending, event, quote, bid_levels, ask_levels)
-            if event.received_at_ns <= pending.horizon_at_ns and quote is not None:
+                if state.arrival_at_ns == event.received_at_ns:
+                    self._arrive(state, pending)
+                self._advance_action(state, pending, event)
+            if event.received_at_ns <= pending.horizon_at_ns:
                 pending.horizon_quote = quote
                 pending.horizon_bid_levels = _with_bbo(quote, bid_levels, side="bid")
-            if event.received_at_ns >= pending.horizon_at_ns:
-                for outcome in self._finish(pending):
-                    self._ready[outcome.identity] = outcome
-                    completed.append(outcome)
-                del self._pending[identity]
-        return tuple({row.identity: row for row in completed}.values())
+                pending.horizon_depth_at_ns = self._last_depth_at_ns.get(event.symbol, 0)
+        self._advance_time(event.received_at_ns, inclusive=True)
+        return tuple(self._ready.values())
 
     def flush(self, observed_at: datetime) -> tuple[ShadowActionOutcome, ...]:
-        now_ns = datetime_ns(observed_at)
-        completed: list[ShadowActionOutcome] = list(self._ready.values())
+        self._advance_time(datetime_ns(observed_at), inclusive=True)
+        return tuple(self._ready.values())
+
+    def _advance_time(self, now_ns: int, *, inclusive: bool) -> None:
         for identity, pending in tuple(self._pending.items()):
-            if now_ns < pending.horizon_at_ns:
+            for state in pending.actions.values():
+                if state.arrival_at_ns < now_ns or (inclusive and state.arrival_at_ns == now_ns):
+                    self._arrive(state, pending)
+            if pending.horizon_at_ns > now_ns or (
+                pending.horizon_at_ns == now_ns and not inclusive
+            ):
                 continue
             for outcome in self._finish(pending):
                 self._ready[outcome.identity] = outcome
-                completed.append(outcome)
             del self._pending[identity]
-        return tuple({row.identity: row for row in completed}.values())
+            self._source_ids.pop(identity, None)
 
     def acknowledge(self, outcomes: Iterable[ShadowActionOutcome]) -> None:
         for outcome in outcomes:
             self._ready.pop(outcome.identity, None)
 
-    def _advance_action(
-        self,
-        state: _ActionState,
-        pending: _Pending,
-        event: MarketEvent,
-        quote: ScalpQuote | None,
-        bid_levels: Sequence[BookLevel],
-        ask_levels: Sequence[BookLevel],
-    ) -> None:
-        if state.rejected_reason or event.received_at_ns < state.arrival_at_ns:
+    def unacknowledged(self) -> tuple[ShadowActionOutcome, ...]:
+        return tuple(self._ready.values())
+
+    def _arrive(self, state: _ActionState, pending: _Pending) -> None:
+        if state.sent or state.rejected_reason:
             return
+        symbol = pending.candidate.signal.symbol
+        quote = self._last_quote.get(symbol)
+        bid_levels = self._last_bids.get(symbol, ())
+        ask_levels = self._last_asks.get(symbol, ())
+        depth_age = state.arrival_at_ns - self._last_depth_at_ns.get(symbol, 0)
+        if not 0 <= depth_age <= pending.policy.arrival_market_max_age_ms * 1_000_000:
+            bid_levels = _with_bbo(quote, (), side="bid")
+            ask_levels = _with_bbo(quote, (), side="ask")
         if not state.sent:
-            if event.received_at_ns > state.expires_at_ns:
+            if state.arrival_at_ns > state.expires_at_ns:
                 state.rejected_reason = "simulated_arrival_after_action_expiry"
                 return
             state.sent = True
             quote_age_ms = (
-                (event.received_at_ns - quote.exchange_time_ns) / 1_000_000
+                (state.arrival_at_ns - quote.exchange_time_ns) / 1_000_000
                 if quote is not None
                 else float("inf")
             )
-            if quote is None or not 0 <= quote_age_ms <= pending.policy.arrival_market_max_age_ms:
+            if (
+                quote is None
+                or datetime_ns(quote.received_at) > state.arrival_at_ns
+                or not 0 <= quote_age_ms <= pending.policy.arrival_market_max_age_ms
+            ):
                 state.rejected_reason = "no_fresh_market_at_simulated_arrival"
                 return
             if state.action == "PASSIVE_BUY":
@@ -359,10 +415,20 @@ class ShadowActionEvaluator:
                     return
                 state.entry_quantity = quantity
                 state.entry_value = value
-                state.first_fill_at_ns = state.last_fill_at_ns = event.received_at_ns
+                state.first_fill_at_ns = state.last_fill_at_ns = state.arrival_at_ns
+
+    def _advance_action(
+        self,
+        state: _ActionState,
+        pending: _Pending,
+        event: MarketEvent,
+    ) -> None:
         if (
-            state.action != "PASSIVE_BUY"
+            state.rejected_reason
+            or not state.sent
+            or state.action != "PASSIVE_BUY"
             or state.entry_quantity >= state.quantity
+            or event.exchange_at_ns < state.arrival_at_ns
             or event.received_at_ns > state.expires_at_ns
             or event.event_type != "trade"
             or event.taker_side != "sell"
@@ -391,6 +457,8 @@ class ShadowActionEvaluator:
         source_hash = _digest(source_ids)
         for state in pending.actions.values():
             missing = []
+            if pending.integrity_lost:
+                missing.append("market_integrity_lost_during_outcome")
             age_seconds = 0.0
             horizon_mid = None
             directional = None
@@ -409,8 +477,12 @@ class ShadowActionEvaluator:
                     horizon_mid = (quote.bid + quote.ask) / 2
                     directional = float((horizon_mid / decision_mid - 1) * BPS)
             if state.entry_quantity > 0 and not missing:
+                depth_age = pending.horizon_at_ns - pending.horizon_depth_at_ns
+                exit_levels = pending.horizon_bid_levels
+                if not 0 <= depth_age <= pending.policy.horizon_quote_max_age_ms * 1_000_000:
+                    exit_levels = _with_bbo(quote, (), side="bid")
                 exit_quantity, exit_value = _levels_value(
-                    pending.horizon_bid_levels,
+                    exit_levels,
                     side="bid",
                     quantity=state.entry_quantity * pending.policy.participation_rate,
                 )
@@ -489,6 +561,7 @@ class ShadowActionEvaluator:
                     actual_filled=pending.candidate.actual_filled,
                     actual_first_fill_at=pending.candidate.actual_first_fill_at,
                     actual_passive_comparable=pending.candidate.actual_passive_comparable,
+                    cancellation_horizon_seconds=pending.candidate.cancellation_horizon_seconds,
                 )
             )
         return result
@@ -535,9 +608,7 @@ def outcome_sample(
         label_matured_at=outcome.horizon_at,
         return_end_at=outcome.horizon_at if outcome.filled else None,
         horizon_seconds=(outcome.horizon_at - outcome.decision_at).total_seconds(),
-        cancellation_horizon_seconds=min(
-            3.0, (outcome.horizon_at - outcome.decision_at).total_seconds()
-        ),
+        cancellation_horizon_seconds=outcome.cancellation_horizon_seconds,
         features=outcome.features,
         quote_age_seconds=outcome.quote_age_seconds,
         decision_latency_seconds=outcome.decision_latency_seconds,
@@ -755,6 +826,7 @@ def recover_abandoned_candidates(
                 actual_filled=candidate.actual_filled,
                 actual_first_fill_at=candidate.actual_first_fill_at,
                 actual_passive_comparable=candidate.actual_passive_comparable,
+                cancellation_horizon_seconds=candidate.cancellation_horizon_seconds,
             )
             store.audit(
                 "shadow_action_outcome",
@@ -829,30 +901,58 @@ def simulate_candidates(
     current = next(pending, None)
     results: list[ShadowActionOutcome] = []
     latest_at = None
+
+    def add(candidate: ShadowCandidate) -> None:
+        evaluator.add(candidate)
+        features = candidate.signal.features
+        book_exchange = features.get("book_exchange_at_ns")
+        book_received = features.get("book_received_at_ns")
+        engine.restore_replay_snapshot(
+            candidate.signal.quote,
+            bids=_with_bbo(candidate.signal.quote, candidate.decision_bid_levels, side="bid"),
+            asks=_with_bbo(candidate.signal.quote, candidate.decision_ask_levels, side="ask"),
+            source_event_id=str(candidate.signal.features.get("source_event_id", "")),
+            observed_at=candidate.shadow_send_at,
+            book_exchange_at_ns=book_exchange if isinstance(book_exchange, int) else None,
+            book_received_at_ns=book_received if isinstance(book_received, int) else None,
+        )
+
     for market_event in market_events:
         while current is not None and current.shadow_send_at_ns < market_event.received_at_ns:
-            evaluator.add(current)
+            add(current)
             current = next(pending, None)
-        engine.on_event(market_event)
-        results.extend(
-            evaluator.on_market(
+        accepted = engine.on_event(market_event)
+        if accepted or engine.quote(market_event.symbol) is None:
+            finished = evaluator.on_market(
                 market_event,
                 quote=engine.quote(market_event.symbol),
-                bid_levels=engine.levels(market_event.symbol, side="bid", depth=2000),
-                ask_levels=engine.levels(market_event.symbol, side="ask", depth=2000),
+                depth_at_ns=engine.depth_timestamp_ns(market_event.symbol),
+                bid_levels=engine.fresh_depth(
+                    market_event.symbol,
+                    side="bid",
+                    at_ns=market_event.received_at_ns,
+                    maximum_age_ms=evaluator.policy.horizon_quote_max_age_ms,
+                ),
+                ask_levels=engine.fresh_depth(
+                    market_event.symbol,
+                    side="ask",
+                    at_ns=market_event.received_at_ns,
+                    maximum_age_ms=evaluator.policy.arrival_market_max_age_ms,
+                ),
             )
-        )
+            results.extend(finished)
+            evaluator.acknowledge(finished)
         latest_at = market_event.received_at
         while current is not None and current.shadow_send_at_ns == market_event.received_at_ns:
-            evaluator.add(current)
+            add(current)
             current = next(pending, None)
     while current is not None:
-        evaluator.add(current)
+        add(current)
         latest_at = max(latest_at or current.shadow_send_at, current.shadow_send_at)
         current = next(pending, None)
     if latest_at is not None:
         results.extend(evaluator.flush(latest_at + timedelta(seconds=10)))
-    return tuple(results)
+    return tuple({row.identity: row for row in results}.values())
 
 
 def shadow_report(
@@ -860,6 +960,7 @@ def shadow_report(
     *,
     passive_validation: Mapping[str, Any] | None = None,
     maximum_incomplete_fraction: float = 0.05,
+    validation_outcomes: Sequence[ShadowActionOutcome] | None = None,
 ) -> dict[str, Any]:
     if not 0 <= maximum_incomplete_fraction < 1:
         raise ValueError("maximum incomplete fraction must be between zero and one")
@@ -896,8 +997,10 @@ def shadow_report(
                 ),
             }
         )
-    return {
-        "schema": "shadow-action-report-v1",
+    result = {
+        "schema": "shadow-action-report-v2"
+        if validation_outcomes is not None
+        else "shadow-action-report-v1",
         "outcome_count": len(outcomes),
         "candidate_count": len({row.candidate_id for row in outcomes}),
         "policy_ids": sorted({row.simulation_policy.identity for row in outcomes}),
@@ -908,6 +1011,9 @@ def shadow_report(
         "no_order_submission": True,
         "aggressive_execution_supported": False,
     }
+    if validation_outcomes is not None:
+        result["validation_outcomes"] = [row.model_dump(mode="json") for row in validation_outcomes]
+    return result
 
 
 def estimate_collection_days(
@@ -1128,50 +1234,16 @@ def simulate_database_candidates(
             clusters.append({"start": start, "end": end, "candidates": [candidate]})
     results: list[ShadowActionOutcome] = []
     for cluster in clusters:
-        evaluator = ShadowActionEvaluator(selected_policy)
-        pending = iter(sorted(cluster["candidates"], key=lambda row: row.shadow_send_at_ns))
-        current = next(pending, None)
-        last_quote: dict[str, ScalpQuote] = {}
-        latest = cluster["end"]
-        for market_event in read_market_events(
-            database,
-            start=cluster["start"],
-            end=cluster["end"] + timedelta(seconds=1),
-        ):
-            if market_event.event_type not in {"quote", "trade"}:
-                continue
-            while current is not None and current.shadow_send_at_ns < market_event.received_at_ns:
-                evaluator.add(current)
-                last_quote.setdefault(current.signal.symbol, current.signal.quote)
-                current = next(pending, None)
-            if market_event.event_type == "quote":
-                bid, ask = market_event.bids[0], market_event.asks[0]
-                last_quote[market_event.symbol] = ScalpQuote(
-                    symbol=market_event.symbol,
-                    exchange_at=market_event.exchange_at,
-                    exchange_time_ns=market_event.exchange_at_ns,
-                    received_at=market_event.received_at,
-                    bid=bid.price,
-                    ask=ask.price,
-                    bid_size=bid.quantity,
-                    ask_size=ask.quantity,
-                )
-            quote = last_quote.get(market_event.symbol)
-            results.extend(
-                evaluator.on_market(
-                    market_event,
-                    quote=quote,
-                    bid_levels=_with_bbo(quote, (), side="bid"),
-                    ask_levels=_with_bbo(quote, (), side="ask"),
-                )
+        results.extend(
+            simulate_candidates(
+                cluster["candidates"],
+                read_market_events(
+                    database,
+                    start=cluster["start"],
+                    end=cluster["end"] + timedelta(seconds=1),
+                ),
+                config,
+                selected_policy,
             )
-            latest = max(latest, market_event.received_at)
-            while current is not None and current.shadow_send_at_ns == market_event.received_at_ns:
-                evaluator.add(current)
-                last_quote.setdefault(current.signal.symbol, current.signal.quote)
-                current = next(pending, None)
-        while current is not None:
-            evaluator.add(current)
-            current = next(pending, None)
-        results.extend(evaluator.flush(latest + timedelta(seconds=1)))
+        )
     return tuple({row.identity: row for row in results}.values())

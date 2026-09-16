@@ -8,7 +8,7 @@ import math
 import os
 import socket
 import time
-from collections import deque
+from collections import Counter, deque
 from collections.abc import Callable
 from datetime import UTC, datetime
 from functools import partial
@@ -35,7 +35,6 @@ from tradeagent.scalping_notifications import ScalpingNotifications
 from tradeagent.scalping_policy import load_economic_model
 from tradeagent.scalping_shadow import (
     ShadowActionEvaluator,
-    ShadowActionOutcome,
     candidate_from_signal,
     persist_shadow_outcomes,
     recover_abandoned_candidates,
@@ -128,6 +127,10 @@ class ScalpingRuntime:
         self.shadow = ShadowActionEvaluator()
         self._shadow_candidates = 0
         self._shadow_outcomes = 0
+        self._shadow_write_lock = RLock()
+        self._shadow_missing: Counter[str] = Counter()
+        self._shadow_complete: Counter[str] = Counter()
+        self._processed_market_at: datetime | None = None
         self._execution: dict[str, Any] = {}
         self._summary: dict[str, Any] = {}
         self._signals: list[dict[str, Any]] = []
@@ -183,32 +186,59 @@ class ScalpingRuntime:
         started = time.monotonic()
         now = self.clock()
         self.store.persist_market_batch([event.model_dump(mode="json") for event in batch], at=now)
-        shadow_outcomes: list[ShadowActionOutcome] = []
         with self._market_lock:
             for event in batch:
                 accepted = self.market.on_event(event)
-                if accepted and self.config.decision_policy == "action-value-v1":
+                self._processed_market_at = event.received_at
+                if self.config.decision_policy == "action-value-v1" and (
+                    accepted or self.market.quote(event.symbol) is None
+                ):
                     self.telemetry.on_market(
                         event, self.market.quote(event.symbol), state_updated_at=self.clock()
                     )
-                    shadow_outcomes.extend(
-                        self.shadow.on_market(
-                            event,
-                            quote=self.market.quote(event.symbol),
-                            bid_levels=self.market.levels(event.symbol, side="bid", depth=2000),
-                            ask_levels=self.market.levels(event.symbol, side="ask", depth=2000),
-                        )
+                    self.shadow.on_market(
+                        event,
+                        quote=self.market.quote(event.symbol),
+                        depth_at_ns=self.market.depth_timestamp_ns(event.symbol),
+                        bid_levels=self.market.fresh_depth(
+                            event.symbol,
+                            side="bid",
+                            at_ns=event.received_at_ns,
+                            maximum_age_ms=self.shadow.policy.horizon_quote_max_age_ms,
+                        ),
+                        ask_levels=self.market.fresh_depth(
+                            event.symbol,
+                            side="ask",
+                            at_ns=event.received_at_ns,
+                            maximum_age_ms=self.shadow.policy.arrival_market_max_age_ms,
+                        ),
                     )
-        if shadow_outcomes:
-            recorded = persist_shadow_outcomes(self.store, shadow_outcomes, at=self.clock())
-            self.shadow.acknowledge(shadow_outcomes)
-            with self._state_lock:
-                self._shadow_outcomes += recorded
+        self._persist_shadow()
         with self._state_lock:
             self._committed_events += len(batch)
             self._committed_batches += 1
             self._last_market_at = now
             self._write_times.append(time.monotonic() - started)
+
+    def _persist_shadow(self) -> None:
+        # Tick and ingestion may see the same ready buffer. Serialize commit/ack
+        # without holding the market lock during database IO or double-counting.
+        with self._shadow_write_lock:
+            with self._market_lock:
+                outcomes = self.shadow.unacknowledged()
+            if not outcomes:
+                return
+            persist_shadow_outcomes(self.store, outcomes, at=self.clock())
+            with self._market_lock:
+                self.shadow.acknowledge(outcomes)
+            with self._state_lock:
+                self._shadow_outcomes += len(outcomes)
+                for row in outcomes:
+                    cell = f"{row.symbol}:{row.family}:{row.action}"
+                    self._shadow_complete[
+                        f"{cell}:{'complete' if row.complete else 'incomplete'}"
+                    ] += 1
+                    self._shadow_missing.update(row.missing_reasons)
 
     def tick(self) -> dict[str, Any]:
         started = time.monotonic()
@@ -279,7 +309,10 @@ class ScalpingRuntime:
                         shadow_candidates.append(candidate)
                 if signal.action != "buy" or not stopped:
                     signals.append(signal)
-            matured = self.shadow.flush(self.clock())
+            # Wall time may be ahead of received-but-unprocessed tape. Mature
+            # labels only through processed market time; never discard that tape.
+            if self._processed_market_at is not None:
+                self.shadow.flush(self._processed_market_at)
         for candidate in shadow_candidates:
             self.store.audit(
                 "shadow_action_candidate",
@@ -289,11 +322,7 @@ class ScalpingRuntime:
             )
         with self._state_lock:
             self._shadow_candidates += len(shadow_candidates)
-        if matured:
-            recorded = persist_shadow_outcomes(self.store, matured, at=self.clock())
-            self.shadow.acknowledge(matured)
-            with self._state_lock:
-                self._shadow_outcomes += recorded
+        self._persist_shadow()
         if self.config.decision_policy == "action-value-v1":
             if self.engine.run_id is None:
                 raise ValueError("decision journaling requires an initialized immutable run")
@@ -398,6 +427,9 @@ class ScalpingRuntime:
                         "policy_id": self.shadow.policy.identity,
                         "candidates_recorded": self._shadow_candidates,
                         "outcomes_recorded": self._shadow_outcomes,
+                        "counter_scope": "current process; unique committed outcomes",
+                        "outcome_counts": dict(self._shadow_complete),
+                        "missing_reasons": dict(self._shadow_missing),
                         "pending_candidates": self.shadow.pending_count,
                         "unacknowledged_outcomes": self.shadow.unacknowledged_count,
                         "broker_orders_submitted": False,

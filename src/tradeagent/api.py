@@ -439,11 +439,14 @@ DASHBOARD = """<!doctype html>
   <section class="card" aria-labelledby="scalping-heading">
     <h2 id="scalping-heading">v30 autonomous paper scalping</h2>
     <p id="scalp-state" role="status">Loading the current worker and its execution state...</p>
+    <p id="scalp-readiness" role="status">Checking model and market readiness...</p>
     <p>24/7 paper crypto using the configured decision policy. Order ownership, reconciliation and broker constraints always apply. Economic forecasts and local exits are not guarantees.</p>
     <dl id="scalp-facts" class="scalp-facts"></dl>
     <h3>Execution and accounting</h3>
+    <p>Accounting totals and cycle counts cover this paper account across its historical runs. They do not indicate trades by the current model.</p>
     <pre id="scalp-accounting" class="scalp-details">No current observation yet.</pre>
     <details><summary>Signals, market data and latency</summary><pre id="scalp-signals" class="scalp-details"></pre></details>
+    <details><summary>Calibration progress and missing evidence</summary><pre id="scalp-calibration" class="scalp-details"></pre></details>
     <p>Scores are deterministic rule outputs, not probabilities. Pending fee estimates and paper fills do not establish live profitability. <a href="/api/scalping" target="_blank" rel="noopener">Open the full v30 status snapshot</a>.</p>
   </section>
   <section class="grid">
@@ -535,6 +538,24 @@ DASHBOARD = """<!doctype html>
       document.querySelector('#scalp-state').textContent = status.state === 'not_started'
         ? status.message
         : `${state} | ${status.active ? 'current owner observation' : 'not a current owned observation'} | ${status.status_at || 'no timestamp'}`;
+      const economics = status.economics || {};
+      const blockers = [];
+      if (!status.active) blockers.push('Worker observation is stale or unavailable.');
+      if (status.operator_stop) blockers.push('New entries are stopped.');
+      if (status.autonomy_expired) blockers.push('The authorized collection period has ended.');
+      if (economics.model_status !== 'validated') {
+        blockers.push('The economic model has not passed validation; it cannot authorize entries.');
+      }
+      if (state === 'waiting_for_market_data') blockers.push('Fresh market data is also required.');
+      document.querySelector('#scalp-readiness').textContent = blockers.length
+        ? blockers.join(' ')
+        : 'Model loaded. Each entry still requires positive net edge and current execution checks.';
+      document.querySelector('#scalp-calibration').textContent = JSON.stringify({
+        model_status: economics.model_status || 'missing', reasons: economics.reason_codes || [],
+        collection: status.shadow_calibration || 'not reported',
+        model_replacement: 'A separately calibrated, validated artifact must be pinned and deployed.',
+        collection_deadline: status.autonomous_until || 'not reported'
+      }, null, 2);
       const facts = {
         'Profile': status.profile || 'not reported',
         'Decision policy': status.decision_policy || 'legacy-v30',

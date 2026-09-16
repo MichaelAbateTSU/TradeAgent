@@ -1244,7 +1244,9 @@ class BookFeatureEngine:
             ):
                 self._invalidate(state, "invalid_quote")
                 return False
-            if state.book.is_current(event.received_at_ns, self._stale_ns):
+            # Retain native L1 evidence even when L2 has not changed recently.
+            # quote_at_ns/features still enforce the independent L2 age fence.
+            if state.book.valid and not state.book.awaiting_current_update:
                 self._observe_bbo(
                     state,
                     event,
@@ -1387,6 +1389,70 @@ class BookFeatureEngine:
         state = self._state(symbol)
         return state.bbo[-1].quote if state.book.valid and state.bbo else None
 
+    def restore_replay_snapshot(
+        self,
+        quote: ScalpQuote,
+        *,
+        bids: Sequence[BookLevel],
+        asks: Sequence[BookLevel],
+        source_event_id: str,
+        observed_at: datetime,
+        book_exchange_at_ns: int | None = None,
+        book_received_at_ns: int | None = None,
+    ) -> bool:
+        """Seed bounded offline replay from an immutable candidate's observed book.
+
+        This restores only recorded levels, never feature history, missing depth,
+        or a newer timestamp. Native snapshots/deltas and continuity checks take
+        over immediately. Runtime ingestion never calls this method.
+        """
+        try:
+            connection, sequence = source_event_id.rsplit(":", 1)
+            connection_id, receive_sequence = UUID(connection), int(sequence)
+        except (ValueError, TypeError):
+            return False
+        if (
+            receive_sequence < 1
+            or quote.received_at > observed_at
+            or quote.exchange_at > quote.received_at
+            or connection_id in self._retired_connections
+        ):
+            return False
+        state = self._state(quote.symbol)
+        if state.book.valid:
+            return False
+        if self._connection_id not in (None, connection_id):
+            return False
+        if self._last_event is not None and self._last_event.received_at > observed_at:
+            return False
+        if book_exchange_at_ns is None or book_received_at_ns is None:
+            # Older records have only a timestamped L1 observation. They cannot
+            # lend that clock to deeper levels whose age is unknown.
+            bids = (BookLevel(price=quote.bid, quantity=quote.bid_size),)
+            asks = (BookLevel(price=quote.ask, quantity=quote.ask_size),)
+            book_exchange_at_ns = quote.exchange_time_ns
+            book_received_at_ns = datetime_ns(quote.received_at)
+        if not 0 < book_exchange_at_ns <= book_received_at_ns <= datetime_ns(observed_at):
+            return False
+        book = _Book(
+            bids={row.price: row.quantity for row in bids if row.quantity > 0},
+            asks={row.price: row.quantity for row in asks if row.quantity > 0},
+            exchange_ns=book_exchange_at_ns,
+            received_ns=book_received_at_ns,
+            version=source_event_id,
+        )
+        if not book.bids or not book.asks or max(book.bids) >= min(book.asks):
+            return False
+        book.valid, book.reason = True, "recorded_replay_snapshot"
+        state.book = book
+        state.connection_id = self._connection_id = connection_id
+        state.bbo.append(
+            _BBO(
+                quote.exchange_time_ns, datetime_ns(quote.received_at), quote, ZERO, source_event_id
+            )
+        )
+        return True
+
     def quote_at_ns(self, symbol: str, now_ns: int) -> ScalpQuote | None:
         state = self._state(symbol)
         quote = self.quote(symbol)
@@ -1413,6 +1479,19 @@ class BookFeatureEngine:
             BookLevel(price=price, quantity=levels[price])
             for price in sorted(levels, reverse=side == "bid")[:depth]
         )
+
+    def fresh_depth(
+        self, symbol: str, *, side: Literal["bid", "ask"], at_ns: int, maximum_age_ms: int
+    ) -> tuple[BookLevel, ...]:
+        """Return depth only when its own clock is fresh, independently of L1."""
+        state = self._state(symbol)
+        if not state.book.is_current(at_ns, maximum_age_ms * 1_000_000):
+            return ()
+        return self.levels(symbol, side=side, depth=self._max_levels)
+
+    def depth_timestamp_ns(self, symbol: str) -> int:
+        book = self._state(symbol).book
+        return min(book.exchange_ns, book.received_ns) if book.valid else 0
 
     @staticmethod
     def _price_statistics(
