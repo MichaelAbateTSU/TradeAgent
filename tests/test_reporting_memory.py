@@ -847,13 +847,17 @@ def test_audit_reads_metadata_once_then_bounded_verified_primary_keys() -> None:
         database.initialize()
         store = EventStore(database)
         for index in range(70):
+            # Wall-clock recording timestamps can tie on Windows. Give this
+            # newest-context test an explicit chronological fixture instead of
+            # relying on random event IDs to preserve insertion order.
+            observed_at = NOW - timedelta(microseconds=70 - index)
             store.audit(
                 "source_poll",
                 {"poll_id": str(index), "raw_items_received": 1},
-                NOW,
+                observed_at,
                 COHORT,
             )
-            store.audit("official_context", {"version": index}, NOW, COHORT)
+            store.audit("official_context", {"version": index}, observed_at, COHORT)
         store.audit(
             "official_context",
             {"synthetic": True, "version": "excluded-newer"},

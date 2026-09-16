@@ -771,7 +771,7 @@ def recover_abandoned_candidates(
     store = ScalpStore(database)
     recovered = 0
     for payload in candidate_payloads:
-        candidate = ShadowCandidate.model_validate(payload)
+        candidate = ShadowCandidate.model_validate_json(json.dumps(payload))
         if candidate.candidate_id in outcome_ids:
             continue
         decision = candidate.signal.quote

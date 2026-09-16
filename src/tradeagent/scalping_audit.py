@@ -69,7 +69,7 @@ def audit_shadow_pipeline(
         )
     if len(rows) > 10000:
         raise ValueError("cohort exceeds bounded audit capacity; no truncated training is allowed")
-    candidates = tuple(ShadowCandidate.model_validate(row) for row in rows)
+    candidates = tuple(ShadowCandidate.model_validate_json(json.dumps(row)) for row in rows)
     historical = historical_candidates(
         database,
         account_digest=config.account_digest,

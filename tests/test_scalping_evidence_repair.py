@@ -268,6 +268,7 @@ def test_fresh_l1_is_recorded_without_refreshing_stale_l2_permission():
 
 def test_audit_writes_no_support_artifact_without_database_mutation(tmp_path):
     from sqlalchemy import func, select
+    from test_scalping_economics import decide
 
     from tradeagent.persistence import events
     from tradeagent.scalping_audit import audit_shadow_pipeline
@@ -275,7 +276,26 @@ def test_audit_writes_no_support_artifact_without_database_mutation(tmp_path):
     with Database(f"sqlite:///{tmp_path / 'audit.db'}") as database:
         database.initialize()
         frozen = action_config()
-        ScalpStore(database).freeze_run(frozen, "c" * 40, at=NOW)
+        store = ScalpStore(database)
+        run_id = store.freeze_run(frozen, "c" * 40, at=NOW)
+        economics = decide(None, now=NOW)
+        saved = candidate().model_copy(
+            update={
+                "run_id": run_id,
+                "signal": signal().model_copy(
+                    update={
+                        "economics": economics,
+                        "expected_net_edge_bps": economics.expected_net_edge_bps,
+                    }
+                ),
+            }
+        )
+        store.audit(
+            "shadow_action_candidate",
+            saved.model_dump(mode="json"),
+            at=NOW,
+            identity=f"shadow-candidate:{saved.candidate_id}",
+        )
         with database.begin() as connection:
             before = connection.scalar(select(func.count()).select_from(events))
         result = audit_shadow_pipeline(
@@ -283,13 +303,26 @@ def test_audit_writes_no_support_artifact_without_database_mutation(tmp_path):
             cohort_id=frozen.cohort_id,
             historical_start=NOW - timedelta(days=2),
             historical_end=NOW - timedelta(days=1),
-            at=NOW,
+            at=NOW + timedelta(seconds=10),
             valid_until=NOW + timedelta(days=1),
             output_dir=tmp_path / "audit-result",
         )
         with database.begin() as connection:
             assert before == connection.scalar(select(func.count()).select_from(events))
         assert result["calibration"]["model_status"] == "no_support"
+        assert result["current_candidates"] == 1
+        from tradeagent.scalping_shadow import recover_abandoned_candidates
+
+        assert (
+            recover_abandoned_candidates(
+                database,
+                run_id=run_id,
+                account_digest=frozen.account_digest,
+                config=frozen,
+                now=NOW + timedelta(seconds=10),
+            )
+            == 2
+        )
     assert not result["model_deployed"] and not result["database_modified"]
     assert (tmp_path / "audit-result" / "model.json").is_file()
 
