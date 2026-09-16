@@ -1091,7 +1091,7 @@ def read_market_events(
                 scalping_market_batches.c.recorded_at <= end,
             )
             .order_by(scalping_market_batches.c.recorded_at)
-            .execution_options(stream_results=True, yield_per=100)
+            .execution_options(stream_results=True, yield_per=1)
         )
         for raw in connection.scalars(statement):
             for item in json.loads(zlib.decompress(raw)):

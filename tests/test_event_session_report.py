@@ -1105,7 +1105,14 @@ def test_typed_premarket_snapshots_supply_source_funnel_and_untraded_news_table(
         },
         "news": [item],
     }
-    store.audit("premarket_brief", brief, CLOSE, f"{COHORT}:{DAY}:premarket_brief")
+    # Explicit chronology avoids a random-ID tie when Windows recording clocks
+    # give two consecutive snapshots the same timestamp.
+    store.audit(
+        "premarket_brief",
+        brief,
+        CLOSE - timedelta(microseconds=1),
+        f"{COHORT}:{DAY}:premarket_brief",
+    )
     second = {**brief, "snapshot_id": "brief-2", "supersedes_snapshot_id": "brief-1"}
     store.audit("premarket_brief", second, CLOSE, f"{COHORT}:{DAY}:premarket_brief")
     report = session_report(database, COHORT, observed_at=CLOSE)

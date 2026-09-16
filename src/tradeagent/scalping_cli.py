@@ -102,6 +102,7 @@ def register_scalping_commands(subparsers: Any) -> None:
     audit.add_argument("--at", type=datetime.fromisoformat, required=True)
     audit.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
     audit.add_argument("--output-dir", type=Path, required=True)
+    audit.add_argument("--maximum-candidate-bytes", type=int, default=8 * 1024 * 1024)
 
 
 def configuration(args: argparse.Namespace) -> ScalpingConfig:
@@ -153,6 +154,7 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
                 at=args.at,
                 valid_until=args.valid_until,
                 output_dir=args.output_dir,
+                maximum_candidate_bytes=args.maximum_candidate_bytes,
             )
     elif args.command == "scalp-shadow-calibrate":
         from tradeagent.scalping_policy import (

@@ -53,6 +53,11 @@ tradeagent scalp-shadow-audit \
 
 Use the actual audit cutoff and a unique output directory. The command rejects
 overwriting an earlier experiment or silently truncating a large population.
+Candidate JSON is streamed and capped at 8 MiB by default; compressed market
+batches are fetched one at a time. The input-byte budget is an operational
+memory limit, not a research qualification threshold. A larger population must
+be audited in an isolated process with a reviewed `--maximum-candidate-bytes`
+setting. Do not increase the budget alongside the active 512 MiB paper worker.
 
 ## What must happen before trades
 
@@ -112,3 +117,19 @@ Historical missing data cannot be reconstructed by fixing the collector.
 Before a trade-capable model is possible, an independently validated execution
 model and sufficiently complete prospective evidence are still required.
 The existing collector alone has no demonstrated path to a qualifying model.
+
+## Shared-worker audit capacity failure
+
+The deployed JSON loader reproduced the earlier failed artifact exactly.
+An additional audit of the larger population, sharing the 512 MiB Render worker,
+exceeded the instance memory limit at 16:54 and 16:57 Eastern. Render restarted
+the instance, and the worker recovered. Those interrupted attempts produced no
+completed model and are not calibration evidence. The optional audit was stopped.
+The browser shell reset was initially mistaken for a shell-only disconnection;
+Render's instance events established the memory-exhaustion cause.
+
+A lightweight database aggregate then measured 1,480 stored candidates totaling
+23,831,491 JSON bytes, with a largest candidate of 18,330 bytes. The audit now
+avoids keeping both the full JSON population and its parsed models in memory,
+fetches one compressed tape batch at a time, and rejects oversized candidate
+populations before replay. It never trains on a truncated subset to fit memory.

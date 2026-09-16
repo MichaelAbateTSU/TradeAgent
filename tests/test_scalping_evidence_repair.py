@@ -298,6 +298,18 @@ def test_audit_writes_no_support_artifact_without_database_mutation(tmp_path):
         )
         with database.begin() as connection:
             before = connection.scalar(select(func.count()).select_from(events))
+        with pytest.raises(ValueError, match="audit input budget"):
+            audit_shadow_pipeline(
+                database,
+                cohort_id=frozen.cohort_id,
+                historical_start=NOW - timedelta(days=2),
+                historical_end=NOW - timedelta(days=1),
+                at=NOW + timedelta(seconds=10),
+                valid_until=NOW + timedelta(days=1),
+                output_dir=tmp_path / "over-budget",
+                maximum_candidate_bytes=1,
+            )
+        assert not (tmp_path / "over-budget" / "model.json").exists()
         result = audit_shadow_pipeline(
             database,
             cohort_id=frozen.cohort_id,
@@ -311,6 +323,7 @@ def test_audit_writes_no_support_artifact_without_database_mutation(tmp_path):
             assert before == connection.scalar(select(func.count()).select_from(events))
         assert result["calibration"]["model_status"] == "no_support"
         assert result["current_candidates"] == 1
+        assert 0 < result["candidate_input_bytes"] < result["maximum_candidate_bytes"]
         from tradeagent.scalping_shadow import recover_abandoned_candidates
 
         assert (

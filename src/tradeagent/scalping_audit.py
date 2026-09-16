@@ -32,7 +32,10 @@ def audit_shadow_pipeline(
     at: datetime,
     valid_until: datetime,
     output_dir: Path,
+    maximum_candidate_bytes: int = 8 * 1024 * 1024,
 ) -> dict[str, Any]:
+    if maximum_candidate_bytes < 1:
+        raise ValueError("audit candidate byte budget must be positive")
     if any(
         value.utcoffset() is None for value in (historical_start, historical_end, at, valid_until)
     ):
@@ -54,22 +57,28 @@ def audit_shadow_pipeline(
         if len({row["config_hash"] for row in runs}) != 1:
             raise ValueError("a calibration cohort must have one immutable configuration")
         config = ScalpingConfig.model_validate(runs[-1]["config"])
-        rows = list(
-            connection.scalars(
-                select(events.c.payload)
-                .where(
-                    events.c.event_type == "scalp_shadow_action_candidate",
-                    events.c.payload["run_id"].as_string().in_([row["run_id"] for row in runs]),
-                    events.c.occurred_at
-                    <= at - timedelta(seconds=config.feature_horizon_seconds + 2),
-                )
-                .order_by(events.c.occurred_at, events.c.event_id)
-                .limit(10001)
+        candidates: list[ShadowCandidate] = []
+        candidate_bytes = 0
+        with connection.scalars(
+            select(events.c.payload)
+            .where(
+                events.c.event_type == "scalp_shadow_action_candidate",
+                events.c.payload["run_id"].as_string().in_([row["run_id"] for row in runs]),
+                events.c.occurred_at <= at - timedelta(seconds=config.feature_horizon_seconds + 2),
             )
-        )
-    if len(rows) > 10000:
-        raise ValueError("cohort exceeds bounded audit capacity; no truncated training is allowed")
-    candidates = tuple(ShadowCandidate.model_validate_json(json.dumps(row)) for row in rows)
+            .order_by(events.c.occurred_at, events.c.event_id)
+            .limit(10001)
+            .execution_options(stream_results=True, yield_per=1)
+        ) as payloads:
+            for payload in payloads:
+                encoded = json.dumps(payload)
+                candidate_bytes += len(encoded.encode("utf-8"))
+                if candidate_bytes > maximum_candidate_bytes or len(candidates) >= 10000:
+                    raise ValueError(
+                        "cohort exceeds audit input budget; no truncated training is allowed. "
+                        "Use an isolated audit process with a reviewed higher byte budget."
+                    )
+                candidates.append(ShadowCandidate.model_validate_json(encoded))
     historical = historical_candidates(
         database,
         account_digest=config.account_digest,
@@ -101,6 +110,8 @@ def audit_shadow_pipeline(
         "simulation_policy_id": policy.identity,
         "historical_candidates": len(historical),
         "current_candidates": len(candidates),
+        "candidate_input_bytes": candidate_bytes,
+        "maximum_candidate_bytes": maximum_candidate_bytes,
         "passive_validation": {
             key: value for key, value in validation.items() if key != "per_symbol"
         },
