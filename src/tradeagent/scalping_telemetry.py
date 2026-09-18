@@ -36,6 +36,8 @@ STAGES = {
     "decision_fill": ("t4_model_ns", "t8_filled_ns"),
     "total_end_to_end": ("t0_received_ns", "t8_filled_ns"),
 }
+QUOTE_CACHE_RETENTION_SECONDS = 120
+QUOTE_CACHE_CAPACITY = 10_000
 
 
 def percentiles(values: list[float]) -> dict[str, float | int | None]:
@@ -110,8 +112,10 @@ class ScalpTelemetry:
         self._lock = RLock()
         self._quotes: deque[dict[str, Any]] = deque()
         self._stages: OrderedDict[str, dict[str, int | None]] = OrderedDict()
-        self._retention_ns = 900 * NS
-        self._capacity = 50_000
+        # Diagnostics need five seconds before and ten seconds after a closed
+        # cycle. Raw compressed tape is the durable source for older evidence.
+        self._retention_ns = QUOTE_CACHE_RETENTION_SECONDS * NS
+        self._capacity = QUOTE_CACHE_CAPACITY
         self._evictions = 0
         self._cursor_at = datetime(1970, 1, 1, tzinfo=UTC)
         self._cursor_id = ""

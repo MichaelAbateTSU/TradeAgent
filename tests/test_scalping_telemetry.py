@@ -6,7 +6,12 @@ from test_scalping_market import Tape
 
 from tradeagent.persistence import Database, event_reporting_metadata, events
 from tradeagent.scalping_market import datetime_ns
-from tradeagent.scalping_telemetry import LatencyWindow, ScalpTelemetry
+from tradeagent.scalping_telemetry import (
+    QUOTE_CACHE_CAPACITY,
+    QUOTE_CACHE_RETENTION_SECONDS,
+    LatencyWindow,
+    ScalpTelemetry,
+)
 
 
 def test_stage_latency_has_quantiles_and_never_converts_unknown_to_zero():
@@ -96,6 +101,15 @@ def test_quote_cache_is_bounded_and_tracks_loss_of_old_samples(tmp_path):
         status = recorder.snapshot()
         assert status["quote_cache_size"] == 2
         assert status["quote_cache_evictions"] == 1
+
+
+def test_quote_cache_default_preserves_diagnostic_window_without_excess_retention(tmp_path):
+    with Database(f"sqlite:///{tmp_path / 'default-cache.db'}") as database:
+        database.initialize()
+        recorder = ScalpTelemetry(database, account_digest=ACCOUNT, started_at=NOW)
+        assert recorder._capacity == QUOTE_CACHE_CAPACITY == 10_000
+        assert recorder._retention_ns == QUOTE_CACHE_RETENTION_SECONDS * 1_000_000_000
+        assert QUOTE_CACHE_RETENTION_SECONDS >= 60
 
 
 def test_shutdown_flushes_partial_neutral_window(tmp_path):

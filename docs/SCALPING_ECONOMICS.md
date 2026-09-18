@@ -129,7 +129,10 @@ risk approval, submit, acknowledgement and broker fill. Stage percentiles
 include missing/reversed-clock counts; an absent timestamp is not zero latency.
 The diagnostic writer does not own execution, send orders or deliver email.
 Its bounded quote cache identifies evictions; immutable raw tape supports
-offline reconstruction when a fine-grained live sample was unavailable.
+offline reconstruction when a fine-grained live sample was unavailable. The
+live cache retains at most two minutes and 10,000 quotes: this covers the
+five-second pre-entry and ten-second post-close diagnostic window with ample
+scheduling margin, while avoiding an unnecessary fifteen-minute memory cache.
 
 The read-only `/api/scalping/diagnostics` endpoint serves a bounded page of the
 latest diagnostic revision for each cycle, not a disguised daily P&L total.
