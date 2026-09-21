@@ -808,6 +808,14 @@ class ScalpOrderEngine:
         intent = row["intent"]
         request = OrderRequest.model_validate(intent["request"])
         is_probe = bool(intent.get("probe_policy"))
+        experiment_policy = intent.get("probe_policy") or {}
+        quote_provider = self.quote_provider
+        is_marketable_experiment = bool(
+            request.side is Side.BUY
+            and is_probe
+            and experiment_policy.get("entry_style") == "marketable_limit"
+            and quote_provider is not None
+        )
         signal = (
             ScalpSignal.model_validate_json(json.dumps(intent["signal"]))
             if intent.get("signal")
@@ -849,12 +857,23 @@ class ScalpOrderEngine:
                 self._lease(connection, self.clock())
                 if request.side is Side.BUY:
                     if row["expires_at"] is not None and self.clock() >= utc(row["expires_at"]):
-                        self._expire_unsent(connection, client_id)
+                        self._expire_unsent(
+                            connection,
+                            client_id,
+                            reason={
+                                "reason": "ENTRY_TTL_EXPIRED_BEFORE_SUBMISSION",
+                                "actual": self.clock().isoformat(),
+                                "threshold": utc(row["expires_at"]).isoformat(),
+                            },
+                        )
                         return
                     quote = ScalpQuote.model_validate(intent["quote"])
+                    quote_validation_at = (
+                        request.submitted_at if is_marketable_experiment else self.clock()
+                    )
                     if (
                         canonical_crypto_symbol(quote.symbol) != request.symbol
-                        or not self._quote_valid(quote, self.clock())
+                        or not self._quote_valid(quote, quote_validation_at)
                         or self._manual_stop()
                         or (not is_probe and not self._economic_candidate_present(signal))
                         or (
@@ -863,7 +882,21 @@ class ScalpOrderEngine:
                             >= stamp(intent["probe_policy"]["authorization_cutoff"])
                         )
                     ):
-                        self._expire_unsent(connection, client_id)
+                        self._expire_unsent(
+                            connection,
+                            client_id,
+                            reason={
+                                "reason": "INITIAL_EXECUTION_FENCE_REJECTED",
+                                "quote_validation_at": quote_validation_at.isoformat(),
+                                "quote": quote.model_dump(mode="json"),
+                                "manual_stop": self._manual_stop(),
+                                "authorization_cutoff": (
+                                    intent["probe_policy"]["authorization_cutoff"]
+                                    if is_probe
+                                    else None
+                                ),
+                            },
+                        )
                         return
                 else:
                     self._read_positions(force=True)
@@ -912,37 +945,55 @@ class ScalpOrderEngine:
                     if request.side is Side.BUY
                     else None
                 )
-                experiment_policy = intent.get("probe_policy") or {}
-                if (
-                    request.side is Side.BUY
-                    and is_probe
-                    and experiment_policy.get("entry_style") == "marketable_limit"
-                    and self.quote_provider is not None
-                ):
-                    current_quote = self.quote_provider(request.symbol)
-                    if (
-                        current_quote is None
-                        or not self._quote_valid(current_quote, self.clock())
-                        or current_quote.ask > number(intent["limit_price"])
+                if is_marketable_experiment:
+                    assert quote_provider is not None
+                    original_quote = ScalpQuote.model_validate(intent["quote"])
+                    current_quote = quote_provider(request.symbol)
+                    rejection_reason = None
+                    if current_quote is None:
+                        rejection_reason = "FRESH_DISPATCH_QUOTE_UNAVAILABLE"
+                    elif not self._quote_valid(current_quote, self.clock()):
+                        rejection_reason = "FRESH_DISPATCH_QUOTE_STALE_OR_INVALID"
+                    elif (
+                        current_quote.exchange_at < original_quote.exchange_at
+                        or current_quote.received_at < original_quote.received_at
                     ):
-                        self._expire_unsent(connection, client_id)
+                        rejection_reason = "DISPATCH_QUOTE_PREDATES_ORIGINAL_QUOTE"
+                    elif current_quote.ask > number(intent["limit_price"]):
+                        rejection_reason = "FRESH_DISPATCH_ASK_EXCEEDS_ORIGINAL_CAP"
+                    if rejection_reason is not None:
+                        rejection = {
+                            "reason": rejection_reason,
+                            "actual_ask": (
+                                str(current_quote.ask)
+                                if current_quote is not None
+                                else None
+                            ),
+                            "threshold": intent["limit_price"],
+                            "original_quote": original_quote.model_dump(mode="json"),
+                            "dispatch_quote": (
+                                current_quote.model_dump(mode="json")
+                                if current_quote is not None
+                                else None
+                            ),
+                        }
+                        self._expire_unsent(
+                            connection,
+                            client_id,
+                            reason=rejection,
+                        )
                         self.store.audit(
                             "paper_experiment_dispatch_blocked",
                             {
                                 "cycle_id": row["cycle_id"],
                                 "client_order_id": client_id,
-                                "reason": "FRESH_MARKETABLE_QUOTE_OUTSIDE_ORIGINAL_CAP",
-                                "actual_ask": (
-                                    str(current_quote.ask)
-                                    if current_quote is not None
-                                    else None
-                                ),
-                                "threshold": intent["limit_price"],
+                                **rejection,
                             },
                             at=self.clock(),
                             connection=connection,
                         )
                         return
+                    assert current_quote is not None
                     dispatch_quote = current_quote
                     self.store.audit(
                         "paper_experiment_dispatch_quote",
@@ -1142,16 +1193,28 @@ class ScalpOrderEngine:
                     identity=f"scalp-dispatch-timing:{client_id}",
                 )
 
-    def _expire_unsent(self, connection: Any, client_id: str) -> None:
+    def _expire_unsent(
+        self,
+        connection: Any,
+        client_id: str,
+        *,
+        reason: dict[str, Any] | None = None,
+    ) -> None:
         connection.execute(
             update(orders)
             .where(orders.c.client_order_id == client_id)
             .values(status="expired", updated_at=self.clock())
         )
+        values: dict[str, Any] = {"dispatch_state": "expired_unsent"}
+        if reason is not None:
+            values["submission_error"] = {
+                "pre_submit_rejection": True,
+                **json_value(reason),
+            }
         connection.execute(
             update(scalping_order_links)
             .where(scalping_order_links.c.client_order_id == client_id)
-            .values(dispatch_state="expired_unsent")
+            .values(**values)
         )
 
     def _reserve_order(

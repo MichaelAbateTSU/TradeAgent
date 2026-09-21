@@ -18,7 +18,7 @@ from tradeagent.scalping_store import scalping_cycles, utc
 ACCEPTANCE_CLASSIFICATION = "execution_acceptance_test"
 EXPERIMENTAL_CLASSIFICATION = "experimental_signal_scalp"
 EXPERIMENT_CUTOFF = datetime(2026, 9, 28, 14, 40, 7, tzinfo=UTC)
-ACCEPTANCE_COHORT_ID = "execution-acceptance-20260921-r2"
+ACCEPTANCE_COHORT_ID = "execution-acceptance-20260921-r3"
 EXPERIMENTAL_COHORT_ID = "signal-scalp-experiment-20260921-r1"
 
 
@@ -58,13 +58,13 @@ class PaperExperimentPolicy(BaseModel):
 
 
 class ExecutionAcceptancePolicy(PaperExperimentPolicy):
-    policy_id: Literal["execution-acceptance-v2"] = "execution-acceptance-v2"
-    cohort_id: Literal["execution-acceptance-20260921-r2"] = (
-        "execution-acceptance-20260921-r2"
+    policy_id: Literal["execution-acceptance-v3"] = "execution-acceptance-v3"
+    cohort_id: Literal["execution-acceptance-20260921-r3"] = (
+        "execution-acceptance-20260921-r3"
     )
     classification: Literal["execution_acceptance_test"] = "execution_acceptance_test"
     decision_prefix: Literal["accept"] = "accept"
-    strategy_id: Literal["execution-acceptance-v2"] = "execution-acceptance-v2"
+    strategy_id: Literal["execution-acceptance-v3"] = "execution-acceptance-v3"
     symbols: tuple[str, ...] = ("BTC/USD",)
     max_order_notional_usd: Decimal = Decimal("5")
     daily_submitted_cap: int = 3

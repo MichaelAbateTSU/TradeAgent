@@ -212,13 +212,20 @@ submissions, broker acceptances, partial fills, entry fills, completed exits,
 flat reconciliations, and independent completed round trips. Multiple broker
 status updates for one cycle never increase the independent-observation count.
 
-`execution-acceptance-20260921-r2` first sends one separately classified,
+`execution-acceptance-20260921-r3` first sends one separately classified,
 price-capped marketable BTC/USD paper limit through the existing OMS. The
 entry uses a fresh ask, at most five dollars, a five-second TTL, fee-compatible
 quantity rounding, and a five-second owned exit. Up to three attempts are
 allowed, but the cohort stops after one broker-confirmed entry, exit, recorded
 P&L, and operationally flat reconciliation. This verifies the Alpaca paper
 integration only; it is not passive-fill or profitability evidence.
+
+The quote that establishes the immutable price cap must be fresh when the
+intent is reserved. Account and reconciliation calls may age that quote before
+broker dispatch, so a marketable experiment obtains another quote immediately
+before POST. That dispatch quote must itself be fresh, must not predate the
+original quote, and its ask must remain inside the original cap. Pre-submit
+rejections are persisted with the actual quote and threshold.
 
 After acceptance, `signal-scalp-experiment-20260921-r1` may collect bounded
 BTC/USD and ETH/USD paper scalps through September 28, 2026 at 10:40:07

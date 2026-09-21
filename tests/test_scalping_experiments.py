@@ -109,6 +109,10 @@ def test_marketable_dispatch_rechecks_fresh_quote_inside_original_cap(setup) -> 
     _, broker, _, clock, make = setup
     engine = make(
         entry_order_ttl_seconds=5,
+        decision_policy="action-value-v1",
+        catastrophic_stop_bps=Decimal("100"),
+        decision_interval_seconds=1,
+        feature_horizon_seconds=5,
         quote_provider=lambda _symbol: quote(clock[0]),
     )
     engine.initialize()
@@ -127,6 +131,41 @@ def test_marketable_dispatch_rechecks_fresh_quote_inside_original_cap(setup) -> 
     assert client_id is not None
     assert broker.posts[0].client_order_id == client_id
     assert broker.values[client_id].filled_average_price == Decimal("100.03")
+
+
+def test_marketable_dispatch_rejects_fresh_quote_above_original_cap(setup) -> None:
+    database, broker, _, clock, make = setup
+    engine = make(
+        entry_order_ttl_seconds=5,
+        decision_policy="action-value-v1",
+        catastrophic_stop_bps=Decimal("100"),
+        decision_interval_seconds=1,
+        feature_horizon_seconds=5,
+        quote_provider=lambda _symbol: quote(clock[0], ask="100.04"),
+    )
+    engine.initialize()
+
+    def age_original_quote() -> None:
+        clock[0] = NOW + timedelta(seconds=1.1)
+        broker.account_hook = None
+
+    broker.account_hook = age_original_quote
+    client_id = engine.submit_paper_experiment(
+        policy=ExecutionAcceptancePolicy(),
+        quote=quote(NOW),
+        now=NOW,
+    )
+
+    assert client_id is not None
+    assert not broker.posts
+    report = scalping_experiment_status(database, account_digest=ACCOUNT)
+    order = report["cycles"][0]["orders"][0]
+    assert order["dispatch_state"] == "expired_unsent"
+    assert order["submission_error"]["pre_submit_rejection"] is True
+    assert (
+        order["submission_error"]["reason"]
+        == "FRESH_DISPATCH_ASK_EXCEEDS_ORIGINAL_CAP"
+    )
 
 
 def test_report_counts_one_cycle_not_order_updates(setup) -> None:
