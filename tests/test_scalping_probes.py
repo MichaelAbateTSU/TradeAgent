@@ -20,6 +20,7 @@ from tradeagent.scalping_probes import (
     ExecutionValidationProbePolicy,
     held_out_probe_report,
 )
+from tradeagent.scalping_shadow import load_historical_candidates
 
 
 def quote(now: datetime, symbol: str = "BTC/USD") -> ScalpQuote:
@@ -119,6 +120,67 @@ def test_resolved_probe_allows_a_later_idempotent_schedule_slot(probe_setup) -> 
     assert len(broker.posts) == 3
 
 
+def test_idle_probe_ticks_defer_broker_reconciliation(probe_setup, monkeypatch) -> None:
+    _, _, engine, current = probe_setup
+    now = current[0]
+    cohort = ExecutionValidationProbeCohort(engine, ExecutionValidationProbePolicy())
+    reconciled: list[datetime] = []
+    monkeypatch.setattr(engine, "reconcile", lambda *, now: reconciled.append(now))
+
+    first = cohort.step({}, now=now)
+    for second in range(1, 11):
+        current[0] = now + timedelta(seconds=second)
+        result = cohort.step({}, now=current[0])
+        assert result["broker_reconciliation"] == "deferred_until_schedule_boundary"
+
+    assert first["broker_reconciliation"] == "performed"
+    assert reconciled == [now]
+
+
+def test_probe_scheduling_balances_available_symbols(probe_setup) -> None:
+    _, broker, engine, current = probe_setup
+    now = current[0]
+    cohort = ExecutionValidationProbeCohort(engine, ExecutionValidationProbePolicy())
+
+    first = cohort.step(
+        {"BTC/USD": quote(now), "ETH/USD": quote(now, "ETH/USD")},
+        now=now,
+    )
+    assert first["scheduled_client_order_id"] is not None
+    assert broker.posts[0].symbol == "BTC/USD"
+
+    later = now + timedelta(minutes=16)
+    current[0] = later
+    ProductionRepository(engine.database).refresh_worker_lock(
+        "tradeagent-event-worker", "owner", observed_at=later
+    )
+    engine.step((), {"BTC/USD": quote(later)}, now=later)
+    second = cohort.step(
+        {"BTC/USD": quote(later), "ETH/USD": quote(later, "ETH/USD")},
+        now=later,
+    )
+
+    assert second["scheduled_client_order_id"] is not None
+    assert broker.posts[-1].symbol == "ETH/USD"
+
+
+def test_historical_loader_excludes_probe_payloads_with_audit_reason(probe_setup) -> None:
+    database, _, engine, current = probe_setup
+    now = current[0]
+    cohort = ExecutionValidationProbeCohort(engine, ExecutionValidationProbePolicy())
+    assert cohort.step({"BTC/USD": quote(now)}, now=now)["scheduled_client_order_id"]
+
+    loaded = load_historical_candidates(
+        database,
+        account_digest=engine.config.account_digest,
+        start=now - timedelta(seconds=1),
+        end=now + timedelta(seconds=1),
+    )
+
+    assert loaded.candidates == ()
+    assert loaded.exclusions == {"NON_COMPARABLE_PAPER_EXPERIMENT": 1}
+
+
 def test_deadline_blocks_new_probe_and_actual_label_report_stays_ineligible(probe_setup) -> None:
     _, broker, engine, current = probe_setup
     now = AUTHORIZATION_CUTOFF
@@ -135,6 +197,7 @@ def test_deadline_blocks_new_probe_and_actual_label_report_stays_ineligible(prob
     assert report["eligible"] is False
     assert report["reason"] == "INSUFFICIENT_ACTUAL_RESOLVED_PROBE_LABELS"
     assert report["profitability_claim"] is False
+    assert report["cohort_and_cutoff_scoped"] is True
 
 
 def test_probe_status_api_exposes_recorded_isolated_contract(tmp_path: Path) -> None:

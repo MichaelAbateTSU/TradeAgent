@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 
 from tradeagent.persistence import (
     Database,
@@ -25,6 +25,8 @@ from tradeagent.scalping_experiments import (
     ExperimentalScalpPolicy,
     experiment_policy_report,
 )
+from tradeagent.scalping_probes import CLASSIFICATION as PROBE_CLASSIFICATION
+from tradeagent.scalping_probes import ExecutionValidationProbePolicy
 from tradeagent.scalping_store import scalping_cycles, scalping_order_links
 
 PROFILE = "v30-paper-unrestricted"
@@ -278,15 +280,35 @@ def scalping_experiment_status(
     """Return the paper decision funnel, order evidence, and model-transition gate."""
     acceptance = ExecutionAcceptancePolicy()
     experimental = ExperimentalScalpPolicy()
-    classifications = (
-        "execution_validation_probe",
-        ACCEPTANCE_CLASSIFICATION,
-        EXPERIMENTAL_CLASSIFICATION,
+    probe = ExecutionValidationProbePolicy()
+    policies = (
+        (PROBE_CLASSIFICATION, probe),
+        (ACCEPTANCE_CLASSIFICATION, acceptance),
+        (EXPERIMENTAL_CLASSIFICATION, experimental),
+    )
+    cycle_scope = or_(
+        *(
+            and_(
+                scalping_cycles.c.payload["classification"].as_string() == classification,
+                scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+                == policy.cohort_id,
+                scalping_cycles.c.created_at < policy.authorization_cutoff,
+            )
+            for classification, policy in policies
+        )
+    )
+    candidate_scope = or_(
+        *(
+            and_(
+                events.c.payload["classification"].as_string() == classification,
+                events.c.payload["cohort_id"].as_string() == policy.cohort_id,
+                events.c.occurred_at < policy.authorization_cutoff,
+            )
+            for classification, policy in policies
+        )
     )
     with database.begin() as connection:
-        cycle_query = select(scalping_cycles).where(
-            scalping_cycles.c.payload["classification"].as_string().in_(classifications)
-        )
+        cycle_query = select(scalping_cycles).where(cycle_scope)
         if account_digest is not None:
             cycle_query = cycle_query.where(
                 scalping_cycles.c.account_digest == account_digest
@@ -318,7 +340,10 @@ def scalping_experiment_status(
             dict(row)
             for row in connection.execute(
                 select(events.c.occurred_at, events.c.payload)
-                .where(events.c.event_type == "scalp_paper_experiment_candidate")
+                .where(
+                    events.c.event_type == "scalp_paper_experiment_candidate",
+                    candidate_scope,
+                )
                 .order_by(events.c.occurred_at)
             )
             .mappings()

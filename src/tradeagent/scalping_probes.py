@@ -79,6 +79,18 @@ class ExecutionValidationProbeCohort:
 
     def __init__(self, engine: ScalpOrderEngine, policy: ExecutionValidationProbePolicy):
         self.engine, self.policy = engine, policy
+        self._last_schedule_evaluation_at: datetime | None = None
+
+    def _scope(self, *, before_cutoff: bool = False) -> tuple[Any, ...]:
+        scope: tuple[Any, ...] = (
+            scalping_cycles.c.account_digest == self.engine.config.account_digest,
+            scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+            scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+            == self.policy.cohort_id,
+        )
+        if before_cutoff:
+            scope += (scalping_cycles.c.created_at < self.policy.authorization_cutoff,)
+        return scope
 
     def _today(self, now: datetime) -> date:
         return utc(now).date()
@@ -87,8 +99,7 @@ class ExecutionValidationProbeCohort:
         start = datetime.combine(self._today(now), datetime.min.time(), tzinfo=UTC)
         with self.engine.database.begin() as connection:
             scope = (
-                scalping_cycles.c.account_digest == self.engine.config.account_digest,
-                scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+                *self._scope(before_cutoff=True),
                 scalping_cycles.c.created_at >= start,
             )
             submitted = int(connection.scalar(select(func.count()).where(*scope)) or 0)
@@ -103,8 +114,7 @@ class ExecutionValidationProbeCohort:
                     select(func.count())
                     .select_from(scalping_cycles)
                     .where(
-                        scalping_cycles.c.account_digest == self.engine.config.account_digest,
-                        scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+                        *self._scope(),
                         scalping_cycles.c.state.not_in(CLOSED),
                     )
                 )
@@ -112,23 +122,59 @@ class ExecutionValidationProbeCohort:
             )
             last = connection.scalar(
                 select(func.max(scalping_cycles.c.created_at)).where(
-                    scalping_cycles.c.account_digest == self.engine.config.account_digest,
-                    scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+                    *self._scope(before_cutoff=True),
                 )
             )
+            by_symbol = {
+                str(row["symbol"]): int(row["count"])
+                for row in connection.execute(
+                    select(
+                        scalping_cycles.c.symbol,
+                        func.count().label("count"),
+                    )
+                    .where(*scope)
+                    .group_by(scalping_cycles.c.symbol)
+                ).mappings()
+            }
         return {
             "submitted": submitted,
             "filled": filled,
             "outstanding": outstanding,
             "last_submitted_at": utc(last).isoformat() if last else None,
+            "submitted_by_symbol": by_symbol,
         }
 
+    def _schedule_due(self, counts: dict[str, Any], now: datetime) -> bool:
+        last_submitted = counts["last_submitted_at"]
+        reference = (
+            datetime.fromisoformat(str(last_submitted))
+            if last_submitted is not None
+            else self._last_schedule_evaluation_at
+        )
+        return reference is None or now - reference >= timedelta(
+            seconds=self.policy.schedule_interval_seconds
+        )
+
     def step(self, quotes: dict[str, ScalpQuote], *, now: datetime) -> dict[str, Any]:
-        """Reconcile first; schedule at most one current passive probe when eligible."""
+        """Reconcile exposure promptly and idle probes only at their schedule boundary."""
+        now = utc(now)
+        counts = self._counts(now)
+        schedule_due = self._schedule_due(counts, now)
+        if not schedule_due and counts["outstanding"] == 0:
+            return {
+                **self.status(now=now),
+                "scheduled_client_order_id": None,
+                "eligible_for_new_probe": False,
+                "broker_reconciliation": "deferred_until_schedule_boundary",
+            }
+
         self.engine.reconcile(now=now)
+        if schedule_due:
+            self._last_schedule_evaluation_at = now
         counts = self._counts(now)
         eligible = (
-            now < self.policy.authorization_cutoff
+            schedule_due
+            and now < self.policy.authorization_cutoff
             and counts["submitted"] < self.policy.daily_submitted_cap
             and counts["filled"] < self.policy.daily_filled_cycle_cap
             and counts["outstanding"] == 0
@@ -140,18 +186,29 @@ class ExecutionValidationProbeCohort:
         )
         submitted = None
         if eligible:
-            for symbol in self.policy.symbols:
+            available = [
+                symbol for symbol in self.policy.symbols if quotes.get(symbol) is not None
+            ]
+            for symbol in sorted(
+                available,
+                key=lambda item: (
+                    int(counts["submitted_by_symbol"].get(item, 0)),
+                    self.policy.symbols.index(item),
+                ),
+            ):
                 quote = quotes.get(symbol)
-                if quote is not None:
-                    submitted = self.engine.submit_execution_validation_probe(
-                        policy=self.policy, quote=quote, now=now
-                    )
-                    if submitted:
-                        break
+                if quote is None:
+                    continue
+                submitted = self.engine.submit_execution_validation_probe(
+                    policy=self.policy, quote=quote, now=now
+                )
+                if submitted:
+                    break
         return {
             **self.status(now=now),
             "scheduled_client_order_id": submitted,
             "eligible_for_new_probe": eligible,
+            "broker_reconciliation": "performed",
         }
 
     def status(self, *, now: datetime) -> dict[str, Any]:
@@ -162,8 +219,7 @@ class ExecutionValidationProbeCohort:
                     select(func.count())
                     .select_from(scalping_cycles)
                     .where(
-                        scalping_cycles.c.account_digest == self.engine.config.account_digest,
-                        scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+                        *self._scope(before_cutoff=True),
                         scalping_cycles.c.state.in_(CLOSED),
                     )
                 )
@@ -178,11 +234,21 @@ class ExecutionValidationProbeCohort:
                         scalping_cycles.c.cycle_id == scalping_order_links.c.cycle_id,
                     )
                     .where(
-                        scalping_cycles.c.account_digest == self.engine.config.account_digest,
-                        scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+                        *self._scope(),
                         scalping_order_links.c.dispatch_state.not_in(
                             ("expired_unsent", "broker_rejected")
                         ),
+                    )
+                )
+                or 0
+            )
+            out_of_window_records = int(
+                connection.scalar(
+                    select(func.count())
+                    .select_from(scalping_cycles)
+                    .where(
+                        *self._scope(),
+                        scalping_cycles.c.created_at >= self.policy.authorization_cutoff,
                     )
                 )
                 or 0
@@ -191,7 +257,12 @@ class ExecutionValidationProbeCohort:
             "as_of": now.isoformat(),
             "policy": self.policy.description(),
             "active_cohort": self.policy.cohort_id,
-            "counts": {**counts, "resolved_labels": resolved, "tracked_order_records": open_orders},
+            "counts": {
+                **counts,
+                "resolved_labels": resolved,
+                "tracked_order_records": open_orders,
+                "out_of_window_records_excluded": out_of_window_records,
+            },
             "limits": self.policy.description(),
             "outstanding_owned_probe_exposure_or_orders": counts["outstanding"],
             "deadline": self.policy.authorization_cutoff.isoformat(),
@@ -216,6 +287,9 @@ def held_out_probe_report(
                 .where(
                     scalping_cycles.c.account_digest == account_digest,
                     scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+                    scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+                    == policy.cohort_id,
+                    scalping_cycles.c.created_at < policy.authorization_cutoff,
                     scalping_cycles.c.state.in_(CLOSED),
                     scalping_cycles.c.entry_quantity > 0,
                     scalping_cycles.c.exit_quantity > 0,
@@ -232,6 +306,9 @@ def held_out_probe_report(
         "evidence": "actual broker-resolved probe fills and exits only",
         "eligible": resolved >= 2,
         "reason": None if resolved >= 2 else "INSUFFICIENT_ACTUAL_RESOLVED_PROBE_LABELS",
+        "required_labels": 2,
+        "qualifying_labels": resolved,
+        "cohort_and_cutoff_scoped": True,
         "chronological_train_labels": split,
         "chronological_held_out_labels": resolved - split,
         "profitability_claim": False,

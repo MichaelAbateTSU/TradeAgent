@@ -2,7 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import select, update
 from test_scalping_execution import (
     ACCOUNT,
     NOW,
@@ -19,6 +19,7 @@ from tradeagent.scalping_experiments import (
     ExecutionAcceptancePolicy,
     ExperimentalScalpCohort,
     ExperimentalScalpPolicy,
+    PaperExperimentPolicy,
 )
 from tradeagent.scalping_policy import (
     calibrate_from_actual_experiments,
@@ -264,6 +265,72 @@ def test_report_counts_one_cycle_not_order_updates(setup) -> None:
     assert report["evidence_accounting"]["reason"] == (
         "INSUFFICIENT_ACTUAL_COMPLETED_ROUND_TRIPS"
     )
+
+
+def test_experiment_report_excludes_wrong_cohort_and_cutoff_records(setup) -> None:
+    database, _, _, _, make = setup
+    engine = make(entry_order_ttl_seconds=5)
+    engine.initialize()
+    policy = ExecutionAcceptancePolicy()
+    unrelated = PaperExperimentPolicy(
+        policy_id="unrelated-acceptance",
+        cohort_id="unrelated-acceptance-cohort",
+        classification=policy.classification,
+        decision_prefix="unrelated",
+        strategy_id="unrelated-acceptance",
+        daily_submitted_cap=1,
+        daily_filled_cycle_cap=1,
+        schedule_interval_seconds=60,
+        entry_ttl_seconds=5,
+        exit_after_seconds=5,
+    )
+    assert (
+        engine.submit_paper_experiment(policy=unrelated, quote=quote(NOW), now=NOW)
+        is not None
+    )
+    engine.store.audit(
+        "paper_experiment_candidate",
+        {
+            "cohort_id": unrelated.cohort_id,
+            "classification": unrelated.classification,
+            "eligible": False,
+        },
+        at=NOW,
+    )
+    assert (
+        engine.submit_paper_experiment(policy=policy, quote=quote(NOW), now=NOW)
+        is None
+    )
+    with database.begin() as connection:
+        connection.execute(
+            update(scalping_cycles)
+            .where(
+                scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+                == unrelated.cohort_id
+            )
+            .values(
+                payload={
+                    "classification": policy.classification,
+                    "probe_policy": policy.model_dump(mode="json"),
+                },
+                created_at=policy.authorization_cutoff,
+            )
+        )
+    engine.store.audit(
+        "paper_experiment_candidate",
+        {
+            "cohort_id": policy.cohort_id,
+            "classification": policy.classification,
+            "eligible": False,
+        },
+        at=policy.authorization_cutoff,
+    )
+
+    report = scalping_experiment_status(database, account_digest=ACCOUNT)
+
+    assert report["cycles"] == []
+    assert report["funnel"]["submissions"] == 0
+    assert report["funnel"]["candidates"] == 0
 
 
 def test_actual_round_trips_calibrate_write_and_reload_validated_model(

@@ -10,7 +10,7 @@ from decimal import Decimal
 from hashlib import sha256
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from sqlalchemy import select
 
 from tradeagent.persistence import Database, events
@@ -1129,13 +1129,19 @@ def runtime_candidates(
     return tuple(candidates)
 
 
-def historical_candidates(
+@dataclass(frozen=True)
+class HistoricalCandidateLoad:
+    candidates: tuple[ShadowCandidate, ...]
+    exclusions: dict[str, int]
+
+
+def load_historical_candidates(
     database: Database,
     *,
     account_digest: str,
     start: datetime,
     end: datetime,
-) -> tuple[ShadowCandidate, ...]:
+) -> HistoricalCandidateLoad:
     with database.begin() as connection:
         rows = list(
             connection.execute(
@@ -1170,12 +1176,36 @@ def historical_candidates(
         if fill is not None:
             first_fills[identity] = min(first_fills.get(identity, fill) or fill, fill)
     candidates = []
+    exclusions: Counter[str] = Counter()
     for identity, stored in unique.items():
-        signal = ScalpSignal.model_validate_json(
-            json.dumps(stored["payload"]["signal"], default=str)
-        )
-        frozen = ScalpingConfig.model_validate(stored["payload"]["config"])
+        payload = stored.get("payload")
+        if not isinstance(payload, Mapping):
+            exclusions["MISSING_PAYLOAD"] += 1
+            continue
+        if payload.get("classification") in {
+            "execution_validation_probe",
+            "execution_acceptance_test",
+            "experimental_signal_scalp",
+        }:
+            exclusions["NON_COMPARABLE_PAPER_EXPERIMENT"] += 1
+            continue
+        raw_signal, raw_config = payload.get("signal"), payload.get("config")
+        if not isinstance(raw_signal, Mapping):
+            exclusions["MISSING_SIGNAL"] += 1
+            continue
+        if not isinstance(raw_config, Mapping):
+            exclusions["MISSING_CONFIG"] += 1
+            continue
+        try:
+            signal = ScalpSignal.model_validate(raw_signal)
+            frozen = ScalpingConfig.model_validate(raw_config)
+        except ValidationError:
+            exclusions["INVALID_STRATEGY_EVIDENCE"] += 1
+            continue
         intent = stored.get("intent") or {}
+        if not isinstance(intent, Mapping):
+            exclusions["INVALID_ORDER_INTENT"] += 1
+            continue
         original_quote = intent.get("quote") or {}
         passive_comparable = bool(
             (intent.get("request") or {}).get("order_type") == "limit"
@@ -1202,7 +1232,26 @@ def historical_candidates(
                 actual_passive_comparable=passive_comparable,
             )
         )
-    return tuple(candidates)
+    return HistoricalCandidateLoad(
+        candidates=tuple(candidates),
+        exclusions=dict(sorted(exclusions.items())),
+    )
+
+
+def historical_candidates(
+    database: Database,
+    *,
+    account_digest: str,
+    start: datetime,
+    end: datetime,
+) -> tuple[ShadowCandidate, ...]:
+    """Load only strategy-shaped records; retain exclusions for auditable callers."""
+    return load_historical_candidates(
+        database,
+        account_digest=account_digest,
+        start=start,
+        end=end,
+    ).candidates
 
 
 def simulate_database_candidates(

@@ -15,7 +15,7 @@ from tradeagent.scalping_policy import calibrate_from_shadow_report, write_model
 from tradeagent.scalping_shadow import (
     ShadowCandidate,
     ShadowPolicy,
-    historical_candidates,
+    load_historical_candidates,
     shadow_report,
     simulate_database_candidates,
     validate_passive_simulation,
@@ -79,12 +79,13 @@ def audit_shadow_pipeline(
                         "Use an isolated audit process with a reviewed higher byte budget."
                     )
                 candidates.append(ShadowCandidate.model_validate_json(encoded))
-    historical = historical_candidates(
+    historical_load = load_historical_candidates(
         database,
         account_digest=config.account_digest,
         start=historical_start,
         end=historical_end,
     )
+    historical = historical_load.candidates
     policy = ShadowPolicy()
     validation_outcomes = simulate_database_candidates(database, historical, config, policy)
     validation = validate_passive_simulation(validation_outcomes, policy)
@@ -109,6 +110,7 @@ def audit_shadow_pipeline(
         "simulation_policy": policy.model_dump(mode="json"),
         "simulation_policy_id": policy.identity,
         "historical_candidates": len(historical),
+        "historical_candidate_exclusions": historical_load.exclusions,
         "current_candidates": len(candidates),
         "candidate_input_bytes": candidate_bytes,
         "maximum_candidate_bytes": maximum_candidate_bytes,

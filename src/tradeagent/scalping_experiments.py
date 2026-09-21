@@ -159,6 +159,7 @@ def _audit_candidate(
         {
             "cohort_id": policy.cohort_id,
             "classification": policy.classification,
+            "account_digest": engine.config.account_digest,
             "symbol": symbol,
             "eligible": all(check["passed"] for check in checks),
             "checks": checks,

@@ -212,6 +212,18 @@ submissions, broker acceptances, partial fills, entry fills, completed exits,
 flat reconciliations, and independent completed round trips. Multiple broker
 status updates for one cycle never increase the independent-observation count.
 
+Historical probe evidence is scoped to its immutable cohort identity and to
+entries created before its authorization cutoff; permitted post-cutoff
+reconciliation and exits do not become new labels. Its retained scheduler
+reconciles unresolved exposure promptly, but idle ticks defer broker
+reconciliation until the next scheduled boundary. When both original probe
+symbols have fresh quotes, it chooses the least-submitted symbol first.
+Historical replay excludes probe, acceptance, and experimental records from
+strategy-shaped candidate loading and records each exclusion reason in the
+read-only audit summary. The experiment dashboard applies the same
+classification, cohort, and cutoff predicates to both candidate and order
+evidence.
+
 `execution-acceptance-20260921-r5` first sends one separately classified,
 price-capped marketable BTC/USD paper limit through the existing OMS. The
 entry uses a fresh ask, a hard $10.25 cap, a five-second TTL, fee-compatible
