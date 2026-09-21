@@ -2,21 +2,35 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from collections.abc import Mapping
-from datetime import datetime
+from datetime import datetime, timedelta
+from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
 from pydantic import ValidationError
+from sqlalchemy import select
 
 from tradeagent.scalping_config import ScalpingConfig
-from tradeagent.scalping_economics import EconomicModel, EconomicSample, calibrate_model
+from tradeagent.scalping_economics import (
+    CostEstimate,
+    EconomicCosts,
+    EconomicModel,
+    EconomicSample,
+    calibrate_model,
+    project_economic_features,
+)
+from tradeagent.scalping_experiments import (
+    EXPERIMENTAL_CLASSIFICATION,
+    ExperimentalScalpPolicy,
+)
 from tradeagent.scalping_shadow import (
     ShadowActionOutcome,
     ShadowPolicy,
     outcome_sample,
     validate_passive_simulation,
 )
+from tradeagent.scalping_store import canonical, scalping_cycles, scalping_order_links, utc
 
 
 def _digest(value: object) -> str:
@@ -184,6 +198,251 @@ def write_model_artifact(model: EconomicModel, path: Path) -> str:
     payload = model.canonical_json() + "\n"
     path.write_text(payload, encoding="utf-8", newline="\n")
     return model_file_sha256(path)
+
+
+def calibrate_from_actual_experiments(
+    database: Any,
+    *,
+    account_digest: str,
+    maker_fee_bps: float,
+    taker_fee_bps: float,
+    calibrated_at: datetime,
+    valid_until: datetime,
+) -> tuple[EconomicModel, dict[str, Any]]:
+    """Build a chronological artifact only from completed broker-confirmed experiments."""
+    policy = ExperimentalScalpPolicy()
+    with database.begin() as connection:
+        cycles = [
+            dict(row)
+            for row in connection.execute(
+                select(scalping_cycles)
+                .where(
+                    scalping_cycles.c.account_digest == account_digest,
+                    scalping_cycles.c.payload["classification"].as_string()
+                    == EXPERIMENTAL_CLASSIFICATION,
+                    scalping_cycles.c.state == "closed_owned_flat",
+                )
+                .order_by(scalping_cycles.c.created_at)
+            )
+            .mappings()
+            .all()
+        ]
+        cycle_ids = [row["cycle_id"] for row in cycles]
+        orders = (
+            [
+                dict(row)
+                for row in connection.execute(
+                    select(scalping_order_links)
+                    .where(scalping_order_links.c.cycle_id.in_(cycle_ids))
+                    .order_by(scalping_order_links.c.created_at)
+                )
+                .mappings()
+                .all()
+            ]
+            if cycle_ids
+            else []
+        )
+    by_cycle: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in orders:
+        by_cycle[str(row["cycle_id"])].append(row)
+    source_rows = [
+        {
+            "cycle_id": row["cycle_id"],
+            "created_at": utc(row["created_at"]).isoformat(),
+            "closed_at": utc(row["closed_at"]).isoformat() if row["closed_at"] else None,
+            "entry_quantity": str(row["entry_quantity"]),
+            "entry_value": str(row["entry_value"]),
+            "exit_quantity": str(row["exit_quantity"]),
+            "exit_value": str(row["exit_value"]),
+            "payload": row["payload"],
+            "orders": [
+                {
+                    "client_order_id": order["client_order_id"],
+                    "broker": order["broker"],
+                    "first_positive_fill_at": (
+                        utc(order["first_positive_fill_at"]).isoformat()
+                        if order["first_positive_fill_at"]
+                        else None
+                    ),
+                }
+                for order in by_cycle.get(str(row["cycle_id"]), [])
+            ],
+        }
+        for row in cycles
+    ]
+    source_sha = sha256(canonical(source_rows).encode()).hexdigest()
+    embedded = CostEstimate(
+        included_in_return=True,
+        kind="embedded",
+        provenance="broker entry and exit prices embed spread, slippage, impact, and selection",
+    )
+    fees = CostEstimate(
+        bps=max(maker_fee_bps, taker_fee_bps) + taker_fee_bps,
+        kind="conservative_allowance",
+        provenance="worst configured entry fee plus configured market-exit fee",
+    )
+    horizon_seconds = float(policy.entry_ttl_seconds + policy.exit_after_seconds)
+    samples: list[EconomicSample] = []
+    exclusions: Counter[str] = Counter()
+    for cycle in cycles:
+        entry_quantity = Decimal(str(cycle["entry_quantity"]))
+        exit_quantity = Decimal(str(cycle["exit_quantity"]))
+        entry_value = Decimal(str(cycle["entry_value"] or 0))
+        exit_value = Decimal(str(cycle["exit_value"] or 0))
+        signal = dict(cycle["payload"].get("signal") or {})
+        quote = dict(cycle["payload"].get("entry_quote") or {})
+        cycle_orders = by_cycle.get(str(cycle["cycle_id"]), [])
+        buys = [
+            order
+            for order in cycle_orders
+            if (order["intent"].get("request") or {}).get("side") == "buy"
+        ]
+        sells = [
+            order
+            for order in cycle_orders
+            if (order["intent"].get("request") or {}).get("side") == "sell"
+        ]
+        if (
+            entry_quantity <= 0
+            or exit_quantity <= 0
+            or entry_value <= 0
+            or exit_value <= 0
+            or not buys
+            or not sells
+        ):
+            exclusions["INCOMPLETE_BROKER_ROUND_TRIP"] += 1
+            continue
+        decision_at = utc(cycle["created_at"])
+        entry_fill_at = min(
+            (
+                utc(order["first_positive_fill_at"])
+                for order in buys
+                if order["first_positive_fill_at"] is not None
+            ),
+            default=None,
+        )
+        exit_fill_at = max(
+            (
+                utc(order["first_positive_fill_at"])
+                for order in sells
+                if order["first_positive_fill_at"] is not None
+            ),
+            default=None,
+        )
+        if entry_fill_at is None or exit_fill_at is None:
+            exclusions["MISSING_BROKER_FILL_TIMESTAMPS"] += 1
+            continue
+        if exit_fill_at > decision_at + timedelta(seconds=horizon_seconds):
+            exclusions["EXIT_OUTSIDE_DECLARED_HORIZON"] += 1
+            continue
+        family = signal.get("family")
+        if family not in {"momentum", "reversion"}:
+            exclusions["UNSUPPORTED_SIGNAL_FAMILY"] += 1
+            continue
+        features = project_economic_features(dict(signal.get("features") or {}))
+        if not features:
+            exclusions["MISSING_MODEL_FEATURES"] += 1
+            continue
+        try:
+            observed_at = utc(
+                datetime.fromisoformat(
+                    str(signal.get("observed_at") or quote.get("exchange_at")).replace(
+                        "Z", "+00:00"
+                    )
+                )
+            )
+            quote_exchange_at = utc(
+                datetime.fromisoformat(str(quote["exchange_at"]).replace("Z", "+00:00"))
+            )
+            ask = Decimal(str(quote["ask"]))
+            bid = Decimal(str(quote["bid"]))
+        except (KeyError, TypeError, ValueError):
+            exclusions["INVALID_DECISION_QUOTE"] += 1
+            continue
+        entry_price = entry_value / entry_quantity
+        exit_price = exit_value / exit_quantity
+        requested = Decimal(str(cycle["payload"]["probe_policy"]["max_order_notional_usd"]))
+        return_bps = float((exit_price - entry_price) / entry_price * Decimal(10_000))
+        samples.append(
+            EconomicSample(
+                sample_id=str(cycle["cycle_id"]),
+                account_digest=account_digest,
+                source_sha256=source_sha,
+                symbol=str(cycle["symbol"]),
+                family=family,
+                action="AGGRESSIVE_BUY",
+                decision_at=decision_at,
+                feature_observed_at=min(observed_at, decision_at),
+                label_matured_at=max(
+                    utc(cycle["closed_at"]),
+                    decision_at + timedelta(seconds=horizon_seconds),
+                ),
+                return_end_at=exit_fill_at,
+                horizon_seconds=horizon_seconds,
+                cancellation_horizon_seconds=float(policy.entry_ttl_seconds),
+                features=features,
+                quote_age_seconds=max(
+                    0.0, (decision_at - quote_exchange_at).total_seconds()
+                ),
+                decision_latency_seconds=max(
+                    0.0, (decision_at - observed_at).total_seconds()
+                ),
+                spread_bps=float((ask - bid) / ((ask + bid) / 2) * Decimal(10_000)),
+                notional_usd=float(requested),
+                filled=True,
+                filled_fraction=float(min(Decimal(1), entry_value / requested)),
+                fill_delay_seconds=max(
+                    0.0, (entry_fill_at - decision_at).total_seconds()
+                ),
+                gross_return_bps=return_bps,
+                directional_return_bps=return_bps,
+                return_basis="fill_to_fill",
+                costs=EconomicCosts(
+                    fees=fees,
+                    spread=embedded,
+                    slippage=embedded,
+                    impact=embedded,
+                    adverse_selection=embedded,
+                ),
+                execution_evidence="observed",
+            )
+        )
+    required = policy.minimum_training_round_trips + policy.minimum_held_out_round_trips
+    model = calibrate_model(
+        samples,
+        account_digest=account_digest,
+        source_sha256=source_sha,
+        maker_fee_bps=maker_fee_bps,
+        taker_fee_bps=taker_fee_bps,
+        horizon_seconds=horizon_seconds,
+        cancellation_horizon_seconds=float(policy.entry_ttl_seconds),
+        calibrated_at=calibrated_at,
+        valid_until=valid_until,
+        validation_fraction=policy.minimum_held_out_round_trips / required,
+        minimum_fit_samples=10,
+        minimum_validation_samples=5,
+        minimum_filled_samples=5,
+    )
+    audit = {
+        "schema": "actual-execution-calibration-audit-v1",
+        "source_sha256": source_sha,
+        "completed_cycle_count": len(cycles),
+        "accepted_sample_count": len(samples),
+        "required_independent_round_trips": required,
+        "eligible_for_calibration": len(samples) >= required,
+        "exclusion_reasons": dict(sorted(exclusions.items())),
+        "model_id": model.model_id,
+        "model_status": model.status,
+        "model_reason_codes": list(model.reason_codes),
+        "chronological_split": True,
+        "cost_policy": "fill-to-fill prices plus conservative configured fee allowance",
+        "worker_load_allowed": model.status == "validated" and len(samples) >= required,
+    }
+    if len(samples) < required:
+        audit["model_status"] = "no_support"
+        audit["model_reason_codes"] = ["INSUFFICIENT_ACTUAL_COMPLETED_ROUND_TRIPS"]
+        audit["worker_load_allowed"] = False
+    return model, audit
 
 
 def calibrate_from_shadow_report(

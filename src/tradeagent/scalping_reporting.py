@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -16,6 +18,14 @@ from tradeagent.persistence import (
     worker_locks,
 )
 from tradeagent.reporting_reads import payload_from_projection, projected_payload
+from tradeagent.scalping_experiments import (
+    ACCEPTANCE_CLASSIFICATION,
+    EXPERIMENTAL_CLASSIFICATION,
+    ExecutionAcceptancePolicy,
+    ExperimentalScalpPolicy,
+    experiment_policy_report,
+)
+from tradeagent.scalping_store import scalping_cycles, scalping_order_links
 
 PROFILE = "v30-paper-unrestricted"
 
@@ -257,6 +267,238 @@ def scalping_probe_status(database: Database, *, cohort_id: str | None = None) -
         **probe,
         "runtime_active": status.get("active", False),
         "read_model": "recorded runtime projection, not a fresh broker request",
+    }
+
+
+def scalping_experiment_status(
+    database: Database,
+    *,
+    account_digest: str | None = None,
+) -> dict[str, Any]:
+    """Return the paper decision funnel, order evidence, and model-transition gate."""
+    acceptance = ExecutionAcceptancePolicy()
+    experimental = ExperimentalScalpPolicy()
+    classifications = (
+        "execution_validation_probe",
+        ACCEPTANCE_CLASSIFICATION,
+        EXPERIMENTAL_CLASSIFICATION,
+    )
+    with database.begin() as connection:
+        cycle_query = select(scalping_cycles).where(
+            scalping_cycles.c.payload["classification"].as_string().in_(classifications)
+        )
+        if account_digest is not None:
+            cycle_query = cycle_query.where(
+                scalping_cycles.c.account_digest == account_digest
+            )
+        cycles = [
+            dict(row)
+            for row in connection.execute(
+                cycle_query.order_by(scalping_cycles.c.created_at)
+            )
+            .mappings()
+            .all()
+        ]
+        cycle_ids = [row["cycle_id"] for row in cycles]
+        orders = (
+            [
+                dict(row)
+                for row in connection.execute(
+                    select(scalping_order_links)
+                    .where(scalping_order_links.c.cycle_id.in_(cycle_ids))
+                    .order_by(scalping_order_links.c.created_at)
+                )
+                .mappings()
+                .all()
+            ]
+            if cycle_ids
+            else []
+        )
+        candidate_events = [
+            dict(row)
+            for row in connection.execute(
+                select(events.c.occurred_at, events.c.payload)
+                .where(events.c.event_type == "scalp_paper_experiment_candidate")
+                .order_by(events.c.occurred_at)
+            )
+            .mappings()
+            .all()
+        ]
+    orders_by_cycle: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in orders:
+        broker = dict(row["broker"] or {})
+        intent = dict(row["intent"] or {})
+        orders_by_cycle[str(row["cycle_id"])].append(
+            {
+                "client_order_id": row["client_order_id"],
+                "broker_order_id": broker.get("id"),
+                "side": (intent.get("request") or {}).get("side"),
+                "limit_price": intent.get("limit_price"),
+                "quote": intent.get("quote"),
+                "dispatch_state": row["dispatch_state"],
+                "broker_status": broker.get("status"),
+                "broker_created_at": broker.get("created_at"),
+                "broker_submitted_at": broker.get("submitted_at"),
+                "broker_filled_at": broker.get("filled_at"),
+                "broker_canceled_at": broker.get("canceled_at"),
+                "filled_quantity": broker.get("filled_quantity"),
+                "filled_average_price": broker.get("filled_average_price"),
+                "submission_started_at": (
+                    row["submission_started_at"].isoformat()
+                    if row["submission_started_at"]
+                    else None
+                ),
+                "cancel_requested_at": (
+                    row["cancel_requested_at"].isoformat()
+                    if row["cancel_requested_at"]
+                    else None
+                ),
+                "first_positive_fill_at": (
+                    row["first_positive_fill_at"].isoformat()
+                    if row["first_positive_fill_at"]
+                    else None
+                ),
+                "last_reconciled_at": (
+                    row["last_reconciled_at"].isoformat()
+                    if row["last_reconciled_at"]
+                    else None
+                ),
+                "submission_error": row["submission_error"],
+            }
+        )
+    cycle_evidence = []
+    exclusions: Counter[str] = Counter()
+    for row in cycles:
+        classification = str(row["payload"].get("classification"))
+        qualifying = (
+            classification == EXPERIMENTAL_CLASSIFICATION
+            and row["state"] == "closed_owned_flat"
+            and Decimal(str(row["entry_quantity"])) > 0
+            and Decimal(str(row["exit_quantity"])) > 0
+            and Decimal(str(row["owned_quantity"])) == 0
+        )
+        if not qualifying:
+            reason = (
+                "NO_ENTRY_FILL"
+                if row["state"] == "no_fill"
+                else "ACCEPTANCE_TEST_NOT_ECONOMIC_TRAINING"
+                if classification == ACCEPTANCE_CLASSIFICATION
+                else "LEGACY_PASSIVE_PROBE_NOT_ECONOMIC_TRAINING"
+                if classification == "execution_validation_probe"
+                else "ROUND_TRIP_NOT_COMPLETE"
+            )
+            exclusions[reason] += 1
+        cycle_evidence.append(
+            {
+                "cycle_id": row["cycle_id"],
+                "classification": classification,
+                "symbol": row["symbol"],
+                "state": row["state"],
+                "decision_at": row["created_at"].isoformat(),
+                "opened_at": row["opened_at"].isoformat() if row["opened_at"] else None,
+                "closed_at": row["closed_at"].isoformat() if row["closed_at"] else None,
+                "entry_quantity": str(row["entry_quantity"]),
+                "exit_quantity": str(row["exit_quantity"]),
+                "owned_quantity": str(row["owned_quantity"]),
+                "gross_cash_flow_usd": (
+                    str(row["gross_cash_flow"]) if row["gross_cash_flow"] is not None else None
+                ),
+                "actual_net_pnl_usd": (
+                    str(row["actual_net_pnl"]) if row["actual_net_pnl"] is not None else None
+                ),
+                "modeled_net_pnl_usd": (
+                    str(row["modeled_net_pnl"])
+                    if row["modeled_net_pnl"] is not None
+                    else None
+                ),
+                "fees_pending": row["fees_pending"],
+                "qualifying_independent_observation": qualifying,
+                "orders": orders_by_cycle.get(str(row["cycle_id"]), []),
+            }
+        )
+    qualifying = [
+        row for row in cycle_evidence if row["qualifying_independent_observation"]
+    ]
+    blocked_candidates = sum(
+        event["payload"].get("eligible") is False for event in candidate_events
+    )
+    entry_submissions = sum(
+        1 for row in orders if (row["intent"].get("request") or {}).get("side") == "buy"
+    )
+    broker_acceptances = sum(bool((row["broker"] or {}).get("id")) for row in orders)
+    partial_fills = sum(
+        (row["broker"] or {}).get("status") == "partially_filled" for row in orders
+    )
+    required_total = (
+        experimental.minimum_training_round_trips
+        + experimental.minimum_held_out_round_trips
+    )
+    return {
+        "schema": "paper-scalping-experiment-status-v1",
+        "as_of": datetime.now(UTC).isoformat(),
+        "paper_only": True,
+        "qualified_strategy_gate_preserved": True,
+        "funnel": {
+            "candidates": len(candidate_events),
+            "blocked_candidates": blocked_candidates,
+            "submissions": len(orders),
+            "entry_submissions": entry_submissions,
+            "broker_acceptances": broker_acceptances,
+            "partial_fills": partial_fills,
+            "entry_fills": sum(
+                Decimal(str(row["entry_quantity"])) > 0 for row in cycles
+            ),
+            "completed_exits": sum(
+                row["state"] == "closed_owned_flat" for row in cycles
+            ),
+            "flat_reconciliations": sum(
+                row["state"] == "closed_owned_flat"
+                and Decimal(str(row["owned_quantity"])) == 0
+                for row in cycles
+            ),
+        },
+        "evidence_accounting": {
+            "required_independent_round_trips": required_total,
+            "required_training_round_trips": experimental.minimum_training_round_trips,
+            "required_held_out_round_trips": experimental.minimum_held_out_round_trips,
+            "qualifying_independent_round_trips": len(qualifying),
+            "chronological_training_available": min(
+                len(qualifying), experimental.minimum_training_round_trips
+            ),
+            "chronological_held_out_available": max(
+                0, len(qualifying) - experimental.minimum_training_round_trips
+            ),
+            "eligible_for_calibration": len(qualifying) >= required_total,
+            "reason": (
+                "READY_FOR_CHRONOLOGICAL_CALIBRATION"
+                if len(qualifying) >= required_total
+                else "INSUFFICIENT_ACTUAL_COMPLETED_ROUND_TRIPS"
+            ),
+            "exclusion_reasons": dict(sorted(exclusions.items())),
+            "one_cycle_is_one_independent_observation": True,
+            "status_updates_do_not_inflate_observation_count": True,
+        },
+        "cycles": cycle_evidence,
+        "candidate_checks": candidate_events[-200:],
+        "policy": experiment_policy_report(),
+        "model_transition": {
+            "source": "broker_confirmed_experimental_signal_scalp_cycles",
+            "chronological_split_required": True,
+            "realistic_costs_required": True,
+            "artifact_write_required": True,
+            "worker_load_requires_validated_status": True,
+            "current_state": (
+                "ready_for_calibration"
+                if len(qualifying) >= required_total
+                else "collecting_independent_round_trips"
+            ),
+        },
+        "acceptance_complete": any(
+            row["classification"] == ACCEPTANCE_CLASSIFICATION
+            and row["state"] == "closed_owned_flat"
+            for row in cycle_evidence
+        ),
+        "acceptance_policy": acceptance.model_dump(mode="json"),
     }
 
 

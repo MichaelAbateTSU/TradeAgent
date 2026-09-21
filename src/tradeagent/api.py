@@ -903,6 +903,24 @@ def create_app(
                 status_code=503, detail="Scalping probe status unavailable"
             ) from error
 
+    @app.get("/api/scalping-experiments")
+    def scalping_experiments() -> dict[str, Any]:
+        from tradeagent.scalping_reporting import scalping_experiment_status
+
+        if production_database_url is None:
+            return {
+                "state": "database_not_configured",
+                "paper_only": True,
+                "qualified_strategy_gate_preserved": True,
+            }
+        try:
+            with production_database() as database:
+                return scalping_experiment_status(database)
+        except (SQLAlchemyError, ValueError) as error:
+            raise HTTPException(
+                status_code=503, detail="Scalping experiment status unavailable"
+            ) from error
+
     def build_event_product() -> dict[str, object]:
         now = datetime.now(UTC)
         settings = ExperimentalSettings()

@@ -105,6 +105,7 @@ class ScalpOrderEngine:
         self._asset_observed_at: dict[str, datetime] = {}
         self._positions: dict[str, Decimal] = {}
         self._available: dict[str, Decimal] = {}
+        self._position_dust: dict[str, Decimal] = {}
         self._external_open: list[str] = []
         self._positions_at: datetime | None = None
         self._positions_dirty = True
@@ -212,10 +213,10 @@ class ScalpOrderEngine:
             return
         self._account()
         positions = self.broker.positions()
-        quantities = {symbol_key(row.symbol): number(row.quantity) for row in positions}
-        if len(quantities) != len(positions):
+        raw_quantities = {symbol_key(row.symbol): number(row.quantity) for row in positions}
+        if len(raw_quantities) != len(positions):
             raise ValueError("duplicate normalized broker positions")
-        available = {
+        raw_available = {
             symbol_key(row.symbol): min(
                 number(row.quantity),
                 number(row.available_quantity)
@@ -224,11 +225,37 @@ class ScalpOrderEngine:
             )
             for row in positions
         }
+        dust = {
+            symbol: quantity
+            for symbol, quantity in raw_quantities.items()
+            if "/" in symbol and 0 < quantity < self._asset(symbol).min_order_size
+        }
+        quantities = {
+            symbol: Decimal(0) if symbol in dust else quantity
+            for symbol, quantity in raw_quantities.items()
+        }
+        available = {
+            symbol: Decimal(0) if symbol in dust else quantity
+            for symbol, quantity in raw_available.items()
+        }
         open_orders = self.broker.open_orders()
         self._account()
         if any(quantity < 0 for symbol, quantity in quantities.items() if "/" in symbol):
             raise ValueError("unexpected negative crypto inventory")
-        self._positions, self._available = quantities, available
+        if dust != self._position_dust:
+            self.store.audit(
+                "untradeable_position_dust",
+                {
+                    "previous": {
+                        symbol: str(quantity)
+                        for symbol, quantity in self._position_dust.items()
+                    },
+                    "current": {symbol: str(quantity) for symbol, quantity in dust.items()},
+                    "treatment": "operationally_flat_below_broker_min_order_size",
+                },
+                at=self.clock(),
+            )
+        self._positions, self._available, self._position_dust = quantities, available, dust
         with self.database.begin() as connection:
             owned = set(connection.scalars(select(scalping_order_links.c.client_order_id)))
         self._external_open = [
@@ -1098,11 +1125,13 @@ class ScalpOrderEngine:
             if signal is not None and side is Side.BUY
             else None
         )
-        client_id = (
-            "ta30p-"
-            if cycle["payload"].get("classification") == "execution_validation_probe"
-            else "ta30-"
-        ) + (
+        classification = str(cycle["payload"].get("classification", ""))
+        prefix = {
+            "execution_validation_probe": "ta30p-",
+            "execution_acceptance_test": "ta30x-",
+            "experimental_signal_scalp": "ta30e-",
+        }.get(classification, "ta30-")
+        client_id = prefix + (
             decision_key
             or sha256(f"{cycle['cycle_id']}:{side.value}:{sequence}".encode()).hexdigest()
         )[:40]
@@ -1112,8 +1141,8 @@ class ScalpOrderEngine:
                 (signal.decision_id if signal else cycle["decision_id"]).encode()
             ).hexdigest(),
             strategy_id=(
-                "v30-probe:" + cycle["payload"]["probe_policy"]["cohort_id"]
-                if cycle["payload"].get("classification") == "execution_validation_probe"
+                "v30-experiment:" + cycle["payload"]["probe_policy"]["cohort_id"]
+                if cycle["payload"].get("probe_policy")
                 else "v30:" + cycle["run_id"]
             ),
             symbol=cycle["symbol"],
@@ -1392,55 +1421,108 @@ class ScalpOrderEngine:
         )
         self._dispatch(client_id)
 
-    def submit_execution_validation_probe(
-        self, *, policy: Any, quote: ScalpQuote, now: datetime
+    def submit_paper_experiment(
+        self,
+        *,
+        policy: Any,
+        quote: ScalpQuote,
+        now: datetime,
+        signal: ScalpSignal | None = None,
     ) -> str | None:
-        """Submit a bounded passive paper probe without treating it as a strategy decision.
+        """Submit a bounded paper experiment without treating it as a qualified decision.
 
         The caller owns schedule and cap checks. This deliberately shares the hardened
         account, lease, idempotency, reconciliation and owned-exit machinery.
         """
         if self.run_id is None:
             raise ValueError("engine not initialized")
+        classification = str(
+            getattr(policy, "classification", "execution_validation_probe")
+        )
+        entry_style = str(getattr(policy, "entry_style", "passive_limit"))
+        maximum_price_cap_bps = Decimal(
+            str(getattr(policy, "maximum_price_cap_bps", 0))
+        )
+        decision_prefix = str(getattr(policy, "decision_prefix", "probe"))
         if now >= policy.authorization_cutoff or quote.symbol not in policy.symbols:
             return None
         if not self._quote_valid(quote, now):
             return None
         symbol = canonical_crypto_symbol(quote.symbol)
         asset = self._asset(symbol)
-        price = (quote.bid / asset.price_increment).to_integral_value(
-            rounding=ROUND_FLOOR
+        marketable = entry_style == "marketable_limit"
+        reference_price = quote.ask if marketable else quote.bid
+        price = (reference_price / asset.price_increment).to_integral_value(
+            rounding=ROUND_CEILING if marketable else ROUND_FLOOR
         ) * asset.price_increment
+        maximum_price = quote.ask * (
+            Decimal(1) + maximum_price_cap_bps / Decimal(10_000)
+        )
+        if marketable and price > maximum_price:
+            self.store.audit(
+                "paper_experiment_blocked",
+                {
+                    "cohort_id": policy.cohort_id,
+                    "classification": classification,
+                    "reason": "MARKETABLE_LIMIT_EXCEEDS_PRICE_CAP",
+                    "actual": str(price),
+                    "threshold": str(maximum_price),
+                    "quote": quote.model_dump(mode="json"),
+                },
+                at=now,
+            )
+            return None
         quantity = floor_quantity(policy.max_order_notional_usd / price, asset.min_trade_increment)
+        retention = Decimal(1) - max(
+            self.config.maker_fee_bps, self.config.taker_fee_bps
+        ) / Decimal(10_000)
+        _, retention_denominator = retention.as_integer_ratio()
+        quantity_units = (quantity / asset.min_trade_increment).to_integral_value(
+            rounding=ROUND_FLOOR
+        )
+        quantity_units = (
+            quantity_units // retention_denominator
+        ) * retention_denominator
+        quantity = quantity_units * asset.min_trade_increment
         if quantity < asset.min_order_size:
             return None
         # The interval slot is stable across retries/restarts, but lets the
         # frozen policy collect more than one resolved label per symbol/day.
         schedule_slot = int(now.timestamp()) // policy.schedule_interval_seconds
-        decision_id = f"probe:{policy.identity[:16]}:{schedule_slot}:{symbol}"
+        decision_id = f"{decision_prefix}:{policy.identity[:16]}:{schedule_slot}:{symbol}"
         cycle_id = str(uuid5(NAMESPACE_URL, f"{policy.cohort_id}:{decision_id}"))
-        payload = {
-            "classification": "execution_validation_probe",
-            "probe_policy": policy.model_dump(mode="json"),
-            "config": self.config.model_dump(mode="json"),
-            "signal": {
+        signal_payload = (
+            signal.model_dump(mode="json")
+            if signal is not None
+            else {
                 "decision_id": decision_id,
                 "symbol": symbol,
                 "family": "none",
                 "action": "buy",
                 "profitability_validated": False,
-            },
+                "features": {},
+            }
+        )
+        payload = {
+            "classification": classification,
+            "probe_policy": policy.model_dump(mode="json"),
+            "config": self.config.model_dump(mode="json"),
+            "signal": signal_payload,
+            "entry_style": entry_style,
+            "entry_quote": quote.model_dump(mode="json"),
+            "entry_limit_price": str(price),
+            "marketable_at_decision": price >= quote.ask,
             "exit_requested": False,
             "exit_reason": None,
             "strategy_pnl_excluded": True,
+            "model_validity_claim": False,
+            "profitability_claim": False,
         }
         with self.database.begin() as connection:
             self._lease(connection, now)
             active = connection.scalar(
                 select(scalping_cycles.c.cycle_id).where(
                     scalping_cycles.c.account_digest == self.config.account_digest,
-                    scalping_cycles.c.payload["classification"].as_string()
-                    == "execution_validation_probe",
                     scalping_cycles.c.state.not_in(CLOSED),
                 )
             )
@@ -1475,7 +1557,7 @@ class ScalpOrderEngine:
                 },
             )
             self.store.audit(
-                "execution_validation_probe_intent",
+                "paper_experiment_intent",
                 {"cycle_id": cycle_id, **payload},
                 at=now,
                 connection=connection,
@@ -1497,6 +1579,11 @@ class ScalpOrderEngine:
         )
         self._dispatch(client_id)
         return client_id
+
+    def submit_execution_validation_probe(
+        self, *, policy: Any, quote: ScalpQuote, now: datetime
+    ) -> str | None:
+        return self.submit_paper_experiment(policy=policy, quote=quote, now=now)
 
     def _cancel_entries(self, now: datetime) -> None:
         for cycle in self._cycles():
@@ -2089,6 +2176,15 @@ class ScalpOrderEngine:
                     if owned < qty_cap
                     else "settled"
                 )
+                operational_dust_limit = self._asset(cycle["symbol"]).min_order_size
+                all_orders_final = bool(rows) and all(row["status"] in FINAL for row in rows)
+                if (
+                    sold > 0
+                    and all_orders_final
+                    and max(owned, claim, qty_cap, observed) < operational_dust_limit
+                ):
+                    owned = claim = qty_cap = Decimal(0)
+                    settlement = "settled"
             unresolved = settlement in {
                 "evidence_pending",
                 "mixed_unresolved",
@@ -2151,7 +2247,7 @@ class ScalpOrderEngine:
             else:
                 state = "entry_pending" if pending else "open"
             config = ScalpingConfig.model_validate(cycle["payload"]["config"])
-            is_probe = cycle["payload"].get("classification") == "execution_validation_probe"
+            is_probe = isinstance(cycle["payload"].get("probe_policy"), dict)
             opening_candidates = [*fill_times]
             if cycle["opened_at"]:
                 opening_candidates.append(utc(cycle["opened_at"]))
@@ -2433,7 +2529,7 @@ class ScalpOrderEngine:
         manual = self._manual_stop()
         for cycle in self._cycles():
             config = ScalpingConfig.model_validate(cycle["payload"]["config"])
-            is_probe = cycle["payload"].get("classification") == "execution_validation_probe"
+            is_probe = isinstance(cycle["payload"].get("probe_policy"), dict)
             economic = config.decision_policy == "action-value-v1" and not is_probe
             quote = (quotes or {}).get(cycle["symbol"])
             current_quote = quote is not None and self._quote_valid(quote, now)
@@ -3067,6 +3163,9 @@ class ScalpOrderEngine:
             "unresolved_order_count": self._unresolved_orders(),
             "unresolved_ownership_count": self._unresolved_inventory(),
             "unowned_open_order_ids": self._external_open,
+            "untradeable_position_dust": {
+                symbol: str(quantity) for symbol, quantity in self._position_dust.items()
+            },
             "positions_observed_at": self._positions_at.isoformat() if self._positions_at else None,
             "manual_stop_key": self.manual_stop_key,
             "manual_stop": self._manual_stop(),

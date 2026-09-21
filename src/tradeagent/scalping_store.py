@@ -326,8 +326,13 @@ class ScalpStore:
             scalping_cycles.c.account_digest == account_digest,
             or_(
                 scalping_cycles.c.payload["classification"].as_string().is_(None),
-                scalping_cycles.c.payload["classification"].as_string()
-                != "execution_validation_probe",
+                scalping_cycles.c.payload["classification"].as_string().not_in(
+                    (
+                        "execution_validation_probe",
+                        "execution_acceptance_test",
+                        "experimental_signal_scalp",
+                    )
+                ),
             ),
         )
         closed_condition = condition & scalping_cycles.c.closed_at.is_not(None)

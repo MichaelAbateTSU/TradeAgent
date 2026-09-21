@@ -203,6 +203,55 @@ only chronologically partitioned, actually resolved broker labels and reports
 `not eligible` until enough exist; it makes no profitability or model-validity
 claim.
 
+## Marketable acceptance and bounded experimental scalping
+
+The passive probe cohort is superseded for new submissions. Its historical
+orders remain immutable evidence, but a closed no-fill attempt is not an
+economic label. The report now separates candidates, blocked candidates,
+submissions, broker acceptances, partial fills, entry fills, completed exits,
+flat reconciliations, and independent completed round trips. Multiple broker
+status updates for one cycle never increase the independent-observation count.
+
+`execution-acceptance-20260921-r1` first sends one separately classified,
+price-capped marketable BTC/USD paper limit through the existing OMS. The
+entry uses a fresh ask, at most five dollars, a five-second TTL, fee-compatible
+quantity rounding, and a five-second owned exit. Up to three attempts are
+allowed, but the cohort stops after one broker-confirmed entry, exit, recorded
+P&L, and operationally flat reconciliation. This verifies the Alpaca paper
+integration only; it is not passive-fill or profitability evidence.
+
+After acceptance, `signal-scalp-experiment-20260921-r1` may collect bounded
+BTC/USD and ETH/USD paper scalps through September 28, 2026 at 10:40:07
+Eastern. It requires an existing positive momentum or reversion candidate,
+a quote no older than two seconds, a marketable price-capped limit, at most
+ten dollars per order, one global order or owned position, no more than twelve
+submissions and six filled cycles per UTC day, a five-second maximum hold, and
+a five-dollar modeled daily loss stop. Account pinning, lease ownership,
+stale-data checks, durable intent-before-submit, duplicate IDs, partial-fill
+handling, cancellation reconciliation, and never-sell-foreign-inventory rules
+remain active.
+
+Acceptance and experimental cycles are excluded from qualified-strategy P&L
+and cannot flip `no_support`. `/api/scalping-experiments` and
+`tradeagent scalp-experiment-report` expose the detailed funnel, each order's
+quote, limit, broker ID, broker timestamps, cancellation state, fill evidence,
+P&L, flatness, and exclusion reason.
+
+Actual model transition requires at least 30 independent completed
+experimental round trips: 20 chronological training observations and 10 later
+held-out observations. `tradeagent scalp-actual-calibrate` converts only
+broker-confirmed experimental cycles into `EconomicSample` rows, applies
+fill-to-fill returns plus the conservative configured fee allowance, runs the
+existing purged chronological calibration, and writes an artifact only when
+the sample count and model status are both validated. The worker's existing
+file hash, account, horizon, cancellation horizon, fee, and universe checks
+must then load that artifact. Insufficient or nonpositive evidence remains
+`no_support` or `failed_validation`; it never falls back to heuristic trading.
+
+Alpaca paper fills omit real queue position, latency slippage, and market
+impact. Marketable acceptance is therefore kept separate from passive
+execution-quality claims and from any future live-money decision.
+
 Waiting without labels cannot turn `no_support` into a valid model. The
 action-value worker therefore records a calibration-only outcome for each
 positive momentum or reversion state while continuing to submit **no broker

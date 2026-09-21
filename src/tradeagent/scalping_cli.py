@@ -23,6 +23,8 @@ COMMANDS = {
     "scalp-shadow-calibrate",
     "scalp-shadow-audit",
     "scalp-probe-report",
+    "scalp-experiment-report",
+    "scalp-actual-calibrate",
 }
 
 
@@ -110,6 +112,22 @@ def register_scalping_commands(subparsers: Any) -> None:
     )
     probe_report.add_argument("--account-digest", required=True)
     probe_report.add_argument("--at", type=datetime.fromisoformat, required=True)
+    experiment_report = subparsers.add_parser(
+        "scalp-experiment-report",
+        help="read the paper execution funnel, order evidence and model-transition state",
+    )
+    experiment_report.add_argument("--account-digest", required=True)
+    actual_calibrate = subparsers.add_parser(
+        "scalp-actual-calibrate",
+        help="calibrate and persist a validated artifact from completed experimental scalps",
+    )
+    actual_calibrate.add_argument("--account-digest", required=True)
+    actual_calibrate.add_argument("--maker-fee-bps", type=float, default=15)
+    actual_calibrate.add_argument("--taker-fee-bps", type=float, default=25)
+    actual_calibrate.add_argument("--calibrated-at", type=datetime.fromisoformat, required=True)
+    actual_calibrate.add_argument("--valid-until", type=datetime.fromisoformat, required=True)
+    actual_calibrate.add_argument("--model-output", type=Path, required=True)
+    actual_calibrate.add_argument("--audit-output", type=Path, required=True)
 
 
 def configuration(args: argparse.Namespace) -> ScalpingConfig:
@@ -176,6 +194,45 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
                 ExecutionValidationProbePolicy(),
                 now=args.at,
             )
+    elif args.command == "scalp-experiment-report":
+        from tradeagent.scalping_reporting import scalping_experiment_status
+
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            result = scalping_experiment_status(
+                database, account_digest=args.account_digest
+            )
+    elif args.command == "scalp-actual-calibrate":
+        from tradeagent.scalping_policy import (
+            calibrate_from_actual_experiments,
+            write_model_artifact,
+        )
+
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            model, audit = calibrate_from_actual_experiments(
+                database,
+                account_digest=args.account_digest,
+                maker_fee_bps=args.maker_fee_bps,
+                taker_fee_bps=args.taker_fee_bps,
+                calibrated_at=args.calibrated_at,
+                valid_until=args.valid_until,
+            )
+        result = dict(audit)
+        if audit["worker_load_allowed"]:
+            digest = write_model_artifact(model, args.model_output)
+            result.update(
+                {
+                    "model_path": str(args.model_output),
+                    "model_file_sha256": digest,
+                }
+            )
+        else:
+            result["artifact_written"] = False
+        args.audit_output.parent.mkdir(parents=True, exist_ok=True)
+        args.audit_output.write_text(
+            json.dumps(result, indent=2, sort_keys=True, default=str) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
     elif args.command == "scalp-shadow-calibrate":
         from tradeagent.scalping_policy import (
             calibrate_from_shadow_report,

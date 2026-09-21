@@ -36,6 +36,16 @@ P&L, profitability reporting, and promotion. It shares the same finite
 September 21 cutoff for new probes; owned cancellation, reconciliation and exit
 recovery continue afterwards.
 
+New passive probes are now superseded by a bounded paper experiment. The
+`execution-acceptance-20260921-r1` cohort must first prove one complete
+broker-confirmed marketable entry and owned exit. Only then may
+`signal-scalp-experiment-20260921-r1` collect explicitly capped
+signal-driven paper scalps through September 28 at 10:40:07 Eastern. These
+cycles remain separate from qualified-strategy P&L. A model can be promoted
+only after at least 20 chronological training and 10 later held-out completed
+round trips pass the existing realistic-cost validation and artifact-loading
+checks; otherwise the qualified strategy remains `no_support`.
+
 Deployment `dep-dak4p26k1f9s73edj6s0` runs event-worker commit
 `1d109990b9a969aab519184fa5c5fba3f0b83d1a` with cohort
 `v30-action-value-20260914-seven-day-r1`, configuration hash
