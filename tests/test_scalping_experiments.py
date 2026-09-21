@@ -137,6 +137,34 @@ def test_marketable_dispatch_rechecks_fresh_quote_inside_original_cap(setup) -> 
     assert broker.values[client_id].filled_average_price == Decimal("100.03")
 
 
+def test_marketable_dispatch_uses_bounded_experiment_quote_age(setup) -> None:
+    _, broker, _, clock, make = setup
+    original_quote = quote(NOW)
+    engine = make(
+        entry_order_ttl_seconds=5,
+        decision_policy="action-value-v1",
+        catastrophic_stop_bps=Decimal("100"),
+        decision_interval_seconds=1,
+        feature_horizon_seconds=5,
+        quote_provider=lambda _symbol: original_quote,
+    )
+    engine.initialize()
+
+    def age_original_quote() -> None:
+        clock[0] = NOW + timedelta(seconds=1.5)
+        broker.account_hook = None
+
+    broker.account_hook = age_original_quote
+    client_id = engine.submit_paper_experiment(
+        policy=ExecutionAcceptancePolicy(),
+        quote=original_quote,
+        now=NOW,
+    )
+
+    assert client_id is not None
+    assert broker.posts[0].client_order_id == client_id
+
+
 def test_marketable_dispatch_rejects_fresh_quote_above_original_cap(setup) -> None:
     database, broker, _, clock, make = setup
     engine = make(

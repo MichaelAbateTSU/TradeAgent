@@ -871,9 +871,23 @@ class ScalpOrderEngine:
                     quote_validation_at = (
                         request.submitted_at if is_marketable_experiment else self.clock()
                     )
+                    quote_max_age_seconds = (
+                        float(
+                            experiment_policy.get(
+                                "max_quote_age_seconds",
+                                self.config.maximum_quote_age_seconds,
+                            )
+                        )
+                        if is_probe
+                        else self.config.maximum_quote_age_seconds
+                    )
                     if (
                         canonical_crypto_symbol(quote.symbol) != request.symbol
-                        or not self._quote_valid(quote, quote_validation_at)
+                        or not self._quote_valid(
+                            quote,
+                            quote_validation_at,
+                            maximum_age_seconds=quote_max_age_seconds,
+                        )
                         or self._manual_stop()
                         or (not is_probe and not self._economic_candidate_present(signal))
                         or (
@@ -945,14 +959,25 @@ class ScalpOrderEngine:
                     if request.side is Side.BUY
                     else None
                 )
+                dispatch_quote_max_age_seconds = self.config.maximum_quote_age_seconds
                 if is_marketable_experiment:
                     assert quote_provider is not None
                     original_quote = ScalpQuote.model_validate(intent["quote"])
                     current_quote = quote_provider(request.symbol)
+                    dispatch_quote_max_age_seconds = float(
+                        experiment_policy.get(
+                            "dispatch_quote_max_age_seconds",
+                            self.config.maximum_quote_age_seconds,
+                        )
+                    )
                     rejection_reason = None
                     if current_quote is None:
                         rejection_reason = "FRESH_DISPATCH_QUOTE_UNAVAILABLE"
-                    elif not self._quote_valid(current_quote, self.clock()):
+                    elif not self._quote_valid(
+                        current_quote,
+                        self.clock(),
+                        maximum_age_seconds=dispatch_quote_max_age_seconds,
+                    ):
                         rejection_reason = "FRESH_DISPATCH_QUOTE_STALE_OR_INVALID"
                     elif (
                         current_quote.exchange_at < original_quote.exchange_at
@@ -970,6 +995,7 @@ class ScalpOrderEngine:
                                 else None
                             ),
                             "threshold": intent["limit_price"],
+                            "maximum_quote_age_seconds": dispatch_quote_max_age_seconds,
                             "original_quote": original_quote.model_dump(mode="json"),
                             "dispatch_quote": (
                                 current_quote.model_dump(mode="json")
@@ -1008,7 +1034,11 @@ class ScalpOrderEngine:
                     )
                 if request.side is Side.BUY and (
                     dispatch_quote is None
-                    or not self._quote_valid(dispatch_quote, self.clock())
+                    or not self._quote_valid(
+                        dispatch_quote,
+                        self.clock(),
+                        maximum_age_seconds=dispatch_quote_max_age_seconds,
+                    )
                     or self._manual_stop()
                     or (row["expires_at"] is not None and self.clock() >= utc(row["expires_at"]))
                     or (
@@ -1368,14 +1398,25 @@ class ScalpOrderEngine:
             )
         return client_id
 
-    def _quote_valid(self, quote: ScalpQuote, now: datetime) -> bool:
+    def _quote_valid(
+        self,
+        quote: ScalpQuote,
+        now: datetime,
+        *,
+        maximum_age_seconds: float | None = None,
+    ) -> bool:
+        maximum_age_seconds = (
+            self.config.maximum_quote_age_seconds
+            if maximum_age_seconds is None
+            else maximum_age_seconds
+        )
         return bool(
             quote.bid > 0
             and quote.ask >= quote.bid
             and quote.bid_size > 0
             and quote.ask_size > 0
             and quote.exchange_at <= quote.received_at <= now
-            and now - quote.exchange_at <= timedelta(seconds=self.config.maximum_quote_age_seconds)
+            and now - quote.exchange_at <= timedelta(seconds=maximum_age_seconds)
         )
 
     def _economic_candidate_present(self, signal: ScalpSignal | None) -> bool:
@@ -1569,7 +1610,13 @@ class ScalpOrderEngine:
         decision_prefix = str(getattr(policy, "decision_prefix", "probe"))
         if now >= policy.authorization_cutoff or quote.symbol not in policy.symbols:
             return None
-        if not self._quote_valid(quote, now):
+        if not self._quote_valid(
+            quote,
+            now,
+            maximum_age_seconds=float(
+                getattr(policy, "max_quote_age_seconds", self.config.maximum_quote_age_seconds)
+            ),
+        ):
             return None
         symbol = canonical_crypto_symbol(quote.symbol)
         asset = self._asset(symbol)

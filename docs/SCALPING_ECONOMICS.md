@@ -212,7 +212,7 @@ submissions, broker acceptances, partial fills, entry fills, completed exits,
 flat reconciliations, and independent completed round trips. Multiple broker
 status updates for one cycle never increase the independent-observation count.
 
-`execution-acceptance-20260921-r4` first sends one separately classified,
+`execution-acceptance-20260921-r5` first sends one separately classified,
 price-capped marketable BTC/USD paper limit through the existing OMS. The
 entry uses a fresh ask, a hard $10.25 cap, a five-second TTL, fee-compatible
 quantity rounding, and a five-second owned exit. Sizing targets Alpaca's $10
@@ -226,9 +226,11 @@ passive-fill or profitability evidence.
 The quote that establishes the immutable price cap must be fresh when the
 intent is reserved. Account and reconciliation calls may age that quote before
 broker dispatch, so a marketable experiment obtains another quote immediately
-before POST. That dispatch quote must itself be fresh, must not predate the
-original quote, and its ask must remain inside the original cap. Pre-submit
-rejections are persisted with the actual quote and threshold.
+before POST. Acceptance requires at most one-second quote age at candidate
+selection and at most two seconds at final dispatch; the qualified strategy's
+one-second fence is unchanged. The dispatch quote must not predate the original
+quote, and its ask must remain inside the original cap. Pre-submit rejections
+are persisted with the actual quote and threshold.
 
 After acceptance, `signal-scalp-experiment-20260921-r1` may collect bounded
 BTC/USD and ETH/USD paper scalps through September 28, 2026 at 10:40:07
