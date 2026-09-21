@@ -37,7 +37,7 @@ class PaperExperimentPolicy(BaseModel):
     max_order_notional_usd: Decimal = Field(default=Decimal("10"), gt=0, le=Decimal("10"))
     daily_submitted_cap: int = Field(ge=1, le=20)
     daily_filled_cycle_cap: int = Field(ge=1, le=20)
-    schedule_interval_seconds: int = Field(ge=15, le=3600)
+    schedule_interval_seconds: int = Field(ge=1, le=3600)
     entry_ttl_seconds: int = Field(ge=1, le=15)
     exit_after_seconds: int = Field(ge=1, le=120)
     authorization_cutoff: AwareDatetime = EXPERIMENT_CUTOFF
@@ -69,7 +69,7 @@ class ExecutionAcceptancePolicy(PaperExperimentPolicy):
     max_order_notional_usd: Decimal = Decimal("5")
     daily_submitted_cap: int = 3
     daily_filled_cycle_cap: int = 1
-    schedule_interval_seconds: int = 30
+    schedule_interval_seconds: int = 5
     entry_ttl_seconds: int = 5
     exit_after_seconds: int = 5
 
