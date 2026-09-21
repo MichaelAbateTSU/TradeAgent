@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
+from collections import Counter, defaultdict
+from collections.abc import Mapping
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
-from typing import Any, Self
+from typing import Any, Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    model_validator,
+)
 from sqlalchemy import func, select
 
 from tradeagent.persistence import Database
@@ -72,6 +81,262 @@ class ExecutionValidationProbePolicy(BaseModel):
             "new_probes_at_or_after_cutoff": False,
             "strategy_profitability_or_promotion": False,
         }
+
+
+class ProbeOrderObservationV2(BaseModel):
+    """A broker-order fact retained as part of a probe observation."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    client_order_id: str
+    broker_order_id: str | None = None
+    side: Literal["buy", "sell"]
+    requested_quantity: Decimal | None = Field(default=None, ge=0)
+    limit_price: Decimal | None = Field(default=None, gt=0)
+    dispatch_state: str
+    broker_status: str | None = None
+    broker_created_at: AwareDatetime | None = None
+    broker_submitted_at: AwareDatetime | None = None
+    broker_filled_at: AwareDatetime | None = None
+    broker_canceled_at: AwareDatetime | None = None
+    filled_quantity: Decimal | None = Field(default=None, ge=0)
+    filled_average_price: Decimal | None = Field(default=None, gt=0)
+    first_positive_fill_at: AwareDatetime | None = None
+    last_reconciled_at: AwareDatetime | None = None
+
+
+class ProbeObservationV2(BaseModel):
+    """Typed execution evidence for passive probes, not a strategy training row."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
+
+    schema_version: Literal["probe-observation-v2"] = "probe-observation-v2"
+    evidence_environment: Literal["broker_paper"] = "broker_paper"
+    account_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    run_id: str
+    cohort_id: str
+    policy_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    cycle_id: str
+    purpose: Literal["passive_execution_validation_probe"] = (
+        "passive_execution_validation_probe"
+    )
+    symbol: str
+    action: Literal["PASSIVE_BUY"] = "PASSIVE_BUY"
+    decision_at: AwareDatetime
+    dispatch_started_at: AwareDatetime | None = None
+    quote_event_at: AwareDatetime | None = None
+    quote_received_at: AwareDatetime | None = None
+    client_order_ids: tuple[str, ...]
+    broker_order_ids: tuple[str, ...]
+    requested_quantity: Decimal | None = Field(default=None, ge=0)
+    limit_price: Decimal | None = Field(default=None, gt=0)
+    terminal_state: str | None = None
+    entry_quantity: Decimal = Field(ge=0)
+    exit_quantity: Decimal = Field(ge=0)
+    orders: tuple[ProbeOrderObservationV2, ...]
+    resolved_at: AwareDatetime | None = None
+    information_available_at: AwareDatetime
+    exclusion_reasons: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def consistent_identity(self) -> Self:
+        if self.resolved_at is not None and self.resolved_at < self.decision_at:
+            raise ValueError("a probe cannot resolve before its decision")
+        if self.information_available_at < self.decision_at:
+            raise ValueError("probe information cannot predate its decision")
+        if self.symbol not in {"BTC/USD", "ETH/USD"}:
+            raise ValueError("probe evidence must use the restricted crypto universe")
+        return self
+
+
+def _probe_scope(
+    account_digest: str,
+    policy: ExecutionValidationProbePolicy,
+    *,
+    as_of: datetime | None = None,
+) -> tuple[Any, ...]:
+    scope: tuple[Any, ...] = (
+        scalping_cycles.c.account_digest == account_digest,
+        scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
+        scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+        == policy.cohort_id,
+        scalping_cycles.c.created_at < policy.authorization_cutoff,
+    )
+    if as_of is not None:
+        scope += (scalping_cycles.c.created_at <= as_of,)
+    return scope
+
+
+def _aware_timestamp(value: Any) -> Any:
+    return utc(value) if isinstance(value, datetime) else value
+
+
+def probe_observations(
+    database: Database,
+    account_digest: str,
+    policy: ExecutionValidationProbePolicy,
+    *,
+    now: datetime,
+) -> tuple[tuple[ProbeObservationV2, ...], dict[str, int]]:
+    """Return versioned broker-paper records known by ``now`` with explicit exclusions."""
+
+    now = utc(now)
+    with database.begin() as connection:
+        cycles = [
+            dict(row)
+            for row in connection.execute(
+                select(scalping_cycles)
+                .where(*_probe_scope(account_digest, policy, as_of=now))
+                .order_by(scalping_cycles.c.created_at, scalping_cycles.c.cycle_id)
+            )
+            .mappings()
+            .all()
+        ]
+        cycle_ids = [str(row["cycle_id"]) for row in cycles]
+        orders = (
+            [
+                dict(row)
+                for row in connection.execute(
+                    select(scalping_order_links)
+                    .where(scalping_order_links.c.cycle_id.in_(cycle_ids))
+                    .order_by(
+                        scalping_order_links.c.created_at,
+                        scalping_order_links.c.client_order_id,
+                    )
+                )
+                .mappings()
+                .all()
+            ]
+            if cycle_ids
+            else []
+        )
+    orders_by_cycle: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for order in orders:
+        orders_by_cycle[str(order["cycle_id"])].append(order)
+
+    observations: list[ProbeObservationV2] = []
+    exclusions: Counter[str] = Counter()
+    for cycle in cycles:
+        payload = cycle["payload"]
+        if not isinstance(payload, Mapping):
+            exclusions["INVALID_PROBE_PAYLOAD"] += 1
+            continue
+        raw_policy = payload.get("probe_policy")
+        if not isinstance(raw_policy, Mapping):
+            exclusions["MISSING_STORED_POLICY"] += 1
+            continue
+        try:
+            stored_policy = ExecutionValidationProbePolicy.model_validate(raw_policy)
+        except ValidationError:
+            exclusions["INVALID_STORED_POLICY"] += 1
+            continue
+        if stored_policy.identity != policy.identity:
+            exclusions["POLICY_HASH_MISMATCH"] += 1
+            continue
+        cycle_orders = orders_by_cycle.get(str(cycle["cycle_id"]), [])
+        serialized_orders = []
+        try:
+            for order in cycle_orders:
+                intent = order["intent"] if isinstance(order["intent"], Mapping) else {}
+                broker = order["broker"] if isinstance(order["broker"], Mapping) else {}
+                raw_request = intent.get("request")
+                request = raw_request if isinstance(raw_request, Mapping) else {}
+                side = str(request.get("side", "")).removeprefix("Side.").lower()
+                if side not in {"buy", "sell"}:
+                    raise ValueError("probe order side is invalid")
+                order_side: Literal["buy", "sell"] = "buy" if side == "buy" else "sell"
+                serialized_orders.append(
+                    ProbeOrderObservationV2(
+                        client_order_id=str(order["client_order_id"]),
+                        broker_order_id=(
+                            str(broker["id"]) if broker.get("id") is not None else None
+                        ),
+                        side=order_side,
+                        requested_quantity=request.get("quantity"),
+                        limit_price=intent.get("limit_price"),
+                        dispatch_state=str(order["dispatch_state"]),
+                        broker_status=(
+                            str(broker["status"]) if broker.get("status") is not None else None
+                        ),
+                        broker_created_at=_aware_timestamp(broker.get("created_at")),
+                        broker_submitted_at=_aware_timestamp(broker.get("submitted_at")),
+                        broker_filled_at=_aware_timestamp(broker.get("filled_at")),
+                        broker_canceled_at=_aware_timestamp(broker.get("canceled_at")),
+                        filled_quantity=broker.get("filled_quantity"),
+                        filled_average_price=broker.get("filled_average_price"),
+                        first_positive_fill_at=_aware_timestamp(
+                            order["first_positive_fill_at"]
+                        ),
+                        last_reconciled_at=_aware_timestamp(order["last_reconciled_at"]),
+                    )
+                )
+            quote = payload.get("entry_quote")
+            raw_quote = quote if isinstance(quote, Mapping) else {}
+            entry = next((order for order in serialized_orders if order.side == "buy"), None)
+            entry_order = None
+            for order in cycle_orders:
+                intent = order["intent"]
+                if not isinstance(intent, Mapping):
+                    continue
+                entry_request = intent.get("request")
+                if isinstance(entry_request, Mapping) and entry_request.get("side") == "buy":
+                    entry_order = order
+                    break
+            closed_at = cycle["closed_at"]
+            resolved_at = (
+                utc(closed_at)
+                if cycle["state"] in CLOSED and closed_at is not None and utc(closed_at) <= now
+                else None
+            )
+            exclusion_reasons = (
+                ()
+                if resolved_at is not None
+                else ("RESOLUTION_NOT_AVAILABLE_AS_OF_CUTOFF",)
+            )
+            observations.append(
+                ProbeObservationV2(
+                    account_digest=account_digest,
+                    run_id=str(cycle["run_id"]),
+                    cohort_id=policy.cohort_id,
+                    policy_hash=policy.identity,
+                    cycle_id=str(cycle["cycle_id"]),
+                    symbol=str(cycle["symbol"]),
+                    decision_at=utc(cycle["created_at"]),
+                    dispatch_started_at=(
+                        utc(entry_order["submission_started_at"])
+                        if entry_order is not None
+                        and entry_order["submission_started_at"] is not None
+                        else None
+                    ),
+                    quote_event_at=raw_quote.get("exchange_at"),
+                    quote_received_at=raw_quote.get("received_at"),
+                    client_order_ids=tuple(order.client_order_id for order in serialized_orders),
+                    broker_order_ids=tuple(
+                        order.broker_order_id
+                        for order in serialized_orders
+                        if order.broker_order_id is not None
+                    ),
+                    requested_quantity=entry.requested_quantity if entry is not None else None,
+                    limit_price=entry.limit_price if entry is not None else None,
+                    terminal_state=str(cycle["state"]) if resolved_at is not None else None,
+                    entry_quantity=cycle["entry_quantity"],
+                    exit_quantity=cycle["exit_quantity"],
+                    orders=tuple(serialized_orders),
+                    resolved_at=resolved_at,
+                    information_available_at=resolved_at or now,
+                    exclusion_reasons=exclusion_reasons,
+                )
+            )
+        except ValidationError as error:
+            fields = {
+                str(detail["loc"][0]) if detail.get("loc") else "unknown"
+                for detail in error.errors(include_url=False)
+            }
+            for field in fields:
+                exclusions[f"INVALID_PROBE_OBSERVATION:{field}"] += 1
+        except (TypeError, ValueError):
+            exclusions["INVALID_PROBE_OBSERVATION"] += 1
+    return tuple(observations), dict(sorted(exclusions.items()))
 
 
 class ExecutionValidationProbeCohort:
@@ -280,37 +545,37 @@ def held_out_probe_report(
     now: datetime,
 ) -> dict[str, Any]:
     """Read actual broker-resolved labels chronologically; never calibrate a model."""
-    with database.begin() as connection:
-        rows = list(
-            connection.execute(
-                select(scalping_cycles.c.closed_at, scalping_cycles.c.state)
-                .where(
-                    scalping_cycles.c.account_digest == account_digest,
-                    scalping_cycles.c.payload["classification"].as_string() == CLASSIFICATION,
-                    scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
-                    == policy.cohort_id,
-                    scalping_cycles.c.created_at < policy.authorization_cutoff,
-                    scalping_cycles.c.state.in_(CLOSED),
-                    scalping_cycles.c.entry_quantity > 0,
-                    scalping_cycles.c.exit_quantity > 0,
-                )
-                .order_by(scalping_cycles.c.closed_at)
-            ).mappings()
-        )
-    resolved = len(rows)
-    split = resolved // 2
+    observations, exclusions = probe_observations(database, account_digest, policy, now=now)
+    resolved = [
+        observation
+        for observation in observations
+        if observation.resolved_at is not None
+        and observation.entry_quantity > 0
+        and observation.exit_quantity > 0
+    ]
+    resolved.sort(key=lambda observation: observation.resolved_at or observation.decision_at)
+    resolved_count = len(resolved)
+    split = resolved_count // 2
     return {
         "as_of": now.isoformat(),
         "policy_id": policy.policy_id,
         "cohort_id": policy.cohort_id,
+        "policy_hash": policy.identity,
         "evidence": "actual broker-resolved probe fills and exits only",
-        "eligible": resolved >= 2,
-        "reason": None if resolved >= 2 else "INSUFFICIENT_ACTUAL_RESOLVED_PROBE_LABELS",
+        "eligible": resolved_count >= 2,
+        "execution_round_trip_evidence_present": resolved_count > 0,
+        "reason": (
+            None if resolved_count >= 2 else "INSUFFICIENT_ACTUAL_RESOLVED_PROBE_LABELS"
+        ),
         "required_labels": 2,
-        "qualifying_labels": resolved,
+        "qualifying_labels": resolved_count,
         "cohort_and_cutoff_scoped": True,
+        "cohort_policy_and_as_of_scoped": True,
         "chronological_train_labels": split,
-        "chronological_held_out_labels": resolved - split,
+        "chronological_held_out_labels": resolved_count - split,
+        "observation_schema": "probe-observation-v2",
+        "observation_count": len(observations),
+        "observation_exclusion_reasons": exclusions,
         "profitability_claim": False,
         "model_validity_claim": False,
     }

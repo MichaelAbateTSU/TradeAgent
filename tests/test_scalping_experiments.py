@@ -265,6 +265,19 @@ def test_report_counts_one_cycle_not_order_updates(setup) -> None:
     assert report["evidence_accounting"]["reason"] == (
         "INSUFFICIENT_ACTUAL_COMPLETED_ROUND_TRIPS"
     )
+    assert report["funnel_by_symbol"] == [
+        {
+            "classification": "experimental_signal_scalp",
+            "symbol": "BTC/USD",
+            "broker_acceptances": 2,
+            "completed_exits": 1,
+            "cycles": 1,
+            "entry_fills": 1,
+            "entry_submissions": 1,
+            "flat_reconciliations": 1,
+            "submissions": 2,
+        }
+    ]
 
 
 def test_experiment_report_excludes_wrong_cohort_and_cutoff_records(setup) -> None:

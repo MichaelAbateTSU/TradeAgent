@@ -224,6 +224,14 @@ read-only audit summary. The experiment dashboard applies the same
 classification, cohort, and cutoff predicates to both candidate and order
 evidence.
 
+The retained probe reader exposes a versioned `ProbeObservationV2` projection
+over the authoritative cycle/order ledger. Each observation binds the paper
+account, cohort, exact stored policy hash, decision/quote/order/fill clocks,
+and explicit exclusion reasons. A probe report admits a completed label only
+when its closure was known by the requested as-of time; mismatched-policy,
+late, incomplete, and non-strategy records remain explicit exclusions rather
+than synthetic strategy candidates.
+
 `execution-acceptance-20260921-r5` first sends one separately classified,
 price-capped marketable BTC/USD paper limit through the existing OMS. The
 entry uses a fresh ask, a hard $10.25 cap, a five-second TTL, fee-compatible

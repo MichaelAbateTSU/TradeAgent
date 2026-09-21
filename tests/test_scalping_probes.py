@@ -19,6 +19,7 @@ from tradeagent.scalping_probes import (
     ExecutionValidationProbeCohort,
     ExecutionValidationProbePolicy,
     held_out_probe_report,
+    probe_observations,
 )
 from tradeagent.scalping_shadow import load_historical_candidates
 
@@ -181,6 +182,65 @@ def test_historical_loader_excludes_probe_payloads_with_audit_reason(probe_setup
     assert loaded.exclusions == {"NON_COMPARABLE_PAPER_EXPERIMENT": 1}
 
 
+def test_probe_observation_is_typed_and_only_resolves_as_of_its_closure(probe_setup) -> None:
+    database, _, engine, current = probe_setup
+    now = current[0]
+    policy = ExecutionValidationProbePolicy()
+    cohort = ExecutionValidationProbeCohort(engine, policy)
+    assert cohort.step({"BTC/USD": quote(now)}, now=now)["scheduled_client_order_id"]
+
+    before, exclusions = probe_observations(
+        database, engine.config.account_digest, policy, now=now
+    )
+    assert exclusions == {}
+    assert len(before) == 1
+    assert before[0].schema_version == "probe-observation-v2"
+    assert before[0].evidence_environment == "broker_paper"
+    assert before[0].resolved_at is None
+    assert before[0].exclusion_reasons == ("RESOLUTION_NOT_AVAILABLE_AS_OF_CUTOFF",)
+    assert held_out_probe_report(
+        database, engine.config.account_digest, policy, now=now
+    )["qualifying_labels"] == 0
+
+    later = now + timedelta(seconds=16)
+    current[0] = later
+    ProductionRepository(database).refresh_worker_lock(
+        "tradeagent-event-worker", "owner", observed_at=later
+    )
+    engine.step((), {"BTC/USD": quote(later)}, now=later)
+    after, exclusions = probe_observations(
+        database, engine.config.account_digest, policy, now=later
+    )
+
+    assert exclusions == {}
+    assert after[0].resolved_at == later
+    assert after[0].orders[0].client_order_id.startswith("ta30p-")
+    assert held_out_probe_report(
+        database, engine.config.account_digest, policy, now=later
+    )["qualifying_labels"] == 1
+
+
+def test_probe_observation_requires_exact_stored_policy_hash(probe_setup) -> None:
+    database, _, engine, current = probe_setup
+    now = current[0]
+    stored = ExecutionValidationProbePolicy().model_copy(
+        update={"max_order_notional_usd": Decimal("9")}
+    )
+    assert engine.submit_execution_validation_probe(
+        policy=stored, quote=quote(now), now=now
+    )
+
+    observations, exclusions = probe_observations(
+        database,
+        engine.config.account_digest,
+        ExecutionValidationProbePolicy(),
+        now=now,
+    )
+
+    assert observations == ()
+    assert exclusions == {"POLICY_HASH_MISMATCH": 1}
+
+
 def test_deadline_blocks_new_probe_and_actual_label_report_stays_ineligible(probe_setup) -> None:
     _, broker, engine, current = probe_setup
     now = AUTHORIZATION_CUTOFF
@@ -198,6 +258,7 @@ def test_deadline_blocks_new_probe_and_actual_label_report_stays_ineligible(prob
     assert report["reason"] == "INSUFFICIENT_ACTUAL_RESOLVED_PROBE_LABELS"
     assert report["profitability_claim"] is False
     assert report["cohort_and_cutoff_scoped"] is True
+    assert report["cohort_policy_and_as_of_scoped"] is True
 
 
 def test_probe_status_api_exposes_recorded_isolated_contract(tmp_path: Path) -> None:

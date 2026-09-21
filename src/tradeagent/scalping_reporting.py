@@ -394,8 +394,26 @@ def scalping_experiment_status(
         )
     cycle_evidence = []
     exclusions: Counter[str] = Counter()
+    funnel_by_symbol: dict[tuple[str, str], Counter[str]] = defaultdict(Counter)
+    for event in candidate_events:
+        payload = event["payload"]
+        classification = str(payload.get("classification"))
+        symbol = str(payload.get("symbol") or "unknown")
+        bucket = funnel_by_symbol[(classification, symbol)]
+        bucket["candidates"] += 1
+        if payload.get("eligible") is False:
+            bucket["blocked_candidates"] += 1
     for row in cycles:
         classification = str(row["payload"].get("classification"))
+        symbol = str(row["symbol"])
+        bucket = funnel_by_symbol[(classification, symbol)]
+        bucket["cycles"] += 1
+        if Decimal(str(row["entry_quantity"])) > 0:
+            bucket["entry_fills"] += 1
+        if row["state"] == "closed_owned_flat":
+            bucket["completed_exits"] += 1
+            if Decimal(str(row["owned_quantity"])) == 0:
+                bucket["flat_reconciliations"] += 1
         qualifying = (
             classification == EXPERIMENTAL_CLASSIFICATION
             and row["state"] == "closed_owned_flat"
@@ -442,6 +460,27 @@ def scalping_experiment_status(
                 "orders": orders_by_cycle.get(str(row["cycle_id"]), []),
             }
         )
+    cycle_context = {
+        str(row["cycle_id"]): (str(row["payload"].get("classification")), str(row["symbol"]))
+        for row in cycles
+    }
+    for order in orders:
+        context = cycle_context.get(str(order["cycle_id"]))
+        if context is None:
+            continue
+        bucket = funnel_by_symbol[context]
+        bucket["submissions"] += 1
+        intent = order["intent"] if isinstance(order["intent"], dict) else {}
+        raw_request = intent.get("request")
+        request = raw_request if isinstance(raw_request, dict) else {}
+        side = request.get("side")
+        if side == "buy":
+            bucket["entry_submissions"] += 1
+        broker = order["broker"] if isinstance(order["broker"], dict) else {}
+        if broker.get("id"):
+            bucket["broker_acceptances"] += 1
+        if broker.get("status") == "partially_filled":
+            bucket["partial_fills"] += 1
     qualifying = [
         row for row in cycle_evidence if row["qualifying_independent_observation"]
     ]
@@ -483,6 +522,14 @@ def scalping_experiment_status(
                 for row in cycles
             ),
         },
+        "funnel_by_symbol": [
+            {
+                "classification": classification,
+                "symbol": symbol,
+                **dict(sorted(counts.items())),
+            }
+            for (classification, symbol), counts in sorted(funnel_by_symbol.items())
+        ],
         "evidence_accounting": {
             "required_independent_round_trips": required_total,
             "required_training_round_trips": experimental.minimum_training_round_trips,
