@@ -12,7 +12,8 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import and_, insert, or_, select, true, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from tradeagent.email_schedule import DAILY_SUMMARY_FORMAT, DailyEmailPolicy, DailyStatusSettings
 from tradeagent.persistence import (
@@ -274,30 +275,24 @@ class RoundTripNotificationRepository:
     def enqueue_status(
         self, notification_id: UUID, payload: dict[str, Any], *, created_at: datetime
     ) -> bool:
-        try:
-            with self._database.begin() as connection:
-                connection.execute(
-                    insert(notification_outbox).values(
-                        notification_id=str(notification_id),
-                        cycle_id=None,
-                        notification_type="daily_agent_status",
-                        payload=payload,
-                        status=NotificationStatus.PENDING.value,
-                        attempts=0,
-                        created_at=created_at,
-                    )
+        with self._database.begin() as connection:
+            dialect_insert = (
+                pg_insert if connection.dialect.name == "postgresql" else sqlite_insert
+            )
+            inserted = connection.execute(
+                dialect_insert(notification_outbox)
+                .values(
+                    notification_id=str(notification_id),
+                    cycle_id=None,
+                    notification_type="daily_agent_status",
+                    payload=payload,
+                    status=NotificationStatus.PENDING.value,
+                    attempts=0,
+                    created_at=created_at,
                 )
-            return True
-        except IntegrityError:
-            with self._database.begin() as connection:
-                existing = connection.scalar(
-                    select(notification_outbox.c.notification_id).where(
-                        notification_outbox.c.notification_id == str(notification_id)
-                    )
-                )
-            if existing is None:
-                raise
-            return False
+                .on_conflict_do_nothing(index_elements=[notification_outbox.c.notification_id])
+            )
+            return inserted.rowcount == 1
 
     def contains(self, notification_id: UUID) -> bool:
         with self._database.begin() as connection:

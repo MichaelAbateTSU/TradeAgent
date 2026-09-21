@@ -57,6 +57,32 @@ def test_schedule_runs_daily_at_six_eastern_and_survives_restart(database: Datab
     assert {row["payload"]["local_date"] for row in rows} == {"2026-09-06", "2026-09-07"}
 
 
+def test_status_enqueue_ignores_duplicate_without_database_error(database: Database):
+    repository = RoundTripNotificationRepository(database)
+    notification_id = daily_notification_id(date(2026, 9, 6), "America/New_York")
+    errors = []
+
+    from sqlalchemy import event
+
+    def record_error(exception_context):
+        errors.append(exception_context.original_exception)
+
+    event.listen(database.engine, "handle_error", record_error)
+    try:
+        assert repository.enqueue_status(notification_id, {"subject": "first"}, created_at=SUNDAY)
+        assert not repository.enqueue_status(
+            notification_id, {"subject": "duplicate"}, created_at=SUNDAY
+        )
+    finally:
+        event.remove(database.engine, "handle_error", record_error)
+
+    assert errors == []
+    with database.begin() as connection:
+        rows = list(connection.execute(select(notification_outbox)).mappings())
+    assert len(rows) == 1
+    assert rows[0]["payload"]["subject"] == "first"
+
+
 @pytest.mark.parametrize(
     "utc_time",
     [
