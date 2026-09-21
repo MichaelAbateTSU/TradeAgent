@@ -212,13 +212,16 @@ submissions, broker acceptances, partial fills, entry fills, completed exits,
 flat reconciliations, and independent completed round trips. Multiple broker
 status updates for one cycle never increase the independent-observation count.
 
-`execution-acceptance-20260921-r3` first sends one separately classified,
+`execution-acceptance-20260921-r4` first sends one separately classified,
 price-capped marketable BTC/USD paper limit through the existing OMS. The
-entry uses a fresh ask, at most five dollars, a five-second TTL, fee-compatible
-quantity rounding, and a five-second owned exit. Up to three attempts are
-allowed, but the cohort stops after one broker-confirmed entry, exit, recorded
-P&L, and operationally flat reconciliation. This verifies the Alpaca paper
-integration only; it is not passive-fill or profitability evidence.
+entry uses a fresh ask, a hard $10.25 cap, a five-second TTL, fee-compatible
+quantity rounding, and a five-second owned exit. Sizing targets Alpaca's $10
+minimum retained exit value plus a 50-basis-point buffer, because a $5 entry
+is rejected and an exact $10 gross buy can fall below the sell minimum after
+base-currency fees. Up to three attempts are allowed, but the cohort stops
+after one broker-confirmed entry, exit, recorded P&L, and operationally flat
+reconciliation. This verifies the Alpaca paper integration only; it is not
+passive-fill or profitability evidence.
 
 The quote that establishes the immutable price cap must be fresh when the
 intent is reserved. Account and reconciliation calls may age that quote before
@@ -231,7 +234,7 @@ After acceptance, `signal-scalp-experiment-20260921-r1` may collect bounded
 BTC/USD and ETH/USD paper scalps through September 28, 2026 at 10:40:07
 Eastern. It requires an existing positive momentum or reversion candidate,
 a quote no older than two seconds, a marketable price-capped limit, at most
-ten dollars per order, one global order or owned position, no more than twelve
+$10.25 per order, one global order or owned position, no more than twelve
 submissions and six filled cycles per UTC day, a five-second maximum hold, and
 a five-dollar modeled daily loss stop. Account pinning, lease ownership,
 stale-data checks, durable intent-before-submit, duplicate IDs, partial-fill

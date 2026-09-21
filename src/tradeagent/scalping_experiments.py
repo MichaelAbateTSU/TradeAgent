@@ -18,7 +18,7 @@ from tradeagent.scalping_store import scalping_cycles, utc
 ACCEPTANCE_CLASSIFICATION = "execution_acceptance_test"
 EXPERIMENTAL_CLASSIFICATION = "experimental_signal_scalp"
 EXPERIMENT_CUTOFF = datetime(2026, 9, 28, 14, 40, 7, tzinfo=UTC)
-ACCEPTANCE_COHORT_ID = "execution-acceptance-20260921-r3"
+ACCEPTANCE_COHORT_ID = "execution-acceptance-20260921-r4"
 EXPERIMENTAL_COHORT_ID = "signal-scalp-experiment-20260921-r1"
 
 
@@ -34,7 +34,13 @@ class PaperExperimentPolicy(BaseModel):
     maximum_price_cap_bps: Decimal = Field(default=Decimal("2"), ge=0, le=Decimal("10"))
     mode: Literal["paper"] = "paper"
     symbols: tuple[str, ...] = ("BTC/USD", "ETH/USD")
-    max_order_notional_usd: Decimal = Field(default=Decimal("10"), gt=0, le=Decimal("10"))
+    broker_minimum_order_notional_usd: Decimal = Field(
+        default=Decimal("10"), gt=0, le=Decimal("10")
+    )
+    exit_notional_buffer_bps: Decimal = Field(default=Decimal("50"), ge=0, le=Decimal("100"))
+    max_order_notional_usd: Decimal = Field(
+        default=Decimal("10.25"), gt=0, le=Decimal("10.25")
+    )
     daily_submitted_cap: int = Field(ge=1, le=20)
     daily_filled_cycle_cap: int = Field(ge=1, le=20)
     schedule_interval_seconds: int = Field(ge=1, le=3600)
@@ -50,6 +56,8 @@ class PaperExperimentPolicy(BaseModel):
             raise ValueError("paper experiment cutoff is immutable")
         if len(self.cohort_id) > 64:
             raise ValueError("paper experiment cohort identity is too long")
+        if self.broker_minimum_order_notional_usd >= self.max_order_notional_usd:
+            raise ValueError("paper experiment maximum must exceed the broker minimum")
         return self
 
     @property
@@ -58,15 +66,14 @@ class PaperExperimentPolicy(BaseModel):
 
 
 class ExecutionAcceptancePolicy(PaperExperimentPolicy):
-    policy_id: Literal["execution-acceptance-v3"] = "execution-acceptance-v3"
-    cohort_id: Literal["execution-acceptance-20260921-r3"] = (
-        "execution-acceptance-20260921-r3"
+    policy_id: Literal["execution-acceptance-v4"] = "execution-acceptance-v4"
+    cohort_id: Literal["execution-acceptance-20260921-r4"] = (
+        "execution-acceptance-20260921-r4"
     )
     classification: Literal["execution_acceptance_test"] = "execution_acceptance_test"
     decision_prefix: Literal["accept"] = "accept"
-    strategy_id: Literal["execution-acceptance-v3"] = "execution-acceptance-v3"
+    strategy_id: Literal["execution-acceptance-v4"] = "execution-acceptance-v4"
     symbols: tuple[str, ...] = ("BTC/USD",)
-    max_order_notional_usd: Decimal = Decimal("5")
     daily_submitted_cap: int = 3
     daily_filled_cycle_cap: int = 1
     schedule_interval_seconds: int = 5

@@ -361,7 +361,12 @@ def calibrate_from_actual_experiments(
             continue
         entry_price = entry_value / entry_quantity
         exit_price = exit_value / exit_quantity
-        requested = Decimal(str(cycle["payload"]["probe_policy"]["max_order_notional_usd"]))
+        requested = Decimal(
+            str(
+                cycle["payload"].get("requested_order_notional_usd")
+                or cycle["payload"]["probe_policy"]["max_order_notional_usd"]
+            )
+        )
         return_bps = float((exit_price - entry_price) / entry_price * Decimal(10_000))
         samples.append(
             EconomicSample(

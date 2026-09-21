@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+import httpx
 from sqlalchemy import select
 from test_scalping_execution import (
     ACCOUNT,
@@ -44,6 +45,9 @@ def test_marketable_acceptance_completes_broker_round_trip(setup) -> None:
     assert broker.values[broker.posts[0].client_order_id].filled_average_price == Decimal(
         "100.03"
     )
+    entry_notional = broker.posts[0].quantity * Decimal("100.03")
+    assert entry_notional * Decimal("0.9975") >= Decimal("10.05")
+    assert entry_notional <= policy.max_order_notional_usd
     now = advance(setup, 5)
     broker.market_price = Decimal("100.50")
     engine.step((), {"BTC/USD": quote(now)}, now=now)
@@ -166,6 +170,43 @@ def test_marketable_dispatch_rejects_fresh_quote_above_original_cap(setup) -> No
         order["submission_error"]["reason"]
         == "FRESH_DISPATCH_ASK_EXCEEDS_ORIGINAL_CAP"
     )
+
+
+def test_broker_rejection_details_are_exposed_in_experiment_report(setup) -> None:
+    database, broker, _, _, make = setup
+    engine = make(entry_order_ttl_seconds=5)
+    engine.initialize()
+
+    def reject(*_args, **_kwargs):
+        response = httpx.Response(
+            403,
+            json={
+                "code": 40310000,
+                "message": "cost basis must be >= minimal amount of order 10",
+            },
+            request=httpx.Request("POST", broker.broker_host + "/v2/orders"),
+        )
+        raise httpx.HTTPStatusError(
+            "rejected",
+            request=response.request,
+            response=response,
+        )
+
+    broker.submit_crypto_limit_order = reject
+    engine.submit_paper_experiment(
+        policy=ExecutionAcceptancePolicy(),
+        quote=quote(NOW),
+        now=NOW,
+    )
+
+    report = scalping_experiment_status(database, account_digest=ACCOUNT)
+    error = report["cycles"][0]["orders"][0]["submission_error"]
+    assert error == {
+        "definitive_rejection": True,
+        "status_code": 403,
+        "broker_code": 40310000,
+        "broker_message": "cost basis must be >= minimal amount of order 10",
+    }
 
 
 def test_report_counts_one_cycle_not_order_updates(setup) -> None:

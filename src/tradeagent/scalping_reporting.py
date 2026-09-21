@@ -333,6 +333,7 @@ def scalping_experiment_status(
                 "client_order_id": row["client_order_id"],
                 "broker_order_id": broker.get("id"),
                 "side": (intent.get("request") or {}).get("side"),
+                "requested_quantity": (intent.get("request") or {}).get("quantity"),
                 "limit_price": intent.get("limit_price"),
                 "quote": intent.get("quote"),
                 "dispatch_state": row["dispatch_state"],

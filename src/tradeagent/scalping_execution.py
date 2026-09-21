@@ -1130,6 +1130,16 @@ class ScalpOrderEngine:
                 and 400 <= error.response.status_code < 500
                 and error.response.status_code != 409
             )
+            broker_error: dict[str, Any] = {}
+            if isinstance(error, httpx.HTTPStatusError):
+                with suppress(ValueError):
+                    response_payload = error.response.json()
+                    if isinstance(response_payload, dict):
+                        broker_error = {
+                            "broker_code": response_payload.get("code"),
+                            "broker_message": str(response_payload.get("message", ""))[:500]
+                            or None,
+                        }
             with self.database.begin() as connection:
                 if not post_invoked:
                     self._expire_unsent(connection, client_id)
@@ -1144,6 +1154,7 @@ class ScalpOrderEngine:
                                 "status_code": error.response.status_code
                                 if isinstance(error, httpx.HTTPStatusError)
                                 else None,
+                                **broker_error,
                             },
                         )
                     )
@@ -1592,19 +1603,57 @@ class ScalpOrderEngine:
                 at=now,
             )
             return None
-        quantity = floor_quantity(policy.max_order_notional_usd / price, asset.min_trade_increment)
         retention = Decimal(1) - max(
             self.config.maker_fee_bps, self.config.taker_fee_bps
         ) / Decimal(10_000)
+        if not Decimal(0) < retention <= Decimal(1):
+            raise ValueError("paper experiment fee retention must be within (0, 1]")
         _, retention_denominator = retention.as_integer_ratio()
-        quantity_units = (quantity / asset.min_trade_increment).to_integral_value(
-            rounding=ROUND_FLOOR
+        minimum_retained_notional = Decimal(
+            str(getattr(policy, "broker_minimum_order_notional_usd", 0))
+        ) * (
+            Decimal(1)
+            + Decimal(str(getattr(policy, "exit_notional_buffer_bps", 0)))
+            / Decimal(10_000)
         )
-        quantity_units = (
-            quantity_units // retention_denominator
-        ) * retention_denominator
+        if minimum_retained_notional > 0:
+            minimum_units = (
+                minimum_retained_notional
+                / retention
+                / price
+                / asset.min_trade_increment
+            ).to_integral_value(rounding=ROUND_CEILING)
+            quantity_units = (
+                minimum_units / Decimal(retention_denominator)
+            ).to_integral_value(rounding=ROUND_CEILING) * retention_denominator
+        else:
+            quantity_units = (
+                policy.max_order_notional_usd
+                / price
+                / asset.min_trade_increment
+            ).to_integral_value(rounding=ROUND_FLOOR)
+            quantity_units = (
+                quantity_units // retention_denominator
+            ) * retention_denominator
         quantity = quantity_units * asset.min_trade_increment
-        if quantity < asset.min_order_size:
+        requested_notional = quantity * price
+        if (
+            quantity < asset.min_order_size
+            or requested_notional > policy.max_order_notional_usd
+        ):
+            self.store.audit(
+                "paper_experiment_blocked",
+                {
+                    "cohort_id": policy.cohort_id,
+                    "classification": classification,
+                    "reason": "BROKER_MINIMUM_CANNOT_FIT_INSIDE_ORDER_CAP",
+                    "requested_quantity": str(quantity),
+                    "requested_notional_usd": str(requested_notional),
+                    "minimum_retained_notional_usd": str(minimum_retained_notional),
+                    "max_order_notional_usd": str(policy.max_order_notional_usd),
+                },
+                at=now,
+            )
             return None
         # The interval slot is stable across retries/restarts, but lets the
         # frozen policy collect more than one resolved label per symbol/day.
@@ -1631,6 +1680,7 @@ class ScalpOrderEngine:
             "entry_style": entry_style,
             "entry_quote": quote.model_dump(mode="json"),
             "entry_limit_price": str(price),
+            "requested_order_notional_usd": str(requested_notional),
             "marketable_at_decision": price >= quote.ask,
             "exit_requested": False,
             "exit_reason": None,
