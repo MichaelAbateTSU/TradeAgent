@@ -42,7 +42,7 @@ def test_marketable_acceptance_completes_broker_round_trip(setup) -> None:
     assert result["state"] == "submitted"
     assert broker.posts[0].client_order_id.startswith("ta30x-")
     assert broker.values[broker.posts[0].client_order_id].filled_average_price == Decimal(
-        "100.01"
+        "100.03"
     )
     now = advance(setup, 5)
     broker.market_price = Decimal("100.50")
@@ -101,8 +101,32 @@ def test_experimental_scalp_waits_for_acceptance_and_uses_signal(setup) -> None:
     assert submitted["state"] == "submitted"
     assert broker.posts[-1].client_order_id.startswith("ta30e-")
     assert broker.values[broker.posts[-1].client_order_id].filled_average_price == Decimal(
-        "100.01"
+        "100.03"
     )
+
+
+def test_marketable_dispatch_rechecks_fresh_quote_inside_original_cap(setup) -> None:
+    _, broker, _, clock, make = setup
+    engine = make(
+        entry_order_ttl_seconds=5,
+        quote_provider=lambda _symbol: quote(clock[0]),
+    )
+    engine.initialize()
+
+    def age_original_quote() -> None:
+        clock[0] = NOW + timedelta(seconds=1.1)
+        broker.account_hook = None
+
+    broker.account_hook = age_original_quote
+    client_id = engine.submit_paper_experiment(
+        policy=ExecutionAcceptancePolicy(),
+        quote=quote(NOW),
+        now=NOW,
+    )
+
+    assert client_id is not None
+    assert broker.posts[0].client_order_id == client_id
+    assert broker.values[client_id].filled_average_price == Decimal("100.03")
 
 
 def test_report_counts_one_cycle_not_order_updates(setup) -> None:

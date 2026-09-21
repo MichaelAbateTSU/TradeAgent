@@ -907,8 +907,57 @@ class ScalpOrderEngine:
                 else:
                     self._account()
                 self._lease(connection, self.clock())
+                dispatch_quote = (
+                    ScalpQuote.model_validate(intent["quote"])
+                    if request.side is Side.BUY
+                    else None
+                )
+                experiment_policy = intent.get("probe_policy") or {}
+                if (
+                    request.side is Side.BUY
+                    and is_probe
+                    and experiment_policy.get("entry_style") == "marketable_limit"
+                    and self.quote_provider is not None
+                ):
+                    current_quote = self.quote_provider(request.symbol)
+                    if (
+                        current_quote is None
+                        or not self._quote_valid(current_quote, self.clock())
+                        or current_quote.ask > number(intent["limit_price"])
+                    ):
+                        self._expire_unsent(connection, client_id)
+                        self.store.audit(
+                            "paper_experiment_dispatch_blocked",
+                            {
+                                "cycle_id": row["cycle_id"],
+                                "client_order_id": client_id,
+                                "reason": "FRESH_MARKETABLE_QUOTE_OUTSIDE_ORIGINAL_CAP",
+                                "actual_ask": (
+                                    str(current_quote.ask)
+                                    if current_quote is not None
+                                    else None
+                                ),
+                                "threshold": intent["limit_price"],
+                            },
+                            at=self.clock(),
+                            connection=connection,
+                        )
+                        return
+                    dispatch_quote = current_quote
+                    self.store.audit(
+                        "paper_experiment_dispatch_quote",
+                        {
+                            "cycle_id": row["cycle_id"],
+                            "client_order_id": client_id,
+                            "quote": current_quote.model_dump(mode="json"),
+                            "limit_price": intent["limit_price"],
+                        },
+                        at=self.clock(),
+                        connection=connection,
+                    )
                 if request.side is Side.BUY and (
-                    not self._quote_valid(ScalpQuote.model_validate(intent["quote"]), self.clock())
+                    dispatch_quote is None
+                    or not self._quote_valid(dispatch_quote, self.clock())
                     or self._manual_stop()
                     or (row["expires_at"] is not None and self.clock() >= utc(row["expires_at"]))
                     or (
@@ -1452,11 +1501,19 @@ class ScalpOrderEngine:
         asset = self._asset(symbol)
         marketable = entry_style == "marketable_limit"
         reference_price = quote.ask if marketable else quote.bid
-        price = (reference_price / asset.price_increment).to_integral_value(
-            rounding=ROUND_CEILING if marketable else ROUND_FLOOR
-        ) * asset.price_increment
         maximum_price = quote.ask * (
             Decimal(1) + maximum_price_cap_bps / Decimal(10_000)
+        )
+        price = (
+            (maximum_price / asset.price_increment).to_integral_value(
+                rounding=ROUND_FLOOR
+            )
+            * asset.price_increment
+            if marketable
+            else (reference_price / asset.price_increment).to_integral_value(
+                rounding=ROUND_FLOOR
+            )
+            * asset.price_increment
         )
         if marketable and price > maximum_price:
             self.store.audit(
