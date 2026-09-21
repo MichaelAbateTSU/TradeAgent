@@ -18,7 +18,7 @@ from tradeagent.scalping_store import scalping_cycles, utc
 ACCEPTANCE_CLASSIFICATION = "execution_acceptance_test"
 EXPERIMENTAL_CLASSIFICATION = "experimental_signal_scalp"
 EXPERIMENT_CUTOFF = datetime(2026, 9, 28, 14, 40, 7, tzinfo=UTC)
-ACCEPTANCE_COHORT_ID = "execution-acceptance-20260921-r1"
+ACCEPTANCE_COHORT_ID = "execution-acceptance-20260921-r2"
 EXPERIMENTAL_COHORT_ID = "signal-scalp-experiment-20260921-r1"
 
 
@@ -58,13 +58,13 @@ class PaperExperimentPolicy(BaseModel):
 
 
 class ExecutionAcceptancePolicy(PaperExperimentPolicy):
-    policy_id: Literal["execution-acceptance-v1"] = "execution-acceptance-v1"
-    cohort_id: Literal["execution-acceptance-20260921-r1"] = (
-        "execution-acceptance-20260921-r1"
+    policy_id: Literal["execution-acceptance-v2"] = "execution-acceptance-v2"
+    cohort_id: Literal["execution-acceptance-20260921-r2"] = (
+        "execution-acceptance-20260921-r2"
     )
     classification: Literal["execution_acceptance_test"] = "execution_acceptance_test"
     decision_prefix: Literal["accept"] = "accept"
-    strategy_id: Literal["execution-acceptance-v1"] = "execution-acceptance-v1"
+    strategy_id: Literal["execution-acceptance-v2"] = "execution-acceptance-v2"
     symbols: tuple[str, ...] = ("BTC/USD",)
     max_order_notional_usd: Decimal = Decimal("5")
     daily_submitted_cap: int = 3
@@ -107,7 +107,12 @@ def _counts(
 ) -> dict[str, int]:
     start = datetime.combine(utc(now).date(), datetime.min.time(), tzinfo=UTC)
     with engine.database.begin() as connection:
-        scope = (*_scope(engine, policy.classification), scalping_cycles.c.created_at >= start)
+        scope = (
+            *_scope(engine, policy.classification),
+            scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+            == policy.cohort_id,
+            scalping_cycles.c.created_at >= start,
+        )
         return {
             "submitted": int(connection.scalar(select(func.count()).where(*scope)) or 0),
             "filled": int(
@@ -120,6 +125,10 @@ def _counts(
                 connection.scalar(
                     select(func.count()).where(
                         *_scope(engine, policy.classification),
+                        scalping_cycles.c.payload["probe_policy"][
+                            "cohort_id"
+                        ].as_string()
+                        == policy.cohort_id,
                         scalping_cycles.c.state == "closed_owned_flat",
                     )
                 )

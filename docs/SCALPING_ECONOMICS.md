@@ -212,7 +212,7 @@ submissions, broker acceptances, partial fills, entry fills, completed exits,
 flat reconciliations, and independent completed round trips. Multiple broker
 status updates for one cycle never increase the independent-observation count.
 
-`execution-acceptance-20260921-r1` first sends one separately classified,
+`execution-acceptance-20260921-r2` first sends one separately classified,
 price-capped marketable BTC/USD paper limit through the existing OMS. The
 entry uses a fresh ask, at most five dollars, a five-second TTL, fee-compatible
 quantity rounding, and a five-second owned exit. Up to three attempts are

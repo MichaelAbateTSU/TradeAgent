@@ -37,7 +37,7 @@ September 21 cutoff for new probes; owned cancellation, reconciliation and exit
 recovery continue afterwards.
 
 New passive probes are now superseded by a bounded paper experiment. The
-`execution-acceptance-20260921-r1` cohort must first prove one complete
+`execution-acceptance-20260921-r2` cohort must first prove one complete
 broker-confirmed marketable entry and owned exit. Only then may
 `signal-scalp-experiment-20260921-r1` collect explicitly capped
 signal-driven paper scalps through September 28 at 10:40:07 Eastern. These
