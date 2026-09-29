@@ -304,6 +304,13 @@ def _candidate_summary_query(candidate_scope: ColumnElement[bool]) -> Select[Any
     )
 
 
+def _broker_post_attempted(order: dict[str, Any]) -> bool:
+    return (
+        order["dispatch_state"] in {"acknowledged", "unknown", "broker_rejected"}
+        or bool((order["broker"] or {}).get("id"))
+    )
+
+
 def scalping_experiment_status(
     database: Database,
     *,
@@ -568,12 +575,18 @@ def scalping_experiment_status(
         if context is None:
             continue
         bucket = funnel_by_symbol[context]
-        bucket["submissions"] += 1
+        bucket["intents_reserved"] += 1
+        if _broker_post_attempted(order):
+            bucket["submissions"] += 1
+        if order["dispatch_state"] == "expired_unsent":
+            bucket["expired_unsent"] += 1
+        if order["dispatch_state"] == "dispatching":
+            bucket["dispatch_outcome_unknown"] += 1
         intent = order["intent"] if isinstance(order["intent"], dict) else {}
         raw_request = intent.get("request")
         request = raw_request if isinstance(raw_request, dict) else {}
         side = request.get("side")
-        if side == "buy":
+        if side == "buy" and _broker_post_attempted(order):
             bucket["entry_submissions"] += 1
         broker = order["broker"] if isinstance(order["broker"], dict) else {}
         if broker.get("id"):
@@ -586,8 +599,12 @@ def scalping_experiment_status(
     total_candidates = sum(int(group["candidates"]) for group in candidate_counts)
     blocked_candidates = sum(int(group["blocked_candidates"] or 0) for group in candidate_counts)
     entry_submissions = sum(
-        1 for row in orders if (row["intent"].get("request") or {}).get("side") == "buy"
+        1
+        for row in orders
+        if _broker_post_attempted(row)
+        and (row["intent"].get("request") or {}).get("side") == "buy"
     )
+    submissions = sum(_broker_post_attempted(row) for row in orders)
     broker_acceptances = sum(bool((row["broker"] or {}).get("id")) for row in orders)
     partial_fills = sum(
         (row["broker"] or {}).get("status") == "partially_filled" for row in orders
@@ -660,8 +677,15 @@ def scalping_experiment_status(
         "funnel": {
             "candidates": total_candidates,
             "blocked_candidates": blocked_candidates,
-            "submissions": len(orders),
+            "intents_reserved": len(orders),
+            "submissions": submissions,
             "entry_submissions": entry_submissions,
+            "expired_unsent": sum(
+                row["dispatch_state"] == "expired_unsent" for row in orders
+            ),
+            "dispatch_outcome_unknown": sum(
+                row["dispatch_state"] == "dispatching" for row in orders
+            ),
             "broker_acceptances": broker_acceptances,
             "partial_fills": partial_fills,
             "entry_fills": sum(
@@ -676,6 +700,11 @@ def scalping_experiment_status(
                 for row in cycles
             ),
         },
+        "submission_count_basis": (
+            "submissions count broker POST attempts identified by acknowledged, unknown, "
+            "or broker_rejected dispatch state or broker ID; intents_reserved also includes "
+            "definitively expired_unsent requests; dispatching remains uncertain"
+        ),
         "funnel_by_symbol": [
             {
                 "classification": classification,

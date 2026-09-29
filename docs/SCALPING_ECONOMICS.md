@@ -283,6 +283,11 @@ cohort economics bridge separates fill-price P&L, broker cash flow, the
 incremental modeled-cost adjustment and confirmed net where fees are posted.
 Observed broker fill prices already embed spread and execution slippage, so
 neither is charged again in this bridge.
+`intents_reserved` includes orders rejected before reaching Alpaca; `submissions`
+counts only broker POST attempts identifiable from acknowledged, unknown or
+broker-rejected dispatch state or a broker ID. A remaining `dispatching` state
+is separately reported as uncertain, not silently counted as an accepted
+submission.
 
 Actual model transition requires at least 30 independent completed
 experimental round trips: 20 chronological training observations and 10 later

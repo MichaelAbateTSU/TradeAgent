@@ -246,6 +246,9 @@ def test_marketable_dispatch_rejects_fresh_quote_above_original_cap(setup) -> No
     assert client_id is not None
     assert not broker.posts
     report = scalping_experiment_status(database, account_digest=ACCOUNT)
+    assert report["funnel"]["intents_reserved"] == 1
+    assert report["funnel"]["submissions"] == 0
+    assert report["funnel"]["expired_unsent"] == 1
     order = report["cycles"][0]["orders"][0]
     assert order["dispatch_state"] == "expired_unsent"
     assert order["submission_error"]["pre_submit_rejection"] is True
@@ -312,6 +315,7 @@ def test_report_counts_one_cycle_not_order_updates(setup) -> None:
     report = scalping_experiment_status(database, account_digest=ACCOUNT)
 
     assert report["funnel"]["submissions"] == 2
+    assert report["funnel"]["intents_reserved"] == 2
     assert report["funnel"]["entry_submissions"] == 1
     assert report["funnel"]["broker_acceptances"] == 2
     assert report["funnel"]["completed_exits"] == 1
@@ -333,6 +337,7 @@ def test_report_counts_one_cycle_not_order_updates(setup) -> None:
             "entry_fills": 1,
             "entry_submissions": 1,
             "flat_reconciliations": 1,
+            "intents_reserved": 2,
             "submissions": 2,
         }
     ]
