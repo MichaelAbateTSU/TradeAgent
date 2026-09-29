@@ -149,6 +149,9 @@ def test_api_and_dashboard_expose_separate_v30_state(tmp_path: Path) -> None:
         assert shadow.status_code == 200
         assert shadow.json()["outcome_groups"] == []
         assert shadow.json()["no_order_submission"] is True
+        experiment = client.get("/api/scalping-experiments")
+        assert experiment.status_code == 200
+        assert experiment.json()["candidate_account_scope"]["account_digest_matched"] is True
 
 
 def test_diagnostic_journal_selects_latest_revision_without_mixing_other_runs(tmp_path):

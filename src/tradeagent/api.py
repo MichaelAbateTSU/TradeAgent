@@ -905,7 +905,7 @@ def create_app(
 
     @app.get("/api/scalping-experiments")
     def scalping_experiments() -> dict[str, Any]:
-        from tradeagent.scalping_reporting import scalping_experiment_status
+        from tradeagent.scalping_reporting import scalping_experiment_status, scalping_status
 
         if production_database_url is None:
             return {
@@ -915,7 +915,22 @@ def create_app(
             }
         try:
             with production_database() as database:
-                return scalping_experiment_status(database)
+                status = scalping_status(database)
+                execution = status.get("execution")
+                account_digest = (
+                    execution.get("account_digest")
+                    if isinstance(execution, dict)
+                    else None
+                )
+                if (
+                    not isinstance(account_digest, str)
+                    or len(account_digest) != 64
+                    or any(char not in "0123456789abcdef" for char in account_digest)
+                ):
+                    raise ValueError("no pinned paper account is available for cohort reporting")
+                return scalping_experiment_status(
+                    database, account_digest=account_digest
+                )
         except (SQLAlchemyError, ValueError) as error:
             raise HTTPException(
                 status_code=503, detail="Scalping experiment status unavailable"

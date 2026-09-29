@@ -269,6 +269,16 @@ and cannot flip `no_support`. `/api/scalping-experiments` and
 quote, limit, broker ID, broker timestamps, cancellation state, fill evidence,
 P&L, flatness, and exclusion reason.
 
+The report aggregates all cohort/account-scoped candidate checks in the
+database and returns only the latest 200 check payloads, rather than loading
+the full journal in the dashboard process. Candidate events predating
+account-digest tagging are excluded from account-specific counts and disclosed
+as unscoped; cycle/order evidence requires the exact frozen policy hash. The
+cohort economics bridge separates fill-price P&L, broker cash flow, the
+incremental modeled-cost adjustment and confirmed net where fees are posted.
+Observed broker fill prices already embed spread and execution slippage, so
+neither is charged again in this bridge.
+
 Actual model transition requires at least 30 independent completed
 experimental round trips: 20 chronological training observations and 10 later
 held-out observations. `tradeagent scalp-actual-calibrate` converts only
@@ -279,6 +289,14 @@ the sample count and model status are both validated. The worker's existing
 file hash, account, horizon, cancellation horizon, fee, and universe checks
 must then load that artifact. Insufficient or nonpositive evidence remains
 `no_support` or `failed_validation`; it never falls back to heuristic trading.
+
+The experimental calibration payoff contract spans at most 10 seconds from
+decision (five-second entry lifetime plus five-second owned holding target).
+The currently running qualified worker uses a five-second prediction horizon,
+so even a validated 10-second research artifact is *not* loadable into that
+worker without a separately reviewed compatible policy and deployment. The
+calibration audit states this mismatch explicitly; neither outcome is
+silently relabeled as a five-second fill.
 
 Alpaca paper fills omit real queue position, latency slippage, and market
 impact. Marketable acceptance is therefore kept separate from passive

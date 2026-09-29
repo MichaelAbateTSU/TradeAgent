@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import httpx
@@ -74,7 +74,7 @@ def test_marketable_acceptance_completes_broker_round_trip(setup) -> None:
 
 
 def test_experimental_scalp_waits_for_acceptance_and_uses_signal(setup) -> None:
-    _, broker, _, _, make = setup
+    database, broker, _, _, make = setup
     engine = make(entry_order_ttl_seconds=5)
     engine.initialize()
     experimental = ExperimentalScalpCohort(engine, ExperimentalScalpPolicy())
@@ -108,6 +108,27 @@ def test_experimental_scalp_waits_for_acceptance_and_uses_signal(setup) -> None:
     assert broker.values[broker.posts[-1].client_order_id].filled_average_price == Decimal(
         "100.03"
     )
+    now = advance(setup, 65)
+    broker.market_price = Decimal("99")
+    engine.step((), {"BTC/USD": quote(now)}, now=now)
+    now = advance(setup, 66)
+    engine.step((), {"BTC/USD": quote(now)}, now=now)
+    report = scalping_experiment_status(database, account_digest=ACCOUNT)
+    completed = next(
+        cycle
+        for cycle in report["cycles"]
+        if cycle["classification"] == "experimental_signal_scalp"
+    )
+    assert completed["state"] == "closed_owned_flat"
+    assert completed["signal"]["decision_id"] == candidate.decision_id
+    assert completed["decision_id"].startswith("experiment:")
+    assert completed["policy_hash"] == ExperimentalScalpPolicy().identity
+    assert completed["owned_quantity"] == "0E-18"
+    assert len(completed["orders"]) == 2
+    assert all(order["broker_order_id"] for order in completed["orders"])
+    assert all(order["first_positive_fill_at"] for order in completed["orders"])
+    assert completed["modeled_net_pnl_usd"] is not None
+    assert report["cohort_economics"]["observed_result"] == "negative_after_modeled_costs"
 
 
 def test_marketable_dispatch_rechecks_fresh_quote_inside_original_cap(setup) -> None:
@@ -265,6 +286,10 @@ def test_report_counts_one_cycle_not_order_updates(setup) -> None:
     assert report["evidence_accounting"]["reason"] == (
         "INSUFFICIENT_ACTUAL_COMPLETED_ROUND_TRIPS"
     )
+    assert report["cohort_economics"]["completed_round_trips"] == 1
+    assert report["cohort_economics"]["modeled_net_coverage"] == 1
+    assert report["cohort_economics"]["pending_fee_cycles"] == 0
+    assert report["cohort_economics"]["actual_net_pnl_usd"] is not None
     assert report["funnel_by_symbol"] == [
         {
             "classification": "experimental_signal_scalp",
@@ -346,6 +371,77 @@ def test_experiment_report_excludes_wrong_cohort_and_cutoff_records(setup) -> No
     assert report["funnel"]["candidates"] == 0
 
 
+def test_report_counts_all_candidates_but_returns_only_latest_200(setup) -> None:
+    database, _, _, _, make = setup
+    engine = make(entry_order_ttl_seconds=5)
+    engine.initialize()
+    policy = ExperimentalScalpPolicy()
+    observed_at = datetime(2026, 9, 21, 12, tzinfo=UTC)
+    for index in range(250):
+        engine.store.audit(
+            "paper_experiment_candidate",
+            {
+                "cohort_id": policy.cohort_id,
+                "classification": policy.classification,
+                "account_digest": ACCOUNT,
+                "symbol": "BTC/USD" if index % 2 == 0 else "ETH/USD",
+                "eligible": index % 3 != 0,
+                "checks": [{"name": "signal_score", "actual": index, "threshold": 10}],
+            },
+            at=observed_at + timedelta(seconds=index),
+        )
+    report = scalping_experiment_status(database, account_digest=ACCOUNT)
+    assert report["funnel"]["candidates"] == 250
+    assert report["funnel"]["blocked_candidates"] == 84
+    assert len(report["candidate_checks"]) == 200
+    assert report["candidate_checks"][0]["payload"]["checks"][0]["actual"] == 50
+    assert sum(row["candidates"] for row in report["funnel_by_symbol"]) == 250
+    assert report["candidate_account_scope"]["candidate_totals_complete"] is True
+
+
+def test_calibration_and_report_exclude_mismatched_policy_hash(setup) -> None:
+    database, _, _, _, make = setup
+    engine = make(entry_order_ttl_seconds=5)
+    engine.initialize()
+    policy = ExperimentalScalpPolicy()
+    assert engine.submit_paper_experiment(
+        policy=policy, quote=quote(NOW), now=NOW, signal=signal(NOW, "changed-policy")
+    )
+    with database.begin() as connection:
+        row = connection.execute(
+            select(scalping_cycles).where(
+                scalping_cycles.c.payload["classification"].as_string()
+                == "experimental_signal_scalp"
+            )
+        ).mappings().one()
+        payload = dict(row["payload"])
+        stored_policy = dict(payload["probe_policy"])
+        stored_policy["max_order_notional_usd"] = "10.24"
+        payload["probe_policy"] = stored_policy
+        connection.execute(
+            update(scalping_cycles)
+            .where(scalping_cycles.c.cycle_id == row["cycle_id"])
+            .values(payload=payload, state="closed_owned_flat", closed_at=NOW)
+        )
+    report = scalping_experiment_status(database, account_digest=ACCOUNT)
+    assert report["cycles"] == []
+    assert report["evidence_accounting"]["exclusion_reasons"] == {
+        "POLICY_HASH_MISMATCH": 1
+    }
+    model, audit = calibrate_from_actual_experiments(
+        database,
+        account_digest=ACCOUNT,
+        maker_fee_bps=15,
+        taker_fee_bps=25,
+        calibrated_at=NOW + timedelta(minutes=1),
+        valid_until=NOW + timedelta(hours=1),
+    )
+    assert model.status == "no_support"
+    assert audit["scoped_closed_cycle_count"] == 1
+    assert audit["exclusion_reasons"] == {"POLICY_HASH_MISMATCH": 1}
+    assert audit["accepted_sample_count"] == 0
+
+
 def test_actual_round_trips_calibrate_write_and_reload_validated_model(
     setup, tmp_path
 ) -> None:
@@ -380,6 +476,9 @@ def test_actual_round_trips_calibrate_write_and_reload_validated_model(
 
     assert audit["accepted_sample_count"] == 30
     assert audit["eligible_for_calibration"] is True
+    assert audit["cohort_id"] == policy.cohort_id
+    assert audit["artifact_horizon_seconds"] == 10
+    assert audit["five_second_worker_compatible"] is False
     assert model.status == "validated", model.reason_codes
     assert audit["worker_load_allowed"] is True, audit
     path = tmp_path / "actual-model.json"

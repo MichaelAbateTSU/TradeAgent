@@ -212,7 +212,7 @@ def calibrate_from_actual_experiments(
     """Build a chronological artifact only from completed broker-confirmed experiments."""
     policy = ExperimentalScalpPolicy()
     with database.begin() as connection:
-        cycles = [
+        scoped_cycles = [
             dict(row)
             for row in connection.execute(
                 select(scalping_cycles)
@@ -220,13 +220,29 @@ def calibrate_from_actual_experiments(
                     scalping_cycles.c.account_digest == account_digest,
                     scalping_cycles.c.payload["classification"].as_string()
                     == EXPERIMENTAL_CLASSIFICATION,
+                    scalping_cycles.c.payload["probe_policy"]["cohort_id"].as_string()
+                    == policy.cohort_id,
+                    scalping_cycles.c.created_at < policy.authorization_cutoff,
                     scalping_cycles.c.state == "closed_owned_flat",
                 )
                 .order_by(scalping_cycles.c.created_at)
             )
             .mappings()
-            .all()
         ]
+        cycles = []
+        excluded_policy: Counter[str] = Counter()
+        for row in scoped_cycles:
+            try:
+                recorded = ExperimentalScalpPolicy.model_validate(
+                    row["payload"].get("probe_policy")
+                )
+            except (AttributeError, ValidationError):
+                excluded_policy["INVALID_EXPERIMENT_POLICY"] += 1
+                continue
+            if recorded.identity != policy.identity:
+                excluded_policy["POLICY_HASH_MISMATCH"] += 1
+                continue
+            cycles.append(row)
         cycle_ids = [row["cycle_id"] for row in cycles]
         orders = (
             [
@@ -283,7 +299,7 @@ def calibrate_from_actual_experiments(
     )
     horizon_seconds = float(policy.entry_ttl_seconds + policy.exit_after_seconds)
     samples: list[EconomicSample] = []
-    exclusions: Counter[str] = Counter()
+    exclusions: Counter[str] = excluded_policy
     for cycle in cycles:
         entry_quantity = Decimal(str(cycle["entry_quantity"]))
         exit_quantity = Decimal(str(cycle["exit_quantity"]))
@@ -430,6 +446,10 @@ def calibrate_from_actual_experiments(
     )
     audit = {
         "schema": "actual-execution-calibration-audit-v1",
+        "cohort_id": policy.cohort_id,
+        "entry_cutoff": policy.authorization_cutoff.isoformat(),
+        "policy_hash": policy.identity,
+        "scoped_closed_cycle_count": len(scoped_cycles),
         "source_sha256": source_sha,
         "completed_cycle_count": len(cycles),
         "accepted_sample_count": len(samples),
@@ -441,6 +461,8 @@ def calibrate_from_actual_experiments(
         "model_reason_codes": list(model.reason_codes),
         "chronological_split": True,
         "cost_policy": "fill-to-fill prices plus conservative configured fee allowance",
+        "artifact_horizon_seconds": horizon_seconds,
+        "five_second_worker_compatible": horizon_seconds == 5,
         "worker_load_allowed": model.status == "validated" and len(samples) >= required,
     }
     if len(samples) < required:
