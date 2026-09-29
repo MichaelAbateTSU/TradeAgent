@@ -182,6 +182,10 @@ class ExecutionAcceptanceCohort:
         if self._last_slot == slot:
             return {"state": "waiting", **counts}
         self._last_slot = slot
+        if counts["completed"]:
+            return {"state": "complete", **counts, "new_submissions_enabled": False}
+        if now >= self.policy.authorization_cutoff:
+            return {"state": "expired", **counts, "new_submissions_enabled": False}
         quote = quotes.get(self.policy.symbols[0])
         checks = [
             {

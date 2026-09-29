@@ -252,6 +252,11 @@ one-second fence is unchanged. The dispatch quote must not predate the original
 quote, and its ask must remain inside the original cap. Pre-submit rejections
 are persisted with the actual quote and threshold.
 
+Once the acceptance round trip is complete or its entry deadline has passed,
+its scheduler stops emitting redundant five-second blocked-candidate audit
+events. Already-recorded checks remain immutable; this does not alter
+entry eligibility, ownership, or exit supervision.
+
 After acceptance, `signal-scalp-experiment-20260921-r1` may collect bounded
 BTC/USD and ETH/USD paper scalps through September 28, 2026 at 10:40:07
 Eastern. It requires an existing positive momentum or reversion candidate,

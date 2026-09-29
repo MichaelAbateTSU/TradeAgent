@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import httpx
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects import postgresql
 from test_scalping_execution import (
     ACCOUNT,
@@ -15,6 +15,7 @@ from test_scalping_execution import (
     setup as execution_setup,
 )
 
+from tradeagent.persistence import events
 from tradeagent.scalping_experiments import (
     ExecutionAcceptanceCohort,
     ExecutionAcceptancePolicy,
@@ -71,6 +72,37 @@ def test_marketable_acceptance_completes_broker_round_trip(setup) -> None:
     assert cycle["entry_quantity"] > 0
     assert cycle["exit_quantity"] > 0
     assert cycle["owned_quantity"] == 0
+    assert len(broker.posts) == 2
+
+
+def test_completed_acceptance_stops_emitting_redundant_candidate_checks(setup) -> None:
+    database, broker, _, _, make = setup
+    engine = make(entry_order_ttl_seconds=5)
+    engine.initialize()
+    cohort = ExecutionAcceptanceCohort(engine, ExecutionAcceptancePolicy())
+    assert cohort.step({"BTC/USD": quote(NOW)}, now=NOW)["state"] == "submitted"
+    now = advance(setup, 5)
+    engine.step((), {"BTC/USD": quote(now)}, now=now)
+    now = advance(setup, 6)
+    engine.step((), {"BTC/USD": quote(now)}, now=now)
+    with database.begin() as connection:
+        before = connection.scalar(
+            select(func.count()).where(
+                events.c.event_type == "scalp_paper_experiment_candidate"
+            )
+        )
+    for minute in range(1, 11):
+        now = advance(setup, 6 + minute * 60)
+        result = cohort.step({"BTC/USD": quote(now)}, now=now)
+        assert result["state"] == "complete"
+        assert result["new_submissions_enabled"] is False
+    with database.begin() as connection:
+        after = connection.scalar(
+            select(func.count()).where(
+                events.c.event_type == "scalp_paper_experiment_candidate"
+            )
+        )
+    assert after == before == 1
     assert len(broker.posts) == 2
 
 
