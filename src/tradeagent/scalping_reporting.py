@@ -9,6 +9,8 @@ from zoneinfo import ZoneInfo
 
 from pydantic import ValidationError
 from sqlalchemy import and_, case, func, or_, select
+from sqlalchemy.sql import Select
+from sqlalchemy.sql.elements import ColumnElement
 
 from tradeagent.persistence import (
     Database,
@@ -276,6 +278,32 @@ def scalping_probe_status(database: Database, *, cohort_id: str | None = None) -
     }
 
 
+def _candidate_summary_query(candidate_scope: ColumnElement[bool]) -> Select[Any]:
+    candidate_projection = (
+        select(
+            events.c.payload["classification"].as_string().label("classification"),
+            events.c.payload["symbol"].as_string().label("symbol"),
+            events.c.payload["eligible"].as_boolean().label("eligible"),
+        )
+        .where(
+            events.c.event_type == "scalp_paper_experiment_candidate",
+            candidate_scope,
+        )
+        .subquery()
+    )
+    return (
+        select(
+            candidate_projection.c.classification,
+            candidate_projection.c.symbol,
+            func.count().label("candidates"),
+            func.sum(
+                case((candidate_projection.c.eligible.is_(False), 1), else_=0)
+            ).label("blocked_candidates"),
+        )
+        .group_by(candidate_projection.c.classification, candidate_projection.c.symbol)
+    )
+
+
 def scalping_experiment_status(
     database: Database,
     *,
@@ -322,6 +350,7 @@ def scalping_experiment_status(
             candidate_scope,
             events.c.payload["account_digest"].as_string() == account_digest,
         )
+    candidate_summary_query = _candidate_summary_query(candidate_scope)
     with database.begin() as connection:
         cycle_query = select(scalping_cycles).where(cycle_scope)
         if account_digest is not None:
@@ -379,28 +408,7 @@ def scalping_experiment_status(
         )
         candidate_counts = [
             dict(row)
-            for row in connection.execute(
-                select(
-                    events.c.payload["classification"].as_string().label("classification"),
-                    events.c.payload["symbol"].as_string().label("symbol"),
-                    func.count().label("candidates"),
-                    func.sum(
-                        case(
-                            (events.c.payload["eligible"].as_boolean().is_(False), 1),
-                            else_=0,
-                        )
-                    ).label("blocked_candidates"),
-                )
-                .where(
-                    events.c.event_type == "scalp_paper_experiment_candidate",
-                    candidate_scope,
-                )
-                .group_by(
-                    events.c.payload["classification"].as_string(),
-                    events.c.payload["symbol"].as_string(),
-                )
-            )
-            .mappings()
+            for row in connection.execute(candidate_summary_query).mappings()
         ]
         candidate_events = [
             dict(row)

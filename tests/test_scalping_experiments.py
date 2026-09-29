@@ -3,6 +3,7 @@ from decimal import Decimal
 
 import httpx
 from sqlalchemy import select, update
+from sqlalchemy.dialects import postgresql
 from test_scalping_execution import (
     ACCOUNT,
     NOW,
@@ -26,7 +27,7 @@ from tradeagent.scalping_policy import (
     load_economic_model,
     write_model_artifact,
 )
-from tradeagent.scalping_reporting import scalping_experiment_status
+from tradeagent.scalping_reporting import _candidate_summary_query, scalping_experiment_status
 from tradeagent.scalping_store import scalping_cycles
 
 setup = execution_setup
@@ -397,6 +398,14 @@ def test_report_counts_all_candidates_but_returns_only_latest_200(setup) -> None
     assert report["candidate_checks"][0]["payload"]["checks"][0]["actual"] == 50
     assert sum(row["candidates"] for row in report["funnel_by_symbol"]) == 250
     assert report["candidate_account_scope"]["candidate_totals_complete"] is True
+
+
+def test_candidate_aggregation_groups_by_projected_columns_in_postgres() -> None:
+    from sqlalchemy import true
+
+    compiled = str(_candidate_summary_query(true()).compile(dialect=postgresql.dialect()))
+    assert "GROUP BY anon_1.classification, anon_1.symbol" in compiled
+    assert "GROUP BY CAST(" not in compiled
 
 
 def test_calibration_and_report_exclude_mismatched_policy_hash(setup) -> None:
