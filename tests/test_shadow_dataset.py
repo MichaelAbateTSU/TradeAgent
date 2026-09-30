@@ -391,3 +391,36 @@ def test_quality_gated_api_and_observer_status_remain_trade_free(store_setup, tm
             "waiting_for_sealed_dataset"
         )
         assert 'id="shadow-dataset-heading"' in client.get("/").text
+
+
+def test_terminal_child_archives_quality_block_without_orders(store_setup, monkeypatch):
+    import sys
+    import types
+
+    from tradeagent.persistence import events
+    from tradeagent.shadow_dataset_runtime import run_shadow_dataset
+
+    database, _, _, _ = store_setup
+    monkeypatch.setenv("TRADEAGENT_DATABASE_URL", str(database.engine.url))
+    fake_resource = types.ModuleType("resource")
+    fake_resource.RLIMIT_AS = 0
+    fake_resource.setrlimit = lambda *args: None
+    monkeypatch.setitem(sys.modules, "resource", fake_resource)
+    child = next(
+        value
+        for value in run_shadow_dataset.__code__.co_consts
+        if isinstance(value, types.CodeType) and value.co_name == "terminal_analysis"
+    )
+    script = next(
+        value
+        for value in child.co_consts
+        if isinstance(value, str) and value.startswith("import json,resource;")
+    )
+    exec(compile(script, "<trusted-terminal-analysis-test>", "exec"), {})
+    with database.begin() as connection:
+        payload = connection.scalar(
+            select(events.c.payload).where(events.c.event_type == "shadow_dataset_analysis_result")
+        )
+        assert payload["state"] == "blocked_on_data_quality"
+        assert payload["profitability_analysis_performed"] is False
+        assert connection.scalar(select(func.count()).select_from(orders)) == 0
