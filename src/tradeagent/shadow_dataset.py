@@ -205,7 +205,6 @@ class ShadowDatasetStore:
         self.clock: Callable[[], datetime] = lambda: datetime.now(UTC)
 
     def _lease(self, connection: Any, now: datetime) -> None:
-        checked_at = self.clock()
         row = (
             connection.execute(
                 select(worker_locks).where(worker_locks.c.lock_name == LOCK_NAME).with_for_update()
@@ -213,6 +212,7 @@ class ShadowDatasetStore:
             .mappings()
             .one_or_none()
         )
+        checked_at = self.clock()
         if (
             not row
             or row["owner_id"] != self.owner_id
