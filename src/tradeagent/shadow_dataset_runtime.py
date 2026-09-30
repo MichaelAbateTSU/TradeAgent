@@ -28,6 +28,7 @@ from tradeagent.shadow_dataset import (
     ShadowDatasetStore,
     dataset_status,
     persist_daily_quality,
+    release_allowed,
     shadow_datasets,
     shadow_evaluations,
     shadow_labels,
@@ -98,12 +99,15 @@ async def run_shadow_dataset(
             if not saved:
                 raise ValueError("observation protocol must be frozen before service startup")
             protocol = ShadowDatasetProtocol.model_validate(saved)
-    if code_identity() != protocol.code_sha:
-        raise ValueError("collector code does not match the frozen prospective protocol")
+    actual_sha = code_identity()
+    with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as release_database:
+        if not release_allowed(release_database, protocol, actual_sha):
+            raise ValueError("collector code does not match a frozen or approved pre-start release")
     owner = os.environ.get("RENDER_INSTANCE_ID") or f"{socket.gethostname()}-{os.getpid()}"
     stop = stop_event or asyncio.Event()
     credentials = AlpacaPaperSettings.model_validate({})
     collector = ShadowDatasetCollector(protocol)
+    collector.capture_code_sha = actual_sha
     feed = CryptoMarketFeed(
         protocol.symbols,
         credentials,
@@ -151,7 +155,9 @@ async def run_shadow_dataset(
                         await asyncio.to_thread(store.write, body, datetime.now(UTC))
                     elif kind == "quality":
                         quality, now, sealed = body
-                        await asyncio.to_thread(store.update_quality, quality, now, sealed=sealed)
+                        await asyncio.to_thread(
+                            store.update_quality, quality, datetime.now(UTC), sealed=sealed
+                        )
                     elif kind == "daily":
                         report_date, now = body
                         await asyncio.to_thread(
@@ -230,7 +236,7 @@ async def run_shadow_dataset(
                     "entry_policy": PROFILE,
                     "dataset_id": DATASET_ID,
                     "cohort_id": DATASET_ID,
-                    "code_sha": protocol.code_sha,
+                    "code_sha": actual_sha,
                     "config_hash": protocol.identity,
                     "owner_id": owner,
                     "account_digest": protocol.account_digest,

@@ -5,6 +5,7 @@ from __future__ import annotations
 import statistics
 import zlib
 from collections import Counter, defaultdict, deque
+from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
@@ -29,7 +30,7 @@ from sqlalchemy import (
     update,
 )
 
-from tradeagent.persistence import Database, metadata, worker_locks
+from tradeagent.persistence import Database, ProductionRepository, events, metadata, worker_locks
 from tradeagent.scalping_config import ScalpingConfig
 from tradeagent.scalping_market import BookFeatureEngine, MarketEvent, datetime_ns
 from tradeagent.scalping_research import _QuoteReplay
@@ -201,8 +202,10 @@ DATASET_TABLES = (
 class ShadowDatasetStore:
     def __init__(self, database: Database, protocol: ShadowDatasetProtocol, owner_id: str):
         self.database, self.protocol, self.owner_id = database, protocol, owner_id
+        self.clock: Callable[[], datetime] = lambda: datetime.now(UTC)
 
     def _lease(self, connection: Any, now: datetime) -> None:
+        checked_at = self.clock()
         row = (
             connection.execute(
                 select(worker_locks).where(worker_locks.c.lock_name == LOCK_NAME).with_for_update()
@@ -213,7 +216,7 @@ class ShadowDatasetStore:
         if (
             not row
             or row["owner_id"] != self.owner_id
-            or not (timedelta(0) <= now - utc(row["acquired_at"]) <= timedelta(seconds=90))
+            or not (timedelta(0) <= checked_at - utc(row["acquired_at"]) <= timedelta(seconds=90))
         ):
             raise RuntimeError("observation worker lease lost")
 
@@ -390,6 +393,7 @@ class ShadowDatasetCollector:
         self.previous: MarketEvent | None = None
         self.epoch = 0
         self.session_id = str(uuid4())
+        self.capture_code_sha = protocol.code_sha
         self.counts: Counter[str] = Counter()
         self.latencies: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=2000))
         self.seen_quote_ids: dict[str, str] = {}
@@ -555,6 +559,7 @@ class ShadowDatasetCollector:
             }
             payload = {
                 "schema": PROFILE,
+                "source_code_sha": self.capture_code_sha,
                 "evaluation_id": identity,
                 "protocol_hash": self.protocol.identity,
                 "timestamp": now.isoformat(),
@@ -790,6 +795,7 @@ class ShadowDatasetCollector:
         return {
             "counts_scope": "current process; durable tables supply dataset-wide totals",
             "scope_id": self.session_id,
+            "source_code_sha": self.capture_code_sha,
             "counts": dict(self.counts),
             "latency_ms": distributions,
             "pending_evaluations": len(self.pending),
@@ -953,6 +959,8 @@ def freeze_protocol(database: Database, protocol: ShadowDatasetProtocol, now: da
             if existing["protocol_hash"] != protocol.identity:
                 raise ValueError("cannot rewrite a frozen observation protocol")
             return
+        if protocol.frozen_at > now:
+            raise ValueError("a frozen protocol cannot claim a future registration time")
         if now >= protocol.start:
             raise ValueError("prospective window missed: cannot freeze or backdate after start")
         inserted = insert_once(
@@ -978,6 +986,59 @@ def freeze_protocol(database: Database, protocol: ShadowDatasetProtocol, now: da
             )
             if actual != protocol.identity:
                 raise ValueError("concurrent frozen protocol conflict")
+
+
+def approve_prestart_release(
+    database: Database, code_sha: str, *, now: datetime, reason: str
+) -> None:
+    """Append a safety-repair release; never rewrite the frozen protocol or post-start rules."""
+    with database.begin() as connection:
+        saved = connection.scalar(
+            select(shadow_datasets.c.protocol).where(shadow_datasets.c.dataset_id == DATASET_ID)
+        )
+        if not saved:
+            raise ValueError("a frozen dataset is required before release approval")
+        protocol = ShadowDatasetProtocol.model_validate(saved)
+        count = connection.scalar(
+            select(func.count()).where(shadow_evaluations.c.dataset_id == DATASET_ID)
+        )
+        if (
+            now >= protocol.start
+            or count
+            or len(code_sha) != 40
+            or any(character not in "0123456789abcdef" for character in code_sha)
+            or not reason.strip()
+        ):
+            raise ValueError("release repair requires pre-start time and zero evaluations")
+    ProductionRepository(database).append_event(
+        "shadow_dataset_release_approved",
+        {
+            "dataset_id": DATASET_ID,
+            "protocol_hash": protocol.identity,
+            "code_sha": code_sha,
+            "reason": reason,
+            "approved_at": now.isoformat(),
+        },
+        occurred_at=now,
+        trace_id=DATASET_ID,
+    )
+
+
+def release_allowed(database: Database, protocol: ShadowDatasetProtocol, code_sha: str) -> bool:
+    if code_sha == protocol.code_sha:
+        return True
+    with database.begin() as connection:
+        return bool(
+            connection.scalar(
+                select(func.count()).where(
+                    events.c.event_type == "shadow_dataset_release_approved",
+                    events.c.trace_id == protocol.dataset_id,
+                    events.c.payload["code_sha"].as_string() == code_sha,
+                    events.c.payload["protocol_hash"].as_string() == protocol.identity,
+                    events.c.occurred_at < protocol.start,
+                )
+            )
+        )
 
 
 def persist_daily_quality(

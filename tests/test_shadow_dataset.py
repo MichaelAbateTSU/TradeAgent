@@ -58,11 +58,14 @@ def store_setup(tmp_path):
         repo.acquire_worker_lock("tradeagent-event-worker", "owner", observed_at=FREEZE)
         p = protocol()
         store = ShadowDatasetStore(database, p, "owner")
+        repo.research_clock = [FREEZE]
+        store.clock = lambda: repo.research_clock[0]
         store.freeze(FREEZE)
         yield database, repo, store, p
 
 
 def refresh(repo, now):
+    repo.research_clock[0] = now
     assert repo.refresh_worker_lock("tradeagent-event-worker", "owner", observed_at=now)
 
 
@@ -206,6 +209,27 @@ def test_owner_loss_fences_all_dataset_writes(store_setup):
     repo.release_worker_lock("tradeagent-event-worker", "owner")
     with pytest.raises(RuntimeError, match="lease"):
         store.persist_tape((event(WINDOW_START),), WINDOW_START)
+
+
+def test_queued_observation_time_does_not_falsely_lose_renewed_lease(store_setup):
+    database, repo, store, _ = store_setup
+    collector = ShadowDatasetCollector(protocol())
+    newer = FREEZE + timedelta(milliseconds=10)
+    refresh(repo, newer)
+    store.update_quality(collector.quality(), FREEZE)
+    assert dataset_status(database)["state"] == "warming_up"
+
+
+def test_prestart_repair_is_append_only_and_never_poststart(store_setup):
+    database, _, _, p = store_setup
+    from tradeagent.shadow_dataset import approve_prestart_release, release_allowed
+
+    assert not release_allowed(database, p, "c" * 40)
+    approve_prestart_release(database, "c" * 40, now=FREEZE, reason="Lease race safety repair")
+    assert release_allowed(database, p, "c" * 40)
+    assert dataset_status(database)["protocol_hash"] == p.identity
+    with pytest.raises(ValueError, match="pre-start"):
+        approve_prestart_release(database, "d" * 40, now=WINDOW_START, reason="Too late")
 
 
 def test_unfinished_labels_survive_restart_without_repeating_evaluation(store_setup):

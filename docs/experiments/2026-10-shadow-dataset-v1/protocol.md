@@ -22,6 +22,13 @@ daily reports record its current root. The terminal manifest is sealed
 after the label tail; analysis independently verifies batch content,
 sequence, event counts and referenced quote IDs.
 
+Pre-start safety repairs may be approved only while there are zero
+evaluations and the collection clock has not begun. Each approval is an
+append-only release event bound to the original protocol hash; the
+original code reference and protocol are never rewritten. Captured
+evaluations and process-quality snapshots identify the actual approved
+source release. No such repair can change thresholds or renew trading.
+
 BTC/USD and ETH/USD only. Every ten-second evaluation for both symbols is
 retained, not just positive signals or fills. The existing momentum (0.25)
 and liquidity-shock reversion (0.65) rules remain frozen. Each record
