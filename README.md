@@ -18,6 +18,8 @@ durable order identities, broker-authoritative reconciliation and honest executi
 - Fill-conditioned passive/aggressive/NO_TRADE economics with chronological validation
 - Per-trade reconstruction, seven-horizon markouts, MFE/MAE, failure attribution and stage latency
 - No-order shadow action outcomes with historical passive-fill validation and support-time estimates
+- Offline signal research across 1/5/15/30/60/300/900-second horizons, causal quotes,
+  cost-aware regime diagnostics and discovery-only winner analysis (no broker orders)
 - Persistent order/cycle recovery, measured costs, and one five-paragraph daily email at 18:00 Eastern
 - Separate v30 dashboard status; legacy risk controls are not misrepresented as v30 permissions
 - v20 event-driven shadow collection with immutable receipt-time evidence and visible abstentions
@@ -80,6 +82,12 @@ TradeAgent requires Python 3.12 or newer.
 For v30's operating contract, available data, daemon commands and actual deployment
 status, read [v30 paper scalping](docs/V30_PAPER_SCALPING.md). The owner's durable
 paper-operating preferences are recorded in [operator preferences](docs/OPERATOR_PREFERENCES.md).
+
+The bounded September 2026 cohort is [closed without promotion](docs/experiments/2026-09-paper-trading-review/findings.md).
+The [Experiment #2 proposal](docs/experiments/2026-10-scalping-research/experiment-2-proposal.md)
+and [offline research runbook](docs/experiments/2026-10-scalping-research/research-pipeline.md)
+describe the next hypothesis and evidence analysis; they do **not** activate a new
+trading cohort or authorize live money.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 

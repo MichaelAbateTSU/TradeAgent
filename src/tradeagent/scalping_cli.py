@@ -25,6 +25,7 @@ COMMANDS = {
     "scalp-probe-report",
     "scalp-experiment-report",
     "scalp-actual-calibrate",
+    "scalp-signal-research",
 }
 
 
@@ -117,6 +118,22 @@ def register_scalping_commands(subparsers: Any) -> None:
         help="read the paper execution funnel, order evidence and model-transition state",
     )
     experiment_report.add_argument("--account-digest", required=True)
+    research = subparsers.add_parser(
+        "scalp-signal-research",
+        help="offline causal multi-horizon research; no orders, model promotion or database writes",
+    )
+    inputs = research.add_mutually_exclusive_group(required=True)
+    inputs.add_argument("--cohort-id")
+    inputs.add_argument("--signals-jsonl", type=Path)
+    research.add_argument("--quotes-jsonl", type=Path)
+    research.add_argument("--start", type=datetime.fromisoformat, required=True)
+    research.add_argument("--end", type=datetime.fromisoformat, required=True)
+    research.add_argument("--split-at", type=datetime.fromisoformat, required=True)
+    research.add_argument("--at", type=datetime.fromisoformat, required=True)
+    research.add_argument("--output-dir", type=Path, required=True)
+    research.add_argument("--maximum-signals", type=int, default=10000)
+    research.add_argument("--maximum-signal-bytes", type=int, default=16 * 1024 * 1024)
+    research.add_argument("--maximum-tape-events", type=int, default=10_000_000)
     actual_calibrate = subparsers.add_parser(
         "scalp-actual-calibrate",
         help="calibrate and persist a validated artifact from completed experimental scalps",
@@ -181,6 +198,41 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
                 output_dir=args.output_dir,
                 maximum_candidate_bytes=args.maximum_candidate_bytes,
             )
+    elif args.command == "scalp-signal-research":
+        from tradeagent.scalping_research import ResearchPolicy, research_database, research_files
+
+        policy = ResearchPolicy(
+            maximum_signals=args.maximum_signals,
+            maximum_signal_bytes=args.maximum_signal_bytes,
+            maximum_tape_events=args.maximum_tape_events,
+        )
+        if args.signals_jsonl:
+            if not args.quotes_jsonl:
+                raise ValueError("offline signal research requires --quotes-jsonl")
+            result = research_files(
+                args.signals_jsonl,
+                args.quotes_jsonl,
+                start=args.start,
+                end=args.end,
+                split_at=args.split_at,
+                information_cutoff=args.at,
+                output_dir=args.output_dir,
+                policy=policy,
+            )
+        else:
+            if args.quotes_jsonl:
+                raise ValueError("--quotes-jsonl only applies to --signals-jsonl input")
+            with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+                result = research_database(
+                    database,
+                    cohort_id=args.cohort_id,
+                    start=args.start,
+                    end=args.end,
+                    split_at=args.split_at,
+                    information_cutoff=args.at,
+                    output_dir=args.output_dir,
+                    policy=policy,
+                )
     elif args.command == "scalp-probe-report":
         from tradeagent.scalping_probes import (
             ExecutionValidationProbePolicy,
@@ -198,9 +250,7 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
         from tradeagent.scalping_reporting import scalping_experiment_status
 
         with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
-            result = scalping_experiment_status(
-                database, account_digest=args.account_digest
-            )
+            result = scalping_experiment_status(database, account_digest=args.account_digest)
     elif args.command == "scalp-actual-calibrate":
         from tradeagent.scalping_policy import (
             calibrate_from_actual_experiments,
