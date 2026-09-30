@@ -15,8 +15,13 @@ recovered because the runtime aggregated neutral hold ticks.
 
 The reader projects compact predecision fields instead of loading complete
 economic-model JSON repeatedly. Tape is streamed in small batches; encoding,
-content hash and event count are checked before reconstruction with the
-existing book engine. Input budgets fail explicitly and do not authorize
+content hash and event count are checked before quote-only reconstruction
+with the existing book-update rules; frozen feature snapshots are not
+recomputed. Native L1 quotes can be measured independently of L2 availability,
+while reconstructed L2 quotes require a valid current book. The source kind
+is recorded on each label. This is a distinct offline L1 markout contract,
+**not permission for the live L2 strategy to use invalid depth**.
+Input budgets fail explicitly and do not authorize
 partial-population training. Local continuity changes censor spanning labels.
 
 Example for the completed September cohort (dates in UTC):
@@ -48,6 +53,11 @@ Defaults cap the population at 10,000 signals, 16 MiB of compact signals,
 10 million tape records and 8 MiB decompressed per market batch. A larger
 population needs an explicit reviewed isolated-process budget, not truncation.
 Existing output directories are refused to preserve previous attempts.
+
+The completed September full-population audit and its missingness are
+archived in [retrospective-findings.md](retrospective-findings.md) and
+[retrospective-results.json](retrospective-results.json). A positive
+complete-case cell cannot be promoted when the later population is missing.
 
 ## Label and cost rules
 

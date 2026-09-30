@@ -1,9 +1,16 @@
 # Experiment #2 Proposal: volatility-conditioned 60-second momentum
 
-**Status: proposed, not activated. No broker orders authorized by this file.**
+**Status: proposed shadow-only, not activated. Retrospective screening did
+not meet economic or coverage requirements. No broker orders authorized.**
 Prepared September 30, 2026 UTC. The September cohort is complete and remains
 closed. This is a new hypothesis and a shadow-first research protocol, not an
 extension, requalification or reset of its results.
+
+The completed [full-population retrospective](retrospective-findings.md)
+does **not** support activating this candidate as a broker-paper strategy.
+Its known-data complete-case outcomes remain negative after fees and
+later diagnostic price coverage is insufficient. The dates below remain
+a proposed, unstarted shadow window, not a trading commitment.
 
 ## 1. What failed and what was learned
 

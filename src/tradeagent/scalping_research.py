@@ -21,7 +21,7 @@ from sqlalchemy import select
 
 from tradeagent.persistence import Database, events
 from tradeagent.scalping_config import ScalpingConfig, ScalpQuote
-from tradeagent.scalping_market import NS, BookFeatureEngine, MarketEvent, datetime_ns
+from tradeagent.scalping_market import NS, MarketEvent, _Book, datetime_ns
 from tradeagent.scalping_store import canonical, scalping_market_batches, scalping_runs, utc
 
 HORIZONS = (1, 5, 15, 30, 60, 300, 900)
@@ -34,6 +34,7 @@ FEATURES = (
     "trade_volume_5s",
     "source_event_id",
 )
+QuoteSource = Literal["native_quote", "reconstructed_l2", "missing"]
 
 
 class ResearchPolicy(BaseModel):
@@ -89,6 +90,7 @@ class ResearchTick(BaseModel):
     symbol: str
     received_at: AwareDatetime
     continuity_id: str
+    source_kind: QuoteSource = "native_quote"
     quote: ScalpQuote | None = None
 
     @model_validator(mode="after")
@@ -98,6 +100,70 @@ class ResearchTick(BaseModel):
         ):
             raise ValueError("a research tick cannot contain future or wrong-symbol evidence")
         return self
+
+
+class _QuoteReplay:
+    """Reconstruct L1 only; frozen signal features are never recomputed or backfilled."""
+
+    def __init__(self, symbols: tuple[str, ...], maximum_age_ms: int):
+        self.books = {symbol: _Book() for symbol in symbols}
+        self.last_quote: dict[str, ScalpQuote] = {}
+        self.native_clock: dict[str, int] = {}
+        self.maximum_age_ns = maximum_age_ms * 1_000_000
+
+    def reset(self) -> None:
+        self.books = {symbol: _Book() for symbol in self.books}
+        self.last_quote.clear()
+        self.native_clock.clear()
+
+    def on_event(self, event: MarketEvent) -> tuple[ScalpQuote | None, QuoteSource]:
+        book = self.books.get(event.symbol)
+        if book is None:
+            raise ValueError("market tape symbol is outside the frozen universe")
+        if event.event_type == "reset" or event.exchange_at_ns > event.received_at_ns:
+            book.invalidate("recorded_reset_or_future_event")
+            self.last_quote.pop(event.symbol, None)
+            return None, "missing"
+        if event.event_type == "book":
+            was_awaiting = book.awaiting_current_update
+            reason = book.apply(event, max_levels=2000, stale_ns=self.maximum_age_ns)
+            if reason or book.awaiting_current_update:
+                self.last_quote.pop(event.symbol, None)
+                return None, "missing"
+            if event.reset or was_awaiting:
+                self.last_quote.pop(event.symbol, None)
+            bid, ask = max(book.bids), min(book.asks)
+            bid_size, ask_size = book.bids[bid], book.asks[ask]
+            source: QuoteSource = "reconstructed_l2"
+        elif event.event_type == "quote":
+            if event.exchange_at_ns < self.native_clock.get(event.symbol, 0):
+                return None, "missing"
+            self.native_clock[event.symbol] = event.exchange_at_ns
+            bid_level, ask_level = event.bids[0], event.asks[0]
+            bid, ask = bid_level.price, ask_level.price
+            bid_size, ask_size = bid_level.quantity, ask_level.quantity
+            if bid >= ask or not bid_size or not ask_size:
+                book.invalidate("invalid_native_quote")
+                self.last_quote.pop(event.symbol, None)
+                return None, "missing"
+            source = "native_quote"
+        else:
+            return None, "missing"
+        previous = self.last_quote.get(event.symbol)
+        if previous is not None and previous.exchange_time_ns > event.exchange_at_ns:
+            return None, "missing"
+        quote = ScalpQuote(
+            symbol=event.symbol,
+            exchange_at=event.exchange_at,
+            exchange_time_ns=event.exchange_at_ns,
+            received_at=event.received_at,
+            bid=bid,
+            ask=ask,
+            bid_size=bid_size,
+            ask_size=ask_size,
+        )
+        self.last_quote[event.symbol] = quote
+        return quote, source
 
 
 def _feature(signal: ResearchSignal, name: str) -> float | None:
@@ -316,6 +382,8 @@ def analyze_signals(
                 "source_event_id": signal.features.get("source_event_id"),
                 "entry_quote_event_id": entry.event_id if entry is not None else None,
                 "exit_quote_event_id": current.event_id if current is not None else None,
+                "entry_quote_source": entry.source_kind if entry is not None else None,
+                "exit_quote_source": current.source_kind if current is not None else None,
                 "entry_quote": (
                     entry.quote.model_dump(mode="json")
                     if entry is not None and entry.quote is not None
@@ -384,6 +452,7 @@ def analyze_signals(
             "known September data is exploratory, including the later diagnostic split",
             "repeated overlapping signals are not independent trades or portfolio returns",
             "displayed-size markouts are not broker fills or a validated queue model",
+            "native L1 remains usable independently of L2; this is not L2 strategy permission",
             "neutral no-signal observations were aggregated by the recorder, not reconstructed",
             "news effects and unrecorded fees/latency/impact are not invented",
             "no model artifact, broker orders, lease, or promotion",
@@ -646,7 +715,7 @@ def research_database(
             if input_bytes > policy.maximum_signal_bytes or len(signals) >= policy.maximum_signals:
                 raise ValueError("signal budget exceeded; no truncated research is allowed")
             signals.append(ResearchSignal.model_validate(compact))
-    engine = BookFeatureEngine(config, stale_after_seconds=policy.maximum_quote_age_ms / 1000)
+    quote_replay = _QuoteReplay(config.symbols, policy.maximum_quote_age_ms)
     tape_manifest_hash = sha256()
     tape_batch_count = 0
     tape_event_count = 0
@@ -655,6 +724,7 @@ def research_database(
         nonlocal tape_batch_count, tape_event_count
         previous_connection = ""
         previous_sequence = 0
+        previous_monotonic_ns = 0
         continuity = 0
         count = 0
         tape_end = min(end + timedelta(seconds=max(policy.horizons) + 60), information_cutoff)
@@ -698,13 +768,15 @@ def research_database(
                     if count > policy.maximum_tape_events:
                         raise ValueError("tape budget exceeded; no truncated research is allowed")
                     connection_id = str(event.connection_id)
-                    gap = (
+                    transport_gap = (
                         connection_id != previous_connection
                         or event.receive_sequence != previous_sequence + 1
-                        or event.event_type == "reset"
-                        or event.reset
+                        or event.received_monotonic_ns < previous_monotonic_ns
                     )
+                    gap = transport_gap or event.event_type == "reset" or event.reset
                     if gap:
+                        if transport_gap:
+                            quote_replay.reset()
                         continuity += 1
                         for symbol in config.symbols:
                             yield ResearchTick(
@@ -712,19 +784,21 @@ def research_database(
                                 symbol=symbol,
                                 received_at=event.received_at,
                                 continuity_id=f"{connection_id}:{continuity}",
+                                source_kind="missing",
                             )
                     previous_connection = connection_id
                     previous_sequence = event.receive_sequence
-                    accepted = engine.on_event(event)
-                    if accepted and event.event_type == "trade":
+                    previous_monotonic_ns = event.received_monotonic_ns
+                    if event.event_type == "trade":
                         continue
-                    quote = engine.quote(event.symbol)
+                    quote, source = quote_replay.on_event(event)
                     yield ResearchTick(
                         event_id=event.event_id,
                         symbol=event.symbol,
                         received_at=event.received_at,
                         continuity_id=f"{connection_id}:{continuity}",
-                        quote=quote if accepted else None,
+                        source_kind=source,
+                        quote=quote,
                     )
 
     result = analyze_signals(
@@ -742,6 +816,7 @@ def research_database(
         "market_batch_count": tape_batch_count,
         "market_event_count": tape_event_count,
         "market_manifest_sha256": tape_manifest_hash.hexdigest(),
+        "quote_contract": "native_L1_independent_of_L2_plus_valid_reconstructed_L2",
         "decision_clock": "later of journal occurrence and persisted information receipt",
         "broker_called": False,
         "database_modified": False,

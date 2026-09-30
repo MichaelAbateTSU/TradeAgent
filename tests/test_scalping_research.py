@@ -13,6 +13,7 @@ from tradeagent.scalping_research import (
     ResearchPolicy,
     ResearchSignal,
     ResearchTick,
+    _QuoteReplay,
     _ranks,
     analyze_signals,
     hypothesis_two,
@@ -290,3 +291,39 @@ def test_database_reader_is_read_only_and_preserves_tape_hashes(tmp_path):
         assert result["manifest"]["market_batch_count"] == 1
         with database.begin() as connection:
             assert before == connection.scalar(select(func.count()).select_from(events))
+
+
+def test_quote_only_replay_uses_real_native_l1_without_inventing_l2():
+    tape = Tape()
+    reader = _QuoteReplay(("BTC/USD",), 1000)
+    q = tape.event("q", 0.3, bp="100", ap="100.01", bs="10", **{"as": "10"})
+    observed, source = reader.on_event(q)
+    assert source == "native_quote"
+    assert observed is not None and observed.ask == Decimal("100.01")
+    assert reader.books["BTC/USD"].valid is False
+    stale = tape.book(0.4, ask="100.01", snapshot=True, received_seconds=3)
+    observed, source = reader.on_event(stale)
+    assert observed is None and source == "missing"
+    current = tape.event("q", 3.2, bp="101", ap="101.01", bs="10", **{"as": "10"})
+    observed, source = reader.on_event(current)
+    assert observed is not None and observed.bid == Decimal("101")
+    assert source == "native_quote"
+    assert reader.books["BTC/USD"].awaiting_current_update
+
+
+def test_quote_only_book_replay_matches_existing_engine_for_valid_tape():
+    from tradeagent.scalping_market import BookFeatureEngine
+
+    tape = Tape()
+    market = [
+        tape.book(0, ask="100.01", snapshot=True),
+        tape.book(0.1, bid="100.1", ask="100.11"),
+        tape.event("q", 0.2, bp="100.2", ap="100.21", bs="10", **{"as": "10"}),
+        tape.book(0.3, bid="100.3", ask="100.31"),
+    ]
+    reader = _QuoteReplay(("BTC/USD",), 1000)
+    engine = BookFeatureEngine(config(), stale_after_seconds=1)
+    for event in market:
+        engine.on_event(event)
+        observed, _ = reader.on_event(event)
+        assert observed == engine.quote("BTC/USD")

@@ -88,6 +88,9 @@ The [Experiment #2 proposal](docs/experiments/2026-10-scalping-research/experime
 and [offline research runbook](docs/experiments/2026-10-scalping-research/research-pipeline.md)
 describe the next hypothesis and evidence analysis; they do **not** activate a new
 trading cohort or authorize live money.
+The [completed retrospective](docs/experiments/2026-10-scalping-research/retrospective-findings.md)
+found negative after-fee means and insufficient later-period quote coverage,
+not a deployable sixty-second edge.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 
