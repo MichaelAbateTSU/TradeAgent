@@ -4,6 +4,10 @@ This monitoring schedule is a pre-start, observation-only addition. It does
 not modify the frozen source window, signal thresholds, horizon set,
 sampling cadence, fees, or protocol hash.
 
+The deployed release and separate actual-time broker/readiness verification
+are archived in [monitoring-readiness.md](monitoring-readiness.md). That
+readback does not stand in for any of the scheduled future checks.
+
 | Check | Fixed time | Behavior |
 |---|---|---|
 | Initial readiness and fee evidence | Monitor startup, before the window | Immutable actual-time snapshot, no backdating |
