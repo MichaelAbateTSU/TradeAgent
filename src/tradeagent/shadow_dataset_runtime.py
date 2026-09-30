@@ -8,10 +8,12 @@ import logging
 import os
 import socket
 import sys
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+import httpx
 from sqlalchemy import func, select
 
 from tradeagent.alpaca_paper import AlpacaPaperSettings
@@ -121,6 +123,7 @@ async def run_shadow_dataset(
     analysis_trigger = asyncio.Event()
     source_batch: list[MarketEvent] = []
     protocol_end = protocol.end + timedelta(seconds=902)
+    paused = False
     with Database(AppConfig().database_url.get_secret_value(), pool_size=3) as database:
         repo = ProductionRepository(database)
         while not await asyncio.to_thread(
@@ -183,21 +186,34 @@ async def run_shadow_dataset(
                 receive_done.set()
 
         async def clock() -> None:
-            nonlocal last_day
+            nonlocal last_day, paused
             last_source_flush = datetime.now(UTC)
             last_quality = datetime.min.replace(tzinfo=UTC)
             sealed = False
             while not stop.is_set():
                 now = datetime.now(UTC)
+                stop_command = await asyncio.to_thread(
+                    repo.get_control, f"shadow-dataset:{DATASET_ID}:stop"
+                )
+                if stop_command and not paused:
+                    paused = True
+                    feed.stop()
+                    await receive_done.wait()
+                    if source_batch:
+                        await writer_queue.put(("tape", tuple(source_batch)))
+                        source_batch.clear()
+                    quality = {**collector.quality(), "stop_reason": json.loads(stop_command)}
+                    await writer_queue.put(("quality", (quality, now, False)))
+                    await writer_queue.join()
                 if not sealed:
-                    rows = collector.evaluate(now) + collector.resolve(now)
+                    rows = ([] if paused else collector.evaluate(now)) + collector.resolve(now)
                     if rows:
                         await writer_queue.put(("rows", rows))
                     if source_batch and now - last_source_flush >= timedelta(seconds=10):
                         await writer_queue.put(("tape", tuple(source_batch)))
                         source_batch.clear()
                         last_source_flush = now
-                    if now - last_quality >= timedelta(seconds=60):
+                    if not paused and now - last_quality >= timedelta(seconds=60):
                         await writer_queue.put(("quality", (collector.quality(), now, False)))
                         last_quality = now
                     due_day = now.date() - timedelta(
@@ -207,7 +223,7 @@ async def run_shadow_dataset(
                     while last_day < min(due_day, last_collection_day):
                         last_day += timedelta(days=1)
                         await writer_queue.put(("daily", (last_day, now)))
-                    if now >= protocol_end and not collector.pending:
+                    if not paused and now >= protocol_end and not collector.pending:
                         feed.stop()
                         await receive_done.wait()
                         if source_batch:
@@ -229,7 +245,9 @@ async def run_shadow_dataset(
                 if not renewed:
                     raise RuntimeError("observation collector lease lost")
                 state = (
-                    "warming_up"
+                    "paused_invalid"
+                    if paused
+                    else "warming_up"
                     if now < protocol.start
                     else ("collecting" if now < protocol_end else "observation_complete")
                 )
@@ -265,6 +283,59 @@ async def run_shadow_dataset(
         async def stopper() -> None:
             await stop.wait()
             feed.stop()
+
+        async def acceptance_checks() -> None:
+            from tradeagent.shadow_dataset_monitor import (
+                AcceptanceScheduler,
+                PaperReadOnlyMonitor,
+                local_safety,
+                signal_stop,
+            )
+
+            failures = 0
+            with httpx.Client(timeout=5, follow_redirects=False) as transport:
+                monitor = PaperReadOnlyMonitor(credentials, transport)
+                scheduler = AcceptanceScheduler(database, protocol, monitor, sleeper=time.sleep)
+                while not stop.is_set() and datetime.now(UTC) <= protocol_end:
+                    now = datetime.now(UTC)
+                    try:
+                        await asyncio.to_thread(scheduler.run_due, now)
+                        local = await asyncio.to_thread(local_safety, database, protocol)
+                        account = await asyncio.to_thread(monitor.snapshot, protocol)
+                        if (
+                            local["local_order_attempts_since_freeze"]
+                            or local["reported_order_attempts"] not in (None, 0)
+                            or local["trading_authorization_renewed"]
+                            or account["positions"]
+                            or account["open_orders"]
+                            or account["broker_order_records_since_freeze"]
+                        ):
+                            await asyncio.to_thread(
+                                signal_stop,
+                                database,
+                                "ORDER_EXPOSURE_OR_RENEWED_AUTHORIZATION",
+                                now,
+                            )
+                        failures = 0
+                    except (httpx.HTTPError, ValueError) as error:
+                        failures += 1
+                        await asyncio.to_thread(
+                            repo.append_event,
+                            "shadow_dataset_monitor_incident",
+                            {
+                                "error_type": type(error).__name__,
+                                "consecutive_failures": failures,
+                                "broker_state_verified": False,
+                                "orders_submitted_by_monitor": 0,
+                            },
+                            occurred_at=now,
+                            trace_id=DATASET_ID,
+                        )
+                        if failures >= 3:
+                            await asyncio.to_thread(
+                                signal_stop, database, "BROKER_SAFETY_MONITOR_UNAVAILABLE", now
+                            )
+                    await asyncio.sleep(60)
 
         async def terminal_analysis() -> None:
             await analysis_trigger.wait()
@@ -327,6 +398,7 @@ async def run_shadow_dataset(
                 async with asyncio.TaskGroup() as tasks:
                     tasks.create_task(heartbeat())
                     tasks.create_task(terminal_analysis())
+                    tasks.create_task(acceptance_checks())
                 return
             async with asyncio.TaskGroup() as tasks:
                 tasks.create_task(writer())
@@ -335,6 +407,7 @@ async def run_shadow_dataset(
                 tasks.create_task(heartbeat())
                 tasks.create_task(stopper())
                 tasks.create_task(terminal_analysis())
+                tasks.create_task(acceptance_checks())
         finally:
             stop.set()
             feed.stop()
@@ -342,14 +415,14 @@ async def run_shadow_dataset(
 
 
 def shadow_daily_email(database: Database, now: datetime, timezone: str) -> dict[str, Any]:
-    report = dataset_status(database)
+    report = dataset_status(database, now=now)
     from zoneinfo import ZoneInfo
 
     local = now.astimezone(ZoneInfo(timezone))
     coverage = (
         "; ".join(
             f"{row['symbol']} {row['horizon_seconds']}s: "
-            f"{row['complete']}/{row['resolved']} resolved complete"
+            f"{row['complete']}/{row['matured_evaluations']} mature evaluations complete"
             for row in report.get("coverage", [])
             if row["horizon_seconds"] == 60
         )

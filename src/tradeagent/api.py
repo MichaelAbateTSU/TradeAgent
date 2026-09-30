@@ -937,6 +937,38 @@ def create_app(
                 status_code=503, detail="Shadow analysis archive unavailable"
             ) from error
 
+    @app.get("/api/shadow-dataset/checks")
+    def shadow_dataset_checks() -> dict[str, Any]:
+        from tradeagent.persistence import events as production_events
+        from tradeagent.shadow_dataset import DATASET_ID
+        from tradeagent.shadow_dataset_monitor import CHECK_EVENT, SCHEDULE
+
+        if production_database_url is None:
+            return {"state": "database_not_configured", "checks": []}
+        try:
+            with production_database() as database, database.begin() as connection:
+                checks = list(
+                    connection.scalars(
+                        select(production_events.c.payload)
+                        .where(
+                            production_events.c.event_type == CHECK_EVENT,
+                            production_events.c.trace_id == DATASET_ID,
+                        )
+                        .order_by(production_events.c.occurred_at)
+                        .limit(10)
+                    )
+                )
+            return {
+                "checks": checks,
+                "schedule_utc": {kind: at.isoformat() for kind, at in SCHEDULE.items()},
+                "orders_submitted_by_monitor": 0,
+                "protocol_modified": False,
+            }
+        except SQLAlchemyError as error:
+            raise HTTPException(
+                status_code=503, detail="Acceptance check archive unavailable"
+            ) from error
+
     @app.get("/api/scalping/diagnostics")
     def scalping_diagnostics(
         cohort_id: str | None = None, limit: int = Query(default=20, ge=1, le=100)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import statistics
 import zlib
 from collections import Counter, defaultdict, deque
@@ -9,6 +10,7 @@ from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
+from itertools import pairwise
 from typing import Any, Literal, Self
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
@@ -25,6 +27,7 @@ from sqlalchemy import (
     String,
     Table,
     UniqueConstraint,
+    case,
     func,
     select,
     update,
@@ -362,12 +365,23 @@ class ShadowDatasetStore:
                 "counts": dict(cumulative),
                 "counts_scope": "cumulative across recorded process sessions",
             }
+            cumulative["maximum_label_backlog"] = max(
+                (
+                    process.get("counts", {}).get("maximum_label_backlog", 0)
+                    for process in processes.values()
+                ),
+                default=0,
+            )
+            combined["counts"] = dict(cumulative)
+            combined["process_restarts"] = max(0, len(processes) - 1)
             connection.execute(
                 update(shadow_datasets)
                 .where(shadow_datasets.c.dataset_id == self.protocol.dataset_id)
                 .values(
                     quality=json_value(combined),
-                    state="sealed"
+                    state="paused_invalid"
+                    if quality.get("stop_reason")
+                    else "sealed"
                     if sealed
                     else ("collecting" if now >= self.protocol.start else "warming_up"),
                     sealed_at=now if sealed else None,
@@ -395,17 +409,23 @@ class ShadowDatasetCollector:
         self.session_id = str(uuid4())
         self.capture_code_sha = protocol.code_sha
         self.counts: Counter[str] = Counter()
+        self.symbol_counts: dict[str, Counter[str]] = defaultdict(Counter)
         self.latencies: dict[str, deque[float]] = defaultdict(lambda: deque(maxlen=2000))
+        self.symbol_latencies: dict[str, dict[str, deque[float]]] = defaultdict(
+            lambda: defaultdict(lambda: deque(maxlen=2000))
+        )
         self.seen_quote_ids: dict[str, str] = {}
         self.quote_signatures: dict[str, tuple[Any, ...]] = {}
 
     def on_market(self, event: MarketEvent, processed_at: datetime) -> None:
         if processed_at < event.received_at:
             self.counts["timestamp_reversals"] += 1
+            self.symbol_counts[event.symbol]["timestamp_reversals"] += 1
             return
         previous = self.previous
         if previous is not None and event == previous:
             self.counts["duplicate_events"] += 1
+            self.symbol_counts[event.symbol]["duplicate_events"] += 1
             return
         changed = previous is None or event.connection_id != previous.connection_id
         reversed_time = (
@@ -426,18 +446,29 @@ class ShadowDatasetCollector:
             self.epoch += 1
             self.quotes.reset()
             self.counts["continuity_changes"] += 1
+            for symbol in self.protocol.symbols:
+                self.symbol_counts[symbol]["restart_or_continuity_gaps"] += 1
         if reversed_time:
             self.counts["timestamp_reversals"] += 1
+            self.symbol_counts[event.symbol]["timestamp_reversals"] += 1
             return
         self.previous = event
         self.counts["market_events"] += 1
+        self.symbol_counts[event.symbol]["market_events"] += 1
         if event.exchange_at_ns > event.received_at_ns:
             self.counts["timestamp_reversals"] += 1
+            self.symbol_counts[event.symbol]["timestamp_reversals"] += 1
             return
         self.latencies["exchange_to_receipt_ms"].append(
             (event.received_at_ns - event.exchange_at_ns) / 1_000_000
         )
         self.latencies["receipt_to_processing_ms"].append(
+            (processed_at - event.received_at).total_seconds() * 1000
+        )
+        self.symbol_latencies[event.symbol]["feed_latency_ms"].append(
+            (event.received_at_ns - event.exchange_at_ns) / 1_000_000
+        )
+        self.symbol_latencies[event.symbol]["processing_latency_ms"].append(
             (processed_at - event.received_at).total_seconds() * 1000
         )
         self.features.on_event(event)
@@ -455,6 +486,7 @@ class ShadowDatasetCollector:
         signature = (quote.exchange_time_ns, quote.bid, quote.ask, quote.bid_size, quote.ask_size)
         if self.quote_signatures.get(event.symbol) == signature:
             self.counts["duplicate_quote_content"] += 1
+            self.symbol_counts[event.symbol]["duplicate_quote_content"] += 1
         self.quote_signatures[event.symbol] = signature
         record = {
             "event_id": identity,
@@ -516,8 +548,10 @@ class ShadowDatasetCollector:
             quote = self._at(symbol, now, for_decision=True)
             fresh = self._fresh(quote, now)
             self.counts["evaluations"] += 1
+            self.symbol_counts[symbol]["evaluations"] += 1
             if not fresh:
                 self.counts["stale_or_missing_decision_quotes"] += 1
+                self.symbol_counts[symbol]["stale_or_missing_decision_quotes"] += 1
             features = self.features.features(symbol, now)
             raw = features.signal_features() if features is not None else None
             decision = self.strategy.decide(features, inventory=None, now=now) if features else None
@@ -626,6 +660,19 @@ class ShadowDatasetCollector:
                 },
             }
             self.pending[identity] = payload
+            self.counts["maximum_label_backlog"] = max(
+                self.counts["maximum_label_backlog"],
+                sum(len(self.protocol.horizons) - len(self.completed[key]) for key in self.pending),
+            )
+            for name in self.protocol.symbols:
+                self.symbol_counts[name]["maximum_label_backlog"] = max(
+                    self.symbol_counts[name]["maximum_label_backlog"],
+                    sum(
+                        len(self.protocol.horizons) - len(self.completed[key])
+                        for key, item in self.pending.items()
+                        if item["symbol"] == name
+                    ),
+                )
             rows.append(
                 {
                     "kind": "evaluation",
@@ -776,6 +823,9 @@ class ShadowDatasetCollector:
                     }
                 )
                 self.completed[identity].add(horizon)
+                self.symbol_latencies[evaluation["symbol"]]["labeling_latency_ms"].append(
+                    (now - deadline).total_seconds() * 1000
+                )
                 self.counts[f"labels_{horizon}_{'complete' if not reasons else 'missing'}"] += 1
             if len(self.completed[identity]) == len(self.protocol.horizons):
                 self.pending.pop(identity)
@@ -798,6 +848,35 @@ class ShadowDatasetCollector:
             "source_code_sha": self.capture_code_sha,
             "counts": dict(self.counts),
             "latency_ms": distributions,
+            "by_symbol": {
+                symbol: {
+                    "counts": dict(self.symbol_counts[symbol]),
+                    "duplicate_event_rate": (
+                        self.symbol_counts[symbol]["duplicate_events"]
+                        / self.symbol_counts[symbol]["market_events"]
+                        if self.symbol_counts[symbol]["market_events"]
+                        else None
+                    ),
+                    "stale_decision_quote_rate": (
+                        self.symbol_counts[symbol]["stale_or_missing_decision_quotes"]
+                        / self.symbol_counts[symbol]["evaluations"]
+                        if self.symbol_counts[symbol]["evaluations"]
+                        else None
+                    ),
+                    "latency_ms": {
+                        name: {
+                            "samples": len(values),
+                            "p50": statistics.median(values) if values else None,
+                            "p95": sorted(values)[int((len(values) - 1) * 0.95)]
+                            if values
+                            else None,
+                            "sample_scope": "latest 2000 in this process",
+                        }
+                        for name, values in self.symbol_latencies[symbol].items()
+                    },
+                }
+                for symbol in self.protocol.symbols
+            },
             "pending_evaluations": len(self.pending),
             "orders_submitted": 0,
             "trading_authorization": "expired",
@@ -806,8 +885,14 @@ class ShadowDatasetCollector:
 
 
 def dataset_status(
-    database: Database, dataset_id: str = DATASET_ID, *, period: date | None = None
+    database: Database,
+    dataset_id: str = DATASET_ID,
+    *,
+    period: date | None = None,
+    now: datetime | None = None,
+    detailed: bool = False,
 ) -> dict[str, Any]:
+    observed_at = now or datetime.now(UTC)
     with database.begin() as connection:
         dataset = (
             connection.execute(
@@ -819,7 +904,10 @@ def dataset_status(
         if not dataset:
             return {"state": "not_frozen", "orders_submitted": 0, "promotion_allowed": False}
         protocol = ShadowDatasetProtocol.model_validate(dataset["protocol"])
-        evaluation_scope = [shadow_evaluations.c.dataset_id == dataset_id]
+        evaluation_scope = [
+            shadow_evaluations.c.dataset_id == dataset_id,
+            shadow_evaluations.c.evaluated_at <= observed_at,
+        ]
         if period is not None:
             start = datetime.combine(period, datetime.min.time(), tzinfo=UTC)
             evaluation_scope.extend(
@@ -840,7 +928,7 @@ def dataset_status(
                     shadow_labels,
                     shadow_labels.c.evaluation_id == shadow_evaluations.c.evaluation_id,
                 )
-                .where(*evaluation_scope)
+                .where(*evaluation_scope, shadow_labels.c.resolved_at <= observed_at)
                 .group_by(
                     shadow_evaluations.c.symbol,
                     shadow_labels.c.horizon_seconds,
@@ -859,10 +947,115 @@ def dataset_status(
             ).mappings()
         }
         latest = connection.scalar(
-            select(func.max(shadow_evaluations.c.evaluated_at)).where(
-                shadow_evaluations.c.dataset_id == dataset_id
-            )
+            select(func.max(shadow_evaluations.c.evaluated_at)).where(*evaluation_scope)
         )
+        matured: dict[tuple[str, int], int] = {}
+        mature_with_grace: dict[tuple[str, int], int] = {}
+        for horizon in protocol.horizons:
+            threshold = observed_at - timedelta(seconds=horizon + protocol.label_settle_seconds)
+            for row in connection.execute(
+                select(shadow_evaluations.c.symbol, func.count().label("count"))
+                .where(*evaluation_scope, shadow_evaluations.c.evaluated_at <= threshold)
+                .group_by(shadow_evaluations.c.symbol)
+            ).mappings():
+                matured[(row["symbol"], horizon)] = int(row["count"])
+            present_label = (
+                select(shadow_labels.c.evaluation_id)
+                .where(
+                    shadow_labels.c.evaluation_id == shadow_evaluations.c.evaluation_id,
+                    shadow_labels.c.horizon_seconds == horizon,
+                    shadow_labels.c.resolved_at <= observed_at,
+                )
+                .exists()
+            )
+            for row in connection.execute(
+                select(shadow_evaluations.c.symbol, func.count().label("count"))
+                .where(
+                    *evaluation_scope,
+                    shadow_evaluations.c.evaluated_at <= (threshold - timedelta(seconds=10)),
+                    ~present_label,
+                )
+                .group_by(shadow_evaluations.c.symbol)
+            ).mappings():
+                mature_with_grace[(row["symbol"], horizon)] = int(row["count"])
+        category_projection = (
+            select(
+                shadow_evaluations.c.symbol,
+                shadow_evaluations.c.payload["category"].as_string().label("category"),
+                shadow_evaluations.c.payload["decision_quote_fresh"].as_boolean().label("fresh"),
+                shadow_evaluations.c.payload["depth"]["book_current"].as_boolean().label("l2"),
+                shadow_evaluations.c.payload["decision_observation"]["source_kind"]
+                .as_string()
+                .label("quote_source"),
+            )
+            .where(*evaluation_scope)
+            .subquery()
+        )
+        categories = [
+            dict(row)
+            for row in connection.execute(
+                select(
+                    category_projection.c.symbol,
+                    category_projection.c.category,
+                    func.count().label("evaluations"),
+                    func.sum(case((category_projection.c.fresh.is_(False), 1), else_=0)).label(
+                        "stale_quotes"
+                    ),
+                    func.sum(
+                        case(
+                            (
+                                category_projection.c.fresh.is_(True)
+                                & category_projection.c.l2.is_(False)
+                                & (category_projection.c.quote_source == "native_quote"),
+                                1,
+                            ),
+                            else_=0,
+                        )
+                    ).label("fresh_native_l1_with_stale_l2"),
+                ).group_by(
+                    category_projection.c.symbol,
+                    category_projection.c.category,
+                )
+            ).mappings()
+        ]
+        missing_reasons: dict[tuple[str, int], Counter[str]] = defaultdict(Counter)
+        label_delays: dict[tuple[str, int], list[float]] = defaultdict(list)
+        cadence: dict[str, list[datetime]] = defaultdict(list)
+        if detailed:
+            query = (
+                select(
+                    shadow_evaluations.c.symbol,
+                    shadow_labels.c.horizon_seconds,
+                    shadow_labels.c.deadline_at,
+                    shadow_labels.c.resolved_at,
+                    shadow_labels.c.payload["missing_reasons"].label("reasons"),
+                )
+                .join(
+                    shadow_labels,
+                    shadow_labels.c.evaluation_id == shadow_evaluations.c.evaluation_id,
+                )
+                .where(*evaluation_scope, shadow_labels.c.resolved_at <= observed_at)
+                .execution_options(
+                    stream_results=True,
+                    yield_per=100,
+                )
+            )
+            for row in connection.execute(query).mappings():
+                key = (row["symbol"], row["horizon_seconds"])
+                missing_reasons[key].update(row["reasons"] or [])
+                label_delays[key].append(
+                    (utc(row["resolved_at"]) - utc(row["deadline_at"])).total_seconds() * 1000
+                )
+            for cadence_row in connection.execute(
+                select(
+                    shadow_evaluations.c.symbol,
+                    shadow_evaluations.c.evaluated_at,
+                )
+                .where(*evaluation_scope)
+                .order_by(shadow_evaluations.c.evaluated_at)
+                .execution_options(stream_results=True, yield_per=100)
+            ):
+                cadence[cadence_row.symbol].append(utc(cadence_row.evaluated_at))
     groups: dict[tuple[str, int], Counter[str]] = defaultdict(Counter)
     for row in counts:
         groups[(row["symbol"], row["horizon_seconds"])][
@@ -873,6 +1066,8 @@ def dataset_status(
         for horizon in protocol.horizons:
             group = groups[(symbol, horizon)]
             total = group["complete"] + group["missing"]
+            mature_count = matured.get((symbol, horizon), 0)
+            delays = sorted(label_delays[(symbol, horizon)])
             coverage.append(
                 {
                     "symbol": symbol,
@@ -880,7 +1075,22 @@ def dataset_status(
                     "resolved": total,
                     "complete": group["complete"],
                     "missing": group["missing"],
-                    "coverage": group["complete"] / total if total else None,
+                    "eligible_evaluations": evaluations.get(symbol, 0),
+                    "matured_evaluations": mature_count,
+                    "coverage": group["complete"] / mature_count if mature_count else None,
+                    "resolved_only_coverage": group["complete"] / total if total else None,
+                    "overdue_unwritten_labels": max(0, mature_count - total),
+                    "overdue_unwritten_beyond_10s_monitor_grace": max(
+                        0, mature_with_grace.get((symbol, horizon), 0)
+                    ),
+                    "not_yet_mature": max(0, evaluations.get(symbol, 0) - mature_count),
+                    "missing_reasons": dict(missing_reasons[(symbol, horizon)]),
+                    "labeling_latency_ms": {
+                        "samples": len(delays),
+                        "p50": statistics.median(delays) if delays else None,
+                        "p95": delays[int((len(delays) - 1) * 0.95)] if delays else None,
+                        "maximum": max(delays) if delays else None,
+                    },
                     "unresolved": evaluations.get(symbol, 0) - total,
                 }
             )
@@ -902,6 +1112,14 @@ def dataset_status(
         )
     else:
         expected_per_symbol = int((protocol.end - protocol.start).total_seconds()) // 10
+    window_start = max(
+        protocol.start,
+        (datetime.combine(period, datetime.min.time(), tzinfo=UTC) if period else protocol.start),
+    )
+    window_end = min(
+        protocol.end, observed_at, (window_start + timedelta(days=1) if period else protocol.end)
+    )
+    expected_so_far = max(0, math.floor((window_end - window_start).total_seconds() / 10))
     passed = (
         period is None
         and dataset["state"] == "sealed"
@@ -925,12 +1143,30 @@ def dataset_status(
         "stored_bytes": dataset["stored_bytes"],
         "quality": dataset["quality"],
         "evaluations_by_symbol": evaluations,
+        "as_of": observed_at.isoformat(),
+        "category_counts": categories,
+        "cadence_by_symbol": {
+            symbol: {
+                "intervals": len(times) - 1 if times else 0,
+                "median_seconds": statistics.median(
+                    [(right - left).total_seconds() for left, right in pairwise(times)]
+                )
+                if len(times) > 1
+                else None,
+                "maximum_seconds": max(
+                    ((right - left).total_seconds() for left, right in pairwise(times)),
+                    default=None,
+                ),
+            }
+            for symbol, times in cadence.items()
+        },
         "coverage": coverage,
         "expected_evaluations_per_symbol": expected_per_symbol,
         "missing_evaluation_slots": {
-            symbol: max(0, expected_per_symbol - evaluations.get(symbol, 0))
+            symbol: max(0, expected_so_far - evaluations.get(symbol, 0))
             for symbol in protocol.symbols
         },
+        "expected_evaluations_so_far_per_symbol": expected_so_far,
         "latest_evaluation_at": utc(latest).isoformat() if latest else None,
         "profitability_analysis_allowed": passed,
         "profitability_analysis_blocker": None if passed else "DATASET_OPEN_OR_QUALITY_GATE_FAILED",
@@ -1044,7 +1280,7 @@ def release_allowed(database: Database, protocol: ShadowDatasetProtocol, code_sh
 def persist_daily_quality(
     database: Database, report_date: date, *, now: datetime
 ) -> dict[str, Any]:
-    report = dataset_status(database, period=report_date)
+    report = dataset_status(database, period=report_date, now=now, detailed=True)
     report = {**report, "report_date": report_date.isoformat(), "created_at": now.isoformat()}
     with database.begin() as connection:
         insert_once(

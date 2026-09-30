@@ -252,7 +252,7 @@ def test_unfinished_labels_survive_restart_without_repeating_evaluation(store_se
 
 def test_quality_gate_blocks_finance_and_preserves_unknown_fee_tier(store_setup, tmp_path):
     database, _, _, p = store_setup
-    status = dataset_status(database)
+    status = dataset_status(database, now=FREEZE)
     assert status["profitability_analysis_allowed"] is False
     assert status["actual_fee_tier_verified"] is False
     report = analyze_dataset(database, output_dir=tmp_path / "forbidden-analysis")
@@ -267,7 +267,7 @@ def test_coverage_gate_counts_missing_grid_slots_not_only_resolved_rows(store_se
     refresh(repo, now)
     c = ShadowDatasetCollector(protocol())
     store.update_quality(c.quality(), now, sealed=True)
-    status = dataset_status(database)
+    status = dataset_status(database, now=now)
     assert status["expected_evaluations_per_symbol"] == 120960
     assert status["missing_evaluation_slots"]["BTC/USD"] == 120960
     assert status["profitability_analysis_allowed"] is False
