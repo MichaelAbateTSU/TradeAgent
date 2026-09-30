@@ -89,8 +89,9 @@ and [offline research runbook](docs/experiments/2026-10-scalping-research/resear
 describe the next hypothesis and evidence analysis; they do **not** activate a new
 trading cohort or authorize live money.
 The [completed retrospective](docs/experiments/2026-10-scalping-research/retrospective-findings.md)
-found negative after-fee means and insufficient later-period quote coverage,
-not a deployable sixty-second edge.
+is retained with a coverage-superseded notice after an L1/L2 replay defect was identified.
+The next phase is [Shadow Research Dataset v1](docs/experiments/2026-10-shadow-dataset-v1/protocol.md):
+a fixed, prospective observation run with zero broker orders and quality-gated analysis.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 

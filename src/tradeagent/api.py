@@ -449,6 +449,12 @@ DASHBOARD = """<!doctype html>
     <details><summary>Calibration progress and missing evidence</summary><pre id="scalp-calibration" class="scalp-details"></pre></details>
     <p>Scores are deterministic rule outputs, not probabilities. Pending fee estimates and paper fills do not establish live profitability. <a href="/api/scalping" target="_blank" rel="noopener">Open the full v30 status snapshot</a>.</p>
   </section>
+  <section class="card" aria-labelledby="shadow-dataset-heading">
+    <h2 id="shadow-dataset-heading">Shadow Research Dataset v1</h2>
+    <p>Observation only: no orders, expired trading authority, no model promotion.</p>
+    <pre id="shadow-dataset-status" class="scalp-details">Checking frozen protocol and quality...</pre>
+    <p><a href="/api/shadow-dataset" target="_blank" rel="noopener">Protocol, coverage and quality</a></p>
+  </section>
   <section class="grid">
     <div class="card"><div>NAV</div><div id="nav" class="value">-</div></div>
     <div class="card"><div>Gross exposure</div><div id="exposure" class="value">-</div></div>
@@ -644,6 +650,17 @@ DASHBOARD = """<!doctype html>
             document.querySelector('#news-count').textContent = news.items.length;
           }),
           refreshSection('v30 scalping', '/api/scalping', ['#scalp-state', '#scalp-accounting'], renderScalping),
+          refreshSection('Shadow dataset', '/api/shadow-dataset', ['#shadow-dataset-status'], dataset => {
+            document.querySelector('#shadow-dataset-status').textContent = JSON.stringify({
+              state: dataset.state, start: dataset.start, end: dataset.end,
+              protocol_hash: dataset.protocol_hash, source_manifest: dataset.source_manifest_root,
+              coverage: dataset.coverage, quality: dataset.quality,
+              analysis_allowed: dataset.profitability_analysis_allowed,
+              analysis_blocker: dataset.profitability_analysis_blocker,
+              actual_fee_tier_verified: dataset.actual_fee_tier_verified,
+              orders_submitted: dataset.orders_submitted
+            }, null, 2);
+          }),
           refreshSection('Event overview', '/api/event-product', ['#event-state', '#event-session-report', '#service-observations'], renderProduct)
         ]);
       } finally {
@@ -712,6 +729,9 @@ def create_app(
     cached_statistics: dict[str, Any] | None = None
     statistics_expires = 0.0
     statistics_failed = False
+    shadow_lock = Lock()
+    cached_shadow: dict[str, Any] | None = None
+    shadow_expires = 0.0
 
     def reporting_statistics(database: Database) -> dict[str, Any]:
         nonlocal cached_statistics, statistics_expires, statistics_failed
@@ -852,6 +872,45 @@ def create_app(
         except (SQLAlchemyError, ValueError) as error:
             raise HTTPException(status_code=503, detail="Scalping status unavailable") from error
 
+    @app.get("/api/shadow-dataset")
+    def shadow_dataset() -> dict[str, Any]:
+        from tradeagent.shadow_dataset import dataset_status
+
+        nonlocal cached_shadow, shadow_expires
+        if production_database_url is None:
+            return {"state": "database_not_configured", "promotion_allowed": False}
+        try:
+            with shadow_lock:
+                if cached_shadow is None or monotonic() >= shadow_expires:
+                    with production_database() as database:
+                        cached_shadow = dataset_status(database)
+                    shadow_expires = monotonic() + statistics_cache_seconds
+                return {**cached_shadow, "cache_ttl_seconds": statistics_cache_seconds}
+        except (SQLAlchemyError, ValueError) as error:
+            raise HTTPException(
+                status_code=503, detail="Shadow dataset quality unavailable"
+            ) from error
+
+    @app.get("/api/shadow-dataset/daily")
+    def shadow_dataset_daily(report_date: str) -> dict[str, Any]:
+        from tradeagent.shadow_dataset import DATASET_ID, shadow_daily_reports
+
+        if production_database_url is None:
+            return {"state": "database_not_configured", "promotion_allowed": False}
+        try:
+            with production_database() as database, database.begin() as connection:
+                payload = connection.scalar(
+                    select(shadow_daily_reports.c.payload).where(
+                        shadow_daily_reports.c.dataset_id == DATASET_ID,
+                        shadow_daily_reports.c.report_date == report_date,
+                    )
+                )
+            return payload or {"state": "daily_report_not_matured", "report_date": report_date}
+        except SQLAlchemyError as error:
+            raise HTTPException(
+                status_code=503, detail="Daily shadow report unavailable"
+            ) from error
+
     @app.get("/api/scalping/diagnostics")
     def scalping_diagnostics(
         cohort_id: str | None = None, limit: int = Query(default=20, ge=1, le=100)
@@ -918,9 +977,7 @@ def create_app(
                 status = scalping_status(database)
                 execution = status.get("execution")
                 account_digest = (
-                    execution.get("account_digest")
-                    if isinstance(execution, dict)
-                    else None
+                    execution.get("account_digest") if isinstance(execution, dict) else None
                 )
                 if (
                     not isinstance(account_digest, str)
@@ -928,9 +985,7 @@ def create_app(
                     or any(char not in "0123456789abcdef" for char in account_digest)
                 ):
                     raise ValueError("no pinned paper account is available for cohort reporting")
-                return scalping_experiment_status(
-                    database, account_digest=account_digest
-                )
+                return scalping_experiment_status(database, account_digest=account_digest)
         except (SQLAlchemyError, ValueError) as error:
             raise HTTPException(
                 status_code=503, detail="Scalping experiment status unavailable"

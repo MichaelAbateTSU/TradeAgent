@@ -1,5 +1,11 @@
 # Full-population September signal research: results
 
+> **Coverage superseded September 30, 2026:** a subsequent
+> [raw-tape investigation](../2026-10-shadow-dataset-v1/coverage-investigation.md)
+> found that failed L2 deltas erased usable native L1 in this replay.
+> Keep the report immutable, but do not use its missingness or
+> complete-case horizon means as unbiased strategy-validation evidence.
+
 This is an **exploratory retrospective**, not a new trading cohort or a
 confirmation on untouched data. It leaves the completed September experiment,
 its negative broker-paper results, its cutoff and the `no_support` model

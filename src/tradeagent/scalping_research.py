@@ -108,12 +108,16 @@ class _QuoteReplay:
     def __init__(self, symbols: tuple[str, ...], maximum_age_ms: int):
         self.books = {symbol: _Book() for symbol in symbols}
         self.last_quote: dict[str, ScalpQuote] = {}
+        self.last_source: dict[str, QuoteSource] = {}
+        self.last_event: dict[str, str] = {}
         self.native_clock: dict[str, int] = {}
         self.maximum_age_ns = maximum_age_ms * 1_000_000
 
     def reset(self) -> None:
         self.books = {symbol: _Book() for symbol in self.books}
         self.last_quote.clear()
+        self.last_source.clear()
+        self.last_event.clear()
         self.native_clock.clear()
 
     def on_event(self, event: MarketEvent) -> tuple[ScalpQuote | None, QuoteSource]:
@@ -123,12 +127,17 @@ class _QuoteReplay:
         if event.event_type == "reset" or event.exchange_at_ns > event.received_at_ns:
             book.invalidate("recorded_reset_or_future_event")
             self.last_quote.pop(event.symbol, None)
+            self.last_source.pop(event.symbol, None)
+            self.last_event.pop(event.symbol, None)
             return None, "missing"
         if event.event_type == "book":
             was_awaiting = book.awaiting_current_update
             reason = book.apply(event, max_levels=2000, stale_ns=self.maximum_age_ns)
             if reason or book.awaiting_current_update:
+                if self.last_source.get(event.symbol) == "native_quote":
+                    return self.last_quote.get(event.symbol), "native_quote"
                 self.last_quote.pop(event.symbol, None)
+                self.last_event.pop(event.symbol, None)
                 return None, "missing"
             if event.reset or was_awaiting:
                 self.last_quote.pop(event.symbol, None)
@@ -163,6 +172,8 @@ class _QuoteReplay:
             ask_size=ask_size,
         )
         self.last_quote[event.symbol] = quote
+        self.last_source[event.symbol] = source
+        self.last_event[event.symbol] = event.event_id
         return quote, source
 
 
@@ -793,7 +804,7 @@ def research_database(
                         continue
                     quote, source = quote_replay.on_event(event)
                     yield ResearchTick(
-                        event_id=event.event_id,
+                        event_id=quote_replay.last_event.get(event.symbol, event.event_id),
                         symbol=event.symbol,
                         received_at=event.received_at,
                         continuity_id=f"{connection_id}:{continuity}",

@@ -303,7 +303,10 @@ def test_quote_only_replay_uses_real_native_l1_without_inventing_l2():
     assert reader.books["BTC/USD"].valid is False
     stale = tape.book(0.4, ask="100.01", snapshot=True, received_seconds=3)
     observed, source = reader.on_event(stale)
-    assert observed is None and source == "missing"
+    assert observed is not None and source == "native_quote"
+    assert observed.received_at == q.received_at
+    assert observed.exchange_at == q.exchange_at
+    assert reader.last_event["BTC/USD"] == q.event_id
     current = tape.event("q", 3.2, bp="101", ap="101.01", bs="10", **{"as": "10"})
     observed, source = reader.on_event(current)
     assert observed is not None and observed.bid == Decimal("101")

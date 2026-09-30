@@ -60,13 +60,21 @@ def scalping_status(
             .one_or_none()
         )
         details = payload_from_projection(dict(worker), fields) if worker else {}
+        observer = details.get("entry_policy") == "shadow-research-dataset-v1"
         current_cohort = (
-            details.get("cohort_id") if details.get("entry_policy") == PROFILE else None
+            details.get("cohort_id") if details.get("entry_policy") == PROFILE or observer else None
         )
         selected = cohort_id or current_cohort
         raw = (
             connection.execute(
-                select(controls).where(controls.c.control_key == f"scalping:{selected}:status")
+                select(controls).where(
+                    controls.c.control_key
+                    == (
+                        f"shadow-dataset:{selected}:status"
+                        if observer and cohort_id is None
+                        else f"scalping:{selected}:status"
+                    )
+                )
             )
             .mappings()
             .one_or_none()
@@ -94,6 +102,24 @@ def scalping_status(
     snapshot = json.loads(raw["control_value"])
     if not isinstance(snapshot, dict) or snapshot.get("cohort_id") != selected:
         raise ValueError("persisted scalping status identity is invalid")
+    if observer and cohort_id is None:
+        snapshot = {
+            **snapshot,
+            "profile": "shadow-research-dataset-v1",
+            "mode": "observation_only",
+            "autonomy_expired": True,
+            "economics": {
+                "artifact_loaded": False,
+                "model_status": "no_support",
+                "reason_codes": ["OBSERVATION_ONLY_NO_PROMOTION"],
+            },
+            "execution": {
+                "account_digest": snapshot.get("account_digest"),
+                "orders_submitted": 0,
+                "broker_positions_status": "not_queried_by_observation_collector",
+            },
+            "live_execution_available": False,
+        }
     age = (observed_at - _utc(raw["updated_at"])).total_seconds()
     fresh = bool(
         worker
@@ -291,23 +317,19 @@ def _candidate_summary_query(candidate_scope: ColumnElement[bool]) -> Select[Any
         )
         .subquery()
     )
-    return (
-        select(
-            candidate_projection.c.classification,
-            candidate_projection.c.symbol,
-            func.count().label("candidates"),
-            func.sum(
-                case((candidate_projection.c.eligible.is_(False), 1), else_=0)
-            ).label("blocked_candidates"),
-        )
-        .group_by(candidate_projection.c.classification, candidate_projection.c.symbol)
-    )
+    return select(
+        candidate_projection.c.classification,
+        candidate_projection.c.symbol,
+        func.count().label("candidates"),
+        func.sum(case((candidate_projection.c.eligible.is_(False), 1), else_=0)).label(
+            "blocked_candidates"
+        ),
+    ).group_by(candidate_projection.c.classification, candidate_projection.c.symbol)
 
 
 def _broker_post_attempted(order: dict[str, Any]) -> bool:
-    return (
-        order["dispatch_state"] in {"acknowledged", "unknown", "broker_rejected"}
-        or bool((order["broker"] or {}).get("id"))
+    return order["dispatch_state"] in {"acknowledged", "unknown", "broker_rejected"} or bool(
+        (order["broker"] or {}).get("id")
     )
 
 
@@ -341,7 +363,8 @@ def scalping_experiment_status(
             and_(
                 events.c.payload["classification"].as_string() == classification,
                 events.c.payload["cohort_id"].as_string() == policy.cohort_id,
-                events.c.occurred_at >= (
+                events.c.occurred_at
+                >= (
                     PROBE_REPORT_START
                     if classification == PROBE_CLASSIFICATION
                     else EXPERIMENT_REPORT_START
@@ -361,19 +384,14 @@ def scalping_experiment_status(
     with database.begin() as connection:
         cycle_query = select(scalping_cycles).where(cycle_scope)
         if account_digest is not None:
-            cycle_query = cycle_query.where(
-                scalping_cycles.c.account_digest == account_digest
-            )
+            cycle_query = cycle_query.where(scalping_cycles.c.account_digest == account_digest)
         raw_cycles = [
             dict(row)
             for row in connection.execute(
                 cycle_query.order_by(scalping_cycles.c.created_at)
-            )
-            .mappings()
+            ).mappings()
         ]
-        policy_by_classification = {
-            classification: policy for classification, policy in policies
-        }
+        policy_by_classification = {classification: policy for classification, policy in policies}
         cycles = []
         excluded_policies: Counter[str] = Counter()
         for row in raw_cycles:
@@ -414,8 +432,7 @@ def scalping_experiment_status(
             else []
         )
         candidate_counts = [
-            dict(row)
-            for row in connection.execute(candidate_summary_query).mappings()
+            dict(row) for row in connection.execute(candidate_summary_query).mappings()
         ]
         candidate_events = [
             dict(row)
@@ -427,8 +444,7 @@ def scalping_experiment_status(
                 )
                 .order_by(events.c.occurred_at.desc(), events.c.event_id.desc())
                 .limit(200)
-            )
-            .mappings()
+            ).mappings()
         ]
         unscoped_candidates = (
             int(
@@ -471,9 +487,7 @@ def scalping_experiment_status(
                     else None
                 ),
                 "cancel_requested_at": (
-                    row["cancel_requested_at"].isoformat()
-                    if row["cancel_requested_at"]
-                    else None
+                    row["cancel_requested_at"].isoformat() if row["cancel_requested_at"] else None
                 ),
                 "first_positive_fill_at": (
                     row["first_positive_fill_at"].isoformat()
@@ -481,9 +495,7 @@ def scalping_experiment_status(
                     else None
                 ),
                 "last_reconciled_at": (
-                    row["last_reconciled_at"].isoformat()
-                    if row["last_reconciled_at"]
-                    else None
+                    row["last_reconciled_at"].isoformat() if row["last_reconciled_at"] else None
                 ),
                 "submission_error": row["submission_error"],
             }
@@ -557,9 +569,7 @@ def scalping_experiment_status(
                     str(row["actual_net_pnl"]) if row["actual_net_pnl"] is not None else None
                 ),
                 "modeled_net_pnl_usd": (
-                    str(row["modeled_net_pnl"])
-                    if row["modeled_net_pnl"] is not None
-                    else None
+                    str(row["modeled_net_pnl"]) if row["modeled_net_pnl"] is not None else None
                 ),
                 "fees_pending": row["fees_pending"],
                 "qualifying_independent_observation": qualifying,
@@ -593,44 +603,39 @@ def scalping_experiment_status(
             bucket["broker_acceptances"] += 1
         if broker.get("status") == "partially_filled":
             bucket["partial_fills"] += 1
-    qualifying = [
-        row for row in cycle_evidence if row["qualifying_independent_observation"]
-    ]
+    qualifying = [row for row in cycle_evidence if row["qualifying_independent_observation"]]
     total_candidates = sum(int(group["candidates"]) for group in candidate_counts)
     blocked_candidates = sum(int(group["blocked_candidates"] or 0) for group in candidate_counts)
     entry_submissions = sum(
         1
         for row in orders
-        if _broker_post_attempted(row)
-        and (row["intent"].get("request") or {}).get("side") == "buy"
+        if _broker_post_attempted(row) and (row["intent"].get("request") or {}).get("side") == "buy"
     )
     submissions = sum(_broker_post_attempted(row) for row in orders)
     broker_acceptances = sum(bool((row["broker"] or {}).get("id")) for row in orders)
-    partial_fills = sum(
-        (row["broker"] or {}).get("status") == "partially_filled" for row in orders
-    )
+    partial_fills = sum((row["broker"] or {}).get("status") == "partially_filled" for row in orders)
     required_total = (
-        experimental.minimum_training_round_trips
-        + experimental.minimum_held_out_round_trips
+        experimental.minimum_training_round_trips + experimental.minimum_held_out_round_trips
     )
     completed_experiments = [
-        row for row in cycle_evidence
+        row
+        for row in cycle_evidence
         if row["classification"] == EXPERIMENTAL_CLASSIFICATION
         and row["state"] == "closed_owned_flat"
     ]
-    modeled_rows = [
-        row for row in completed_experiments if row["modeled_net_pnl_usd"] is not None
-    ]
+    modeled_rows = [row for row in completed_experiments if row["modeled_net_pnl_usd"] is not None]
     actual_rows = [
-        row for row in completed_experiments
+        row
+        for row in completed_experiments
         if not row["fees_pending"] and row["actual_net_pnl_usd"] is not None
     ]
-    modeled_net = sum(
-        (Decimal(row["modeled_net_pnl_usd"]) for row in modeled_rows), Decimal(0)
-    )
+    modeled_net = sum((Decimal(row["modeled_net_pnl_usd"]) for row in modeled_rows), Decimal(0))
     gross_cash = sum(
-        (Decimal(row["gross_cash_flow_usd"]) for row in completed_experiments
-         if row["gross_cash_flow_usd"] is not None),
+        (
+            Decimal(row["gross_cash_flow_usd"])
+            for row in completed_experiments
+            if row["gross_cash_flow_usd"] is not None
+        ),
         Decimal(0),
     )
     modeled_complete = len(modeled_rows) == len(completed_experiments)
@@ -680,23 +685,16 @@ def scalping_experiment_status(
             "intents_reserved": len(orders),
             "submissions": submissions,
             "entry_submissions": entry_submissions,
-            "expired_unsent": sum(
-                row["dispatch_state"] == "expired_unsent" for row in orders
-            ),
+            "expired_unsent": sum(row["dispatch_state"] == "expired_unsent" for row in orders),
             "dispatch_outcome_unknown": sum(
                 row["dispatch_state"] == "dispatching" for row in orders
             ),
             "broker_acceptances": broker_acceptances,
             "partial_fills": partial_fills,
-            "entry_fills": sum(
-                Decimal(str(row["entry_quantity"])) > 0 for row in cycles
-            ),
-            "completed_exits": sum(
-                row["state"] == "closed_owned_flat" for row in cycles
-            ),
+            "entry_fills": sum(Decimal(str(row["entry_quantity"])) > 0 for row in cycles),
+            "completed_exits": sum(row["state"] == "closed_owned_flat" for row in cycles),
             "flat_reconciliations": sum(
-                row["state"] == "closed_owned_flat"
-                and Decimal(str(row["owned_quantity"])) == 0
+                row["state"] == "closed_owned_flat" and Decimal(str(row["owned_quantity"])) == 0
                 for row in cycles
             ),
         },
@@ -716,9 +714,7 @@ def scalping_experiment_status(
         "candidate_account_scope": {
             "account_digest_matched": account_digest is not None,
             "legacy_unscoped_candidates_excluded": unscoped_candidates,
-            "candidate_totals_complete": (
-                account_digest is not None and unscoped_candidates == 0
-            ),
+            "candidate_totals_complete": (account_digest is not None and unscoped_candidates == 0),
         },
         "cohort_economics": {
             "cohort_id": experimental.cohort_id,
@@ -727,13 +723,11 @@ def scalping_experiment_status(
             "completed_round_trips": len(completed_experiments),
             "deployed_entry_value_usd": str(deployed_value),
             "fill_price_pnl_usd": (
-                str(fill_price_pnl)
-                if fill_price_coverage == len(completed_experiments) else None
+                str(fill_price_pnl) if fill_price_coverage == len(completed_experiments) else None
             ),
             "fill_price_coverage": fill_price_coverage,
             "gross_cash_flow_usd": (
-                str(gross_cash)
-                if gross_cash_coverage == len(completed_experiments) else None
+                str(gross_cash) if gross_cash_coverage == len(completed_experiments) else None
             ),
             "gross_cash_coverage": gross_cash_coverage,
             "fill_price_minus_cash_flow_usd": (
@@ -744,7 +738,8 @@ def scalping_experiment_status(
             "modeled_net_pnl_usd": str(modeled_net) if modeled_complete else None,
             "modeled_net_return_on_deployed_bps": (
                 str(modeled_net / deployed_value * Decimal(10_000))
-                if modeled_complete and deployed_value > 0 else None
+                if modeled_complete and deployed_value > 0
+                else None
             ),
             "modeled_net_coverage": len(modeled_rows),
             "modeled_minus_gross_cash_usd": (
@@ -760,10 +755,14 @@ def scalping_experiment_status(
                 "and is not an independently confirmed fee"
             ),
             "actual_net_pnl_usd": (
-                str(sum(
-                    (Decimal(row["actual_net_pnl_usd"]) for row in actual_rows),
-                    Decimal(0),
-                )) if actual_complete else None
+                str(
+                    sum(
+                        (Decimal(row["actual_net_pnl_usd"]) for row in actual_rows),
+                        Decimal(0),
+                    )
+                )
+                if actual_complete
+                else None
             ),
             "pending_fee_cycles": len(completed_experiments) - len(actual_rows),
             "observed_result": (

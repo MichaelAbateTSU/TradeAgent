@@ -2,6 +2,10 @@
 
 **Status: proposed shadow-only, not activated. Retrospective screening did
 not meet economic or coverage requirements. No broker orders authorized.**
+
+The proposed strategy trial is superseded by the
+[trade-free Shadow Research Dataset v1](../2026-10-shadow-dataset-v1/protocol.md).
+No broker-paper or model-promotion run follows from this proposal.
 Prepared September 30, 2026 UTC. The September cohort is complete and remains
 closed. This is a new hypothesis and a shadow-first research protocol, not an
 extension, requalification or reset of its results.

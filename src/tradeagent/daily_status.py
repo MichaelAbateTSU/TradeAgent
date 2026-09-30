@@ -97,6 +97,12 @@ def build_daily_status(
 ) -> dict[str, Any]:
     from tradeagent.daily_email_summary import build_daily_email_summary
 
+    worker = ProductionRepository(database).latest_heartbeat("tradeagent-event-worker")
+    if worker and worker[2].get("entry_policy") == "shadow-research-dataset-v1":
+        from tradeagent.shadow_dataset_runtime import shadow_daily_email
+
+        return shadow_daily_email(database, now, timezone)
+
     selected = settings or DailyStatusSettings(timezone=timezone)
     detailed = build_detailed_daily_status(database, now, timezone)
     summary = build_daily_email_summary(

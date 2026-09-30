@@ -26,6 +26,10 @@ COMMANDS = {
     "scalp-experiment-report",
     "scalp-actual-calibrate",
     "scalp-signal-research",
+    "shadow-dataset-freeze",
+    "shadow-dataset-run",
+    "shadow-dataset-status",
+    "shadow-dataset-analyze",
 }
 
 
@@ -134,6 +138,19 @@ def register_scalping_commands(subparsers: Any) -> None:
     research.add_argument("--maximum-signals", type=int, default=10000)
     research.add_argument("--maximum-signal-bytes", type=int, default=16 * 1024 * 1024)
     research.add_argument("--maximum-tape-events", type=int, default=10_000_000)
+    shadow_freeze = subparsers.add_parser(
+        "shadow-dataset-freeze", help="freeze a future observation-only protocol; grants no orders"
+    )
+    shadow_freeze.add_argument("--protocol", type=Path, required=True)
+    shadow_run = subparsers.add_parser(
+        "shadow-dataset-run", help="observe crypto market data with zero broker order paths"
+    )
+    shadow_run.add_argument("--protocol", type=Path)
+    subparsers.add_parser("shadow-dataset-status", help="read dataset quality and label coverage")
+    shadow_analysis = subparsers.add_parser(
+        "shadow-dataset-analyze", help="quality-gated frozen alpha screening; no promotion"
+    )
+    shadow_analysis.add_argument("--output-dir", type=Path, required=True)
     actual_calibrate = subparsers.add_parser(
         "scalp-actual-calibrate",
         help="calibrate and persist a validated artifact from completed experimental scalps",
@@ -184,6 +201,11 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
 
         asyncio.run(run_scalping_service(configuration(args)))
         return True
+    if args.command == "shadow-dataset-run":
+        from tradeagent.shadow_dataset_runtime import run_shadow_dataset
+
+        asyncio.run(run_shadow_dataset(args.protocol))
+        return True
     if args.command == "scalp-shadow-audit":
         from tradeagent.scalping_audit import audit_shadow_pipeline
 
@@ -198,6 +220,26 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
                 output_dir=args.output_dir,
                 maximum_candidate_bytes=args.maximum_candidate_bytes,
             )
+    elif args.command in {
+        "shadow-dataset-freeze",
+        "shadow-dataset-status",
+        "shadow-dataset-analyze",
+    }:
+        from tradeagent.shadow_dataset import ShadowDatasetProtocol, dataset_status, freeze_protocol
+
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            if args.command == "shadow-dataset-freeze":
+                protocol = ShadowDatasetProtocol.model_validate_json(
+                    args.protocol.read_text(encoding="utf-8")
+                )
+                freeze_protocol(database, protocol, datetime.now(UTC))
+                result = dataset_status(database)
+            elif args.command == "shadow-dataset-analyze":
+                from tradeagent.shadow_dataset_analysis import analyze_dataset
+
+                result = analyze_dataset(database, output_dir=args.output_dir)
+            else:
+                result = dataset_status(database)
     elif args.command == "scalp-signal-research":
         from tradeagent.scalping_research import ResearchPolicy, research_database, research_files
 
