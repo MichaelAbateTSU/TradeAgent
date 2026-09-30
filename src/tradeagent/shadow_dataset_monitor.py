@@ -258,12 +258,32 @@ def readiness_snapshot(
         schema = connection.exec_driver_sql("select version_num from alembic_version").scalar()
     broker_state = broker.snapshot(protocol)
     safety = local_safety(database, protocol)
+    owner_matches = bool(lease and heartbeat and lease["owner_id"] == heartbeat[0])
+    feed = details.get("feed") or {}
+    completed_at = datetime.now(UTC)
+    clean = (
+        owner_matches
+        and feed.get("subscribed") is True
+        and details.get("trading_authorization") == "expired"
+        and details.get("model_state") == "no_support"
+        and not safety["local_order_attempts_since_freeze"]
+        and safety["reported_order_attempts"] == 0
+        and not broker_state["positions"]
+        and not broker_state["open_orders"]
+        and not broker_state["broker_order_records_since_freeze"]
+        and raw_at is not None
+        and timedelta(0) <= completed_at - utc(raw_at) <= timedelta(seconds=30)
+        and schema == "0015_shadow_research_dataset"
+    )
     return {
         "snapshot_at": now.isoformat(),
+        "snapshot_completed_at": completed_at.isoformat(),
         "protocol_hash": protocol.identity,
         "deployed_release": details.get("code_sha"),
         "lease_owner": lease["owner_id"] if lease else None,
-        "lease_matches_heartbeat": bool(lease and heartbeat and lease["owner_id"] == heartbeat[0]),
+        "lease_matches_heartbeat": owner_matches,
+        "readiness_clean": clean,
+        "readiness_state": "verified_clean" if clean else "unverified_or_transitioning",
         "heartbeat_at": utc(heartbeat[1]).isoformat() if heartbeat else None,
         "feed": details.get("feed"),
         "latest_persisted_raw_batch": utc(raw_at).isoformat() if raw_at else None,
@@ -389,6 +409,8 @@ class AcceptanceScheduler:
             if kind == "readiness_final":
                 report = readiness_snapshot(self.database, self.protocol, self.broker, now=now)
                 report["missed_prestart_check"] = now >= self.protocol.start
+                if not report["readiness_clean"]:
+                    signal_stop(self.database, "FINAL_READINESS_UNVERIFIED", now)
             else:
                 limit = (
                     self.protocol.start + timedelta(minutes=30)
