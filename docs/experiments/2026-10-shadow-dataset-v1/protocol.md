@@ -108,6 +108,13 @@ beat trivial baselines is not economic qualification. The screening
 command always returns `promotion_allowed: false`. No generated analysis
 file can become a worker model or a live-money authorization.
 
+After sealing, the service invokes screening in a separate child process
+with a 384-MiB address-space limit and a thirty-minute time budget. Its
+quality-blocked result, completed research report, or explicit capacity
+failure is archived as an immutable dataset analysis event. No failed
+child is treated as successful evaluation or retried until it becomes
+favorable. This uses existing compute, not a new paid service.
+
 ## Operations and persistence
 
 Use the existing Render event worker, PostgreSQL, dashboard and notifier.

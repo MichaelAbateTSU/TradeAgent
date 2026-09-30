@@ -911,6 +911,32 @@ def create_app(
                 status_code=503, detail="Daily shadow report unavailable"
             ) from error
 
+    @app.get("/api/shadow-dataset/analysis")
+    def shadow_dataset_analysis() -> dict[str, Any]:
+        from tradeagent.persistence import events as production_events
+        from tradeagent.shadow_dataset import DATASET_ID
+
+        if production_database_url is None:
+            return {"state": "database_not_configured", "promotion_allowed": False}
+        try:
+            with production_database() as database, database.begin() as connection:
+                payload = connection.scalar(
+                    select(production_events.c.payload)
+                    .where(
+                        production_events.c.event_type == "shadow_dataset_analysis_result",
+                        production_events.c.trace_id == DATASET_ID,
+                    )
+                    .order_by(
+                        production_events.c.occurred_at.desc(), production_events.c.event_id.desc()
+                    )
+                    .limit(1)
+                )
+            return payload or {"state": "waiting_for_sealed_dataset", "promotion_allowed": False}
+        except SQLAlchemyError as error:
+            raise HTTPException(
+                status_code=503, detail="Shadow analysis archive unavailable"
+            ) from error
+
     @app.get("/api/scalping/diagnostics")
     def scalping_diagnostics(
         cohort_id: str | None = None, limit: int = Query(default=20, ge=1, le=100)

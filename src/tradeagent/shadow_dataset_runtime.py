@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import socket
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -17,7 +18,7 @@ from tradeagent.alpaca_paper import AlpacaPaperSettings
 from tradeagent.config import AppConfig
 from tradeagent.event_doctor import code_identity
 from tradeagent.experimental_policy import reject_live_environment
-from tradeagent.persistence import Database, ProductionRepository
+from tradeagent.persistence import Database, ProductionRepository, events
 from tradeagent.scalping_market import CryptoMarketFeed, MarketEvent
 from tradeagent.shadow_dataset import (
     DATASET_ID,
@@ -117,6 +118,7 @@ async def run_shadow_dataset(
     collector.features.on_resnapshot = feed.request_resnapshot
     writer_queue: asyncio.Queue[tuple[str, Any]] = asyncio.Queue(maxsize=5000)
     receive_done = asyncio.Event()
+    analysis_trigger = asyncio.Event()
     source_batch: list[MarketEvent] = []
     protocol_end = protocol.end + timedelta(seconds=902)
     with Database(AppConfig().database_url.get_secret_value(), pool_size=3) as database:
@@ -214,6 +216,7 @@ async def run_shadow_dataset(
                         await writer_queue.put(("quality", (collector.quality(), now, True)))
                         await writer_queue.join()
                         await writer_queue.put(("daily", (last_collection_day, now)))
+                        analysis_trigger.set()
                         sealed = True
                 await asyncio.sleep(0.25 if not sealed else 10)
 
@@ -263,6 +266,55 @@ async def run_shadow_dataset(
             await stop.wait()
             feed.stop()
 
+        async def terminal_analysis() -> None:
+            await analysis_trigger.wait()
+            with database.begin() as connection:
+                existing = connection.scalar(
+                    select(func.count()).where(
+                        events.c.event_type == "shadow_dataset_analysis_result",
+                        events.c.trace_id == DATASET_ID,
+                    )
+                )
+            if existing:
+                return
+            # Collection is sealed; release large caches before the isolated bounded child.
+            for history in collector.history.values():
+                history.clear()
+            script = (
+                "import json,resource;from pathlib import Path;from uuid import uuid4;"
+                "from datetime import UTC,datetime;"
+                "from tradeagent.persistence import Database,ProductionRepository;"
+                "from tradeagent.config import AppConfig;"
+                "from tradeagent.shadow_dataset_analysis import analyze_dataset;"
+                "resource.setrlimit(resource.RLIMIT_AS,(402653184,402653184));"
+                "d=Database(AppConfig().database_url.get_secret_value(),pool_size=1);"
+                "r=analyze_dataset(d,output_dir=Path('.shadow-alpha-screen-'+str(uuid4())));"
+                "ProductionRepository(d).append_event('shadow_dataset_analysis_result',r,"
+                "occurred_at=datetime.now(UTC),trace_id='shadow-research-20261001-v1');"
+                "print('SHADOW_ANALYSIS_ARCHIVED',r.get('state'));d.dispose()"
+            )
+            process = await asyncio.create_subprocess_exec(sys.executable, "-c", script)
+            try:
+                result = await asyncio.wait_for(process.wait(), timeout=1800)
+            except TimeoutError:
+                process.kill()
+                await process.wait()
+                result = -1
+            if result:
+                await asyncio.to_thread(
+                    repo.append_event,
+                    "shadow_dataset_analysis_result",
+                    {
+                        "state": "analysis_capacity_or_process_failure",
+                        "exit_code": result,
+                        "profitability_analysis_performed": False,
+                        "promotion_allowed": False,
+                        "orders_submitted": 0,
+                    },
+                    occurred_at=datetime.now(UTC),
+                    trace_id=DATASET_ID,
+                )
+
         try:
             with database.begin() as connection:
                 sealed_at = connection.scalar(
@@ -271,7 +323,10 @@ async def run_shadow_dataset(
                     )
                 )
             if sealed_at:
-                await heartbeat()
+                analysis_trigger.set()
+                async with asyncio.TaskGroup() as tasks:
+                    tasks.create_task(heartbeat())
+                    tasks.create_task(terminal_analysis())
                 return
             async with asyncio.TaskGroup() as tasks:
                 tasks.create_task(writer())
@@ -279,6 +334,7 @@ async def run_shadow_dataset(
                 tasks.create_task(clock())
                 tasks.create_task(heartbeat())
                 tasks.create_task(stopper())
+                tasks.create_task(terminal_analysis())
         finally:
             stop.set()
             feed.stop()

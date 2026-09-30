@@ -387,4 +387,7 @@ def test_quality_gated_api_and_observer_status_remain_trade_free(store_setup, tm
         assert result.status_code == 200
         assert result.json()["profitability_analysis_allowed"] is False
         assert result.json()["orders_submitted"] == 0
+        assert client.get("/api/shadow-dataset/analysis").json()["state"] == (
+            "waiting_for_sealed_dataset"
+        )
         assert 'id="shadow-dataset-heading"' in client.get("/").text
