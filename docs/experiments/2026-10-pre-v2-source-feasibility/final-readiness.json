@@ -1,0 +1,194 @@
+{
+  "all_freeze_start_prerequisites_satisfied": false,
+  "application_code_changed": false,
+  "decision": "NO_GO",
+  "deployment_smoke": "NOT_APPLICABLE_NO_SOURCE_PASSED",
+  "execution_venue": "Alpaca paper simulator; no live exchange route",
+  "paper_crypto_quote_reference_location": null,
+  "proposed_v2_configuration": null,
+  "protected_commit": "dc00e4e1568ad49514e154d443ef0ef54d1f0579",
+  "remaining_uncertainties": [
+    "Account-specific paper crypto quote reference and corresponding live routing/region unproven",
+    "Alternate native streams rejected406; stream entitlement scope and intrinsic streaming coverage unmeasured",
+    "REST results include acquisition polling phase; not an upper bound on native source quality"
+  ],
+  "schema": "pre-v2-final-go-no-go-v1",
+  "source_selection": null,
+  "study_matrices": {
+    "native-stream-study": {
+      "interpretation": "406 cases are access failures, not native source quality",
+      "matrix": [
+        {
+          "capture_failure": "provider_error_406",
+          "complete": 0,
+          "coverage": 0.0,
+          "matured": 180,
+          "missing": 180,
+          "qualified": false,
+          "source": "eu-1",
+          "symbol": "BTC/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": "provider_error_406",
+          "complete": 0,
+          "coverage": 0.0,
+          "matured": 180,
+          "missing": 180,
+          "qualified": false,
+          "source": "eu-1",
+          "symbol": "ETH/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 77,
+          "coverage": 0.42777777777777776,
+          "matured": 180,
+          "missing": 103,
+          "qualified": false,
+          "source": "us",
+          "symbol": "BTC/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 2,
+          "coverage": 0.011111111111111112,
+          "matured": 180,
+          "missing": 178,
+          "qualified": false,
+          "source": "us",
+          "symbol": "ETH/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": "provider_error_406",
+          "complete": 0,
+          "coverage": 0.0,
+          "matured": 180,
+          "missing": 180,
+          "qualified": false,
+          "source": "us-1",
+          "symbol": "BTC/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": "provider_error_406",
+          "complete": 0,
+          "coverage": 0.0,
+          "matured": 180,
+          "missing": 180,
+          "qualified": false,
+          "source": "us-1",
+          "symbol": "ETH/USD",
+          "venue_match": "UNPROVEN"
+        }
+      ],
+      "protocol_hash": "87cd386563d51b04972b767afea917fcb660f78c23fa80338d001f05b39a96cd",
+      "window_end": "2026-10-02T16:30:00+00:00",
+      "window_start": "2026-10-02T16:00:00+00:00"
+    },
+    "rest-study": {
+      "interpretation": "paired executable-label coverage under fixed REST acquisition",
+      "matrix": [
+        {
+          "capture_failure": null,
+          "complete": 151,
+          "coverage": 0.8388888888888889,
+          "matured": 180,
+          "missing": 29,
+          "qualified": false,
+          "source": "eu-1",
+          "symbol": "BTC/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 128,
+          "coverage": 0.7111111111111111,
+          "matured": 180,
+          "missing": 52,
+          "qualified": false,
+          "source": "eu-1",
+          "symbol": "ETH/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 39,
+          "coverage": 0.21666666666666667,
+          "matured": 180,
+          "missing": 141,
+          "qualified": false,
+          "source": "us",
+          "symbol": "BTC/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 0,
+          "coverage": 0.0,
+          "matured": 180,
+          "missing": 180,
+          "qualified": false,
+          "source": "us",
+          "symbol": "ETH/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 150,
+          "coverage": 0.8333333333333334,
+          "matured": 180,
+          "missing": 30,
+          "qualified": false,
+          "source": "us-1",
+          "symbol": "BTC/USD",
+          "venue_match": "UNPROVEN"
+        },
+        {
+          "capture_failure": null,
+          "complete": 125,
+          "coverage": 0.6944444444444444,
+          "matured": 180,
+          "missing": 55,
+          "qualified": false,
+          "source": "us-1",
+          "symbol": "ETH/USD",
+          "venue_match": "UNPROVEN"
+        }
+      ],
+      "protocol_hash": "ea8d5b3cfb635f9c6eac14be1cec66611324c159c50f00898af8e30c481ebd99",
+      "window_end": "2026-10-02T17:15:00+00:00",
+      "window_start": "2026-10-02T16:45:00+00:00"
+    }
+  },
+  "unchanged_future_requirements": {
+    "entry_ask_and_exit_bid_displayed_notional_usd": "10.25",
+    "evaluation_seconds": 10,
+    "max_provider_and_receive_age_seconds": 2,
+    "minimum_per_symbol_mature_coverage": 0.95,
+    "model_state": "no_support",
+    "orders_enabled": false,
+    "primary_horizon_seconds": 60,
+    "promotion_enabled": false,
+    "settlement_seconds": 2,
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "trading_authorization": "expired"
+  },
+  "v2_started": false,
+  "validation": {
+    "all_mature_source_labels_reproduced": 2160,
+    "application_tests_passed": 1925,
+    "diagnostic_equivalence_checks_passed": 2118,
+    "raw_hashes_and_causal_joins_verified": true,
+    "ruff": "PASS",
+    "skipped": 2,
+    "strict_mypy": "PASS",
+    "typed_source_files": 121
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "artifact_hashes_verified": true,
+  "raw_source_chains_verified": true,
+  "every_mature_label_reproduced": true,
+  "causal_inputs_verified": true,
+  "counts": {
+    "us": {
+      "BTC/USD": {
+        "matured": 180,
+        "complete": 39
+      },
+      "ETH/USD": {
+        "matured": 180,
+        "complete": 0
+      }
+    },
+    "us-1": {
+      "BTC/USD": {
+        "matured": 180,
+        "complete": 150
+      },
+      "ETH/USD": {
+        "matured": 180,
+        "complete": 125
+      }
+    },
+    "eu-1": {
+      "BTC/USD": {
+        "matured": 180,
+        "complete": 151
+      },
+      "ETH/USD": {
+        "matured": 180,
+        "complete": 128
+      }
+    }
+  },
+  "v1_modified": false,
+  "v2_started": false
+}

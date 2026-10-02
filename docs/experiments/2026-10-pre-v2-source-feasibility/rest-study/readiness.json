@@ -1,0 +1,361 @@
+{
+  "artifacts": [
+    {
+      "bytes": 279248,
+      "path": "eu-1-connection-health.json",
+      "sha256": "4eff1f7e02337846aa71bbcf35106f0d29ce3c77976de13061603f708c577b7c"
+    },
+    {
+      "bytes": 173358,
+      "path": "eu-1-frames.jsonl.gz",
+      "sha256": "8826467c80a9bce9ddea67bcd5fb87f2ec6a5f0d8a632f9507270062c4cff66a"
+    },
+    {
+      "bytes": 66354,
+      "path": "eu-1-primary-labels.jsonl.gz",
+      "sha256": "ae7b4f56d6add884783dc8798b0fd978b9be44605e292ae79397a96dfcd5ab89"
+    },
+    {
+      "bytes": 170334,
+      "path": "eu-1-quotes.jsonl.gz",
+      "sha256": "25c1fd40c5cdfc3efdc3182118a65228045fd32eb4932f494638865d6b43a42f"
+    },
+    {
+      "bytes": 3829,
+      "path": "frozen-study.json",
+      "sha256": "62007f66d9cb4f5cecd704ce39c2dffdb7c9e4860b649eb0d24db2a96cc7ccf0"
+    },
+    {
+      "bytes": 279248,
+      "path": "us-1-connection-health.json",
+      "sha256": "eb478cd8e649d9ea7a89fa46ff5de9d2be743b83c41686ecf87cf8395a972ce2"
+    },
+    {
+      "bytes": 173343,
+      "path": "us-1-frames.jsonl.gz",
+      "sha256": "f7e35208a7fa23a95cea3382307a68cd3d2bd4e5f5872f68fb538acfe37f76f8"
+    },
+    {
+      "bytes": 66716,
+      "path": "us-1-primary-labels.jsonl.gz",
+      "sha256": "ed7dd271fc70c30def988949f640ee87e098c4e1b5b5eddcc88d12753113ff66"
+    },
+    {
+      "bytes": 170486,
+      "path": "us-1-quotes.jsonl.gz",
+      "sha256": "14629b5d289ac768dacd8879d5abf18d9287c76c507ccbdff12ba694bd1c0ad3"
+    },
+    {
+      "bytes": 49312,
+      "path": "us-primary-labels.jsonl.gz",
+      "sha256": "d688890b12ad4258a8a0080e4a55c613f6c3103a6f2018b06476d0928acc9532"
+    },
+    {
+      "bytes": 883681,
+      "path": "us-v1-raw-events.jsonl.gz",
+      "sha256": "bd2c5ae1637f4f669fd360932adb7aec5ea422c65d69a59cfbaedb52c2b4c624"
+    },
+    {
+      "bytes": 387956,
+      "path": "v1-runtime-health.json",
+      "sha256": "8618063447ead798ecc7936320fc3e740b418f042842b96105f13735291f5485"
+    }
+  ],
+  "broker_after": {
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "account_status": "ACTIVE",
+      "broker_order_page_saturated": false,
+      "broker_order_records_since_freeze": 0,
+      "open_orders": 0,
+      "order_submission_calls": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "read_methods": [
+        "GET"
+      ],
+      "verified_at": "2026-10-02T17:16:28.190770+00:00"
+    },
+    "worker": {
+      "entry_policy": "shadow-research-dataset-v1",
+      "feed_state": "streaming",
+      "feed_subscribed": true,
+      "heartbeat_at": "2026-10-02T17:16:25.141009+00:00",
+      "local_order_attempts_since_freeze": 0,
+      "reported_model_state": "no_support",
+      "reported_order_attempts": 0,
+      "reported_trading_authorization": "expired",
+      "trading_authorization_renewed": false
+    }
+  },
+  "broker_before": {
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "account_status": "ACTIVE",
+      "broker_order_page_saturated": false,
+      "broker_order_records_since_freeze": 0,
+      "open_orders": 0,
+      "order_submission_calls": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "read_methods": [
+        "GET"
+      ],
+      "verified_at": "2026-10-02T16:43:37.595754+00:00"
+    },
+    "worker": {
+      "entry_policy": "shadow-research-dataset-v1",
+      "feed_state": "streaming",
+      "feed_subscribed": true,
+      "heartbeat_at": "2026-10-02T16:43:33.060113+00:00",
+      "local_order_attempts_since_freeze": 0,
+      "reported_model_state": "no_support",
+      "reported_order_attempts": 0,
+      "reported_trading_authorization": "expired",
+      "trading_authorization_renewed": false
+    }
+  },
+  "candidates": {
+    "eu-1": {
+      "capture_counts": {
+        "accepted_quotes": 2594,
+        "frames": 1297,
+        "requests": 1297
+      },
+      "capture_failure": null,
+      "complete_evaluation_grid": true,
+      "coverage": [
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 13,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 13,
+          "INSUFFICIENT_DISPLAYED_LONG_SIZE": 5,
+          "complete": 151,
+          "coverage": 0.8388888888888889,
+          "failure_taxonomy_counts": {
+            "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 5,
+            "D_STALE_PROVIDER_TIMESTAMP": 26
+          },
+          "matured_evaluations": 180,
+          "missing": 29,
+          "not_yet_mature": 0,
+          "symbol": "BTC/USD"
+        },
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 12,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 13,
+          "INSUFFICIENT_DISPLAYED_LONG_SIZE": 29,
+          "complete": 128,
+          "coverage": 0.7111111111111111,
+          "failure_taxonomy_counts": {
+            "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 29,
+            "D_STALE_PROVIDER_TIMESTAMP": 25
+          },
+          "matured_evaluations": 180,
+          "missing": 52,
+          "not_yet_mature": 0,
+          "symbol": "ETH/USD"
+        }
+      ],
+      "eligible_for_v2": false,
+      "expected_evaluations_per_symbol": 180,
+      "price_integrity_counts": {},
+      "quality_gate_passed": false,
+      "raw_manifest_root": "1be851c1370e1dc25c7a0f480a67e0528fc30640666aaaaf65ee36e3e1805b25",
+      "transport_integrity_counts": {},
+      "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+      "venue_match_verified": false
+    },
+    "us": {
+      "capture_counts": null,
+      "capture_failure": null,
+      "complete_evaluation_grid": true,
+      "coverage": [
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 100,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 96,
+          "INSUFFICIENT_DISPLAYED_LONG_SIZE": 1,
+          "complete": 39,
+          "coverage": 0.21666666666666667,
+          "failure_taxonomy_counts": {
+            "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 1,
+            "D_STALE_PROVIDER_TIMESTAMP": 1,
+            "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 195
+          },
+          "matured_evaluations": 180,
+          "missing": 141,
+          "not_yet_mature": 0,
+          "symbol": "BTC/USD"
+        },
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 172,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 170,
+          "coverage": 0.0,
+          "failure_taxonomy_counts": {
+            "D_STALE_PROVIDER_TIMESTAMP": 2,
+            "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 340
+          },
+          "matured_evaluations": 180,
+          "missing": 180,
+          "not_yet_mature": 0,
+          "symbol": "ETH/USD"
+        }
+      ],
+      "eligible_for_v2": false,
+      "expected_evaluations_per_symbol": 180,
+      "price_integrity_counts": null,
+      "quality_gate_passed": false,
+      "raw_manifest_root": "b017eb3a7fe094dbd66dc6c0b1debe322f30f79a011768551a21caa35d0f84f0",
+      "transport_integrity_counts": null,
+      "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+      "venue_match_verified": false
+    },
+    "us-1": {
+      "capture_counts": {
+        "accepted_quotes": 2594,
+        "frames": 1297,
+        "requests": 1297
+      },
+      "capture_failure": null,
+      "complete_evaluation_grid": true,
+      "coverage": [
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 13,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 13,
+          "INSUFFICIENT_DISPLAYED_LONG_SIZE": 6,
+          "complete": 150,
+          "coverage": 0.8333333333333334,
+          "failure_taxonomy_counts": {
+            "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 6,
+            "D_STALE_PROVIDER_TIMESTAMP": 26
+          },
+          "matured_evaluations": 180,
+          "missing": 30,
+          "not_yet_mature": 0,
+          "symbol": "BTC/USD"
+        },
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 13,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 15,
+          "INSUFFICIENT_DISPLAYED_LONG_SIZE": 30,
+          "complete": 125,
+          "coverage": 0.6944444444444444,
+          "failure_taxonomy_counts": {
+            "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 30,
+            "D_STALE_PROVIDER_TIMESTAMP": 28
+          },
+          "matured_evaluations": 180,
+          "missing": 55,
+          "not_yet_mature": 0,
+          "symbol": "ETH/USD"
+        }
+      ],
+      "eligible_for_v2": false,
+      "expected_evaluations_per_symbol": 180,
+      "price_integrity_counts": {},
+      "quality_gate_passed": false,
+      "raw_manifest_root": "ec94bc88f30105f07dda075c16f04e1edf43b40c76c7dad3616620f9ab2c972a",
+      "transport_integrity_counts": {},
+      "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+      "venue_match_verified": false
+    }
+  },
+  "completed_at": "2026-10-02T17:16:28.781897+00:00",
+  "database_writes": 0,
+  "decision": "NO_GO",
+  "execution_venue": "Alpaca paper simulator; no live exchange routing",
+  "feasibility_interruption": null,
+  "orders_submitted": 0,
+  "paper_crypto_quote_reference_location": null,
+  "proposed_v2_configuration": null,
+  "schema": "pre-v2-source-feasibility-readiness-v1",
+  "selected_source": null,
+  "study_protocol": {
+    "acquisition_reason": "Alternate WebSockets rejected with406 while protected us stream remained active; REST sources previously accessible",
+    "acquisition_seconds": 1.5,
+    "alternate_collection": "GET latest native quotes every1.5s per source, same schedule for both, maximum80 requests/minute; zero additional WebSocket sessions",
+    "application_code_changes_allowed_before_pass": false,
+    "assumed_notional_usd": "10.25",
+    "book_maximum_levels": 2000,
+    "capture_end": "2026-10-02T17:16:05+00:00",
+    "causality": "entry consumer-availability <= evaluation; future receipt <= horizon and consumer-availability <= original resolution",
+    "common_anchor_clock": "actual unmodified v1 evaluation and 60s resolution timestamps within the fixed study dates",
+    "diagnostic_processing_clock": "processing entry and actual consumer-acceptance completion retained; availability uses completion",
+    "entry_size_side": "ask",
+    "evaluation_end": "2026-10-02T17:15:00+00:00",
+    "evaluation_seconds": 10,
+    "evaluation_start": "2026-10-02T16:45:00+00:00",
+    "excluded_locations": {
+      "bs-1": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven",
+      "us-2": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven"
+    },
+    "exit_size_side": "bid",
+    "expected_evaluations_per_symbol": 180,
+    "freshness_seconds": 2,
+    "frozen_at": "2026-10-02T16:42:56.859047+00:00",
+    "initial_v1_manifest": {
+      "as_of": "2026-10-02T16:42:57.196935+00:00",
+      "batches": 15822,
+      "root": "245eb17953740f7b07aeddc5869a3e3e1ee27bce8f4a89810f0516b4258f2060"
+    },
+    "legacy_us_clock": "original v1 stored processed_at preserved; exact socket state per evaluation was not archived",
+    "minimum_mature_coverage": 0.95,
+    "model_state": "no_support",
+    "orders_enabled": false,
+    "parent_protocol_hash": "87cd386563d51b04972b767afea917fcb660f78c23fa80338d001f05b39a96cd",
+    "price_observations": "native L1 and valid reconstructed L2; no trades/midpoints as substitute",
+    "primary_horizon_seconds": 60,
+    "promotion_enabled": false,
+    "protected_commit": "dc00e4e1568ad49514e154d443ef0ef54d1f0579",
+    "protocol_hash": "ea8d5b3cfb635f9c6eac14be1cec66611324c159c50f00898af8e30c481ebd99",
+    "quote_cache_capacity_per_symbol": 60000,
+    "quote_history_seconds": 960,
+    "quote_source_kinds": {
+      "eu-1": "native REST quotes",
+      "us": "unmodified v1 native and valid L2",
+      "us-1": "native REST quotes"
+    },
+    "role": "bounded REST fallback; not v2",
+    "routing_evidence_sha256": "f93dd7b0ed18a5ba9b7bb7e47a5009bf77b775fcea108b176d453196c991d0d4",
+    "sampling_scope": "Acquisition rate is not the 10s evaluation cadence; all label ages/provider clocks/size requirements unchanged",
+    "schema": "pre-v2-rest-source-feasibility-v1",
+    "settlement_seconds": 2,
+    "source_locations": [
+      "us",
+      "us-1",
+      "eu-1"
+    ],
+    "study_core_sha256": "a1121225c40a368b75aa9d9d259b299bc9d1ebdca0803fe890dbd713f36b8dfc",
+    "study_id": "pre-v2-rest-feasibility-20261002T164500Z",
+    "study_runner_sha256": "28945d7671cfd7c55c69ca1b6ec256e457bef83c7f8e09337e3b2ceca8b18ca1",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "trading_authorization": "expired",
+    "transport_book_freshness_seconds": 5,
+    "us_collection": "read existing v1 stream, evaluations, labels and raw manifest; no additional us connection",
+    "v1_protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+    "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+    "v2_window_started": false,
+    "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+    "venue_match_verified": {
+      "eu-1": false,
+      "us": false,
+      "us-1": false
+    }
+  },
+  "unverified": [
+    "Paper crypto simulator quote-reference location is not disclosed in inspected evidence.",
+    "Live account-specific crypto execution route and regional eligibility are not proven.",
+    "Market data access is not proof of account execution-venue equivalence."
+  ],
+  "v1_manifest_snapshot": {
+    "batches": 16014,
+    "immutable_input_sha256": "3b2ac11ba7a94adf65752a744281ab4559f82fe77fa4975338682758af29f42d",
+    "protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+    "root": "b017eb3a7fe094dbd66dc6c0b1debe322f30f79a011768551a21caa35d0f84f0"
+  },
+  "v1_modified": false,
+  "v2_freeze_prerequisites_satisfied": false,
+  "v2_started": false
+}

@@ -1,0 +1,69 @@
+{
+  "source_symbol_attribution": {
+    "us": {
+      "BTC/USD": {
+        "matured": 180,
+        "complete": 39,
+        "quote_failures": 140,
+        "reason:D_UPSTREAM_INACTIVITY_STALE_QUOTE": 195,
+        "reason:D_STALE_PROVIDER_TIMESTAMP": 1,
+        "size_failures": 1,
+        "reason:DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 1
+      },
+      "ETH/USD": {
+        "matured": 180,
+        "quote_failures": 180,
+        "reason:D_UPSTREAM_INACTIVITY_STALE_QUOTE": 340,
+        "reason:D_STALE_PROVIDER_TIMESTAMP": 2
+      }
+    },
+    "us-1": {
+      "BTC/USD": {
+        "matured": 180,
+        "complete": 150,
+        "size_failures": 6,
+        "reason:DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 6,
+        "quote_failures": 24,
+        "reason:D_STALE_PROVIDER_TIMESTAMP": 26
+      },
+      "ETH/USD": {
+        "matured": 180,
+        "complete": 125,
+        "quote_failures": 25,
+        "reason:D_STALE_PROVIDER_TIMESTAMP": 28,
+        "size_failures": 30,
+        "reason:DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 30
+      },
+      "actual_rate_headers": {
+        "x-ratelimit-limit": "200",
+        "x-ratelimit-remaining": "199",
+        "x-ratelimit-reset": "1790959418"
+      }
+    },
+    "eu-1": {
+      "BTC/USD": {
+        "matured": 180,
+        "complete": 151,
+        "size_failures": 5,
+        "reason:DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 5,
+        "quote_failures": 24,
+        "reason:D_STALE_PROVIDER_TIMESTAMP": 26
+      },
+      "ETH/USD": {
+        "matured": 180,
+        "complete": 128,
+        "quote_failures": 23,
+        "reason:D_STALE_PROVIDER_TIMESTAMP": 25,
+        "size_failures": 29,
+        "reason:DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 29
+      },
+      "actual_rate_headers": {
+        "x-ratelimit-limit": "200",
+        "x-ratelimit-remaining": "198",
+        "x-ratelimit-reset": "1790959418"
+      }
+    }
+  },
+  "non_overlapping_label_categories": true,
+  "original_readiness_unchanged": true
+}
