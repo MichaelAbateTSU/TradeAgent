@@ -1,0 +1,2193 @@
+{
+  "all_missing_labels_classified": true,
+  "artifacts": [
+    {
+      "bytes": 17551153,
+      "path": "missing-labels.jsonl.gz",
+      "records": 78759,
+      "sha256": "08b10f94a9c071371f36f2f1ce4e424e9d43e0affe48ebe504f0a28d4fa1729c"
+    }
+  ],
+  "conclusion": "additional_pipeline_or_clock_investigation_required",
+  "database_read_only": true,
+  "dataset_id": "shadow-research-20261001-v1",
+  "day_connection_ids": [
+    "1bb1b7ef-06e8-4c44-9d0b-086ce2298122"
+  ],
+  "endpoint_classifications": {
+    "BTC/USD:300:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5484,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 18,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1727
+    },
+    "BTC/USD:300:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5463,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 24,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1743
+    },
+    "BTC/USD:30:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5484,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 18,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1682
+    },
+    "BTC/USD:30:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5478,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 18,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1689
+    },
+    "BTC/USD:5:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5484,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 18,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1638
+    },
+    "BTC/USD:5:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5395,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 29,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1717
+    },
+    "BTC/USD:60:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5484,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 18,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1712
+    },
+    "BTC/USD:60:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5473,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 29,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1713
+    },
+    "BTC/USD:900:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5484,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 18,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1763
+    },
+    "BTC/USD:900:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 5473,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 30,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 1763
+    },
+    "ETH/USD:300:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7937,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 9,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 587
+    },
+    "ETH/USD:300:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7935,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 3,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 596
+    },
+    "ETH/USD:30:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7937,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 9,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 603
+    },
+    "ETH/USD:30:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7950,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 3,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 597
+    },
+    "ETH/USD:5:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7937,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 9,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 586
+    },
+    "ETH/USD:5:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7912,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 11,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 610
+    },
+    "ETH/USD:60:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7937,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 9,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 598
+    },
+    "ETH/USD:60:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7936,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 7,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 602
+    },
+    "ETH/USD:900:decision": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7937,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 9,
+      "PROCESSING_AVAILABILITY_NOT_RECORDED": 1,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 613
+    },
+    "ETH/USD:900:future": {
+      "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 7942,
+      "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": 5,
+      "STORED_QUOTE_SATISFIES_FRESHNESS": 613
+    }
+  },
+  "evaluations": 17280,
+  "examples": {
+    "BTC/USD:decision:D_UPSTREAM_INACTIVITY_STALE_QUOTE": [
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "09267e43-9641-55dc-89dc-bd77851b983a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "83571.9",
+          "ask_size": "0.00100032",
+          "batch_id": "59dad03998e59fac14ff580eecc247c52480f208c36cdfdd09c46ecaba76b07b",
+          "bid": "83553.2",
+          "bid_size": "0.00099963",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812787118371000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48271",
+          "persisted_at": "2026-09-30T23:59:52.008766+00:00",
+          "provider_age_seconds": 13.043319738,
+          "provider_timestamp": "2026-09-30T23:59:47.087536262Z",
+          "provider_timestamp_ns": 1790812787087536262,
+          "receive_age_seconds": 13.012643,
+          "receive_sequence": 48271,
+          "received_at": "2026-09-30T23:59:47.118213+00:00",
+          "received_at_ns": 1790812787118213000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83571.9",
+          "ask_size": "0.00100032",
+          "bid": "83553.2",
+          "bid_size": "0.00099963",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48271",
+          "processed_at": "2026-09-30T23:59:47.118731+00:00",
+          "provider_age_seconds": 13.043319738,
+          "provider_timestamp": "2026-09-30T23:59:47.087536Z",
+          "provider_timestamp_ns": 1790812787087536262,
+          "raw_reference": {
+            "batch_id": "59dad03998e59fac14ff580eecc247c52480f208c36cdfdd09c46ecaba76b07b",
+            "decoded_at_ns": 1790812787118371000,
+            "persisted_at": "2026-09-30T23:59:52.008766+00:00",
+            "provider_timestamp": "2026-09-30T23:59:47.087536262Z",
+            "provider_timestamp_ns": 1790812787087536262,
+            "received_at_ns": 1790812787118213000
+          },
+          "receive_age_seconds": 13.012643,
+          "received_at": "2026-09-30T23:59:47.118213Z",
+          "received_at_ns": 1790812787118213000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-09-30T23:59:47.119741Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-09-30T23:59:47.118213+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "09267e43-9641-55dc-89dc-bd77851b983a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "83571.9",
+          "ask_size": "0.00100032",
+          "batch_id": "59dad03998e59fac14ff580eecc247c52480f208c36cdfdd09c46ecaba76b07b",
+          "bid": "83553.2",
+          "bid_size": "0.00099963",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812787118371000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48271",
+          "persisted_at": "2026-09-30T23:59:52.008766+00:00",
+          "provider_age_seconds": 13.043319738,
+          "provider_timestamp": "2026-09-30T23:59:47.087536262Z",
+          "provider_timestamp_ns": 1790812787087536262,
+          "receive_age_seconds": 13.012643,
+          "receive_sequence": 48271,
+          "received_at": "2026-09-30T23:59:47.118213+00:00",
+          "received_at_ns": 1790812787118213000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83571.9",
+          "ask_size": "0.00100032",
+          "bid": "83553.2",
+          "bid_size": "0.00099963",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48271",
+          "processed_at": "2026-09-30T23:59:47.118731+00:00",
+          "provider_age_seconds": 13.043319738,
+          "provider_timestamp": "2026-09-30T23:59:47.087536Z",
+          "provider_timestamp_ns": 1790812787087536262,
+          "raw_reference": {
+            "batch_id": "59dad03998e59fac14ff580eecc247c52480f208c36cdfdd09c46ecaba76b07b",
+            "decoded_at_ns": 1790812787118371000,
+            "persisted_at": "2026-09-30T23:59:52.008766+00:00",
+            "provider_timestamp": "2026-09-30T23:59:47.087536262Z",
+            "provider_timestamp_ns": 1790812787087536262,
+            "received_at_ns": 1790812787118213000
+          },
+          "receive_age_seconds": 13.012643,
+          "received_at": "2026-09-30T23:59:47.118213Z",
+          "received_at_ns": 1790812787118213000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-09-30T23:59:47.119741Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-09-30T23:59:47.118213+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "BTC/USD:decision:D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": [
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "7836072b-4307-57a0-b4cd-b66d8193d951",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "83524.4",
+          "ask_size": "0.00099774",
+          "batch_id": "06a184ce745382e940143abf1a983d3c1c75697a23d6cab173a66895b356ddb9",
+          "bid": "83505.676",
+          "bid_size": "0.0010043",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790820088059521000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:67764",
+          "persisted_at": "2026-10-01T02:01:33.344628+00:00",
+          "provider_age_seconds": 2.000124355,
+          "provider_timestamp": "2026-10-01T02:01:28.028820645Z",
+          "provider_timestamp_ns": 1790820088028820645,
+          "receive_age_seconds": 1.969593,
+          "receive_sequence": 67764,
+          "received_at": "2026-10-01T02:01:28.059352+00:00",
+          "received_at_ns": 1790820088059352000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83524.4",
+          "ask_size": "0.00099774",
+          "bid": "83505.676",
+          "bid_size": "0.0010043",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:67764",
+          "processed_at": "2026-10-01T02:01:28.060258+00:00",
+          "provider_age_seconds": 2.000124355,
+          "provider_timestamp": "2026-10-01T02:01:28.028820Z",
+          "provider_timestamp_ns": 1790820088028820645,
+          "raw_reference": {
+            "batch_id": "06a184ce745382e940143abf1a983d3c1c75697a23d6cab173a66895b356ddb9",
+            "decoded_at_ns": 1790820088059521000,
+            "persisted_at": "2026-10-01T02:01:33.344628+00:00",
+            "provider_timestamp": "2026-10-01T02:01:28.028820645Z",
+            "provider_timestamp_ns": 1790820088028820645,
+            "received_at_ns": 1790820088059352000
+          },
+          "receive_age_seconds": 1.969593,
+          "received_at": "2026-10-01T02:01:28.059352Z",
+          "received_at_ns": 1790820088059352000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T02:01:28.061534Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T02:01:28.059352+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "7836072b-4307-57a0-b4cd-b66d8193d951",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "83524.4",
+          "ask_size": "0.00099774",
+          "batch_id": "06a184ce745382e940143abf1a983d3c1c75697a23d6cab173a66895b356ddb9",
+          "bid": "83505.676",
+          "bid_size": "0.0010043",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790820088059521000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:67764",
+          "persisted_at": "2026-10-01T02:01:33.344628+00:00",
+          "provider_age_seconds": 2.000124355,
+          "provider_timestamp": "2026-10-01T02:01:28.028820645Z",
+          "provider_timestamp_ns": 1790820088028820645,
+          "receive_age_seconds": 1.969593,
+          "receive_sequence": 67764,
+          "received_at": "2026-10-01T02:01:28.059352+00:00",
+          "received_at_ns": 1790820088059352000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83524.4",
+          "ask_size": "0.00099774",
+          "bid": "83505.676",
+          "bid_size": "0.0010043",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:67764",
+          "processed_at": "2026-10-01T02:01:28.060258+00:00",
+          "provider_age_seconds": 2.000124355,
+          "provider_timestamp": "2026-10-01T02:01:28.028820Z",
+          "provider_timestamp_ns": 1790820088028820645,
+          "raw_reference": {
+            "batch_id": "06a184ce745382e940143abf1a983d3c1c75697a23d6cab173a66895b356ddb9",
+            "decoded_at_ns": 1790820088059521000,
+            "persisted_at": "2026-10-01T02:01:33.344628+00:00",
+            "provider_timestamp": "2026-10-01T02:01:28.028820645Z",
+            "provider_timestamp_ns": 1790820088028820645,
+            "received_at_ns": 1790820088059352000
+          },
+          "receive_age_seconds": 1.969593,
+          "received_at": "2026-10-01T02:01:28.059352Z",
+          "received_at_ns": 1790820088059352000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T02:01:28.061534Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T02:01:28.059352+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "BTC/USD:decision:PROCESSING_AVAILABILITY_NOT_RECORDED": [
+      {
+        "classification": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+        "fresh_raw_native_candidate": {
+          "ask": "84191",
+          "ask_size": "0.00100731",
+          "batch_id": "656f6c1e2518e22f8487bd335bdd7ad0c6e5fe18e388fa3d99f12e095f1e61a2",
+          "bid": "84171.22",
+          "bid_size": "0.00201682",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790869750089634000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:369947",
+          "persisted_at": "2026-10-01T15:49:18.004620+00:00",
+          "provider_age_seconds": 0.028979279,
+          "provider_timestamp": "2026-10-01T15:49:10.060764721Z",
+          "provider_timestamp_ns": 1790869750060764721,
+          "receive_age_seconds": 0.000329,
+          "receive_sequence": 369947,
+          "received_at": "2026-10-01T15:49:10.089415+00:00",
+          "received_at_ns": 1790869750089415000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "84191",
+          "ask_size": "0.00100731",
+          "batch_id": "656f6c1e2518e22f8487bd335bdd7ad0c6e5fe18e388fa3d99f12e095f1e61a2",
+          "bid": "84171.22",
+          "bid_size": "0.00201682",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790869750089634000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:369947",
+          "persisted_at": "2026-10-01T15:49:18.004620+00:00",
+          "provider_age_seconds": 0.028979279,
+          "provider_timestamp": "2026-10-01T15:49:10.060764721Z",
+          "provider_timestamp_ns": 1790869750060764721,
+          "receive_age_seconds": 0.000329,
+          "receive_sequence": 369947,
+          "received_at": "2026-10-01T15:49:10.089415+00:00",
+          "received_at_ns": 1790869750089415000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "84191",
+          "ask_size": "0.00100731",
+          "bid": "84174.316",
+          "bid_size": "0.00099525",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:369943",
+          "processed_at": "2026-10-01T15:49:08.010020+00:00",
+          "provider_age_seconds": 2.11180729,
+          "provider_timestamp": "2026-10-01T15:49:07.977936Z",
+          "provider_timestamp_ns": 1790869747977936710,
+          "raw_reference": {
+            "batch_id": "656f6c1e2518e22f8487bd335bdd7ad0c6e5fe18e388fa3d99f12e095f1e61a2",
+            "decoded_at_ns": 1790869748009823000,
+            "persisted_at": "2026-10-01T15:49:18.004620+00:00",
+            "provider_timestamp": "2026-10-01T15:49:07.97793671Z",
+            "provider_timestamp_ns": 1790869747977936710,
+            "received_at_ns": 1790869748009744000
+          },
+          "receive_age_seconds": 2.08,
+          "received_at": "2026-10-01T15:49:08.009744Z",
+          "received_at_ns": 1790869748009744000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T15:49:10.089415Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T15:49:10.089415+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+        "fresh_raw_native_candidate": {
+          "ask": "84191",
+          "ask_size": "0.00100731",
+          "batch_id": "656f6c1e2518e22f8487bd335bdd7ad0c6e5fe18e388fa3d99f12e095f1e61a2",
+          "bid": "84171.22",
+          "bid_size": "0.00201682",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790869750089634000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:369947",
+          "persisted_at": "2026-10-01T15:49:18.004620+00:00",
+          "provider_age_seconds": 0.028979279,
+          "provider_timestamp": "2026-10-01T15:49:10.060764721Z",
+          "provider_timestamp_ns": 1790869750060764721,
+          "receive_age_seconds": 0.000329,
+          "receive_sequence": 369947,
+          "received_at": "2026-10-01T15:49:10.089415+00:00",
+          "received_at_ns": 1790869750089415000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "84191",
+          "ask_size": "0.00100731",
+          "batch_id": "656f6c1e2518e22f8487bd335bdd7ad0c6e5fe18e388fa3d99f12e095f1e61a2",
+          "bid": "84171.22",
+          "bid_size": "0.00201682",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790869750089634000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:369947",
+          "persisted_at": "2026-10-01T15:49:18.004620+00:00",
+          "provider_age_seconds": 0.028979279,
+          "provider_timestamp": "2026-10-01T15:49:10.060764721Z",
+          "provider_timestamp_ns": 1790869750060764721,
+          "receive_age_seconds": 0.000329,
+          "receive_sequence": 369947,
+          "received_at": "2026-10-01T15:49:10.089415+00:00",
+          "received_at_ns": 1790869750089415000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "84191",
+          "ask_size": "0.00100731",
+          "bid": "84174.316",
+          "bid_size": "0.00099525",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:369943",
+          "processed_at": "2026-10-01T15:49:08.010020+00:00",
+          "provider_age_seconds": 2.11180729,
+          "provider_timestamp": "2026-10-01T15:49:07.977936Z",
+          "provider_timestamp_ns": 1790869747977936710,
+          "raw_reference": {
+            "batch_id": "656f6c1e2518e22f8487bd335bdd7ad0c6e5fe18e388fa3d99f12e095f1e61a2",
+            "decoded_at_ns": 1790869748009823000,
+            "persisted_at": "2026-10-01T15:49:18.004620+00:00",
+            "provider_timestamp": "2026-10-01T15:49:07.97793671Z",
+            "provider_timestamp_ns": 1790869747977936710,
+            "received_at_ns": 1790869748009744000
+          },
+          "receive_age_seconds": 2.08,
+          "received_at": "2026-10-01T15:49:08.009744Z",
+          "received_at_ns": 1790869748009744000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T15:49:10.089415Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T15:49:10.089415+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "BTC/USD:decision:STORED_QUOTE_SATISFIES_FRESHNESS": [
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "6d50e473-2bce-5643-bfbd-116a23e46428",
+        "fresh_raw_native_candidate": {
+          "ask": "83588.2",
+          "ask_size": "0.00099165",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83567.2",
+          "bid_size": "0.0010076",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812808293872000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48536",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 1.775709075,
+          "provider_timestamp": "2026-10-01T00:00:08.262760925Z",
+          "provider_timestamp_ns": 1790812808262760925,
+          "receive_age_seconds": 1.744689,
+          "receive_sequence": 48536,
+          "received_at": "2026-10-01T00:00:08.293781+00:00",
+          "received_at_ns": 1790812808293781000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "83588.2",
+          "ask_size": "0.00099165",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83567.2",
+          "bid_size": "0.0010076",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812808293872000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48536",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 1.775709075,
+          "provider_timestamp": "2026-10-01T00:00:08.262760925Z",
+          "provider_timestamp_ns": 1790812808262760925,
+          "receive_age_seconds": 1.744689,
+          "receive_sequence": 48536,
+          "received_at": "2026-10-01T00:00:08.293781+00:00",
+          "received_at_ns": 1790812808293781000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83588.2",
+          "ask_size": "0.00099165",
+          "bid": "83567.2",
+          "bid_size": "0.0010076",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48536",
+          "processed_at": "2026-10-01T00:00:08.294053+00:00",
+          "provider_age_seconds": 1.775709075,
+          "provider_timestamp": "2026-10-01T00:00:08.262760Z",
+          "provider_timestamp_ns": 1790812808262760925,
+          "raw_reference": {
+            "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+            "decoded_at_ns": 1790812808293872000,
+            "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+            "provider_timestamp": "2026-10-01T00:00:08.262760925Z",
+            "provider_timestamp_ns": 1790812808262760925,
+            "received_at_ns": 1790812808293781000
+          },
+          "receive_age_seconds": 1.744689,
+          "received_at": "2026-10-01T00:00:08.293781Z",
+          "received_at_ns": 1790812808293781000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:08.300348Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:08.293781+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "6d50e473-2bce-5643-bfbd-116a23e46428",
+        "fresh_raw_native_candidate": {
+          "ask": "83588.2",
+          "ask_size": "0.00099165",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83567.2",
+          "bid_size": "0.0010076",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812808293872000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48536",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 1.775709075,
+          "provider_timestamp": "2026-10-01T00:00:08.262760925Z",
+          "provider_timestamp_ns": 1790812808262760925,
+          "receive_age_seconds": 1.744689,
+          "receive_sequence": 48536,
+          "received_at": "2026-10-01T00:00:08.293781+00:00",
+          "received_at_ns": 1790812808293781000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 60,
+        "last_raw_native_quote": {
+          "ask": "83588.2",
+          "ask_size": "0.00099165",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83567.2",
+          "bid_size": "0.0010076",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812808293872000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48536",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 1.775709075,
+          "provider_timestamp": "2026-10-01T00:00:08.262760925Z",
+          "provider_timestamp_ns": 1790812808262760925,
+          "receive_age_seconds": 1.744689,
+          "receive_sequence": 48536,
+          "received_at": "2026-10-01T00:00:08.293781+00:00",
+          "received_at_ns": 1790812808293781000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83588.2",
+          "ask_size": "0.00099165",
+          "bid": "83567.2",
+          "bid_size": "0.0010076",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48536",
+          "processed_at": "2026-10-01T00:00:08.294053+00:00",
+          "provider_age_seconds": 1.775709075,
+          "provider_timestamp": "2026-10-01T00:00:08.262760Z",
+          "provider_timestamp_ns": 1790812808262760925,
+          "raw_reference": {
+            "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+            "decoded_at_ns": 1790812808293872000,
+            "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+            "provider_timestamp": "2026-10-01T00:00:08.262760925Z",
+            "provider_timestamp_ns": 1790812808262760925,
+            "received_at_ns": 1790812808293781000
+          },
+          "receive_age_seconds": 1.744689,
+          "received_at": "2026-10-01T00:00:08.293781Z",
+          "received_at_ns": 1790812808293781000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:08.300348Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:08.293781+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "BTC/USD:future:D_UPSTREAM_INACTIVITY_STALE_QUOTE": [
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "09267e43-9641-55dc-89dc-bd77851b983a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 300,
+        "last_raw_native_quote": {
+          "ask": "83484.162",
+          "ask_size": "0.00099709",
+          "batch_id": "1197775329285249fc8cc28358490e6fba02c48aa544368250181c271ce23a48",
+          "bid": "83461",
+          "bid_size": "0.0009969",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790813090111281000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49299",
+          "persisted_at": "2026-10-01T00:04:53.891858+00:00",
+          "provider_age_seconds": 10.052026826,
+          "provider_timestamp": "2026-10-01T00:04:50.078829174Z",
+          "provider_timestamp_ns": 1790813090078829174,
+          "receive_age_seconds": 10.019687,
+          "receive_sequence": 49299,
+          "received_at": "2026-10-01T00:04:50.111169+00:00",
+          "received_at_ns": 1790813090111169000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83484.162",
+          "ask_size": "0.00099709",
+          "bid": "83461",
+          "bid_size": "0.0009969",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49299",
+          "processed_at": "2026-10-01T00:04:50.112415+00:00",
+          "provider_age_seconds": 10.052026826,
+          "provider_timestamp": "2026-10-01T00:04:50.078829Z",
+          "provider_timestamp_ns": 1790813090078829174,
+          "raw_reference": {
+            "batch_id": "1197775329285249fc8cc28358490e6fba02c48aa544368250181c271ce23a48",
+            "decoded_at_ns": 1790813090111281000,
+            "persisted_at": "2026-10-01T00:04:53.891858+00:00",
+            "provider_timestamp": "2026-10-01T00:04:50.078829174Z",
+            "provider_timestamp_ns": 1790813090078829174,
+            "received_at_ns": 1790813090111169000
+          },
+          "receive_age_seconds": 10.019687,
+          "received_at": "2026-10-01T00:04:50.111169Z",
+          "received_at_ns": 1790813090111169000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:04:50.163455Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:04:50.111169+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "6d50e473-2bce-5643-bfbd-116a23e46428",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "83597.93",
+          "ask_size": "0.0010002",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83574.806",
+          "bid_size": "0.0010003",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812811573756000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48573",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 3.496261336,
+          "provider_timestamp": "2026-10-01T00:00:11.542208664Z",
+          "provider_timestamp_ns": 1790812811542208664,
+          "receive_age_seconds": 3.464825,
+          "receive_sequence": 48573,
+          "received_at": "2026-10-01T00:00:11.573645+00:00",
+          "received_at_ns": 1790812811573645000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83597.93",
+          "ask_size": "0.0010002",
+          "bid": "83574.806",
+          "bid_size": "0.0010003",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48573",
+          "processed_at": "2026-10-01T00:00:11.574500+00:00",
+          "provider_age_seconds": 3.496261336,
+          "provider_timestamp": "2026-10-01T00:00:11.542208Z",
+          "provider_timestamp_ns": 1790812811542208664,
+          "raw_reference": {
+            "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+            "decoded_at_ns": 1790812811573756000,
+            "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+            "provider_timestamp": "2026-10-01T00:00:11.542208664Z",
+            "provider_timestamp_ns": 1790812811542208664,
+            "received_at_ns": 1790812811573645000
+          },
+          "receive_age_seconds": 3.464825,
+          "received_at": "2026-10-01T00:00:11.573645Z",
+          "received_at_ns": 1790812811573645000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:11.624480Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:11.573645+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "BTC/USD:future:D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": [
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "fb4f4761-0367-54ac-8e6e-381c299b50ff",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 900,
+        "last_raw_native_quote": {
+          "ask": "83417.9",
+          "ask_size": "0.0010099",
+          "batch_id": "c0c83c3d6ebb301938cf40977319073f616c4f19f21f7b1c9f4b825ba581fa70",
+          "bid": "83401.9",
+          "bid_size": "0.0009903",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790813868097386000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:51401",
+          "persisted_at": "2026-10-01T00:17:51.587563+00:00",
+          "provider_age_seconds": 2.013228974,
+          "provider_timestamp": "2026-10-01T00:17:48.066386026Z",
+          "provider_timestamp_ns": 1790813868066386026,
+          "receive_age_seconds": 1.982292,
+          "receive_sequence": 51401,
+          "received_at": "2026-10-01T00:17:48.097323+00:00",
+          "received_at_ns": 1790813868097323000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83417.9",
+          "ask_size": "0.0010099",
+          "bid": "83401.9",
+          "bid_size": "0.0009903",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:51401",
+          "processed_at": "2026-10-01T00:17:48.098106+00:00",
+          "provider_age_seconds": 2.013228974,
+          "provider_timestamp": "2026-10-01T00:17:48.066386Z",
+          "provider_timestamp_ns": 1790813868066386026,
+          "raw_reference": {
+            "batch_id": "c0c83c3d6ebb301938cf40977319073f616c4f19f21f7b1c9f4b825ba581fa70",
+            "decoded_at_ns": 1790813868097386000,
+            "persisted_at": "2026-10-01T00:17:51.587563+00:00",
+            "provider_timestamp": "2026-10-01T00:17:48.066386026Z",
+            "provider_timestamp_ns": 1790813868066386026,
+            "received_at_ns": 1790813868097323000
+          },
+          "receive_age_seconds": 1.982292,
+          "received_at": "2026-10-01T00:17:48.097323Z",
+          "received_at_ns": 1790813868097323000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:17:48.098870Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:17:48.097323+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "a07a3613-a452-5f48-984b-6a9dbb55e65a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 60,
+        "last_raw_native_quote": {
+          "ask": "83491.593",
+          "ask_size": "0.00099605",
+          "batch_id": "8329be10098d18024f688b82bc8f73638fb9409eb59d38cca27848927373830c",
+          "bid": "83468.9",
+          "bid_size": "0.000634822",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790813148077586000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49330",
+          "persisted_at": "2026-10-01T00:05:48.263064+00:00",
+          "provider_age_seconds": 2.029059445,
+          "provider_timestamp": "2026-10-01T00:05:48.046877555Z",
+          "provider_timestamp_ns": 1790813148046877555,
+          "receive_age_seconds": 1.998438,
+          "receive_sequence": 49330,
+          "received_at": "2026-10-01T00:05:48.077499+00:00",
+          "received_at_ns": 1790813148077499000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83491.593",
+          "ask_size": "0.00099605",
+          "bid": "83468.9",
+          "bid_size": "0.000634822",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49330",
+          "processed_at": "2026-10-01T00:05:48.078160+00:00",
+          "provider_age_seconds": 2.029059445,
+          "provider_timestamp": "2026-10-01T00:05:48.046877Z",
+          "provider_timestamp_ns": 1790813148046877555,
+          "raw_reference": {
+            "batch_id": "8329be10098d18024f688b82bc8f73638fb9409eb59d38cca27848927373830c",
+            "decoded_at_ns": 1790813148077586000,
+            "persisted_at": "2026-10-01T00:05:48.263064+00:00",
+            "provider_timestamp": "2026-10-01T00:05:48.046877555Z",
+            "provider_timestamp_ns": 1790813148046877555,
+            "received_at_ns": 1790813148077499000
+          },
+          "receive_age_seconds": 1.998438,
+          "received_at": "2026-10-01T00:05:48.077499Z",
+          "received_at_ns": 1790813148077499000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:05:48.077499Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:05:48.077499+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "BTC/USD:future:STORED_QUOTE_SATISFIES_FRESHNESS": [
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "09267e43-9641-55dc-89dc-bd77851b983a",
+        "fresh_raw_native_candidate": {
+          "ask": "83608.7",
+          "ask_size": "0.001005",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83584.289",
+          "bid_size": "0.00099163",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812803499669000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48403",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 1.664630253,
+          "provider_timestamp": "2026-10-01T00:00:03.466225747Z",
+          "provider_timestamp_ns": 1790812803466225747,
+          "receive_age_seconds": 1.631336,
+          "receive_sequence": 48403,
+          "received_at": "2026-10-01T00:00:03.499520+00:00",
+          "received_at_ns": 1790812803499520000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "83608.7",
+          "ask_size": "0.001005",
+          "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+          "bid": "83584.289",
+          "bid_size": "0.00099163",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812803499669000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48403",
+          "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+          "provider_age_seconds": 1.664630253,
+          "provider_timestamp": "2026-10-01T00:00:03.466225747Z",
+          "provider_timestamp_ns": 1790812803466225747,
+          "receive_age_seconds": 1.631336,
+          "receive_sequence": 48403,
+          "received_at": "2026-10-01T00:00:03.499520+00:00",
+          "received_at_ns": 1790812803499520000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83608.7",
+          "ask_size": "0.001005",
+          "bid": "83584.289",
+          "bid_size": "0.00099163",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48403",
+          "processed_at": "2026-10-01T00:00:03.499949+00:00",
+          "provider_age_seconds": 1.664630253,
+          "provider_timestamp": "2026-10-01T00:00:03.466225Z",
+          "provider_timestamp_ns": 1790812803466225747,
+          "raw_reference": {
+            "batch_id": "6586412198f6ae718ebf61b36d25f6bc6c1679cff3f0c02d85cb1df712426a6f",
+            "decoded_at_ns": 1790812803499669000,
+            "persisted_at": "2026-10-01T00:00:12.330559+00:00",
+            "provider_timestamp": "2026-10-01T00:00:03.466225747Z",
+            "provider_timestamp_ns": 1790812803466225747,
+            "received_at_ns": 1790812803499520000
+          },
+          "receive_age_seconds": 1.631336,
+          "received_at": "2026-10-01T00:00:03.499520Z",
+          "received_at_ns": 1790812803499520000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:03.550829Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:03.499520+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "09267e43-9641-55dc-89dc-bd77851b983a",
+        "fresh_raw_native_candidate": {
+          "ask": "83575.592",
+          "ask_size": "0.00099616",
+          "batch_id": "2f1bea7ae82e30326c8b228153b24a2e6cdc0ac14d02511193260dc8267ed90d",
+          "bid": "83553.44",
+          "bid_size": "0.00099114",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812829263930000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48692",
+          "persisted_at": "2026-10-01T00:00:32.643339+00:00",
+          "provider_age_seconds": 0.897175085,
+          "provider_timestamp": "2026-10-01T00:00:29.233680915Z",
+          "provider_timestamp_ns": 1790812829233680915,
+          "receive_age_seconds": 0.867002,
+          "receive_sequence": 48692,
+          "received_at": "2026-10-01T00:00:29.263854+00:00",
+          "received_at_ns": 1790812829263854000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "83575.592",
+          "ask_size": "0.00099616",
+          "batch_id": "2f1bea7ae82e30326c8b228153b24a2e6cdc0ac14d02511193260dc8267ed90d",
+          "bid": "83553.44",
+          "bid_size": "0.00099114",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812829263930000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48692",
+          "persisted_at": "2026-10-01T00:00:32.643339+00:00",
+          "provider_age_seconds": 0.897175085,
+          "provider_timestamp": "2026-10-01T00:00:29.233680915Z",
+          "provider_timestamp_ns": 1790812829233680915,
+          "receive_age_seconds": 0.867002,
+          "receive_sequence": 48692,
+          "received_at": "2026-10-01T00:00:29.263854+00:00",
+          "received_at_ns": 1790812829263854000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "83575.592",
+          "ask_size": "0.00099616",
+          "bid": "83553.44",
+          "bid_size": "0.00099114",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48692",
+          "processed_at": "2026-10-01T00:00:29.264474+00:00",
+          "provider_age_seconds": 0.897175085,
+          "provider_timestamp": "2026-10-01T00:00:29.233680Z",
+          "provider_timestamp_ns": 1790812829233680915,
+          "raw_reference": {
+            "batch_id": "2f1bea7ae82e30326c8b228153b24a2e6cdc0ac14d02511193260dc8267ed90d",
+            "decoded_at_ns": 1790812829263930000,
+            "persisted_at": "2026-10-01T00:00:32.643339+00:00",
+            "provider_timestamp": "2026-10-01T00:00:29.233680915Z",
+            "provider_timestamp_ns": 1790812829233680915,
+            "received_at_ns": 1790812829263854000
+          },
+          "receive_age_seconds": 0.867002,
+          "received_at": "2026-10-01T00:00:29.263854Z",
+          "received_at_ns": 1790812829263854000,
+          "source_kind": "native_quote"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:29.265746Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:29.263854+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:decision:D_UPSTREAM_INACTIVITY_STALE_QUOTE": [
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "74e651f0-8767-5ca5-94ff-87540eadfe62",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812761956914000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48218",
+          "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+          "provider_age_seconds": 38.207408276,
+          "provider_timestamp": "2026-09-30T23:59:21.923447724Z",
+          "provider_timestamp_ns": 1790812761923447724,
+          "receive_age_seconds": 38.174004,
+          "receive_sequence": 48218,
+          "received_at": "2026-09-30T23:59:21.956852+00:00",
+          "received_at_ns": 1790812761956852000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48227",
+          "processed_at": "2026-09-30T23:59:21.961290+00:00",
+          "provider_age_seconds": 38.206104256,
+          "provider_timestamp": "2026-09-30T23:59:21.924751Z",
+          "provider_timestamp_ns": 1790812761924751744,
+          "raw_reference": {
+            "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+            "decoded_at_ns": 1790812761961215000,
+            "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+            "provider_timestamp": "2026-09-30T23:59:21.924751744Z",
+            "provider_timestamp_ns": 1790812761924751744,
+            "received_at_ns": 1790812761961132000
+          },
+          "receive_age_seconds": 38.169724,
+          "received_at": "2026-09-30T23:59:21.961132Z",
+          "received_at_ns": 1790812761961132000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-09-30T23:59:47.119741Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-09-30T23:59:21.956852+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "74e651f0-8767-5ca5-94ff-87540eadfe62",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812761956914000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48218",
+          "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+          "provider_age_seconds": 38.207408276,
+          "provider_timestamp": "2026-09-30T23:59:21.923447724Z",
+          "provider_timestamp_ns": 1790812761923447724,
+          "receive_age_seconds": 38.174004,
+          "receive_sequence": 48218,
+          "received_at": "2026-09-30T23:59:21.956852+00:00",
+          "received_at_ns": 1790812761956852000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48227",
+          "processed_at": "2026-09-30T23:59:21.961290+00:00",
+          "provider_age_seconds": 38.206104256,
+          "provider_timestamp": "2026-09-30T23:59:21.924751Z",
+          "provider_timestamp_ns": 1790812761924751744,
+          "raw_reference": {
+            "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+            "decoded_at_ns": 1790812761961215000,
+            "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+            "provider_timestamp": "2026-09-30T23:59:21.924751744Z",
+            "provider_timestamp_ns": 1790812761924751744,
+            "received_at_ns": 1790812761961132000
+          },
+          "receive_age_seconds": 38.169724,
+          "received_at": "2026-09-30T23:59:21.961132Z",
+          "received_at_ns": 1790812761961132000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-09-30T23:59:47.119741Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-09-30T23:59:21.956852+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:decision:D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": [
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "31add263-3096-54c4-b388-401a8669623a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "2683.48",
+          "ask_size": "0.033321",
+          "batch_id": "16c91fd80e2808e04ad5b22afbdf9b68939c1989a3a5a03dc9fb59c3f70ea485",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812848182017000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48773",
+          "persisted_at": "2026-10-01T00:00:52.976404+00:00",
+          "provider_age_seconds": 2.022054574,
+          "provider_timestamp": "2026-10-01T00:00:48.150617426Z",
+          "provider_timestamp_ns": 1790812848150617426,
+          "receive_age_seconds": 1.990915,
+          "receive_sequence": 48773,
+          "received_at": "2026-10-01T00:00:48.181757+00:00",
+          "received_at_ns": 1790812848181757000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.48",
+          "ask_size": "0.033321",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48788",
+          "processed_at": "2026-10-01T00:00:48.238692+00:00",
+          "provider_age_seconds": 2.021051185,
+          "provider_timestamp": "2026-10-01T00:00:48.151620Z",
+          "provider_timestamp_ns": 1790812848151620815,
+          "raw_reference": {
+            "batch_id": "16c91fd80e2808e04ad5b22afbdf9b68939c1989a3a5a03dc9fb59c3f70ea485",
+            "decoded_at_ns": 1790812848235217000,
+            "persisted_at": "2026-10-01T00:00:52.976404+00:00",
+            "provider_timestamp": "2026-10-01T00:00:48.151620815Z",
+            "provider_timestamp_ns": 1790812848151620815,
+            "received_at_ns": 1790812848235134000
+          },
+          "receive_age_seconds": 1.937538,
+          "received_at": "2026-10-01T00:00:48.235134Z",
+          "received_at_ns": 1790812848235134000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:49.293278Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:48.181757+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "31add263-3096-54c4-b388-401a8669623a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "2683.48",
+          "ask_size": "0.033321",
+          "batch_id": "16c91fd80e2808e04ad5b22afbdf9b68939c1989a3a5a03dc9fb59c3f70ea485",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812848182017000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48773",
+          "persisted_at": "2026-10-01T00:00:52.976404+00:00",
+          "provider_age_seconds": 2.022054574,
+          "provider_timestamp": "2026-10-01T00:00:48.150617426Z",
+          "provider_timestamp_ns": 1790812848150617426,
+          "receive_age_seconds": 1.990915,
+          "receive_sequence": 48773,
+          "received_at": "2026-10-01T00:00:48.181757+00:00",
+          "received_at_ns": 1790812848181757000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.48",
+          "ask_size": "0.033321",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48788",
+          "processed_at": "2026-10-01T00:00:48.238692+00:00",
+          "provider_age_seconds": 2.021051185,
+          "provider_timestamp": "2026-10-01T00:00:48.151620Z",
+          "provider_timestamp_ns": 1790812848151620815,
+          "raw_reference": {
+            "batch_id": "16c91fd80e2808e04ad5b22afbdf9b68939c1989a3a5a03dc9fb59c3f70ea485",
+            "decoded_at_ns": 1790812848235217000,
+            "persisted_at": "2026-10-01T00:00:52.976404+00:00",
+            "provider_timestamp": "2026-10-01T00:00:48.151620815Z",
+            "provider_timestamp_ns": 1790812848151620815,
+            "received_at_ns": 1790812848235134000
+          },
+          "receive_age_seconds": 1.937538,
+          "received_at": "2026-10-01T00:00:48.235134Z",
+          "received_at_ns": 1790812848235134000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:49.293278Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:00:48.181757+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:decision:PROCESSING_AVAILABILITY_NOT_RECORDED": [
+      {
+        "classification": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+        "fresh_raw_native_candidate": {
+          "ask": "2684.174",
+          "ask_size": "0.033393",
+          "batch_id": "7bfdd42fce4f079551e9ffa5d6d4130b5d44709a18d40399840be15158beb949",
+          "bid": "2682.223",
+          "bid_size": "14.92",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790848920133123000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:189178",
+          "persisted_at": "2026-10-01T10:02:02.692967+00:00",
+          "provider_age_seconds": 0.029993587,
+          "provider_timestamp": "2026-10-01T10:02:00.103438413Z",
+          "provider_timestamp_ns": 1790848920103438413,
+          "receive_age_seconds": 0.000493,
+          "receive_sequence": 189178,
+          "received_at": "2026-10-01T10:02:00.132939+00:00",
+          "received_at_ns": 1790848920132939000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "2684.174",
+          "ask_size": "0.033393",
+          "batch_id": "7bfdd42fce4f079551e9ffa5d6d4130b5d44709a18d40399840be15158beb949",
+          "bid": "2682.223",
+          "bid_size": "14.92",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790848920133123000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:189178",
+          "persisted_at": "2026-10-01T10:02:02.692967+00:00",
+          "provider_age_seconds": 0.029993587,
+          "provider_timestamp": "2026-10-01T10:02:00.103438413Z",
+          "provider_timestamp_ns": 1790848920103438413,
+          "receive_age_seconds": 0.000493,
+          "receive_sequence": 189178,
+          "received_at": "2026-10-01T10:02:00.132939+00:00",
+          "received_at_ns": 1790848920132939000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2684.174",
+          "ask_size": "0.033393",
+          "bid": "2683.504",
+          "bid_size": "0.0334042",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:189099",
+          "processed_at": "2026-10-01T10:01:53.540509+00:00",
+          "provider_age_seconds": 6.63761774,
+          "provider_timestamp": "2026-10-01T10:01:53.495814Z",
+          "provider_timestamp_ns": 1790848913495814260,
+          "raw_reference": {
+            "batch_id": "7bfdd42fce4f079551e9ffa5d6d4130b5d44709a18d40399840be15158beb949",
+            "decoded_at_ns": 1790848913540406000,
+            "persisted_at": "2026-10-01T10:02:02.692967+00:00",
+            "provider_timestamp": "2026-10-01T10:01:53.49581426Z",
+            "provider_timestamp_ns": 1790848913495814260,
+            "received_at_ns": 1790848913540326000
+          },
+          "receive_age_seconds": 6.593106,
+          "received_at": "2026-10-01T10:01:53.540326Z",
+          "received_at_ns": 1790848913540326000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T10:02:00.133183Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T10:02:00.132939+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+        "fresh_raw_native_candidate": {
+          "ask": "2684.174",
+          "ask_size": "0.033393",
+          "batch_id": "7bfdd42fce4f079551e9ffa5d6d4130b5d44709a18d40399840be15158beb949",
+          "bid": "2682.223",
+          "bid_size": "14.92",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790848920133123000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:189178",
+          "persisted_at": "2026-10-01T10:02:02.692967+00:00",
+          "provider_age_seconds": 0.029993587,
+          "provider_timestamp": "2026-10-01T10:02:00.103438413Z",
+          "provider_timestamp_ns": 1790848920103438413,
+          "receive_age_seconds": 0.000493,
+          "receive_sequence": 189178,
+          "received_at": "2026-10-01T10:02:00.132939+00:00",
+          "received_at_ns": 1790848920132939000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "2684.174",
+          "ask_size": "0.033393",
+          "batch_id": "7bfdd42fce4f079551e9ffa5d6d4130b5d44709a18d40399840be15158beb949",
+          "bid": "2682.223",
+          "bid_size": "14.92",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790848920133123000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:189178",
+          "persisted_at": "2026-10-01T10:02:02.692967+00:00",
+          "provider_age_seconds": 0.029993587,
+          "provider_timestamp": "2026-10-01T10:02:00.103438413Z",
+          "provider_timestamp_ns": 1790848920103438413,
+          "receive_age_seconds": 0.000493,
+          "receive_sequence": 189178,
+          "received_at": "2026-10-01T10:02:00.132939+00:00",
+          "received_at_ns": 1790848920132939000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2684.174",
+          "ask_size": "0.033393",
+          "bid": "2683.504",
+          "bid_size": "0.0334042",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:189099",
+          "processed_at": "2026-10-01T10:01:53.540509+00:00",
+          "provider_age_seconds": 6.63761774,
+          "provider_timestamp": "2026-10-01T10:01:53.495814Z",
+          "provider_timestamp_ns": 1790848913495814260,
+          "raw_reference": {
+            "batch_id": "7bfdd42fce4f079551e9ffa5d6d4130b5d44709a18d40399840be15158beb949",
+            "decoded_at_ns": 1790848913540406000,
+            "persisted_at": "2026-10-01T10:02:02.692967+00:00",
+            "provider_timestamp": "2026-10-01T10:01:53.49581426Z",
+            "provider_timestamp_ns": 1790848913495814260,
+            "received_at_ns": 1790848913540326000
+          },
+          "receive_age_seconds": 6.593106,
+          "received_at": "2026-10-01T10:01:53.540326Z",
+          "received_at_ns": 1790848913540326000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T10:02:00.133183Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T10:02:00.132939+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:decision:STORED_QUOTE_SATISFIES_FRESHNESS": [
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "fe49fd64-a961-5818-882f-c6182a4e15f8",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "batch_id": "2f4b477d9de120e9ee765866acf61548883db384eb2e79a79784a5d1a127dfcb",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812861428393000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48909",
+          "persisted_at": "2026-10-01T00:01:03.144420+00:00",
+          "provider_age_seconds": 18.792128258,
+          "provider_timestamp": "2026-10-01T00:01:01.397465742Z",
+          "provider_timestamp_ns": 1790812861397465742,
+          "receive_age_seconds": 18.761303,
+          "receive_sequence": 48909,
+          "received_at": "2026-10-01T00:01:01.428291+00:00",
+          "received_at_ns": 1790812861428291000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49013",
+          "processed_at": "2026-10-01T00:01:18.699525+00:00",
+          "provider_age_seconds": 1.519328082,
+          "provider_timestamp": "2026-10-01T00:01:18.670265Z",
+          "provider_timestamp_ns": 1790812878670265918,
+          "raw_reference": {
+            "batch_id": "35a64e5ff342e7d3a50c25ed44bd05667ebe1911c7710aded7423f3c18152488",
+            "decoded_at_ns": 1790812878699373000,
+            "persisted_at": "2026-10-01T00:01:23.494896+00:00",
+            "provider_timestamp": "2026-10-01T00:01:18.670265918Z",
+            "provider_timestamp_ns": 1790812878670265918,
+            "received_at_ns": 1790812878699155000
+          },
+          "receive_age_seconds": 1.490439,
+          "received_at": "2026-10-01T00:01:18.699155Z",
+          "received_at_ns": 1790812878699155000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:01:18.699155Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:01:01.428291+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "fe49fd64-a961-5818-882f-c6182a4e15f8",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "batch_id": "2f4b477d9de120e9ee765866acf61548883db384eb2e79a79784a5d1a127dfcb",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812861428393000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48909",
+          "persisted_at": "2026-10-01T00:01:03.144420+00:00",
+          "provider_age_seconds": 18.792128258,
+          "provider_timestamp": "2026-10-01T00:01:01.397465742Z",
+          "provider_timestamp_ns": 1790812861397465742,
+          "receive_age_seconds": 18.761303,
+          "receive_sequence": 48909,
+          "received_at": "2026-10-01T00:01:01.428291+00:00",
+          "received_at_ns": 1790812861428291000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49013",
+          "processed_at": "2026-10-01T00:01:18.699525+00:00",
+          "provider_age_seconds": 1.519328082,
+          "provider_timestamp": "2026-10-01T00:01:18.670265Z",
+          "provider_timestamp_ns": 1790812878670265918,
+          "raw_reference": {
+            "batch_id": "35a64e5ff342e7d3a50c25ed44bd05667ebe1911c7710aded7423f3c18152488",
+            "decoded_at_ns": 1790812878699373000,
+            "persisted_at": "2026-10-01T00:01:23.494896+00:00",
+            "provider_timestamp": "2026-10-01T00:01:18.670265918Z",
+            "provider_timestamp_ns": 1790812878670265918,
+            "received_at_ns": 1790812878699155000
+          },
+          "receive_age_seconds": 1.490439,
+          "received_at": "2026-10-01T00:01:18.699155Z",
+          "received_at_ns": 1790812878699155000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:01:18.699155Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:01:01.428291+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:future:D_UPSTREAM_INACTIVITY_STALE_QUOTE": [
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "74e651f0-8767-5ca5-94ff-87540eadfe62",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812761956914000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48218",
+          "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+          "provider_age_seconds": 43.207408276,
+          "provider_timestamp": "2026-09-30T23:59:21.923447724Z",
+          "provider_timestamp_ns": 1790812761923447724,
+          "receive_age_seconds": 43.174004,
+          "receive_sequence": 48218,
+          "received_at": "2026-09-30T23:59:21.956852+00:00",
+          "received_at_ns": 1790812761956852000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48227",
+          "processed_at": "2026-09-30T23:59:21.961290+00:00",
+          "provider_age_seconds": 43.206104256,
+          "provider_timestamp": "2026-09-30T23:59:21.924751Z",
+          "provider_timestamp_ns": 1790812761924751744,
+          "raw_reference": {
+            "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+            "decoded_at_ns": 1790812761961215000,
+            "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+            "provider_timestamp": "2026-09-30T23:59:21.924751744Z",
+            "provider_timestamp_ns": 1790812761924751744,
+            "received_at_ns": 1790812761961132000
+          },
+          "receive_age_seconds": 43.169724,
+          "received_at": "2026-09-30T23:59:21.961132Z",
+          "received_at_ns": 1790812761961132000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:03.550829Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-09-30T23:59:21.956852+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_INACTIVITY_STALE_QUOTE",
+        "evaluation_id": "74e651f0-8767-5ca5-94ff-87540eadfe62",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812761956914000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48218",
+          "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+          "provider_age_seconds": 68.207408276,
+          "provider_timestamp": "2026-09-30T23:59:21.923447724Z",
+          "provider_timestamp_ns": 1790812761923447724,
+          "receive_age_seconds": 68.174004,
+          "receive_sequence": 48218,
+          "received_at": "2026-09-30T23:59:21.956852+00:00",
+          "received_at_ns": 1790812761956852000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2685.097",
+          "ask_size": "0.03327",
+          "bid": "2683.957",
+          "bid_size": "0.0333704",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48227",
+          "processed_at": "2026-09-30T23:59:21.961290+00:00",
+          "provider_age_seconds": 68.206104256,
+          "provider_timestamp": "2026-09-30T23:59:21.924751Z",
+          "provider_timestamp_ns": 1790812761924751744,
+          "raw_reference": {
+            "batch_id": "aebbb7953d6b7e8e5fb1a7659a5d87eb6e85d46a77135810862ca686a2e07b43",
+            "decoded_at_ns": 1790812761961215000,
+            "persisted_at": "2026-09-30T23:59:31.710270+00:00",
+            "provider_timestamp": "2026-09-30T23:59:21.924751744Z",
+            "provider_timestamp_ns": 1790812761924751744,
+            "received_at_ns": 1790812761961132000
+          },
+          "receive_age_seconds": 68.169724,
+          "received_at": "2026-09-30T23:59:21.961132Z",
+          "received_at_ns": 1790812761961132000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:00:29.265746Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-09-30T23:59:21.956852+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:future:D_UPSTREAM_PROVIDER_TIMESTAMP_STALE": [
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "ead3d814-e248-5a04-a2b8-e9320b6cea76",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 5,
+        "last_raw_native_quote": {
+          "ask": "2683.64",
+          "ask_size": "0.0332477",
+          "batch_id": "5bc03b6c828d0d36ea7b1f36bcd2e6ef5404e57033ce3f38b3c2a9e1975fc8a6",
+          "bid": "2683.04",
+          "bid_size": "0.03313",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790816123229065000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:57071",
+          "persisted_at": "2026-10-01T00:55:28.352158+00:00",
+          "provider_age_seconds": 2.067849085,
+          "provider_timestamp": "2026-10-01T00:55:23.145269915Z",
+          "provider_timestamp_ns": 1790816123145269915,
+          "receive_age_seconds": 1.984146,
+          "receive_sequence": 57071,
+          "received_at": "2026-10-01T00:55:23.228973+00:00",
+          "received_at_ns": 1790816123228973000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.64",
+          "ask_size": "0.0332477",
+          "bid": "2683.04",
+          "bid_size": "0.03313",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:57080",
+          "processed_at": "2026-10-01T00:55:23.231823+00:00",
+          "provider_age_seconds": 2.067243025,
+          "provider_timestamp": "2026-10-01T00:55:23.145875Z",
+          "provider_timestamp_ns": 1790816123145875975,
+          "raw_reference": {
+            "batch_id": "5bc03b6c828d0d36ea7b1f36bcd2e6ef5404e57033ce3f38b3c2a9e1975fc8a6",
+            "decoded_at_ns": 1790816123229909000,
+            "persisted_at": "2026-10-01T00:55:28.352158+00:00",
+            "provider_timestamp": "2026-10-01T00:55:23.145875975Z",
+            "provider_timestamp_ns": 1790816123145875975,
+            "received_at_ns": 1790816123229858000
+          },
+          "receive_age_seconds": 1.983261,
+          "received_at": "2026-10-01T00:55:23.229858Z",
+          "received_at_ns": 1790816123229858000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:55:23.269420Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:55:23.228973+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "D_UPSTREAM_PROVIDER_TIMESTAMP_STALE",
+        "evaluation_id": "ed8cb269-7247-5efb-9361-2c8f21d213eb",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 900,
+        "last_raw_native_quote": {
+          "ask": "2690.21",
+          "ask_size": "0.033376",
+          "batch_id": "6445b4df8889fc0471206fbaef7a07a2ad1f3cd6522cb94b1351a2bb573a2328",
+          "bid": "2689.28",
+          "bid_size": "0.0335511",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790820018183514000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:67564",
+          "persisted_at": "2026-10-01T02:00:22.104869+00:00",
+          "provider_age_seconds": 2.017263735,
+          "provider_timestamp": "2026-10-01T02:00:18.100876265Z",
+          "provider_timestamp_ns": 1790820018100876265,
+          "receive_age_seconds": 1.934707,
+          "receive_sequence": 67564,
+          "received_at": "2026-10-01T02:00:18.183433+00:00",
+          "received_at_ns": 1790820018183433000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2690.21",
+          "ask_size": "0.033376",
+          "bid": "2689.28",
+          "bid_size": "0.0335511",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:67573",
+          "processed_at": "2026-10-01T02:00:18.186906+00:00",
+          "provider_age_seconds": 2.017081065,
+          "provider_timestamp": "2026-10-01T02:00:18.101058Z",
+          "provider_timestamp_ns": 1790820018101058935,
+          "raw_reference": {
+            "batch_id": "6445b4df8889fc0471206fbaef7a07a2ad1f3cd6522cb94b1351a2bb573a2328",
+            "decoded_at_ns": 1790820018184622000,
+            "persisted_at": "2026-10-01T02:00:22.104869+00:00",
+            "provider_timestamp": "2026-10-01T02:00:18.101058935Z",
+            "provider_timestamp_ns": 1790820018101058935,
+            "received_at_ns": 1790820018184564000
+          },
+          "receive_age_seconds": 1.933576,
+          "received_at": "2026-10-01T02:00:18.184564Z",
+          "received_at_ns": 1790820018184564000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T02:00:18.184564Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T02:00:18.183433+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ],
+    "ETH/USD:future:STORED_QUOTE_SATISFIES_FRESHNESS": [
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "14e47cbe-24d0-51d0-a98f-8e3e4e02b5e7",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 60,
+        "last_raw_native_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "batch_id": "2f4b477d9de120e9ee765866acf61548883db384eb2e79a79784a5d1a127dfcb",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812861428393000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48909",
+          "persisted_at": "2026-10-01T00:01:03.144420+00:00",
+          "provider_age_seconds": 18.792580258,
+          "provider_timestamp": "2026-10-01T00:01:01.397465742Z",
+          "provider_timestamp_ns": 1790812861397465742,
+          "receive_age_seconds": 18.761755,
+          "receive_sequence": 48909,
+          "received_at": "2026-10-01T00:01:01.428291+00:00",
+          "received_at_ns": 1790812861428291000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49013",
+          "processed_at": "2026-10-01T00:01:18.699525+00:00",
+          "provider_age_seconds": 1.519780082,
+          "provider_timestamp": "2026-10-01T00:01:18.670265Z",
+          "provider_timestamp_ns": 1790812878670265918,
+          "raw_reference": {
+            "batch_id": "35a64e5ff342e7d3a50c25ed44bd05667ebe1911c7710aded7423f3c18152488",
+            "decoded_at_ns": 1790812878699373000,
+            "persisted_at": "2026-10-01T00:01:23.494896+00:00",
+            "provider_timestamp": "2026-10-01T00:01:18.670265918Z",
+            "provider_timestamp_ns": 1790812878670265918,
+            "received_at_ns": 1790812878699155000
+          },
+          "receive_age_seconds": 1.490891,
+          "received_at": "2026-10-01T00:01:18.699155Z",
+          "received_at_ns": 1790812878699155000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:01:18.699155Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:01:01.428291+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      },
+      {
+        "classification": "STORED_QUOTE_SATISFIES_FRESHNESS",
+        "evaluation_id": "31add263-3096-54c4-b388-401a8669623a",
+        "fresh_raw_native_candidate": null,
+        "freshness_seconds_unchanged": 2,
+        "horizon_seconds": 30,
+        "last_raw_native_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "batch_id": "2f4b477d9de120e9ee765866acf61548883db384eb2e79a79784a5d1a127dfcb",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "decoded_at_ns": 1790812861428393000,
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:48909",
+          "persisted_at": "2026-10-01T00:01:03.144420+00:00",
+          "provider_age_seconds": 18.775206258,
+          "provider_timestamp": "2026-10-01T00:01:01.397465742Z",
+          "provider_timestamp_ns": 1790812861397465742,
+          "receive_age_seconds": 18.744381,
+          "receive_sequence": 48909,
+          "received_at": "2026-10-01T00:01:01.428291+00:00",
+          "received_at_ns": 1790812861428291000,
+          "source_kind": "native_quote",
+          "valid_prices_and_sizes": true
+        },
+        "stored_quote": {
+          "ask": "2683.196",
+          "ask_size": "0.03308",
+          "bid": "2683.18",
+          "bid_size": "0.007453842",
+          "epoch": "283708c0-e485-481c-8333-b1e61acf20f2:2",
+          "event_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122:49013",
+          "processed_at": "2026-10-01T00:01:18.699525+00:00",
+          "provider_age_seconds": 1.502406082,
+          "provider_timestamp": "2026-10-01T00:01:18.670265Z",
+          "provider_timestamp_ns": 1790812878670265918,
+          "raw_reference": {
+            "batch_id": "35a64e5ff342e7d3a50c25ed44bd05667ebe1911c7710aded7423f3c18152488",
+            "decoded_at_ns": 1790812878699373000,
+            "persisted_at": "2026-10-01T00:01:23.494896+00:00",
+            "provider_timestamp": "2026-10-01T00:01:18.670265918Z",
+            "provider_timestamp_ns": 1790812878670265918,
+            "received_at_ns": 1790812878699155000
+          },
+          "receive_age_seconds": 1.473517,
+          "received_at": "2026-10-01T00:01:18.699155Z",
+          "received_at_ns": 1790812878699155000,
+          "source_kind": "reconstructed_l2"
+        },
+        "websocket": {
+          "connected_at_target": null,
+          "connected_unknown_reason": "per-evaluation socket state was not archived",
+          "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+          "exchange_sequence_available": false,
+          "last_message_received_at": "2026-10-01T00:01:18.699155Z",
+          "last_message_scope": "retained market/reset messages only",
+          "last_quote_received_at": "2026-10-01T00:01:01.428291+00:00",
+          "observed_connection_changes_since_day_start": 0
+        }
+      }
+    ]
+  },
+  "failure_reason_counts": {
+    "BTC/USD:30": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 5503,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 5496,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 84
+    },
+    "BTC/USD:300": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 5503,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 5487,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 79
+    },
+    "BTC/USD:5": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 5503,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 5424,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 98
+    },
+    "BTC/USD:60": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 5503,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 5502,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 86
+    },
+    "BTC/USD:900": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 5503,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 5503,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 68
+    },
+    "ETH/USD:30": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 7947,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 7953,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 10
+    },
+    "ETH/USD:300": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 7947,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 7938,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 5
+    },
+    "ETH/USD:5": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 7947,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 7923,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 9
+    },
+    "ETH/USD:60": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 7947,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 7943,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 4
+    },
+    "ETH/USD:900": {
+      "DECISION_QUOTE_STALE_OR_MISSING": 7947,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 7947,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 3
+    }
+  },
+  "immutable_label_input_sha256": "4f3373637626ad660b1ee39f1faa2b09e2eff25344758fdc8231bdb953566c24",
+  "integrity": {
+    "provider_future_timestamps": 0
+  },
+  "label_counts": {
+    "BTC/USD:30": {
+      "complete": 1455,
+      "labels": 8640,
+      "missing": 7185
+    },
+    "BTC/USD:300": {
+      "complete": 1410,
+      "labels": 8640,
+      "missing": 7230
+    },
+    "BTC/USD:5": {
+      "complete": 1499,
+      "labels": 8640,
+      "missing": 7141
+    },
+    "BTC/USD:60": {
+      "complete": 1425,
+      "labels": 8640,
+      "missing": 7215
+    },
+    "BTC/USD:900": {
+      "complete": 1374,
+      "labels": 8640,
+      "missing": 7266
+    },
+    "ETH/USD:30": {
+      "complete": 90,
+      "labels": 8640,
+      "missing": 8550
+    },
+    "ETH/USD:300": {
+      "complete": 106,
+      "labels": 8640,
+      "missing": 8534
+    },
+    "ETH/USD:5": {
+      "complete": 107,
+      "labels": 8640,
+      "missing": 8533
+    },
+    "ETH/USD:60": {
+      "complete": 95,
+      "labels": 8640,
+      "missing": 8545
+    },
+    "ETH/USD:900": {
+      "complete": 80,
+      "labels": 8640,
+      "missing": 8560
+    }
+  },
+  "labels": 86400,
+  "labels_backfilled": 0,
+  "limitations": [
+    "Local continuity cannot prove complete delivery without an exchange sequence.",
+    "Historical socket state and unselected processing times were not archived.",
+    "Decoding a fresh raw quote does not prove collector availability.",
+    "Endpoint counts overlap; they are not additional missing-label denominators."
+  ],
+  "missing_labels_audited": 78759,
+  "native_quote_receipt_age_seconds": {
+    "BTC/USD": {
+      "maximum": 0.180220952,
+      "p50": 0.030186313,
+      "p95": 0.033402974,
+      "samples": 124899
+    },
+    "ETH/USD": {
+      "maximum": 0.098145291,
+      "p50": 0.030712293,
+      "p95": 0.07967241,
+      "samples": 8990
+    }
+  },
+  "native_quote_receive_gap_seconds": {
+    "BTC/USD": {
+      "maximum": 137.884461,
+      "p50": 0.001014,
+      "p95": 3.604772,
+      "samples": 124898
+    },
+    "ETH/USD": {
+      "maximum": 852.400743,
+      "p50": 0.001049,
+      "p95": 55.900254,
+      "samples": 8989
+    }
+  },
+  "observed_day_connection_changes": 0,
+  "orders_submitted": 0,
+  "promotion_allowed": false,
+  "protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+  "raw_day_counts": {
+    "BTC/USD": {
+      "book": 286538,
+      "provider_timestamp_regressions": 0,
+      "quote": 124899,
+      "trade": 1430
+    },
+    "ETH/USD": {
+      "book": 40490,
+      "provider_timestamp_regressions": 0,
+      "quote": 8990,
+      "trade": 400
+    }
+  },
+  "raw_quote_references_verified": 14315,
+  "report_date": "2026-10-01",
+  "schema": "shadow-quote-availability-audit-v1",
+  "source_snapshot": {
+    "batches": 14914,
+    "events": 938009,
+    "root": "0f61a94386ad438b344249792d8480191220782d86183c875981eb8efb213346"
+  },
+  "unexplained_or_pipeline_endpoint_findings": 10,
+  "v1_modified": false
+}

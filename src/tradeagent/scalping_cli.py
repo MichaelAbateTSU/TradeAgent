@@ -4,7 +4,7 @@ import argparse
 import asyncio
 import gzip
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -30,6 +30,7 @@ COMMANDS = {
     "shadow-dataset-run",
     "shadow-dataset-status",
     "shadow-dataset-analyze",
+    "shadow-dataset-quote-audit",
 }
 
 
@@ -151,6 +152,11 @@ def register_scalping_commands(subparsers: Any) -> None:
         "shadow-dataset-analyze", help="quality-gated frozen alpha screening; no promotion"
     )
     shadow_analysis.add_argument("--output-dir", type=Path, required=True)
+    quote_audit = subparsers.add_parser(
+        "shadow-dataset-quote-audit", help="read-only raw quote correlation; never relabels v1"
+    )
+    quote_audit.add_argument("--report-date", type=date.fromisoformat, required=True)
+    quote_audit.add_argument("--output-dir", type=Path, required=True)
     actual_calibrate = subparsers.add_parser(
         "scalp-actual-calibrate",
         help="calibrate and persist a validated artifact from completed experimental scalps",
@@ -275,6 +281,13 @@ def handle_scalping_command(args: argparse.Namespace) -> bool:
                     output_dir=args.output_dir,
                     policy=policy,
                 )
+    elif args.command == "shadow-dataset-quote-audit":
+        from tradeagent.shadow_quote_audit import audit_quotes
+
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            result = audit_quotes(
+                database, report_date=args.report_date, output_dir=args.output_dir
+            )
     elif args.command == "scalp-probe-report":
         from tradeagent.scalping_probes import (
             ExecutionValidationProbePolicy,

@@ -1,0 +1,152 @@
+{
+  "label_failure_attribution": {
+    "BTC/USD:5": {
+      "missing_labels": 7141,
+      "upstream_missingness_sufficient_to_fail": 7042,
+      "displayed_size_sufficient_to_fail": 98,
+      "processing_boundary_only": 1
+    },
+    "BTC/USD:30": {
+      "missing_labels": 7185,
+      "upstream_missingness_sufficient_to_fail": 7100,
+      "displayed_size_sufficient_to_fail": 84,
+      "processing_boundary_only": 1
+    },
+    "BTC/USD:60": {
+      "missing_labels": 7215,
+      "upstream_missingness_sufficient_to_fail": 7129,
+      "displayed_size_sufficient_to_fail": 86
+    },
+    "BTC/USD:300": {
+      "missing_labels": 7230,
+      "upstream_missingness_sufficient_to_fail": 7150,
+      "displayed_size_sufficient_to_fail": 79,
+      "processing_boundary_only": 1
+    },
+    "BTC/USD:900": {
+      "missing_labels": 7266,
+      "upstream_missingness_sufficient_to_fail": 7198,
+      "displayed_size_sufficient_to_fail": 68
+    },
+    "ETH/USD:5": {
+      "missing_labels": 8533,
+      "upstream_missingness_sufficient_to_fail": 8523,
+      "processing_boundary_only": 1,
+      "displayed_size_sufficient_to_fail": 9
+    },
+    "ETH/USD:30": {
+      "missing_labels": 8550,
+      "upstream_missingness_sufficient_to_fail": 8540,
+      "displayed_size_sufficient_to_fail": 10
+    },
+    "ETH/USD:60": {
+      "missing_labels": 8545,
+      "upstream_missingness_sufficient_to_fail": 8541,
+      "displayed_size_sufficient_to_fail": 4
+    },
+    "ETH/USD:300": {
+      "missing_labels": 8534,
+      "upstream_missingness_sufficient_to_fail": 8529,
+      "displayed_size_sufficient_to_fail": 5
+    },
+    "ETH/USD:900": {
+      "missing_labels": 8560,
+      "upstream_missingness_sufficient_to_fail": 8557,
+      "displayed_size_sufficient_to_fail": 3
+    }
+  },
+  "boundary_label_cases": [
+    {
+      "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+      "symbol": "ETH/USD",
+      "horizon_seconds": 5,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "STORED_QUOTE_SATISFIES_FRESHNESS"
+      }
+    },
+    {
+      "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+      "symbol": "ETH/USD",
+      "horizon_seconds": 30,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+      }
+    },
+    {
+      "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+      "symbol": "ETH/USD",
+      "horizon_seconds": 60,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+      }
+    },
+    {
+      "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+      "symbol": "ETH/USD",
+      "horizon_seconds": 300,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+      }
+    },
+    {
+      "evaluation_id": "90fea298-d48d-5e2b-a4bd-71090cb768f0",
+      "symbol": "ETH/USD",
+      "horizon_seconds": 900,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+      }
+    },
+    {
+      "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+      "symbol": "BTC/USD",
+      "horizon_seconds": 5,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "STORED_QUOTE_SATISFIES_FRESHNESS"
+      }
+    },
+    {
+      "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+      "symbol": "BTC/USD",
+      "horizon_seconds": 30,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "STORED_QUOTE_SATISFIES_FRESHNESS"
+      }
+    },
+    {
+      "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+      "symbol": "BTC/USD",
+      "horizon_seconds": 60,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+      }
+    },
+    {
+      "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+      "symbol": "BTC/USD",
+      "horizon_seconds": 300,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "STORED_QUOTE_SATISFIES_FRESHNESS"
+      }
+    },
+    {
+      "evaluation_id": "98bdc5ca-5521-5876-93b6-657754617118",
+      "symbol": "BTC/USD",
+      "horizon_seconds": 900,
+      "endpoint_classes": {
+        "decision": "PROCESSING_AVAILABILITY_NOT_RECORDED",
+        "future": "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+      }
+    }
+  ],
+  "read_only_artifact_adjudication": true,
+  "original_audit_unchanged": true
+}
