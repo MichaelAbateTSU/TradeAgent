@@ -1,0 +1,4 @@
+# Preserve byte-hashed study artifacts across platforms.
+*.json -text
+*.txt -text
+*.gz -text
