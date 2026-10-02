@@ -1,4 +1,4 @@
 # Preserve byte-hashed study artifacts across platforms.
-*.json -text
-*.txt -text
+*.json -text whitespace=cr-at-eol
+*.txt -text whitespace=cr-at-eol
 *.gz -text

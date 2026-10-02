@@ -1,0 +1,335 @@
+{
+  "artifacts": [
+    {
+      "bytes": 671,
+      "path": "eu-1-connection-health.json",
+      "sha256": "6791e9790c9cf34e160ea00bf5993293cc558f423a2ed30261f114fbfff690a2"
+    },
+    {
+      "bytes": 415,
+      "path": "eu-1-frames.jsonl.gz",
+      "sha256": "20d0bd119b407719d6dd1bd72387469b5d9c92b3fa467c76c3013ed8b99cf9f3"
+    },
+    {
+      "bytes": 18546,
+      "path": "eu-1-primary-labels.jsonl.gz",
+      "sha256": "a944135f3d6044f74042dc82827427a8b186d075005e2b83807c901895d6989a"
+    },
+    {
+      "bytes": 43,
+      "path": "eu-1-quotes.jsonl.gz",
+      "sha256": "7ccf4eab4fbf96b57da7bf1350a082550ea7419464f075c311e5fc428cb8b299"
+    },
+    {
+      "bytes": 3183,
+      "path": "frozen-study.json",
+      "sha256": "2825f076e4af6270808c91903ade138b14905c5d922870553af64ef5356dd900"
+    },
+    {
+      "bytes": 671,
+      "path": "us-1-connection-health.json",
+      "sha256": "e29c786efc78ee6399a8070c00255552d06dfa93ce0c85d6a90dab7a8d0aad3d"
+    },
+    {
+      "bytes": 419,
+      "path": "us-1-frames.jsonl.gz",
+      "sha256": "042c9fd6ba1c71d5f83539884a8012c50480cfc3b9ce4177baa1f2c897aa47b9"
+    },
+    {
+      "bytes": 18542,
+      "path": "us-1-primary-labels.jsonl.gz",
+      "sha256": "2fdba43efe042e8aea9103a261999d95d224c15aaac919190791823c0c9cc3d7"
+    },
+    {
+      "bytes": 43,
+      "path": "us-1-quotes.jsonl.gz",
+      "sha256": "795ec7003d8918dd9b5954a05a651aadfad831cc26e2e7f30d227d4a30cef442"
+    },
+    {
+      "bytes": 53012,
+      "path": "us-primary-labels.jsonl.gz",
+      "sha256": "22015e3f0703fc73c0b7c5350c783a19cc6705981af8705bfea80720b7c52b48"
+    },
+    {
+      "bytes": 1336264,
+      "path": "us-v1-raw-events.jsonl.gz",
+      "sha256": "b92a4d087c99d2ec40cc772cefaad4227d293e352ebd62745302cc22565cb82b"
+    },
+    {
+      "bytes": 395953,
+      "path": "v1-runtime-health.json",
+      "sha256": "0867ad88888b193a4e2a711b2aa2afae67e7eaaff9cd78870b545485ecd5367b"
+    }
+  ],
+  "broker_after": {
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "account_status": "ACTIVE",
+      "broker_order_page_saturated": false,
+      "broker_order_records_since_freeze": 0,
+      "open_orders": 0,
+      "order_submission_calls": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "read_methods": [
+        "GET"
+      ],
+      "verified_at": "2026-10-02T16:31:28.109758+00:00"
+    },
+    "worker": {
+      "entry_policy": "shadow-research-dataset-v1",
+      "feed_state": "streaming",
+      "feed_subscribed": true,
+      "heartbeat_at": "2026-10-02T16:31:25.348096+00:00",
+      "local_order_attempts_since_freeze": 0,
+      "reported_model_state": "no_support",
+      "reported_order_attempts": 0,
+      "reported_trading_authorization": "expired",
+      "trading_authorization_renewed": false
+    }
+  },
+  "broker_before": {
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "account_status": "ACTIVE",
+      "broker_order_page_saturated": false,
+      "broker_order_records_since_freeze": 0,
+      "open_orders": 0,
+      "order_submission_calls": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "read_methods": [
+        "GET"
+      ],
+      "verified_at": "2026-10-02T15:57:50.129702+00:00"
+    },
+    "worker": {
+      "entry_policy": "shadow-research-dataset-v1",
+      "feed_state": "streaming",
+      "feed_subscribed": true,
+      "heartbeat_at": "2026-10-02T15:57:48.023719+00:00",
+      "local_order_attempts_since_freeze": 0,
+      "reported_model_state": "no_support",
+      "reported_order_attempts": 0,
+      "reported_trading_authorization": "expired",
+      "trading_authorization_renewed": false
+    }
+  },
+  "candidates": {
+    "eu-1": {
+      "capture_counts": {
+        "frames": 2,
+        "provider_error_406": 1
+      },
+      "capture_failure": "provider_error_406",
+      "complete_evaluation_grid": true,
+      "coverage": [
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 180,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 180,
+          "coverage": 0.0,
+          "failure_taxonomy_counts": {
+            "CONNECTIVITY_OR_ENTITLEMENT_FAILURE": 360
+          },
+          "matured_evaluations": 180,
+          "missing": 180,
+          "not_yet_mature": 0,
+          "symbol": "BTC/USD"
+        },
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 180,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 180,
+          "coverage": 0.0,
+          "failure_taxonomy_counts": {
+            "CONNECTIVITY_OR_ENTITLEMENT_FAILURE": 360
+          },
+          "matured_evaluations": 180,
+          "missing": 180,
+          "not_yet_mature": 0,
+          "symbol": "ETH/USD"
+        }
+      ],
+      "eligible_for_v2": false,
+      "expected_evaluations_per_symbol": 180,
+      "price_integrity_counts": {},
+      "quality_gate_passed": false,
+      "raw_manifest_root": "4bbd34d772354bc47bdaeb89de0a3a7e7d6a73e1046644c22ba9e31f0242a29b",
+      "transport_integrity_counts": {},
+      "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+      "venue_match_verified": false
+    },
+    "us": {
+      "capture_counts": null,
+      "capture_failure": null,
+      "complete_evaluation_grid": true,
+      "coverage": [
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 61,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 64,
+          "complete": 77,
+          "coverage": 0.42777777777777776,
+          "failure_taxonomy_counts": {
+            "D_STALE_PROVIDER_TIMESTAMP": 2,
+            "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 123
+          },
+          "matured_evaluations": 180,
+          "missing": 103,
+          "not_yet_mature": 0,
+          "symbol": "BTC/USD"
+        },
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 161,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 161,
+          "complete": 2,
+          "coverage": 0.011111111111111112,
+          "failure_taxonomy_counts": {
+            "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 322
+          },
+          "matured_evaluations": 180,
+          "missing": 178,
+          "not_yet_mature": 0,
+          "symbol": "ETH/USD"
+        }
+      ],
+      "eligible_for_v2": false,
+      "expected_evaluations_per_symbol": 180,
+      "price_integrity_counts": null,
+      "quality_gate_passed": false,
+      "raw_manifest_root": "a139cb0f7c7ab00b91e9655d7fe8fd86876d71ab74572fed643ea1ff926646af",
+      "transport_integrity_counts": null,
+      "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+      "venue_match_verified": false
+    },
+    "us-1": {
+      "capture_counts": {
+        "frames": 2,
+        "provider_error_406": 1
+      },
+      "capture_failure": "provider_error_406",
+      "complete_evaluation_grid": true,
+      "coverage": [
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 180,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 180,
+          "coverage": 0.0,
+          "failure_taxonomy_counts": {
+            "CONNECTIVITY_OR_ENTITLEMENT_FAILURE": 360
+          },
+          "matured_evaluations": 180,
+          "missing": 180,
+          "not_yet_mature": 0,
+          "symbol": "BTC/USD"
+        },
+        {
+          "DECISION_QUOTE_STALE_OR_MISSING": 180,
+          "HORIZON_QUOTE_STALE_OR_MISSING": 180,
+          "coverage": 0.0,
+          "failure_taxonomy_counts": {
+            "CONNECTIVITY_OR_ENTITLEMENT_FAILURE": 360
+          },
+          "matured_evaluations": 180,
+          "missing": 180,
+          "not_yet_mature": 0,
+          "symbol": "ETH/USD"
+        }
+      ],
+      "eligible_for_v2": false,
+      "expected_evaluations_per_symbol": 180,
+      "price_integrity_counts": {},
+      "quality_gate_passed": false,
+      "raw_manifest_root": "736c9e5a989d9e132948a549df2aad5917aad91a2b20502a0e26fb404d6306eb",
+      "transport_integrity_counts": {},
+      "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+      "venue_match_verified": false
+    }
+  },
+  "completed_at": "2026-10-02T16:31:28.184099+00:00",
+  "database_writes": 0,
+  "decision": "NO_GO",
+  "execution_venue": "Alpaca paper simulator; no live exchange routing",
+  "feasibility_interruption": null,
+  "orders_submitted": 0,
+  "paper_crypto_quote_reference_location": null,
+  "proposed_v2_configuration": null,
+  "schema": "pre-v2-source-feasibility-readiness-v1",
+  "selected_source": null,
+  "study_protocol": {
+    "alternate_collection": "one read-only websocket per separately documented endpoint, max3 attempts, no feed-specific threshold tuning",
+    "application_code_changes_allowed_before_pass": false,
+    "assumed_notional_usd": "10.25",
+    "book_maximum_levels": 2000,
+    "capture_end": "2026-10-02T16:31:05+00:00",
+    "causality": "entry consumer-availability <= evaluation; future receipt <= horizon and consumer-availability <= original resolution",
+    "common_anchor_clock": "actual unmodified v1 evaluation and 60s resolution timestamps within the fixed study dates",
+    "diagnostic_processing_clock": "processing entry and actual consumer-acceptance completion retained; availability uses completion",
+    "entry_size_side": "ask",
+    "evaluation_end": "2026-10-02T16:30:00+00:00",
+    "evaluation_seconds": 10,
+    "evaluation_start": "2026-10-02T16:00:00+00:00",
+    "excluded_locations": {
+      "bs-1": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven",
+      "us-2": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven"
+    },
+    "exit_size_side": "bid",
+    "expected_evaluations_per_symbol": 180,
+    "freshness_seconds": 2,
+    "frozen_at": "2026-10-02T15:56:37.142071+00:00",
+    "initial_v1_manifest": {
+      "as_of": "2026-10-02T15:56:29.975681+00:00",
+      "batches": 15549,
+      "root": "49b91a1ea3b310cc3d5ab5b1a473d7e480215949786804099fddadbd2fed168c"
+    },
+    "legacy_us_clock": "original v1 stored processed_at preserved; exact socket state per evaluation was not archived",
+    "minimum_mature_coverage": 0.95,
+    "model_state": "no_support",
+    "orders_enabled": false,
+    "price_observations": "native L1 and valid reconstructed L2; no trades/midpoints as substitute",
+    "primary_horizon_seconds": 60,
+    "promotion_enabled": false,
+    "protected_commit": "dc00e4e1568ad49514e154d443ef0ef54d1f0579",
+    "protocol_hash": "87cd386563d51b04972b767afea917fcb660f78c23fa80338d001f05b39a96cd",
+    "quote_cache_capacity_per_symbol": 60000,
+    "quote_history_seconds": 960,
+    "role": "bounded feasibility only; not a v2 window",
+    "routing_evidence_sha256": "f93dd7b0ed18a5ba9b7bb7e47a5009bf77b775fcea108b176d453196c991d0d4",
+    "schema": "pre-v2-quote-source-feasibility-v1",
+    "settlement_seconds": 2,
+    "source_locations": [
+      "us",
+      "us-1",
+      "eu-1"
+    ],
+    "study_id": "pre-v2-source-feasibility-20261002T160000Z",
+    "study_runner_sha256": "a1121225c40a368b75aa9d9d259b299bc9d1ebdca0803fe890dbd713f36b8dfc",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "trading_authorization": "expired",
+    "transport_book_freshness_seconds": 5,
+    "us_collection": "read existing v1 stream, evaluations, labels and raw manifest; no additional us connection",
+    "v1_protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+    "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+    "v2_window_started": false,
+    "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+    "venue_match_verified": {
+      "eu-1": false,
+      "us": false,
+      "us-1": false
+    }
+  },
+  "unverified": [
+    "Paper crypto simulator quote-reference location is not disclosed in inspected evidence.",
+    "Live account-specific crypto execution route and regional eligibility are not proven.",
+    "Market data access is not proof of account execution-venue equivalence."
+  ],
+  "v1_manifest_snapshot": {
+    "batches": 15752,
+    "immutable_input_sha256": "5c7766ec06b517cc8a01a09330edfa5acb9994a103dffe7056033aa8df621008",
+    "protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+    "root": "a139cb0f7c7ab00b91e9655d7fe8fd86876d71ab74572fed643ea1ff926646af"
+  },
+  "v1_modified": false,
+  "v2_freeze_prerequisites_satisfied": false,
+  "v2_started": false
+}

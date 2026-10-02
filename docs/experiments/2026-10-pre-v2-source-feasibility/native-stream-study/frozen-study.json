@@ -1,0 +1,65 @@
+{
+  "alternate_collection": "one read-only websocket per separately documented endpoint, max3 attempts, no feed-specific threshold tuning",
+  "application_code_changes_allowed_before_pass": false,
+  "assumed_notional_usd": "10.25",
+  "book_maximum_levels": 2000,
+  "capture_end": "2026-10-02T16:31:05+00:00",
+  "causality": "entry consumer-availability <= evaluation; future receipt <= horizon and consumer-availability <= original resolution",
+  "common_anchor_clock": "actual unmodified v1 evaluation and 60s resolution timestamps within the fixed study dates",
+  "diagnostic_processing_clock": "processing entry and actual consumer-acceptance completion retained; availability uses completion",
+  "entry_size_side": "ask",
+  "evaluation_end": "2026-10-02T16:30:00+00:00",
+  "evaluation_seconds": 10,
+  "evaluation_start": "2026-10-02T16:00:00+00:00",
+  "excluded_locations": {
+    "bs-1": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven",
+    "us-2": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven"
+  },
+  "exit_size_side": "bid",
+  "expected_evaluations_per_symbol": 180,
+  "freshness_seconds": 2,
+  "frozen_at": "2026-10-02T15:56:37.142071+00:00",
+  "initial_v1_manifest": {
+    "as_of": "2026-10-02T15:56:29.975681+00:00",
+    "batches": 15549,
+    "root": "49b91a1ea3b310cc3d5ab5b1a473d7e480215949786804099fddadbd2fed168c"
+  },
+  "legacy_us_clock": "original v1 stored processed_at preserved; exact socket state per evaluation was not archived",
+  "minimum_mature_coverage": 0.95,
+  "model_state": "no_support",
+  "orders_enabled": false,
+  "price_observations": "native L1 and valid reconstructed L2; no trades/midpoints as substitute",
+  "primary_horizon_seconds": 60,
+  "promotion_enabled": false,
+  "protected_commit": "dc00e4e1568ad49514e154d443ef0ef54d1f0579",
+  "protocol_hash": "87cd386563d51b04972b767afea917fcb660f78c23fa80338d001f05b39a96cd",
+  "quote_cache_capacity_per_symbol": 60000,
+  "quote_history_seconds": 960,
+  "role": "bounded feasibility only; not a v2 window",
+  "routing_evidence_sha256": "f93dd7b0ed18a5ba9b7bb7e47a5009bf77b775fcea108b176d453196c991d0d4",
+  "schema": "pre-v2-quote-source-feasibility-v1",
+  "settlement_seconds": 2,
+  "source_locations": [
+    "us",
+    "us-1",
+    "eu-1"
+  ],
+  "study_id": "pre-v2-source-feasibility-20261002T160000Z",
+  "study_runner_sha256": "a1121225c40a368b75aa9d9d259b299bc9d1ebdca0803fe890dbd713f36b8dfc",
+  "symbols": [
+    "BTC/USD",
+    "ETH/USD"
+  ],
+  "trading_authorization": "expired",
+  "transport_book_freshness_seconds": 5,
+  "us_collection": "read existing v1 stream, evaluations, labels and raw manifest; no additional us connection",
+  "v1_protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+  "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+  "v2_window_started": false,
+  "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+  "venue_match_verified": {
+    "eu-1": false,
+    "us": false,
+    "us-1": false
+  }
+}

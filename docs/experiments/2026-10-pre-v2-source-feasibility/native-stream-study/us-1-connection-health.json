@@ -1,0 +1,27 @@
+[
+  {
+    "at_ns": 1790956670158765000,
+    "state": "connecting",
+    "connected": false,
+    "connection_id": "676a73d3-5439-48f1-adf3-82543745541d"
+  },
+  {
+    "at_ns": 1790956670479034000,
+    "state": "socket_connected",
+    "connected": true,
+    "connection_id": "676a73d3-5439-48f1-adf3-82543745541d"
+  },
+  {
+    "at_ns": 1790956670616167000,
+    "state": "connection_failure",
+    "connected": false,
+    "connection_id": "676a73d3-5439-48f1-adf3-82543745541d",
+    "error": "provider_error_406"
+  },
+  {
+    "at_ns": 1790956670616189000,
+    "state": "capture_failed",
+    "connected": false,
+    "connection_id": "676a73d3-5439-48f1-adf3-82543745541d"
+  }
+]

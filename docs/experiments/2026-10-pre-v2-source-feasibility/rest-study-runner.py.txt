@@ -1,0 +1,172 @@
+"""Predeclared safe REST fallback; identical label contract, no application changes."""
+
+import asyncio
+import importlib.util
+import json
+import sys
+import time
+from datetime import UTC, datetime
+from hashlib import sha256
+from pathlib import Path
+
+import httpx
+
+from tradeagent.alpaca_paper import AlpacaPaperSettings
+from tradeagent.scalping_market import datetime_ns
+from tradeagent.scalping_store import canonical
+
+spec = importlib.util.spec_from_file_location(
+    "feasibility_core", Path(__file__).with_name("pre_v2_feasibility_study.py")
+)
+core = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = core
+spec.loader.exec_module(core)
+
+
+class RestCapture(core.Capture):
+    def __init__(self, location, output, genesis):
+        super().__init__(location, output)
+        self.root = genesis
+        self.connected = None
+        self.http_available = False
+        self.connection = None
+        self.state("rest_polling_ready")
+
+    def state(self, name, **extra):
+        self.health.append({
+            "at_ns": datetime_ns(datetime.now(UTC)), "state": name,
+            "connected": None, "connection_kind": "stateless_https",
+            "http_available": self.http_available, "connection_id": None, **extra,
+        })
+
+    def poll(self, client, headers):
+        requested = datetime.now(UTC)
+        try:
+            response = client.get(
+                f"https://data.alpaca.markets/v1beta3/crypto/{self.location}/latest/quotes",
+                headers=headers, params={"symbols": "BTC/USD,ETH/USD"},
+            )
+        except httpx.HTTPError as error:
+            self.counts["http_request_errors"] += 1
+            self.kernel.reset()
+            self.http_available = False
+            self.state("http_error", error_type=type(error).__name__)
+            return
+        received = datetime_ns(datetime.now(UTC))
+        self.frame_index += 1
+        envelope = {
+            "location": self.location, "connection_id": None,
+            "frame_index": self.frame_index, "transport": "REST_GET",
+            "requested_at": requested.isoformat(), "received_ns": received,
+            "received_at": core.iso_ns(received),
+            "received_monotonic_ns": time.monotonic_ns(),
+            "status_code": response.status_code, "payload_text": response.text,
+            "rate_limit": {
+                key: response.headers.get(key) for key in (
+                    "x-ratelimit-limit", "x-ratelimit-remaining", "x-ratelimit-reset"
+                )
+            },
+            "journal_append_started_at": datetime.now(UTC).isoformat(),
+        }
+        self.root = sha256((self.root + canonical(envelope)).encode()).hexdigest()
+        self.raw.write(canonical({"root": self.root, **envelope}) + "\n")
+        self.counts["frames"] += 1
+        self.counts["requests"] += 1
+        self.http_available = response.status_code == 200
+        self.state("http_success" if self.http_available else "http_status_error",
+                   status_code=response.status_code)
+        if not self.http_available:
+            self.counts[f"http_{response.status_code}"] += 1
+            self.kernel.reset()
+            if response.status_code in (401, 403, 429):
+                self.failure = f"http_{response.status_code}"
+            return
+        quotes = json.loads(response.text, parse_float=core.Decimal)["quotes"]
+        for symbol in core.SYMBOLS:
+            q = quotes.get(symbol)
+            if q is None:
+                self.counts[f"missing_symbol_quote:{symbol}"] += 1
+                continue
+            processed = datetime_ns(datetime.now(UTC))
+            identity = f"{self.location}:rest:{self.frame_index}:{symbol}"
+            message = {"T": "q", "S": symbol, **q}
+            selected = self.kernel.on_message(
+                message, received, processed, identity, self.location
+            )
+            if selected is not None:
+                accepted = datetime_ns(datetime.now(UTC))
+                self.quotes.write(canonical({
+                    **selected, "source_kind": "native_quote_rest",
+                    "connection_id": None, "transport": "REST_GET",
+                    "processing_started_ns": processed,
+                    "processed_ns": accepted, "processed_at": core.iso_ns(accepted),
+                    "accepted_ns": accepted, "journal_append_started_at": datetime.now(UTC).isoformat(),
+                }) + "\n")
+                self.counts["accepted_quotes"] += 1
+
+    def close(self):
+        self.finished = True
+        self.state("planned_close")
+        self.raw.close()
+        self.quotes.close()
+
+
+async def rest_collect(plan, output, protocol):
+    settings = AlpacaPaperSettings.model_validate({})
+    headers = {
+        "APCA-API-KEY-ID": settings.key_id.get_secret_value(),
+        "APCA-API-SECRET-KEY": settings.secret_key.get_secret_value(),
+    }
+    captures = [RestCapture(loc, output, plan["protocol_hash"]) for loc in ("us-1", "eu-1")]
+    original_end = datetime.fromisoformat(plan["capture_end"].replace("Z", "+00:00"))
+    failures = []
+    stop = asyncio.Event()
+    polling_clients = [httpx.Client(timeout=5, follow_redirects=False) for _ in captures]
+
+    async def polling(capture, client):
+        while not stop.is_set() and datetime.now(UTC) < original_end:
+            begin = time.monotonic()
+            try:
+                await asyncio.to_thread(capture.poll, client, headers)
+            except (ValueError, KeyError) as error:
+                capture.failure = f"capture_decode_error:{type(error).__name__}"
+                capture.state("capture_decode_error", error_type=type(error).__name__)
+                failures.append(capture.failure)
+                break
+            if capture.failure:
+                break
+            await asyncio.sleep(max(0, 1.5 - (time.monotonic() - begin)))
+
+    tasks = [asyncio.create_task(polling(c, client))
+             for c, client in zip(captures, polling_clients, strict=True)]
+    # Reuse the existing collector's read-only health loop, without opening any socket.
+    old_capture = core.Capture
+
+    class InertCapture:
+        def __init__(self, location, output):
+            self.location, self.health = location, []
+
+        async def run(self, settings, stopped, genesis):
+            await stopped.wait()
+
+    core.Capture = InertCapture
+    try:
+        _, interruption = await ORIGINAL_COLLECT(plan, output, protocol)
+    finally:
+        core.Capture = old_capture
+        stop.set()
+        await asyncio.gather(*tasks)
+        for capture, client in zip(captures, polling_clients, strict=True):
+            client.close()
+            capture.close()
+            (output / f"{capture.location}-connection-health.json").write_text(
+                json.dumps(capture.health, indent=2) + "\n"
+            )
+    return captures, interruption or ("CAPTURE_DECODE_ERROR" if failures else None)
+
+
+ORIGINAL_COLLECT = core.collect
+core.collect = rest_collect
+
+if __name__ == "__main__":
+    asyncio.run(core.run(Path(sys.argv[1]), Path(sys.argv[2])))
