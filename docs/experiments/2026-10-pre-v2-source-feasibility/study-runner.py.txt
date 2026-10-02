@@ -1,0 +1,841 @@
+"""Separate diagnostic capture; no application code, protocol or database writes."""
+
+from __future__ import annotations
+
+import asyncio
+import base64
+import gzip
+import json
+import signal
+import sys
+import tarfile
+import time
+from collections import Counter, defaultdict, deque
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from hashlib import sha256
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
+
+import httpx
+from sqlalchemy import select
+from websockets.asyncio.client import connect
+from websockets.exceptions import ConnectionClosed, InvalidHandshake
+
+from tradeagent.alpaca_paper import AlpacaPaperSettings
+from tradeagent.config import AppConfig
+from tradeagent.persistence import Database
+from tradeagent.scalping_market import datetime_ns, timestamp_ns
+from tradeagent.scalping_store import canonical, scalping_market_batches, utc
+from tradeagent.shadow_dataset import (
+    DATASET_ID, ShadowDatasetProtocol, shadow_datasets, shadow_evaluations,
+    shadow_labels, shadow_source_links,
+)
+from tradeagent.shadow_dataset_monitor import PaperReadOnlyMonitor, local_safety
+
+NS = 1_000_000_000
+SYMBOLS = ("BTC/USD", "ETH/USD")
+AGE_NS = 2 * NS
+NOTIONAL = Decimal("10.25")
+RAW_LIMIT = 32 * 1024**2
+
+
+def iso_ns(value: int) -> str:
+    return datetime.fromtimestamp(value // NS, UTC).replace(
+        microsecond=value % NS // 1000
+    ).isoformat()
+
+
+def parse_ns(value: str) -> int:
+    return datetime_ns(datetime.fromisoformat(value.replace("Z", "+00:00")))
+
+
+def number(value: Any) -> Decimal:
+    if isinstance(value, bool) or not isinstance(value, (str, int, float, Decimal)):
+        raise ValueError("invalid numeric quote field")
+    try:
+        result = Decimal(str(value))
+    except InvalidOperation as error:
+        raise ValueError("invalid decimal quote field") from error
+    if not result.is_finite():
+        raise ValueError("non-finite numeric quote field")
+    return result
+
+
+def fresh(quote: dict[str, Any] | None, at: int) -> bool:
+    return quote is not None and all(
+        0 <= at - quote[key] <= AGE_NS for key in ("provider_ns", "received_ns")
+    )
+
+
+def select_at(history: deque[dict[str, Any]], at: int, known: int, decision: bool):
+    for quote in reversed(history):
+        cutoff = quote["processed_ns"] if decision else quote["received_ns"]
+        if cutoff <= at and quote["processed_ns"] <= known:
+            return quote
+    return None
+
+
+def measure(entry, future, at: int, deadline: int) -> list[str]:
+    reasons = []
+    if not fresh(entry, at):
+        reasons.append("DECISION_QUOTE_STALE_OR_MISSING")
+    if not fresh(future, deadline):
+        reasons.append("HORIZON_QUOTE_STALE_OR_MISSING")
+    if entry and future and entry["epoch"] != future["epoch"]:
+        reasons.append("LOCAL_CONTINUITY_CHANGED")
+    if not reasons:
+        if (
+            number(entry["ask"]) * number(entry["ask_size"]) < NOTIONAL
+            or number(future["bid"]) * number(future["bid_size"]) < NOTIONAL
+        ):
+            reasons.append("INSUFFICIENT_DISPLAYED_LONG_SIZE")
+    return reasons
+
+
+class QuoteKernel:
+    """Venue-neutral equivalent of v1 native/L2 price selection, without signals."""
+
+    def __init__(self, book_age_ns=AGE_NS):
+        self.books = {}
+        self.last = {}
+        self.native_clock = {}
+        self.epoch = 0
+        self.counts = Counter()
+        self.book_age_ns = book_age_ns
+
+    def reset(self):
+        self.books.clear()
+        self.last.clear()
+        self.native_clock.clear()
+        self.epoch += 1
+
+    def invalidate_book(self, symbol):
+        old = self.books.get(symbol)
+        if old:
+            old["valid"] = False
+            old["bids"].clear()
+            old["asks"].clear()
+            old["awaiting"] = False
+
+    def on_message(self, message, received_ns, processed_ns, identity, location):
+        symbol = message["S"]
+        if symbol not in SYMBOLS:
+            raise ValueError("unsubscribed symbol")
+        provider_ns = timestamp_ns(message["t"])
+        if provider_ns > received_ns:
+            self.counts["future_provider_timestamp"] += 1
+            self.invalidate_book(symbol)
+            self.last.pop(symbol, None)
+            return None
+        kind = message["T"]
+        if kind == "t":
+            return None
+        previous = self.last.get(symbol)
+        if kind == "q":
+            if provider_ns < self.native_clock.get(symbol, 0):
+                self.counts["native_timestamp_regression"] += 1
+                return None
+            self.native_clock[symbol] = provider_ns
+            bid, ask = number(message["bp"]), number(message["ap"])
+            bs, ass = number(message["bs"]), number(message["as"])
+            if not (0 < bid < ask and bs > 0 and ass > 0):
+                self.counts["invalid_native_quote"] += 1
+                self.invalidate_book(symbol)
+                self.last.pop(symbol, None)
+                return None
+            source_kind = "native_quote"
+        elif kind == "o":
+            old = self.books.get(symbol)
+            reset = message.get("r", False)
+            if not isinstance(reset, bool):
+                raise ValueError("invalid book reset flag")
+            reason = None
+            if old and provider_ns < old["provider_ns"]:
+                reason = "out_of_order_book"
+            elif not reset and received_ns - provider_ns > self.book_age_ns:
+                reason = "stale_book_event"
+            elif not reset and (old is None or not old["valid"]):
+                reason = "snapshot_required"
+            if reason:
+                self.counts[reason] += 1
+                if old:
+                    old["valid"] = False
+                    old["bids"].clear()
+                    old["asks"].clear()
+                    old["awaiting"] = False
+                if previous and previous["source_kind"] == "native_quote":
+                    return previous
+                self.last.pop(symbol, None)
+                return None
+            bids = {} if reset else dict(old["bids"])
+            asks = {} if reset else dict(old["asks"])
+            for values, side in ((message.get("b", []), bids), (message.get("a", []), asks)):
+                prices = set()
+                for level in values:
+                    price, size = number(level["p"]), number(level["s"])
+                    if price <= 0 or size < 0 or price in prices:
+                        raise ValueError("invalid or duplicate book level")
+                    prices.add(price)
+                    if size == 0:
+                        side.pop(price, None)
+                    else:
+                        side[price] = size
+            valid = bool(
+                bids and asks and len(bids) <= 2000 and len(asks) <= 2000
+                and max(bids) < min(asks)
+            )
+            awaiting = received_ns - provider_ns > self.book_age_ns
+            self.books[symbol] = {
+                "bids": bids, "asks": asks, "valid": valid,
+                "provider_ns": provider_ns, "awaiting": awaiting,
+            }
+            if not valid or awaiting:
+                self.counts["unusable_book"] += 1
+                if not valid:
+                    self.books[symbol] = {
+                        "bids": {}, "asks": {}, "valid": False, "awaiting": False,
+                        "provider_ns": old["provider_ns"] if old else 0,
+                    }
+                if previous and previous["source_kind"] == "native_quote":
+                    return previous
+                self.last.pop(symbol, None)
+                return None
+            bid, ask = max(bids), min(asks)
+            bs, ass = bids[bid], asks[ask]
+            if reset or (old and old["awaiting"]):
+                previous = None
+            source_kind = "reconstructed_l2"
+        else:
+            raise ValueError("unsupported market event")
+        if previous and previous["provider_ns"] > provider_ns:
+            self.counts["older_than_selected_quote"] += 1
+            return None
+        quote = {
+            "event_id": identity, "symbol": symbol, "location": location,
+            "source_kind": source_kind, "provider_timestamp": message["t"],
+            "provider_ns": provider_ns, "received_ns": received_ns,
+            "processed_ns": processed_ns, "received_at": iso_ns(received_ns),
+            "processed_at": iso_ns(processed_ns), "bid": str(bid), "ask": str(ask),
+            "bid_size": str(bs), "ask_size": str(ass), "epoch": self.epoch,
+        }
+        self.last[symbol] = quote
+        return quote
+
+
+class Capture:
+    def __init__(self, location, output):
+        self.location = location
+        self.kernel = QuoteKernel()
+        self.transport_kernel = QuoteKernel(5 * NS)
+        self.counts = Counter()
+        self.health = []
+        self.connected = False
+        self.finished = False
+        self.failure = None
+        self.root = None
+        self.connection = None
+        self.sequence = 0
+        self.last_ids = {}
+        self.last_native = {}
+        self.raw_path = output / f"{location}-frames.jsonl.gz"
+        self.quotes_path = output / f"{location}-quotes.jsonl.gz"
+        self.raw = gzip.open(self.raw_path, "wt", encoding="utf-8", newline="\n")
+        self.quotes = gzip.open(self.quotes_path, "wt", encoding="utf-8", newline="\n")
+        self.frame_index = 0
+
+    def state(self, name, **extra):
+        row = {
+            "at_ns": datetime_ns(datetime.now(UTC)), "state": name,
+            "connected": self.connected, "connection_id": self.connection, **extra,
+        }
+        self.health.append(row)
+
+    async def receive(self, websocket, timeout=None):
+        payload = await asyncio.wait_for(websocket.recv(), timeout)
+        received = datetime_ns(datetime.now(UTC))
+        monotonic = time.monotonic_ns()
+        if isinstance(payload, bytes):
+            payload = payload.decode("utf-8")
+        if len(payload) > 1_048_576:
+            raise ValueError("oversized source frame")
+        values = json.loads(payload, parse_float=Decimal)
+        if not isinstance(values, list) or any(not isinstance(value, dict) for value in values):
+            raise ValueError("invalid source frame")
+        self.frame_index += 1
+        envelope = {
+            "location": self.location, "connection_id": self.connection,
+            "frame_index": self.frame_index, "received_ns": received,
+            "received_at": iso_ns(received), "received_monotonic_ns": monotonic,
+            "payload_text": payload,
+            "journal_append_started_at": datetime.now(UTC).isoformat(),
+        }
+        body = canonical(envelope)
+        self.root = sha256((self.root + body).encode()).hexdigest()
+        self.raw.write(canonical({"root": self.root, **envelope}) + "\n")
+        self.counts["frames"] += 1
+        if self.frame_index % 100 == 0:
+            self.raw.flush()
+            if self.raw_path.stat().st_size > RAW_LIMIT:
+                raise ValueError("capture_resource_budget_exceeded")
+        return values, received
+
+    def market(self, values, received):
+        for value in values:
+            if value.get("T") == "error":
+                code = value.get("code")
+                self.counts[f"provider_error_{code}"] += 1
+                raise ValueError(f"provider_error_{code}")
+            if value.get("T") not in ("q", "o", "t"):
+                raise ValueError("unexpected market message")
+            self.sequence += 1
+            processed = datetime_ns(datetime.now(UTC))
+            if processed < received:
+                raise ValueError("processing_clock_reversal")
+            identity = f"{self.location}:{self.connection}:{self.sequence}"
+            if value["T"] == "q":
+                self.last_native[value["S"]] = {
+                    "event_id": identity, "provider_timestamp": value["t"],
+                    "received_ns": received, "processed_ns": processed,
+                    "bid": str(value["bp"]), "ask": str(value["ap"]),
+                    "bid_size": str(value["bs"]), "ask_size": str(value["as"]),
+                }
+            old_transport_counts = self.transport_kernel.counts.copy()
+            self.transport_kernel.on_message(value, received, processed, identity, self.location)
+            if any(
+                self.transport_kernel.counts[key] > old_transport_counts[key]
+                for key in (
+                    "future_provider_timestamp", "invalid_native_quote",
+                    "out_of_order_book", "stale_book_event", "snapshot_required",
+                )
+            ):
+                raise ValueError("source_transport_integrity_failure")
+            if value["T"] == "o" and not self.transport_kernel.books[value["S"]]["valid"]:
+                raise ValueError("source_transport_book_invalid")
+            quote = self.kernel.on_message(value, received, processed, identity, self.location)
+            self.counts[value["T"]] += 1
+            if quote is not None and self.last_ids.get(quote["symbol"]) != quote["event_id"]:
+                self.last_ids[quote["symbol"]] = quote["event_id"]
+                accepted_ns = datetime_ns(datetime.now(UTC))
+                if value["T"] == "q" and quote["event_id"] == identity:
+                    self.last_native[value["S"]]["accepted_ns"] = accepted_ns
+                self.quotes.write(canonical({
+                    **quote, "connection_id": self.connection,
+                    "processing_started_ns": quote["processed_ns"],
+                    "processed_ns": accepted_ns, "processed_at": iso_ns(accepted_ns),
+                    "accepted_ns": accepted_ns,
+                    "last_native_observation": self.last_native.get(quote["symbol"]),
+                    "journal_append_started_at": datetime.now(UTC).isoformat(),
+                }) + "\n")
+                self.counts["accepted_quotes"] += 1
+
+    async def run(self, settings, stop, genesis):
+        self.root = genesis
+        attempts = 0
+        try:
+            while not stop.is_set() and attempts < 3:
+                attempts += 1
+                self.connection = str(uuid4())
+                self.sequence = 0
+                self.kernel.reset()
+                self.transport_kernel.reset()
+                self.state("connecting")
+                try:
+                    async with connect(
+                        f"wss://stream.data.alpaca.markets/v1beta3/crypto/{self.location}",
+                        ping_interval=20, ping_timeout=20, close_timeout=5,
+                        max_queue=16, max_size=1_048_576,
+                    ) as websocket:
+                        self.connected = True
+                        self.state("socket_connected")
+                        values, received = await self.receive(websocket, 10)
+                        if not any(
+                            v.get("T") == "success" and v.get("msg") == "connected"
+                            for v in values
+                        ):
+                            self.market(values, received)
+                            raise ValueError("connection_ack_missing")
+                        await websocket.send(json.dumps({
+                            "action": "auth", "key": settings.key_id.get_secret_value(),
+                            "secret": settings.secret_key.get_secret_value(),
+                        }))
+                        values, received = await self.receive(websocket, 10)
+                        if not any(
+                            v.get("T") == "success" and v.get("msg") == "authenticated"
+                            for v in values
+                        ):
+                            self.market(values, received)
+                            raise ValueError("authentication_ack_missing")
+                        await websocket.send(json.dumps({
+                            "action": "subscribe", "quotes": SYMBOLS,
+                            "orderbooks": SYMBOLS, "trades": SYMBOLS,
+                        }))
+                        values, received = await self.receive(websocket, 10)
+                        acknowledgments = [v for v in values if v.get("T") == "subscription"]
+                        if len(acknowledgments) != 1 or any(
+                            not set(SYMBOLS).issubset(acknowledgments[0].get(key, []))
+                            for key in ("quotes", "trades", "orderbooks")
+                        ):
+                            self.market([v for v in values if v.get("T") == "error"], received)
+                            raise ValueError("required_channels_not_subscribed")
+                        self.state("subscribed")
+                        subscription_started_ns = datetime_ns(datetime.now(UTC))
+                        self.market([v for v in values if v.get("T") != "subscription"], received)
+                        while not stop.is_set():
+                            snapshots_ready = all(
+                                self.transport_kernel.books.get(symbol, {}).get("valid", False)
+                                for symbol in SYMBOLS
+                            )
+                            timeout = None if snapshots_ready else max(
+                                0, (subscription_started_ns + 5 * NS
+                                    - datetime_ns(datetime.now(UTC))) / NS
+                            )
+                            values, received = await self.receive(websocket, timeout)
+                            self.market(values, received)
+                except (ConnectionClosed, InvalidHandshake, OSError, TimeoutError, ValueError) as error:
+                    self.connected = False
+                    self.failure = str(error) if isinstance(error, ValueError) else type(error).__name__
+                    self.state("connection_failure", error=self.failure)
+                    if any(code in self.failure for code in (
+                        "provider_error_406", "provider_error_402", "provider_error_409",
+                        "capture_resource_budget", "processing_clock_reversal",
+                    )):
+                        break
+                    if not stop.is_set():
+                        self.counts["reconnects"] += 1
+                        await asyncio.sleep(1)
+        finally:
+            self.connected = False
+            self.finished = True
+            self.state("planned_close" if stop.is_set() else "capture_failed")
+            self.raw.close()
+            self.quotes.close()
+
+
+def guard(database, protocol, transport):
+    safety = local_safety(database, protocol)
+    broker = PaperReadOnlyMonitor(AlpacaPaperSettings.model_validate({}), transport).snapshot(protocol)
+    if (
+        safety["local_order_attempts_since_freeze"]
+        or safety["reported_order_attempts"] != 0
+        or safety["trading_authorization_renewed"]
+        or safety["reported_model_state"] != "no_support"
+        or safety["reported_trading_authorization"] != "expired"
+        or broker["positions"] or broker["open_orders"]
+        or broker["broker_order_records_since_freeze"]
+    ):
+        raise ValueError("zero-order or expired-authority guard failed")
+    return {"worker": safety, "broker": broker}
+
+
+async def collect(plan, output, protocol):
+    settings = AlpacaPaperSettings.model_validate({})
+    stop = asyncio.Event()
+    captures = [Capture(location, output) for location in ("us-1", "eu-1")]
+    tasks = [asyncio.create_task(c.run(settings, stop, plan["protocol_hash"])) for c in captures]
+    health = []
+    end = datetime.fromisoformat(plan["capture_end"].replace("Z", "+00:00"))
+    initial_connection = None
+    initial_connections = None
+    failure = None
+    try:
+        with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+            with httpx.Client(timeout=10, follow_redirects=False) as transport:
+                while datetime.now(UTC) < end:
+                    response = await asyncio.to_thread(
+                        transport.get,
+                        "https://tradeagent-runtime-dashboard.onrender.com/api/scalping",
+                    )
+                    response.raise_for_status()
+                    snapshot = response.json()
+                    feed = snapshot["feed"]
+                    if initial_connection is None:
+                        initial_connection = feed["connection_id"]
+                        initial_connections = feed["connections"]
+                    health.append({
+                        "read_at": datetime.now(UTC).isoformat(),
+                        "heartbeat_at": snapshot["as_of"], "active": snapshot["active"],
+                        "code_sha": snapshot["code_sha"], "feed": feed,
+                        "orders_submitted": snapshot["orders_submitted"],
+                        "authorization": snapshot["trading_authorization"],
+                        "model_state": snapshot["model_state"],
+                    })
+                    if (
+                        not snapshot["active"] or feed["connection_id"] != initial_connection
+                        or feed["connections"] != initial_connections
+                        or snapshot["code_sha"] != plan["v1_runtime_sha"]
+                        or snapshot["orders_submitted"] != 0
+                        or snapshot["trading_authorization"] != "expired"
+                        or snapshot["model_state"] != "no_support"
+                    ):
+                        failure = "V1_HEALTH_OR_OWNERSHIP_CHANGED"
+                        break
+                    if len(health) % 6 == 0:
+                        await asyncio.to_thread(guard, database, protocol, transport)
+                    await asyncio.sleep(min(10, max(0, (end - datetime.now(UTC)).total_seconds())))
+    finally:
+        stop.set()
+        for task in tasks:
+            task.cancel()
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for capture, result in zip(captures, results, strict=True):
+            if isinstance(result, BaseException) and not isinstance(result, asyncio.CancelledError):
+                capture.failure = f"CAPTURE_TASK_ERROR:{type(result).__name__}"
+                capture.state("capture_task_error", error=capture.failure)
+    (output / "v1-runtime-health.json").write_text(json.dumps(health, indent=2) + "\n")
+    for capture in captures:
+        (output / f"{capture.location}-connection-health.json").write_text(
+            json.dumps(capture.health, indent=2) + "\n"
+        )
+    return captures, failure
+
+
+def normalized(observation):
+    if observation is None:
+        return None
+    q = observation["quote"]
+    return {
+        "event_id": observation["event_id"], "symbol": q["symbol"], "location": "us",
+        "source_kind": observation["source_kind"], "provider_timestamp": q["exchange_at"],
+        "provider_ns": int(q["exchange_time_ns"]), "received_at": q["received_at"],
+        "received_ns": parse_ns(q["received_at"]), "processed_at": observation["processed_at"],
+        "processed_ns": parse_ns(observation["processed_at"]), "epoch": observation["epoch"],
+        "bid": q["bid"], "ask": q["ask"], "bid_size": q["bid_size"], "ask_size": q["ask_size"],
+    }
+
+
+def load_anchors(database, plan, output):
+    start = datetime.fromisoformat(plan["evaluation_start"].replace("Z", "+00:00"))
+    end = datetime.fromisoformat(plan["evaluation_end"].replace("Z", "+00:00"))
+    anchors = []
+    required = set()
+    digest = sha256()
+    with database.begin() as connection:
+        connection.exec_driver_sql("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
+        dataset = connection.execute(select(shadow_datasets).where(
+            shadow_datasets.c.dataset_id == DATASET_ID
+        )).mappings().one()
+        query = select(
+            shadow_evaluations.c.evaluation_id, shadow_evaluations.c.symbol,
+            shadow_evaluations.c.evaluated_at,
+            shadow_evaluations.c.payload["decision_observation"].label("entry"),
+            shadow_labels.c.payload["exit_observation"].label("future"),
+            shadow_labels.c.resolved_at, shadow_labels.c.deadline_at,
+            shadow_labels.c.complete,
+            shadow_labels.c.payload["missing_reasons"].label("reasons"),
+        ).outerjoin(
+            shadow_labels,
+            (shadow_labels.c.evaluation_id == shadow_evaluations.c.evaluation_id)
+            & (shadow_labels.c.horizon_seconds == 60),
+        ).where(
+            shadow_evaluations.c.dataset_id == DATASET_ID,
+            shadow_evaluations.c.evaluated_at >= start,
+            shadow_evaluations.c.evaluated_at < end,
+        ).order_by(shadow_evaluations.c.evaluated_at, shadow_evaluations.c.symbol)
+        for row in connection.execute(query).mappings():
+            digest.update(canonical(dict(row)).encode())
+            at = datetime_ns(utc(row["evaluated_at"]))
+            anchor = {
+                "evaluation_id": row["evaluation_id"], "symbol": row["symbol"],
+                "at_ns": at, "at": iso_ns(at), "deadline_ns": at + 60 * NS,
+                "resolved_ns": datetime_ns(utc(row["resolved_at"])) if row["resolved_at"] else None,
+                "entry": normalized(row["entry"]), "future": normalized(row["future"]),
+                "complete": row["complete"], "reasons": row["reasons"],
+            }
+            for name in ("entry", "future"):
+                if anchor[name]:
+                    required.add(anchor[name]["event_id"])
+            anchors.append(anchor)
+        root = dataset["protocol_hash"]
+        count = 0
+        with gzip.open(output / "us-v1-raw-events.jsonl.gz", "wt", encoding="utf-8") as tape:
+            rows = connection.execute(select(
+                shadow_source_links, scalping_market_batches.c.raw,
+                scalping_market_batches.c.event_count,
+            ).join(scalping_market_batches,
+                   scalping_market_batches.c.batch_id == shadow_source_links.c.batch_id)
+              .where(shadow_source_links.c.dataset_id == DATASET_ID,
+                     shadow_source_links.c.sequence <= dataset["source_batches"])
+              .order_by(shadow_source_links.c.sequence)
+              .execution_options(stream_results=True, yield_per=4)).mappings()
+            for row in rows:
+                count += 1
+                if row["sequence"] != count:
+                    raise ValueError("v1 raw sequence gap")
+                decoder = __import__("zlib").decompressobj()
+                raw = decoder.decompress(row["raw"], 8 * 1024**2 + 1)
+                if not decoder.eof or decoder.unused_data or len(raw) > 8 * 1024**2:
+                    raise ValueError("v1 raw decode budget or integrity failure")
+                if sha256(raw).hexdigest() != row["batch_id"]:
+                    raise ValueError("v1 raw content mismatch")
+                root = sha256((root + row["batch_id"]).encode()).hexdigest()
+                if root != row["root"]:
+                    raise ValueError("v1 source chain mismatch")
+                values = json.loads(raw)
+                if len(values) != row["event_count"]:
+                    raise ValueError("v1 event count mismatch")
+                for event in values:
+                    referenced = event["event_id"] in required
+                    if referenced or (
+                        datetime_ns(start) - 960 * NS <= event["received_at_ns"]
+                        <= datetime_ns(end) + 65 * NS
+                    ):
+                        tape.write(canonical({
+                            "batch_id": row["batch_id"], "persisted_at": utc(row["recorded_at"]),
+                            "event": event,
+                        }) + "\n")
+                    required.discard(event["event_id"])
+        if count != dataset["source_batches"] or root != dataset["source_root"] or required:
+            raise ValueError("v1 raw manifest/reference mismatch")
+    return anchors, {
+        "root": root, "batches": count, "immutable_input_sha256": digest.hexdigest(),
+        "protocol_hash": dataset["protocol_hash"],
+    }
+
+
+def evaluate_source(location, anchors, output, capture=None):
+    calculated_ns = datetime_ns(datetime.now(UTC))
+    young = Counter(
+        anchor["symbol"] for anchor in anchors if anchor["at_ns"] + 62 * NS > calculated_ns
+    )
+    anchors = [
+        anchor for anchor in anchors if anchor["at_ns"] + 62 * NS <= calculated_ns
+    ]
+    rows = []
+    if location == "us":
+        for anchor in anchors:
+            if anchor["resolved_ns"] is None:
+                reasons = ["OVERDUE_UNWRITTEN_LABEL"]
+            else:
+                reasons = measure(
+                    anchor["entry"], anchor["future"], anchor["at_ns"], anchor["deadline_ns"]
+                )
+                if reasons != anchor["reasons"] or bool(not reasons) != anchor["complete"]:
+                    raise ValueError("standalone feasibility contract disagrees with immutable v1")
+            rows.append({
+                **anchor, "source": location, "complete": not reasons,
+                "reasons": reasons, "information_available_ns":
+                anchor["resolved_ns"] or datetime_ns(datetime.now(UTC)),
+            })
+    else:
+        targets = []
+        entries = {}
+        for anchor in anchors:
+            targets.append((anchor["at_ns"], True, anchor))
+            targets.append((anchor["resolved_ns"] or anchor["deadline_ns"] + 2 * NS, False, anchor))
+        targets.sort(key=lambda value: value[0])
+        history = defaultdict(deque)
+        index = 0
+        last_processed = -1
+
+        def consume(before_ns):
+            nonlocal index
+            while index < len(targets) and targets[index][0] < before_ns:
+                available, decision, anchor = targets[index]
+                at = anchor["at_ns"] if decision else anchor["deadline_ns"]
+                quote = select_at(history[anchor["symbol"]], at, available, decision)
+                if decision:
+                    entries[anchor["evaluation_id"]] = quote
+                else:
+                    entry = entries[anchor["evaluation_id"]]
+                    reasons = measure(entry, quote, anchor["at_ns"], anchor["deadline_ns"])
+                    rows.append({
+                        "evaluation_id": anchor["evaluation_id"], "symbol": anchor["symbol"],
+                        "at_ns": anchor["at_ns"], "at": anchor["at"],
+                        "deadline_ns": anchor["deadline_ns"], "resolved_ns": available,
+                        "source": location, "entry": entry, "future": quote,
+                        "complete": not reasons, "reasons": reasons,
+                        "information_available_ns": available,
+                    })
+                index += 1
+        with gzip.open(capture.quotes_path, "rt", encoding="utf-8") as source:
+            for line in source:
+                quote = json.loads(line)
+                if quote["processed_ns"] < last_processed:
+                    raise ValueError("diagnostic processing timestamps regress")
+                last_processed = quote["processed_ns"]
+                consume(quote["processed_ns"])
+                cache = history[quote["symbol"]]
+                cache.append(quote)
+                cutoff = quote["processed_ns"] - 960 * NS
+                while cache and (len(cache) > 60000 or cache[0]["received_ns"] < cutoff):
+                    cache.popleft()
+        consume(2**63 - 1)
+    counts = defaultdict(Counter)
+    taxonomy = defaultdict(Counter)
+    for row in rows:
+        contexts = {}
+        for endpoint, target in (("entry", row["at_ns"]), ("future", row["deadline_ns"])):
+            state = None
+            if capture is not None:
+                for sample in capture.health:
+                    if sample["at_ns"] <= target:
+                        state = sample
+            quote = row[endpoint]
+            contexts[endpoint] = {
+                "source_identity": location,
+                "connected": state["connected"] if state else None,
+                "connection_state": state,
+                "socket_state_unknown_reason": (
+                    "v1 did not archive per-evaluation socket state; see health sidecar"
+                    if capture is None else None
+                ),
+                "last_quote_received_at": quote["received_at"] if quote else None,
+                "last_native_observation": quote.get("last_native_observation") if quote else None,
+                "provider_age_seconds": (target - quote["provider_ns"]) / NS if quote else None,
+                "receive_age_seconds": (target - quote["received_ns"]) / NS if quote else None,
+            }
+        row["endpoint_context"] = contexts
+        row["failure_classifications"] = []
+        symbol = row["symbol"]
+        counts[symbol]["matured_evaluations"] += 1
+        counts[symbol]["complete" if row["complete"] else "missing"] += 1
+        for reason in row["reasons"]:
+            counts[symbol][reason] += 1
+            if reason == "INSUFFICIENT_DISPLAYED_LONG_SIZE":
+                kind = "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL"
+            elif reason == "LOCAL_CONTINUITY_CHANGED":
+                kind = "CONNECTIVITY_CONTINUITY_CHANGED"
+            elif reason == "OVERDUE_UNWRITTEN_LABEL":
+                kind = "PERSISTENCE_OVERDUE_UNWRITTEN_LABEL"
+            else:
+                endpoint = "entry" if reason.startswith("DECISION") else "future"
+                q = row[endpoint]
+                context = contexts[endpoint]
+                if context["connected"] is False:
+                    kind = "CONNECTIVITY_OR_ENTITLEMENT_FAILURE"
+                elif q is None:
+                    kind = "A_NO_USABLE_QUOTE_RECEIVED"
+                elif context["provider_age_seconds"] < 0 or context["receive_age_seconds"] < 0:
+                    kind = "TIMESTAMP_OR_CAUSALITY_PROBLEM"
+                elif context["receive_age_seconds"] > 2:
+                    kind = "D_UPSTREAM_INACTIVITY_STALE_QUOTE"
+                elif context["provider_age_seconds"] > 2:
+                    kind = "D_STALE_PROVIDER_TIMESTAMP"
+                else:
+                    kind = "C_FRESH_STORED_QUOTE_REJECTED"
+            taxonomy[symbol][kind] += 1
+            row["failure_classifications"].append({"reason": reason, "classification": kind})
+        for endpoint, at in (("entry", row["at_ns"]), ("future", row["deadline_ns"])):
+            quote = row[endpoint]
+            if quote and (quote["received_ns"] > at or quote["processed_ns"] > row["information_available_ns"]):
+                raise ValueError("forward-looking quote join")
+            if endpoint == "entry" and quote and quote["processed_ns"] > row["at_ns"]:
+                raise ValueError("forward-looking decision input")
+    rows.sort(key=lambda row: (row["at_ns"], row["symbol"]))
+    with gzip.open(output / f"{location}-primary-labels.jsonl.gz", "wt", encoding="utf-8") as stream:
+        for row in rows:
+            stream.write(canonical(row) + "\n")
+    return [{
+        "symbol": symbol, **dict(counts[symbol]),
+        "coverage": counts[symbol]["complete"] / counts[symbol]["matured_evaluations"]
+        if counts[symbol]["matured_evaluations"] else None,
+        "failure_taxonomy_counts": dict(taxonomy[symbol]),
+        "not_yet_mature": young[symbol],
+    } for symbol in SYMBOLS]
+
+
+async def run(plan_path, output):
+    signal.alarm(3900)
+    plan = json.loads(plan_path.read_text())
+    original_hash = plan.pop("protocol_hash")
+    if sha256(canonical(plan).encode()).hexdigest() != original_hash:
+        raise ValueError("feasibility freeze hash mismatch")
+    plan["protocol_hash"] = original_hash
+    start = datetime.fromisoformat(plan["evaluation_start"].replace("Z", "+00:00"))
+    if datetime.now(UTC) >= start:
+        raise ValueError("missed fixed prospective study start; no backdated collection")
+    if (
+        plan["evaluation_seconds"] != 10 or plan["freshness_seconds"] != 2
+        or plan["primary_horizon_seconds"] != 60 or plan["settlement_seconds"] != 2
+        or Decimal(plan["assumed_notional_usd"]) != NOTIONAL
+    ):
+        raise ValueError("feasibility contract differs from v1")
+    if plan["source_locations"] != ["us", "us-1", "eu-1"]:
+        raise ValueError("source inventory differs from the frozen feasibility study")
+    output.mkdir()
+    (output / "frozen-study.json").write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n")
+    with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+        with database.begin() as connection:
+            connection.exec_driver_sql("SET TRANSACTION READ ONLY")
+            protocol = ShadowDatasetProtocol.model_validate(connection.scalar(
+                select(shadow_datasets.c.protocol).where(shadow_datasets.c.dataset_id == DATASET_ID)
+            ))
+        if protocol.identity != plan["v1_protocol_hash"]:
+            raise ValueError("v1 protocol fingerprint changed")
+        with httpx.Client(timeout=10, follow_redirects=False) as transport:
+            before = guard(database, protocol, transport)
+    captures, interruption = await collect(plan, output, protocol)
+    with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+        anchors, manifest = load_anchors(database, plan, output)
+        with httpx.Client(timeout=10, follow_redirects=False) as transport:
+            after = guard(database, protocol, transport)
+    results = {}
+    by_location = {capture.location: capture for capture in captures}
+    for location in ("us", "us-1", "eu-1"):
+        coverage = evaluate_source(location, anchors, output, by_location.get(location))
+        expected = plan["expected_evaluations_per_symbol"]
+        complete_grid = all(row["matured_evaluations"] == expected for row in coverage)
+        capture = by_location.get(location)
+        quality = bool(
+            complete_grid and not interruption
+            and all(row["coverage"] is not None and row["coverage"] >= .95 for row in coverage)
+            and (capture is None or (capture.failure is None and not capture.counts["reconnects"]))
+            and (capture is None or not any(capture.kernel.counts[key] for key in (
+                "future_provider_timestamp", "native_timestamp_regression", "invalid_native_quote"
+            )))
+        )
+        results[location] = {
+            "coverage": coverage, "expected_evaluations_per_symbol": expected,
+            "complete_evaluation_grid": complete_grid,
+            "quality_gate_passed": quality, "venue_match_verified": False,
+            "eligible_for_v2": False, "venue_gate_reason": plan["venue_gate_reason"],
+            "capture_failure": capture.failure if capture else None,
+            "capture_counts": dict(capture.counts) if capture else None,
+            "price_integrity_counts": dict(capture.kernel.counts) if capture else None,
+            "transport_integrity_counts": dict(capture.transport_kernel.counts) if capture else None,
+            "raw_manifest_root": capture.root if capture else manifest["root"],
+        }
+    files = []
+    for file in sorted(output.iterdir()):
+        body = file.read_bytes()
+        files.append({"path": file.name, "bytes": len(body), "sha256": sha256(body).hexdigest()})
+    summary = {
+        "schema": "pre-v2-source-feasibility-readiness-v1", "decision": "NO_GO",
+        "study_protocol": plan, "completed_at": datetime.now(UTC).isoformat(),
+        "execution_venue": "Alpaca paper simulator; no live exchange routing",
+        "paper_crypto_quote_reference_location": None,
+        "candidates": results, "selected_source": None, "proposed_v2_configuration": None,
+        "v2_freeze_prerequisites_satisfied": False, "v2_started": False,
+        "database_writes": 0, "v1_modified": False, "orders_submitted": 0,
+        "broker_before": before, "broker_after": after,
+        "v1_manifest_snapshot": manifest, "artifacts": files,
+        "unverified": [
+            "Paper crypto simulator quote-reference location is not disclosed in inspected evidence.",
+            "Live account-specific crypto execution route and regional eligibility are not proven.",
+            "Market data access is not proof of account execution-venue equivalence.",
+        ],
+        "feasibility_interruption": interruption,
+    }
+    (output / "readiness.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+    archive = output.parent / "feasibility-bundle.tar.gz"
+    with tarfile.open(archive, "w:gz") as bundle:
+        for file in sorted(output.iterdir()):
+            bundle.add(file, arcname=file.name, recursive=False)
+    compact = {key: value for key, value in summary.items() if key not in ("artifacts",)}
+    print("FEASIBILITY_RESULT=" + json.dumps(compact, sort_keys=True), flush=True)
+    body = archive.read_bytes()
+    encoded = base64.b64encode(body).decode()
+    chunks = [encoded[index:index+6000] for index in range(0, len(encoded), 6000)]
+    for index, chunk in enumerate(chunks):
+        print("FEASIBILITY_BLOB=" + json.dumps({
+            "name": archive.name, "index": index, "chunks": len(chunks),
+            "bytes": len(body), "sha256": sha256(body).hexdigest(), "data": chunk,
+        }, separators=(",", ":")), flush=True)
+        time.sleep(.025)
+    print("FEASIBILITY_FINISHED=true", flush=True)
+
+
+if __name__ == "__main__":
+    asyncio.run(run(Path(sys.argv[1]), Path(sys.argv[2])))
