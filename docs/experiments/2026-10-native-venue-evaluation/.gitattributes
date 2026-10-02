@@ -1,0 +1,4 @@
+# Keep byte-hashed research evidence unchanged across platforms.
+*.json -text whitespace=cr-at-eol
+*.txt -text whitespace=cr-at-eol
+*.gz -text

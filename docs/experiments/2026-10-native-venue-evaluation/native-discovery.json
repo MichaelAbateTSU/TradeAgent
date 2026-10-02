@@ -1,0 +1,138 @@
+{
+  "started_at": "2026-10-02T19:27:27.625786+00:00",
+  "ended_at": "2026-10-02T19:28:28.012124+00:00",
+  "endpoint": "wss://ws.kraken.com/v2",
+  "event_trigger": "bbo",
+  "public_only": true,
+  "authentication_messages": 0,
+  "orders_submitted": 0,
+  "subscription_acknowledgments": [
+    {
+      "method": "subscribe",
+      "req_id": 1,
+      "result": {
+        "channel": "instrument",
+        "snapshot": true,
+        "warnings": [
+          "tick_size is deprecated, use price_increment"
+        ]
+      },
+      "success": true,
+      "time_in": "2026-10-02T19:27:27.972337Z",
+      "time_out": "2026-10-02T19:27:27.972395Z"
+    },
+    {
+      "method": "subscribe",
+      "req_id": 2,
+      "result": {
+        "channel": "ticker",
+        "event_trigger": "bbo",
+        "snapshot": true,
+        "symbol": "BTC/USD"
+      },
+      "success": true,
+      "time_in": "2026-10-02T19:27:27.975722Z",
+      "time_out": "2026-10-02T19:27:27.975776Z"
+    },
+    {
+      "method": "subscribe",
+      "req_id": 2,
+      "result": {
+        "channel": "ticker",
+        "event_trigger": "bbo",
+        "snapshot": true,
+        "symbol": "ETH/USD"
+      },
+      "success": true,
+      "time_in": "2026-10-02T19:27:27.975722Z",
+      "time_out": "2026-10-02T19:27:27.975776Z"
+    }
+  ],
+  "spot_instruments": [
+    {
+      "symbol": "BTC/USD",
+      "base": "BTC",
+      "quote": "USD",
+      "status": "online",
+      "qty_precision": 8,
+      "qty_increment": 1e-08,
+      "price_precision": 1,
+      "cost_precision": 5,
+      "marginable": true,
+      "has_index": false,
+      "ws_display_price_precision": 1,
+      "cost_min": 0.5,
+      "margin_initial": 0.1,
+      "position_limit_long": 350,
+      "position_limit_short": 250,
+      "tick_size": 0.1,
+      "price_increment": 0.1,
+      "qty_min": 5e-05
+    },
+    {
+      "symbol": "ETH/USD",
+      "base": "ETH",
+      "quote": "USD",
+      "status": "online",
+      "qty_precision": 8,
+      "qty_increment": 1e-08,
+      "price_precision": 2,
+      "cost_precision": 5,
+      "marginable": true,
+      "has_index": false,
+      "ws_display_price_precision": 2,
+      "cost_min": 0.5,
+      "margin_initial": 0.1,
+      "position_limit_long": 6000,
+      "position_limit_short": 6000,
+      "tick_size": 0.01,
+      "price_increment": 0.01,
+      "qty_min": 0.001
+    }
+  ],
+  "message_counts": {
+    "ETH/USD": 991,
+    "BTC/USD": 980
+  },
+  "first_quotes": {
+    "ETH/USD": {
+      "received_at": "2026-10-02T19:27:28.026064+00:00",
+      "quote": {
+        "symbol": "ETH/USD",
+        "bid": 2667.37,
+        "bid_qty": 1.87449861,
+        "ask": 2667.38,
+        "ask_qty": 0.92301516,
+        "last": 2667.22,
+        "volume": 49716.05644054,
+        "vwap": 2718.23,
+        "low": 2650.41,
+        "high": 2776.46,
+        "change": -28.63,
+        "change_pct": -1.06,
+        "trades": 65222,
+        "timestamp": "2026-10-02T19:27:27.614543Z"
+      }
+    },
+    "BTC/USD": {
+      "received_at": "2026-10-02T19:27:28.026098+00:00",
+      "quote": {
+        "symbol": "BTC/USD",
+        "bid": 84100.5,
+        "bid_qty": 0.17869126,
+        "ask": 84100.6,
+        "ask_qty": 0.95601368,
+        "last": 84100.6,
+        "volume": 5249.24557444,
+        "vwap": 85601.8,
+        "low": 83860.7,
+        "high": 87229.0,
+        "change": -511.0,
+        "change_pct": -0.6,
+        "trades": 177617,
+        "timestamp": "2026-10-02T19:27:27.797364Z"
+      }
+    }
+  },
+  "no_feasibility_or_profitability_claim": true
+}
