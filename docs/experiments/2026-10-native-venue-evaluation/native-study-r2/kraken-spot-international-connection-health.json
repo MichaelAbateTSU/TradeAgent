@@ -1,0 +1,29 @@
+[
+  {
+    "at_ns": 1790979858520580000,
+    "state": "connecting",
+    "connected": false,
+    "connection_id": "0f09a746-70b0-4a9e-92b0-f0be9836ae0e",
+    "credentials_used": false
+  },
+  {
+    "at_ns": 1790979861797721000,
+    "state": "connected_public",
+    "connected": true,
+    "connection_id": "0f09a746-70b0-4a9e-92b0-f0be9836ae0e",
+    "credentials_used": false
+  },
+  {
+    "at_ns": 1790979861952702000,
+    "state": "subscribed",
+    "connected": true,
+    "connection_id": "0f09a746-70b0-4a9e-92b0-f0be9836ae0e",
+    "event_trigger": "bbo"
+  },
+  {
+    "at_ns": 1790981885197063000,
+    "state": "planned_close",
+    "connected": false,
+    "connection_id": "0f09a746-70b0-4a9e-92b0-f0be9836ae0e"
+  }
+]

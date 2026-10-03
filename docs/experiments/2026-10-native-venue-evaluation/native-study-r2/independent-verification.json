@@ -1,0 +1,25 @@
+{
+  "artifact_hashes_and_source_chain_verified": true,
+  "all_native_labels_reproduced": true,
+  "all_inputs_causal": true,
+  "frames_verified": 17995,
+  "quote_ids_verified": 15876,
+  "counts": {
+    "BTC/USD": {
+      "matured": 180,
+      "complete": 134,
+      "missing": 46,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 23,
+      "DECISION_QUOTE_STALE_OR_MISSING": 24,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 1
+    },
+    "ETH/USD": {
+      "matured": 180,
+      "complete": 93,
+      "missing": 87,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 46,
+      "DECISION_QUOTE_STALE_OR_MISSING": 49
+    }
+  },
+  "no_orders_or_private_kraken_requests": true
+}

@@ -1,0 +1,269 @@
+"""Public-only Kraken spot data study, not an execution adapter or v2."""
+
+import asyncio
+import base64
+import gzip
+import importlib.util
+import json
+import signal
+import sys
+import tarfile
+import time
+from datetime import UTC, datetime
+from hashlib import sha256
+from pathlib import Path
+
+import httpx
+from websockets.asyncio.client import connect
+from websockets.exceptions import ConnectionClosed, InvalidHandshake
+
+from tradeagent.config import AppConfig
+from tradeagent.persistence import Database
+from tradeagent.scalping_market import datetime_ns
+from tradeagent.scalping_store import canonical
+from tradeagent.shadow_dataset import ShadowDatasetProtocol
+
+ROOT = Path(__file__).parent
+spec = importlib.util.spec_from_file_location("venue_study_core", ROOT / "pre_v2_feasibility_study.py")
+core = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = core
+spec.loader.exec_module(core)
+LOCATION = "kraken-spot-international"
+
+
+class NativeCapture(core.Capture):
+    def __init__(self, output):
+        super().__init__(LOCATION, output)
+        self.instruments = {}
+        self.acknowledgments = []
+        self.subscribed = set()
+
+    async def run(self, stop, genesis):
+        self.root = genesis
+        attempts = 0
+        try:
+            while not stop.is_set() and attempts < 3:
+                attempts += 1
+                self.connection = str(core.uuid4())
+                self.sequence = 0
+                self.kernel.reset()
+                self.state("connecting", credentials_used=False)
+                try:
+                    async with connect(
+                        "wss://ws.kraken.com/v2", ping_interval=20, ping_timeout=20,
+                        close_timeout=5, max_queue=16, max_size=2*1024**2,
+                    ) as websocket:
+                        self.connected = True
+                        self.state("connected_public", credentials_used=False)
+                        await websocket.send(json.dumps({
+                            "method": "subscribe", "params": {
+                                "channel": "instrument", "execution_venue": "international",
+                                "include_tokenized_assets": False, "snapshot": True,
+                            }, "req_id": 1,
+                        }))
+                        await websocket.send(json.dumps({
+                            "method": "subscribe", "params": {
+                                "channel": "ticker", "symbol": list(core.SYMBOLS),
+                                "event_trigger": "bbo", "snapshot": True,
+                            }, "req_id": 2,
+                        }))
+                        while not stop.is_set():
+                            payload = await websocket.recv()
+                            received = datetime_ns(datetime.now(UTC))
+                            monotonic = time.monotonic_ns()
+                            if isinstance(payload, bytes):
+                                payload = payload.decode("utf-8")
+                            message = json.loads(payload, parse_float=core.Decimal)
+                            self.frame_index += 1
+                            envelope = {
+                                "location": LOCATION, "endpoint": "wss://ws.kraken.com/v2",
+                                "connection_id": self.connection, "frame_index": self.frame_index,
+                                "received_ns": received, "received_at": core.iso_ns(received),
+                                "received_monotonic_ns": monotonic, "payload_text": payload,
+                                "journal_append_started_at": datetime.now(UTC).isoformat(),
+                            }
+                            self.root = sha256((self.root + canonical(envelope)).encode()).hexdigest()
+                            self.raw.write(canonical({"root": self.root, **envelope}) + "\n")
+                            self.counts["frames"] += 1
+                            if self.frame_index % 100 == 0:
+                                self.raw.flush()
+                                if self.raw_path.stat().st_size > core.RAW_LIMIT:
+                                    raise ValueError("capture_resource_budget_exceeded")
+                            if message.get("method") == "subscribe":
+                                self.acknowledgments.append(message)
+                                if message.get("success") is not True:
+                                    raise ValueError("native_subscription_rejected")
+                                result = message.get("result") or {}
+                                if result.get("channel") == "ticker":
+                                    if result.get("event_trigger") != "bbo":
+                                        raise ValueError("ticker_trigger_not_bbo")
+                                    self.subscribed.add(result["symbol"])
+                                    if set(core.SYMBOLS) == self.subscribed:
+                                        self.state("subscribed", event_trigger="bbo")
+                            elif message.get("channel") == "instrument":
+                                for pair in message["data"].get("pairs", []):
+                                    if pair["symbol"] in core.SYMBOLS:
+                                        self.instruments[pair["symbol"]] = pair
+                            elif message.get("channel") == "ticker":
+                                for q in message["data"]:
+                                    if q["symbol"] not in core.SYMBOLS:
+                                        raise ValueError("native_symbol_mismatch")
+                                    self.sequence += 1
+                                    processed = datetime_ns(datetime.now(UTC))
+                                    identity = f"{LOCATION}:{self.connection}:{self.sequence}"
+                                    normalized = {
+                                        "T": "q", "S": q["symbol"], "t": q["timestamp"],
+                                        "bp": q["bid"], "ap": q["ask"],
+                                        "bs": q["bid_qty"], "as": q["ask_qty"],
+                                    }
+                                    quote = self.kernel.on_message(
+                                        normalized, received, processed, identity, LOCATION
+                                    )
+                                    self.counts["native_bbo_quotes"] += 1
+                                    if quote is not None:
+                                        accepted = datetime_ns(datetime.now(UTC))
+                                        self.quotes.write(canonical({
+                                            **quote, "source_kind": "kraken_native_ticker_bbo",
+                                            "connection_id": self.connection,
+                                            "processing_started_ns": processed,
+                                            "processed_ns": accepted,
+                                            "processed_at": core.iso_ns(accepted),
+                                            "accepted_ns": accepted,
+                                            "journal_append_started_at": datetime.now(UTC).isoformat(),
+                                        }) + "\n")
+                                        self.counts["accepted_quotes"] += 1
+                            elif message.get("channel") not in ("heartbeat", "status") and (
+                                message.get("method") not in ("pong",)
+                            ):
+                                raise ValueError("unexpected_native_frame")
+                except (ConnectionClosed, InvalidHandshake, OSError, TimeoutError, ValueError, KeyError) as error:
+                    self.connected = False
+                    self.failure = str(error) if isinstance(error, (ValueError, KeyError)) else type(error).__name__
+                    self.state("connection_failure", error=self.failure)
+                    if "capture_resource_budget" in self.failure or "subscription" in self.failure:
+                        break
+                    if not stop.is_set():
+                        self.counts["reconnects"] += 1
+                        await asyncio.sleep(5)
+        finally:
+            self.connected = False
+            self.finished = True
+            self.state("planned_close" if stop.is_set() else "capture_failed")
+            self.raw.close()
+            self.quotes.close()
+
+
+async def main(plan_path, output):
+    signal.alarm(3900)
+    plan = json.loads(plan_path.read_text())
+    digest = plan.pop("protocol_hash")
+    if sha256(canonical(plan).encode()).hexdigest() != digest:
+        raise ValueError("native venue study freeze mismatch")
+    plan["protocol_hash"] = digest
+    start = datetime.fromisoformat(plan["evaluation_start"])
+    if datetime.now(UTC) >= start:
+        raise ValueError("missed fixed study start; no backdating")
+    output.mkdir()
+    (output / "frozen-study.json").write_text(json.dumps(plan, indent=2, sort_keys=True) + "\n")
+    with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+        status = core.shadow_datasets
+        with database.begin() as connection:
+            connection.exec_driver_sql("SET TRANSACTION READ ONLY")
+            protocol = ShadowDatasetProtocol.model_validate(connection.scalar(
+                core.select(status.c.protocol).where(status.c.dataset_id == core.DATASET_ID)
+            ))
+        with httpx.Client(timeout=10, follow_redirects=False) as client:
+            before = core.guard(database, protocol, client)
+    capture = NativeCapture(output)
+    stopped = asyncio.Event()
+    task = asyncio.create_task(capture.run(stopped, digest))
+
+    class InertCapture:
+        def __init__(self, location, output):
+            self.location, self.health = location, []
+
+        async def run(self, settings, stop, genesis):
+            await stop.wait()
+
+    original = core.Capture
+    core.Capture = InertCapture
+    try:
+        _, interruption = await core.collect(plan, output, protocol)
+    finally:
+        core.Capture = original
+        stopped.set()
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+    (output / f"{LOCATION}-connection-health.json").write_text(
+        json.dumps(capture.health, indent=2) + "\n"
+    )
+    (output / "native-instruments.json").write_text(canonical(capture.instruments) + "\n")
+    (output / "native-subscription-acks.json").write_text(canonical(capture.acknowledgments) + "\n")
+    with Database(AppConfig().database_url.get_secret_value(), pool_size=1) as database:
+        anchors, manifest = core.load_anchors(database, plan, output)
+        with httpx.Client(timeout=10, follow_redirects=False) as client:
+            after = core.guard(database, protocol, client)
+    coverage = core.evaluate_source(LOCATION, anchors, output, capture)
+    quality = all(
+        row["matured_evaluations"] == 180 and row["coverage"] >= .95 for row in coverage
+    ) and not interruption and capture.failure is None and not capture.counts["reconnects"]
+    quality = quality and not any(capture.kernel.counts.values())
+    sizing = {}
+    for symbol in core.SYMBOLS:
+        pair = capture.instruments.get(symbol)
+        if pair is None or pair["status"] != "online":
+            quality = False
+        sizing[symbol] = {
+            "qty_min": str(pair["qty_min"]) if pair else None,
+            "cost_min": str(pair["cost_min"]) if pair else None,
+            "ticket_check_requires_actual_quote_and_quantity_rounding": True,
+        }
+    summary = {
+        "schema": "single-venue-native-feasibility-readiness-v1",
+        "study_protocol": plan, "completed_at": datetime.now(UTC).isoformat(),
+        "coverage": coverage, "data_quality_gate_passed": quality,
+        "documented_same_spot_engine_relationship": True,
+        "current_alpaca_account_execution_match": False,
+        "kraken_account_region_eligibility_verified": False,
+        "spot_broker_paper_endpoint_established": False,
+        "overall_v2_readiness": "NO_GO",
+        "migration_candidate": LOCATION if quality else None,
+        "migration_authorized_or_performed": False, "v2_started": False,
+        "orders_submitted": 0, "private_kraken_requests": 0, "credentials_sent_to_kraken": 0,
+        "v1_modified": False, "capture_failure": capture.failure,
+        "capture_counts": dict(capture.counts), "integrity_counts": dict(capture.kernel.counts),
+        "raw_manifest_root": capture.root, "v1_anchor_manifest": manifest,
+        "instrument_execution_minimums": sizing, "broker_before": before, "broker_after": after,
+        "feasibility_interruption": interruption,
+        "artifacts": [],
+    }
+    for file in sorted(output.iterdir()):
+        body = file.read_bytes()
+        summary["artifacts"].append({
+            "path": file.name, "bytes": len(body), "sha256": sha256(body).hexdigest(),
+        })
+    (output / "readiness.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+    bundle_path = output.parent / "feasibility-bundle.tar.gz"
+    with tarfile.open(bundle_path, "w:gz") as bundle:
+        for file in sorted(output.iterdir()):
+            bundle.add(file, arcname=file.name, recursive=False)
+    print("NATIVE_VENUE_RESULT=" + json.dumps({
+        key: value for key, value in summary.items() if key != "artifacts"
+    }, sort_keys=True), flush=True)
+    body = bundle_path.read_bytes()
+    encoded = base64.b64encode(body).decode()
+    chunks = [encoded[index:index+6000] for index in range(0, len(encoded), 6000)]
+    for index, chunk in enumerate(chunks):
+        print("FEASIBILITY_BLOB=" + json.dumps({
+            "name": bundle_path.name, "index": index, "chunks": len(chunks),
+            "bytes": len(body), "sha256": sha256(body).hexdigest(), "data": chunk,
+        }, separators=(",", ":")), flush=True)
+        time.sleep(.025)
+    print("FEASIBILITY_FINISHED=true", flush=True)
+
+
+if __name__ == "__main__":
+    asyncio.run(main(Path(sys.argv[1]), Path(sys.argv[2])))

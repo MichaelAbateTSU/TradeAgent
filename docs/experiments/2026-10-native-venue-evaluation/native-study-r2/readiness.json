@@ -1,0 +1,266 @@
+{
+  "artifacts": [
+    {
+      "bytes": 3,
+      "path": "eu-1-connection-health.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "bytes": 4027,
+      "path": "frozen-study.json",
+      "sha256": "2233f25226a57631531f52b77fb223a325f3892706033bee297f142c53b3be43"
+    },
+    {
+      "bytes": 716,
+      "path": "kraken-spot-international-connection-health.json",
+      "sha256": "6553d6eee0e4a22292246a81744a5184b1130d90958343ee4a11619e858b7d8c"
+    },
+    {
+      "bytes": 1462570,
+      "path": "kraken-spot-international-frames.jsonl.gz",
+      "sha256": "b8e214ec7678f707de85e438c53244504a3b3d9713bfdbac2c6203f1d72347cc"
+    },
+    {
+      "bytes": 68060,
+      "path": "kraken-spot-international-primary-labels.jsonl.gz",
+      "sha256": "7445ce600f1f2bf15a7489957ef8260f42648f5f2a6ce797bccc6184a69e4796"
+    },
+    {
+      "bytes": 786272,
+      "path": "kraken-spot-international-quotes.jsonl.gz",
+      "sha256": "36afe5ab97bf4ba8ceceefdec666ee581772e00a9056718a89af0e30de728346"
+    },
+    {
+      "bytes": 772,
+      "path": "native-instruments.json",
+      "sha256": "d2a934865c0af754a5cc37aa52e63d3a26be804465d91668bedeb0ab58db8453"
+    },
+    {
+      "bytes": 676,
+      "path": "native-subscription-acks.json",
+      "sha256": "700a757e65e7ab87b35d2211391c92c7cc79709bd370884d548d989f7cbada3f"
+    },
+    {
+      "bytes": 3,
+      "path": "us-1-connection-health.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "bytes": 167732,
+      "path": "us-v1-raw-events.jsonl.gz",
+      "sha256": "177ad93e57994e5f6972c941084e004003b74494ad1e9600489c2dee56cf66ea"
+    },
+    {
+      "bytes": 404576,
+      "path": "v1-runtime-health.json",
+      "sha256": "a50cc4b4bf5e7968543309cbccb464cb14f92eae2b1f1e46c0c89fe542e54e7f"
+    }
+  ],
+  "broker_after": {
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "account_status": "ACTIVE",
+      "broker_order_page_saturated": false,
+      "broker_order_records_since_freeze": 0,
+      "open_orders": 0,
+      "order_submission_calls": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "read_methods": [
+        "GET"
+      ],
+      "verified_at": "2026-10-02T22:58:28.362528+00:00"
+    },
+    "worker": {
+      "entry_policy": "shadow-research-dataset-v1",
+      "feed_state": "streaming",
+      "feed_subscribed": true,
+      "heartbeat_at": "2026-10-02T22:58:25.057535+00:00",
+      "local_order_attempts_since_freeze": 0,
+      "reported_model_state": "no_support",
+      "reported_order_attempts": 0,
+      "reported_trading_authorization": "expired",
+      "trading_authorization_renewed": false
+    }
+  },
+  "broker_before": {
+    "broker": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "account_status": "ACTIVE",
+      "broker_order_page_saturated": false,
+      "broker_order_records_since_freeze": 0,
+      "open_orders": 0,
+      "order_submission_calls": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "read_methods": [
+        "GET"
+      ],
+      "verified_at": "2026-10-02T22:24:18.487831+00:00"
+    },
+    "worker": {
+      "entry_policy": "shadow-research-dataset-v1",
+      "feed_state": "streaming",
+      "feed_subscribed": true,
+      "heartbeat_at": "2026-10-02T22:24:17.557976+00:00",
+      "local_order_attempts_since_freeze": 0,
+      "reported_model_state": "no_support",
+      "reported_order_attempts": 0,
+      "reported_trading_authorization": "expired",
+      "trading_authorization_renewed": false
+    }
+  },
+  "capture_counts": {
+    "accepted_quotes": 15876,
+    "frames": 17995,
+    "native_bbo_quotes": 15969
+  },
+  "capture_failure": null,
+  "completed_at": "2026-10-02T22:58:28.656765+00:00",
+  "coverage": [
+    {
+      "DECISION_QUOTE_STALE_OR_MISSING": 24,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 23,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 1,
+      "complete": 134,
+      "coverage": 0.7444444444444445,
+      "failure_taxonomy_counts": {
+        "DISPLAYED_SIZE_BELOW_FROZEN_NOTIONAL": 1,
+        "D_STALE_PROVIDER_TIMESTAMP": 19,
+        "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 28
+      },
+      "matured_evaluations": 180,
+      "missing": 46,
+      "not_yet_mature": 0,
+      "symbol": "BTC/USD"
+    },
+    {
+      "DECISION_QUOTE_STALE_OR_MISSING": 49,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 46,
+      "complete": 93,
+      "coverage": 0.5166666666666667,
+      "failure_taxonomy_counts": {
+        "D_STALE_PROVIDER_TIMESTAMP": 18,
+        "D_UPSTREAM_INACTIVITY_STALE_QUOTE": 77
+      },
+      "matured_evaluations": 180,
+      "missing": 87,
+      "not_yet_mature": 0,
+      "symbol": "ETH/USD"
+    }
+  ],
+  "credentials_sent_to_kraken": 0,
+  "current_alpaca_account_execution_match": false,
+  "data_quality_gate_passed": false,
+  "documented_same_spot_engine_relationship": true,
+  "feasibility_interruption": null,
+  "instrument_execution_minimums": {
+    "BTC/USD": {
+      "cost_min": "0.50",
+      "qty_min": "0.00005000",
+      "ticket_check_requires_actual_quote_and_quantity_rounding": true
+    },
+    "ETH/USD": {
+      "cost_min": "0.50",
+      "qty_min": "0.00100000",
+      "ticket_check_requires_actual_quote_and_quantity_rounding": true
+    }
+  },
+  "integrity_counts": {
+    "native_timestamp_regression": 93
+  },
+  "kraken_account_region_eligibility_verified": false,
+  "migration_authorized_or_performed": false,
+  "migration_candidate": null,
+  "orders_submitted": 0,
+  "overall_v2_readiness": "NO_GO",
+  "private_kraken_requests": 0,
+  "raw_manifest_root": "e697c287618fa67ed3b63ca2cf70417de46ff9d2cd560f06e769258d3ed3fd28",
+  "schema": "single-venue-native-feasibility-readiness-v1",
+  "spot_broker_paper_endpoint_established": false,
+  "study_protocol": {
+    "application_code_changes_allowed_before_pass": false,
+    "assumed_notional_usd": "10.25",
+    "book_maximum_levels": 2000,
+    "candidate": "kraken-spot-international",
+    "capture_end": "2026-10-02T22:58:05+00:00",
+    "causality": "entry consumer-availability <= evaluation; future receipt <= horizon and consumer-availability <= original resolution",
+    "channel": "ticker",
+    "common_anchor_clock": "actual unmodified v1 evaluation and 60s resolution timestamps within the fixed study dates",
+    "credential_scope": "anonymous public market data only",
+    "current_alpaca_execution_match": false,
+    "diagnostic_processing_clock": "processing entry and actual consumer-acceptance completion retained; availability uses completion",
+    "endpoint": "wss://ws.kraken.com/v2",
+    "entry_size_side": "ask",
+    "evaluation_end": "2026-10-02T22:57:00+00:00",
+    "evaluation_seconds": 10,
+    "evaluation_start": "2026-10-02T22:27:00+00:00",
+    "event_trigger": "bbo",
+    "excluded_locations": {
+      "bs-1": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven",
+      "us-2": "REST enum only; current credentials returned no BTC/ETH quotes; provider/stream/route mapping unproven"
+    },
+    "exit_size_side": "bid",
+    "expected_evaluations_per_symbol": 180,
+    "freshness_seconds": 2,
+    "frozen_at": "2026-10-02T22:24:08.781957+00:00",
+    "initial_v1_manifest": {
+      "as_of": "2026-10-02T15:56:29.975681+00:00",
+      "batches": 15549,
+      "root": "49b91a1ea3b310cc3d5ab5b1a473d7e480215949786804099fddadbd2fed168c"
+    },
+    "instrument_channel_execution_venue": "international",
+    "legacy_us_clock": "original v1 stored processed_at preserved; exact socket state per evaluation was not archived",
+    "migration_authorized_or_performed": false,
+    "minimum_mature_coverage": 0.95,
+    "model_state": "no_support",
+    "orders_enabled": false,
+    "previous_diagnostic_protocol_hash": "b244754f5c75f9003ecb7a0e88dded938fb76ed73d4657b957ed61af74e022ec",
+    "price_observations": "native L1 and valid reconstructed L2; no trades/midpoints as substitute",
+    "primary_horizon_seconds": 60,
+    "promotion_enabled": false,
+    "protected_commit": "dc00e4e1568ad49514e154d443ef0ef54d1f0579",
+    "protocol_hash": "81ba161054860342739f2ca78a153fa10f9cbc01b310d52ee8c102511364316f",
+    "quote_cache_capacity_per_symbol": 60000,
+    "quote_history_seconds": 960,
+    "region_and_account_eligibility_verified": false,
+    "repair_reason": "Original job failed after collection while serializing Decimal instrument minimums; export fields now explicit base/quote-unit strings. No original results overwritten or claimed. No threshold or source change.",
+    "role": "public native venue migration evaluation; not execution or v2",
+    "routing_evidence_sha256": "f93dd7b0ed18a5ba9b7bb7e47a5009bf77b775fcea108b176d453196c991d0d4",
+    "same_venue_relationship": "Kraken primary public and authenticated spot APIs documented production engine; AssetPairs execution_venue international; no account-specific access assertion",
+    "schema": "kraken-native-spot-feasibility-v1-export-r2",
+    "settlement_seconds": 2,
+    "source_locations": [
+      "us",
+      "us-1",
+      "eu-1"
+    ],
+    "spot_paper_execution_endpoint_verified": false,
+    "study_core_sha256": "a1121225c40a368b75aa9d9d259b299bc9d1ebdca0803fe890dbd713f36b8dfc",
+    "study_id": "kraken-native-spot-export-r2-20261002T222700Z",
+    "study_runner_sha256": "b854ebbafe560dc05b01bc3d8abc5c9b4bfdaf95dc319147104fe96518d173ba",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "trading_authorization": "expired",
+    "transport_book_freshness_seconds": 5,
+    "v1_protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+    "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+    "v2_window_started": false,
+    "venue_gate_reason": "Paper simulator has no live exchange routing; inspected account/configuration/assets/historical orders do not prove a crypto quote-reference location",
+    "venue_match_verified": {
+      "eu-1": false,
+      "us": false,
+      "us-1": false
+    }
+  },
+  "v1_anchor_manifest": {
+    "batches": 17661,
+    "immutable_input_sha256": "e716ff34f22c99d99b05548aeeda76c7d3e4141423b41dbca9f62f73add5f442",
+    "protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+    "root": "8d741a3f6d70a4d9bcddec6d24f0f36066a218e962114455ff0091b96cc38d62"
+  },
+  "v1_modified": false,
+  "v2_started": false
+}
