@@ -1,0 +1,41 @@
+{
+  "source_url": "https://support.kraken.com/articles/cross-platform-fee-tier-changes",
+  "source_sha256": "076ab0bfb231c3bbc32b01b5b985cdfafde4d0f1380415faf36f97726c0b26fe",
+  "published_effective_from": "2026-07-09",
+  "tables_first_tiers": [
+    [
+      [
+        "Tier",
+        "Spot 30-Day Vol (USD) OR",
+        "AoP (USD)",
+        "Maker (%)",
+        "Taker (%)"
+      ],
+      [
+        "Tier 1",
+        "$0+",
+        "N/A",
+        "0.40 %",
+        "0.80 %"
+      ],
+      [
+        "Tier 2",
+        "$2.5K+",
+        "N/A",
+        "0.30 %",
+        "0.60 %"
+      ],
+      [
+        "Tier 3",
+        "$10K+",
+        "20k",
+        "0.22 %",
+        "0.38 %"
+      ]
+    ]
+  ],
+  "account_tier_verified": false,
+  "authenticated_TradeVolume_called": false,
+  "consumer_Kraken_plus_excluded": true,
+  "preserve_scenarios_not_verified_user_rates": true
+}

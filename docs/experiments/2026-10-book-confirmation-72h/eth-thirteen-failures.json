@@ -1,0 +1,710 @@
+{
+  "failures": [
+    {
+      "evaluation_id": "cfb33260-b3fb-5aef-bca6-14d4815ccad3",
+      "evaluation_ns": 1791012870240963000,
+      "deadline_ns": 1791012930240963000,
+      "reasons": [
+        "DECISION_QUOTE_STALE_OR_MISSING"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:7660",
+          "raw_frame_index": 7825,
+          "price": "2681.86",
+          "base_qty": "2.52364051",
+          "displayed_notional_usd": "6768.0505381486",
+          "checksum_valid": true,
+          "provider_age_seconds": 2.326581,
+          "receive_age_seconds": 2.245848,
+          "bid_price_unchanged_seconds": 18.738451,
+          "ask_price_unchanged_seconds": 18.738451,
+          "accepted_ns": 1791012867995242000,
+          "raw_connection_context": {
+            "socket": {
+              "last_before": {
+                "received_ns": 1791012870135482000,
+                "frame": 7902,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791012870278012000,
+                "frame": 7903,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.105481
+            },
+            "ETHbook": {
+              "last_before": {
+                "received_ns": 1791012867995115000,
+                "frame": 7825,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791012872367462000,
+                "frame": 7952,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 2.245848
+            },
+            "BTCbook": {
+              "last_before": {
+                "received_ns": 1791012870135482000,
+                "frame": 7902,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791012870278012000,
+                "frame": 7903,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.105481
+            }
+          }
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:11156",
+          "raw_frame_index": 11383,
+          "price": "2681.59",
+          "base_qty": "21.24869060",
+          "displayed_notional_usd": "56980.2762260540",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.268346,
+          "receive_age_seconds": 0.188075,
+          "bid_price_unchanged_seconds": 10.373711,
+          "ask_price_unchanged_seconds": 22.076181,
+          "accepted_ns": 1791012930053133000
+        }
+      }
+    },
+    {
+      "evaluation_id": "a8643b62-5863-541b-a4ca-2960c8d39ebb",
+      "evaluation_ns": 1791013020086966000,
+      "deadline_ns": 1791013080086966000,
+      "reasons": [
+        "HORIZON_QUOTE_STALE_OR_MISSING"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:16253",
+          "raw_frame_index": 16569,
+          "price": "2682.42",
+          "base_qty": "2.89165196",
+          "displayed_notional_usd": "7756.6250505432",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.783227,
+          "receive_age_seconds": 0.703969,
+          "bid_price_unchanged_seconds": 6.65708,
+          "ask_price_unchanged_seconds": 6.658812,
+          "accepted_ns": 1791013019383334000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:19137",
+          "raw_frame_index": 19511,
+          "price": "2682.46",
+          "base_qty": "5.04226960",
+          "displayed_notional_usd": "13525.6865112160",
+          "checksum_valid": true,
+          "provider_age_seconds": 2.834774,
+          "receive_age_seconds": 2.75515,
+          "bid_price_unchanged_seconds": 13.806995,
+          "ask_price_unchanged_seconds": 13.808267,
+          "accepted_ns": 1791013077332084000,
+          "raw_connection_context": {
+            "socket": {
+              "last_before": {
+                "received_ns": 1791013080020289000,
+                "frame": 19542,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791013080199775000,
+                "frame": 19543,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.066677
+            },
+            "ETHbook": {
+              "last_before": {
+                "received_ns": 1791013077331816000,
+                "frame": 19511,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791013080354755000,
+                "frame": 19545,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 2.75515
+            },
+            "BTCbook": {
+              "last_before": {
+                "received_ns": 1791013080020289000,
+                "frame": 19542,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791013080199775000,
+                "frame": 19543,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.066677
+            }
+          }
+        }
+      }
+    },
+    {
+      "evaluation_id": "63f733be-fe99-5eba-b381-b07ebe0d7b99",
+      "evaluation_ns": 1791013080156488000,
+      "deadline_ns": 1791013140156488000,
+      "reasons": [
+        "DECISION_QUOTE_STALE_OR_MISSING"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:19137",
+          "raw_frame_index": 19511,
+          "price": "2682.47",
+          "base_qty": "4.23526072",
+          "displayed_notional_usd": "11360.9598235784",
+          "checksum_valid": true,
+          "provider_age_seconds": 2.904296,
+          "receive_age_seconds": 2.824672,
+          "bid_price_unchanged_seconds": 13.876517,
+          "ask_price_unchanged_seconds": 13.877789,
+          "accepted_ns": 1791013077332084000,
+          "raw_connection_context": {
+            "socket": {
+              "last_before": {
+                "received_ns": 1791013080020289000,
+                "frame": 19542,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791013080199775000,
+                "frame": 19543,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.136199
+            },
+            "ETHbook": {
+              "last_before": {
+                "received_ns": 1791013077331816000,
+                "frame": 19511,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791013080354755000,
+                "frame": 19545,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 2.824672
+            },
+            "BTCbook": {
+              "last_before": {
+                "received_ns": 1791013080020289000,
+                "frame": 19542,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791013080199775000,
+                "frame": 19543,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.136199
+            }
+          }
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:21550",
+          "raw_frame_index": 21987,
+          "price": "2682.81",
+          "base_qty": "10.65189866",
+          "displayed_notional_usd": "28577.0202440346",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.146546,
+          "receive_age_seconds": 0.066182,
+          "bid_price_unchanged_seconds": 17.93033,
+          "ask_price_unchanged_seconds": 17.93033,
+          "accepted_ns": 1791013140090423000
+        }
+      }
+    },
+    {
+      "evaluation_id": "256bc67a-28ec-5cac-bc29-1f5b74dc64db",
+      "evaluation_ns": 1791013380090113000,
+      "deadline_ns": 1791013440090113000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:32266",
+          "raw_frame_index": 32942,
+          "price": "2680.21",
+          "base_qty": "10.14204791",
+          "displayed_notional_usd": "27182.8182288611",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.096532,
+          "receive_age_seconds": 0.016618,
+          "bid_price_unchanged_seconds": 6.555334,
+          "ask_price_unchanged_seconds": 6.555334,
+          "accepted_ns": 1791013380073878000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:34533",
+          "raw_frame_index": 35269,
+          "price": "2680.81",
+          "base_qty": "0.00322461",
+          "displayed_notional_usd": "8.6445667341",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.321392,
+          "receive_age_seconds": 0.241363,
+          "bid_price_unchanged_seconds": 10.913605,
+          "ask_price_unchanged_seconds": 10.913605,
+          "accepted_ns": 1791013439848956000
+        }
+      }
+    },
+    {
+      "evaluation_id": "e2060fd2-7afd-56db-ad0a-037f787537a8",
+      "evaluation_ns": 1791013650061770000,
+      "deadline_ns": 1791013710061770000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:47008",
+          "raw_frame_index": 47954,
+          "price": "2681.66",
+          "base_qty": "0.00348166",
+          "displayed_notional_usd": "9.3366283556",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.107196,
+          "receive_age_seconds": 0.028054,
+          "bid_price_unchanged_seconds": 5.716839,
+          "ask_price_unchanged_seconds": 5.719181,
+          "accepted_ns": 1791013650034029000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:49952",
+          "raw_frame_index": 50958,
+          "price": "2681.94",
+          "base_qty": "1.31645252",
+          "displayed_notional_usd": "3530.6466714888",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.101506,
+          "receive_age_seconds": 0.021929,
+          "bid_price_unchanged_seconds": 8.378657,
+          "ask_price_unchanged_seconds": 8.380788,
+          "accepted_ns": 1791013710040093000
+        }
+      }
+    },
+    {
+      "evaluation_id": "f3d4b5f5-7ace-5560-8751-643c0f3ee8dc",
+      "evaluation_ns": 1791013660243901000,
+      "deadline_ns": 1791013720243901000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:47470",
+          "raw_frame_index": 48426,
+          "price": "2681.66",
+          "base_qty": "0.00348166",
+          "displayed_notional_usd": "9.3366283556",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.175327,
+          "receive_age_seconds": 0.095678,
+          "bid_price_unchanged_seconds": 15.89897,
+          "ask_price_unchanged_seconds": 15.901312,
+          "accepted_ns": 1791013660148375000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:50620",
+          "raw_frame_index": 51636,
+          "price": "2681.82",
+          "base_qty": "0.35861610",
+          "displayed_notional_usd": "961.7438293020",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.251073,
+          "receive_age_seconds": 0.17056,
+          "bid_price_unchanged_seconds": 2.908783,
+          "ask_price_unchanged_seconds": 2.814774,
+          "accepted_ns": 1791013720073718000
+        }
+      }
+    },
+    {
+      "evaluation_id": "f4d4c833-68af-5921-b721-5448db44e938",
+      "evaluation_ns": 1791013700176377000,
+      "deadline_ns": 1791013760176377000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:49319",
+          "raw_frame_index": 50315,
+          "price": "2681.80",
+          "base_qty": "0.00149595",
+          "displayed_notional_usd": "4.0118387100",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.154324,
+          "receive_age_seconds": 0.074411,
+          "bid_price_unchanged_seconds": 1.717998,
+          "ask_price_unchanged_seconds": 1.720275,
+          "accepted_ns": 1791013700102177000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:52329",
+          "raw_frame_index": 53385,
+          "price": "2682.01",
+          "base_qty": "0.66587130",
+          "displayed_notional_usd": "1785.8734853130",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.102868,
+          "receive_age_seconds": 0.023849,
+          "bid_price_unchanged_seconds": 23.544273,
+          "ask_price_unchanged_seconds": 23.541882,
+          "accepted_ns": 1791013760152795000
+        }
+      }
+    },
+    {
+      "evaluation_id": "f1b06ee4-4786-584b-b715-b273d17d5175",
+      "evaluation_ns": 1791014160170900000,
+      "deadline_ns": 1791014220170900000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:71518",
+          "raw_frame_index": 72973,
+          "price": "2682.04",
+          "base_qty": "0.00175475",
+          "displayed_notional_usd": "4.7063096900",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.824676,
+          "receive_age_seconds": 0.744894,
+          "bid_price_unchanged_seconds": 10.717659,
+          "ask_price_unchanged_seconds": 10.719403,
+          "accepted_ns": 1791014159426214000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:73619",
+          "raw_frame_index": 75135,
+          "price": "2682.41",
+          "base_qty": "16.52518681",
+          "displayed_notional_usd": "44327.3263510121",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.175215,
+          "receive_age_seconds": 0.090048,
+          "bid_price_unchanged_seconds": 2.738907,
+          "ask_price_unchanged_seconds": 2.738907,
+          "accepted_ns": 1791014220080958000
+        }
+      }
+    },
+    {
+      "evaluation_id": "86750d69-8ea9-5f41-8b0c-0bde508b35d3",
+      "evaluation_ns": 1791014350214401000,
+      "deadline_ns": 1791014410214401000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:79345",
+          "raw_frame_index": 80990,
+          "price": "2682.05",
+          "base_qty": "0.00279597",
+          "displayed_notional_usd": "7.4989313385",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.407617,
+          "receive_age_seconds": 0.328285,
+          "bid_price_unchanged_seconds": 2.719004,
+          "ask_price_unchanged_seconds": 2.719924,
+          "accepted_ns": 1791014349886383000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:83835",
+          "raw_frame_index": 85540,
+          "price": "2680.81",
+          "base_qty": "22.09641733",
+          "displayed_notional_usd": "59236.2965424373",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.341942,
+          "receive_age_seconds": 0.261763,
+          "bid_price_unchanged_seconds": 4.422415,
+          "ask_price_unchanged_seconds": 4.423556,
+          "accepted_ns": 1791014409952987000
+        }
+      }
+    },
+    {
+      "evaluation_id": "f9530cff-df08-5e6a-9d43-017ed87eedc7",
+      "evaluation_ns": 1791014390172776000,
+      "deadline_ns": 1791014450172776000,
+      "reasons": [
+        "HORIZON_QUOTE_STALE_OR_MISSING"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:81807",
+          "raw_frame_index": 83492,
+          "price": "2681.79",
+          "base_qty": "4.23521839",
+          "displayed_notional_usd": "11357.9663261181",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.246273,
+          "receive_age_seconds": 0.167126,
+          "bid_price_unchanged_seconds": 3.713998,
+          "ask_price_unchanged_seconds": 3.717368,
+          "accepted_ns": 1791014390006061000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:86226",
+          "raw_frame_index": 87968,
+          "price": "2681.17",
+          "base_qty": "9.01555044",
+          "displayed_notional_usd": "24172.2233732148",
+          "checksum_valid": true,
+          "provider_age_seconds": 3.162273,
+          "receive_age_seconds": 3.079338,
+          "bid_price_unchanged_seconds": 7.108177,
+          "ask_price_unchanged_seconds": 7.109508,
+          "accepted_ns": 1791014447093710000,
+          "raw_connection_context": {
+            "socket": {
+              "last_before": {
+                "received_ns": 1791014449732474000,
+                "frame": 87978,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791014450287793000,
+                "frame": 87979,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.440302
+            },
+            "ETHbook": {
+              "last_before": {
+                "received_ns": 1791014447093438000,
+                "frame": 87968,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791014451030422000,
+                "frame": 88020,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 3.079338
+            },
+            "BTCbook": {
+              "last_before": {
+                "received_ns": 1791014449732474000,
+                "frame": 87978,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791014450287793000,
+                "frame": 87979,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.440302
+            }
+          }
+        }
+      }
+    },
+    {
+      "evaluation_id": "819c1f5e-2971-5bf2-87e6-1b18ac89f714",
+      "evaluation_ns": 1791014450231370000,
+      "deadline_ns": 1791014510231370000,
+      "reasons": [
+        "DECISION_QUOTE_STALE_OR_MISSING"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:86226",
+          "raw_frame_index": 87968,
+          "price": "2681.18",
+          "base_qty": "0.36715169",
+          "displayed_notional_usd": "984.3997681942",
+          "checksum_valid": true,
+          "provider_age_seconds": 3.220867,
+          "receive_age_seconds": 3.137932,
+          "bid_price_unchanged_seconds": 7.166771,
+          "ask_price_unchanged_seconds": 7.168102,
+          "accepted_ns": 1791014447093710000,
+          "raw_connection_context": {
+            "socket": {
+              "last_before": {
+                "received_ns": 1791014449732474000,
+                "frame": 87978,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791014450287793000,
+                "frame": 87979,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.498896
+            },
+            "ETHbook": {
+              "last_before": {
+                "received_ns": 1791014447093438000,
+                "frame": 87968,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791014451030422000,
+                "frame": 88020,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 3.137932
+            },
+            "BTCbook": {
+              "last_before": {
+                "received_ns": 1791014449732474000,
+                "frame": 87978,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "next_after": {
+                "received_ns": 1791014450287793000,
+                "frame": 87979,
+                "channel": "book",
+                "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+              },
+              "last_age_seconds": 0.498896
+            }
+          }
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:88848",
+          "raw_frame_index": 90653,
+          "price": "2681.21",
+          "base_qty": "8.83534129",
+          "displayed_notional_usd": "23689.4054201609",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.110353,
+          "receive_age_seconds": 0.026124,
+          "bid_price_unchanged_seconds": 2.529727,
+          "ask_price_unchanged_seconds": 2.529727,
+          "accepted_ns": 1791014510205426000
+        }
+      }
+    },
+    {
+      "evaluation_id": "e7b7cc59-0e5e-53a2-81f1-1ee16a103a1f",
+      "evaluation_ns": 1791014460168033000,
+      "deadline_ns": 1791014520168033000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:86737",
+          "raw_frame_index": 88492,
+          "price": "2681.35",
+          "base_qty": "0.00262096",
+          "displayed_notional_usd": "7.0277110960",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.163936,
+          "receive_age_seconds": 0.082366,
+          "bid_price_unchanged_seconds": 2.091457,
+          "ask_price_unchanged_seconds": 2.093434,
+          "accepted_ns": 1791014460086087000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:89181",
+          "raw_frame_index": 90996,
+          "price": "2681.21",
+          "base_qty": "1.00000000",
+          "displayed_notional_usd": "2681.2100000000",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.16069,
+          "receive_age_seconds": 0.08161,
+          "bid_price_unchanged_seconds": 12.46639,
+          "ask_price_unchanged_seconds": 12.46639,
+          "accepted_ns": 1791014520086716000
+        }
+      }
+    },
+    {
+      "evaluation_id": "8615877f-7811-5da3-9e11-e5e6d5af03e1",
+      "evaluation_ns": 1791014550215937000,
+      "deadline_ns": 1791014610215937000,
+      "reasons": [
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE"
+      ],
+      "endpoints": {
+        "entry": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:91019",
+          "raw_frame_index": 92864,
+          "price": "2680.79",
+          "base_qty": "3.96809207",
+          "displayed_notional_usd": "10637.6215403353",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.169884,
+          "receive_age_seconds": 0.089921,
+          "bid_price_unchanged_seconds": 0.787966,
+          "ask_price_unchanged_seconds": 0.789442,
+          "accepted_ns": 1791014550126400000
+        },
+        "future": {
+          "event_id": "kraken-spot-checksum-book10:c64c235b-08e7-442e-889f-85ec43458522:93182",
+          "raw_frame_index": 95087,
+          "price": "2680.28",
+          "base_qty": "0.00073023",
+          "displayed_notional_usd": "1.9572208644",
+          "checksum_valid": true,
+          "provider_age_seconds": 0.138363,
+          "receive_age_seconds": 0.05857,
+          "bid_price_unchanged_seconds": 12.181673,
+          "ask_price_unchanged_seconds": 12.179851,
+          "accepted_ns": 1791014610157715000
+        }
+      }
+    }
+  ],
+  "unit": "ETH base asset; USDprice * ETHqty",
+  "frozen_notional_usd": "10.25",
+  "all_original_results_unchanged": true
+}
