@@ -1,0 +1,44 @@
+from decimal import Decimal as D
+from kraken_checksum_book import Book, checksum
+
+# Published Kraken checksum example, not synthetic market evidence.
+bids = [
+    ("45283.5","0.10000000"),("45283.4","1.54582015"),("45282.1","0.10000000"),
+    ("45281.0","0.10000000"),("45280.3","1.54592586"),("45279.0","0.07990000"),
+    ("45277.6","0.03310103"),("45277.5","0.30000000"),("45277.3","1.54602737"),
+    ("45276.6","0.15445238"),
+]
+asks = [
+    ("45285.2","0.00100000"),("45286.4","1.54571953"),("45286.6","1.54571109"),
+    ("45289.6","1.54560911"),("45290.2","0.15890660"),("45291.8","1.54553491"),
+    ("45294.7","0.04454749"),("45296.1","0.35380000"),("45297.5","0.09945542"),
+    ("45299.5","0.18772827"),
+]
+b = {D(p):D(q) for p,q in bids};a = {D(p):D(q) for p,q in asks}
+assert checksum(b,a) == 3310070434
+snapshot={"bids":[{"price":p,"qty":q}for p,q in bids],
+          "asks":[{"price":p,"qty":q}for p,q in asks],"checksum":3310070434}
+book=Book();quote=book.apply(snapshot,"snapshot",100)
+assert quote["checksum_valid"] and quote["bid_price_last_changed_ns"]==100
+changed=dict(b);changed[D("45283.5")]=D("0.20000000")
+update={"bids":[{"price":"45283.5","qty":"0.30000000"},
+                {"price":"45283.5","qty":"0.20000000"}],"asks":[],
+        "checksum":checksum(changed,a)}
+q=book.apply(update,"update",101)
+assert q["bid_size"]=="0.20000000" and q["bid_size_last_changed_ns"]==101
+assert q["bid_price_last_changed_ns"]==100
+assert q["provider_book_update_ns"]==101
+invalid={**update,"checksum":0}
+assert book.apply(invalid,"update",102) is None and not book.valid
+assert book.apply(update,"update",103) is None
+assert book.apply(snapshot,"snapshot",104)["checksum_valid"]
+book.invalidate("disconnect")
+assert not book.valid and book.apply(update,"update",105) is None
+assert book.apply(snapshot,"snapshot",106)
+assert book.apply(update,"update",105) is None and not book.valid
+empty=Book();assert empty.apply(update,"update",200) is None
+extra_bids={**b,D("45284.0"):D("1.0")};trimmed=dict(sorted(extra_bids.items(),reverse=True)[:10])
+deep={"bids":[{"price":str(p),"qty":str(q)}for p,q in extra_bids.items()],
+      "asks":snapshot["asks"],"checksum":checksum(trimmed,a)}
+assert Book().apply(deep,"snapshot",300)["checksum_valid"]
+print("12 checksum/order/truncation/disconnect/clock tests passed; official CRC example matched")

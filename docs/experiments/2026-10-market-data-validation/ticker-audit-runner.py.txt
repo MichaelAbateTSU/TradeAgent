@@ -1,0 +1,200 @@
+"""Immutable raw ticker forensic audit; no counterfactual labels are written."""
+
+import gzip
+import hashlib
+import json
+from bisect import bisect_right
+from collections import Counter, defaultdict
+from decimal import Decimal
+from pathlib import Path
+
+from tradeagent.scalping_market import timestamp_ns
+from tradeagent.scalping_store import canonical
+
+root = Path(r"C:\git\TradeAgent\docs\experiments\2026-10-native-venue-evaluation\native-study-r2")
+output = Path(__file__).with_name("ticker-clock-audit")
+output.mkdir(exist_ok=False)
+freeze = json.loads((root / "frozen-study.json").read_text())
+start = timestamp_ns(freeze["evaluation_start"])
+end = timestamp_ns(freeze["evaluation_end"])
+maximum = {}
+previous = {}
+messages = defaultdict(list)
+regressions = []
+counts = Counter()
+symbol_counts = defaultdict(Counter)
+grouping = set()
+wire = 0
+with gzip.open(root / "kraken-spot-international-frames.jsonl.gz", "rt") as source:
+    for line in source:
+        envelope = json.loads(line)
+        message = json.loads(envelope["payload_text"], parse_float=Decimal)
+        if message.get("channel") != "ticker":
+            continue
+        for q in message["data"]:
+            wire += 1
+            key = (envelope["connection_id"], "ticker", q["symbol"])
+            grouping.add(key)
+            provider = timestamp_ns(q["timestamp"])
+            old = maximum.get(key)
+            prior = previous.get(key)
+            changes = {
+                name: prior is not None and q[name] != prior["quote"][name]
+                for name in ("bid", "ask", "bid_qty", "ask_qty", "last", "trades", "timestamp")
+            }
+            record = {
+                "wire_index": wire, "frame_index": envelope["frame_index"],
+                "symbol": q["symbol"], "channel": "ticker", "type": message["type"],
+                "connection_id": envelope["connection_id"], "provider_ns": provider,
+                "received_ns": envelope["received_ns"], "received_at": envelope["received_at"],
+                "quote": q, "change_flags": changes,
+                "formal_window": start <= envelope["received_ns"] < end,
+            }
+            stat = symbol_counts[q["symbol"]]
+            stat["ticker_messages"] += 1
+            if prior:
+                price_changed = changes["bid"] or changes["ask"]
+                size_changed = changes["bid_qty"] or changes["ask_qty"]
+                stat["size_only_changes"] += bool(size_changed and not price_changed)
+                stat["bbo_changed_same_timestamp"] += bool(
+                    (price_changed or size_changed) and not changes["timestamp"]
+                )
+                stat["timestamp_changed_without_trade_stats_change"] += bool(
+                    changes["timestamp"] and not (changes["last"] or changes["trades"])
+                )
+                stat["trade_count_changed_without_timestamp_change"] += bool(
+                    changes["trades"] and not changes["timestamp"]
+                )
+            if old and provider < old["provider_ns"]:
+                classification = (
+                    "direct_wire_timestamp_regression" if provider < prior["provider_ns"]
+                    else "repeated_below_high_water_timestamp"
+                )
+                regressions.append({
+                    **record, "classification": classification,
+                    "delta_ns_below_maximum": old["provider_ns"] - provider,
+                    "maximum_before": old, "previous_wire": prior,
+                    "predecessor_type": old["type"],
+                })
+                counts[classification] += 1
+                counts["snapshot_high_water_predecessor"] += old["type"] == "snapshot"
+                counts["regressions_in_formal_window"] += record["formal_window"]
+                stat["regressions"] += 1
+            if old is None or provider >= old["provider_ns"]:
+                maximum[key] = record
+            previous[key] = record
+            messages[q["symbol"]].append(record)
+assert len(regressions) == 93
+assert set(key[1] for key in grouping) == {"ticker"}
+assert len(set(key[0] for key in grouping)) == 1
+accepted = {}
+with gzip.open(root / "kraken-spot-international-quotes.jsonl.gz", "rt") as source:
+    for line in source:
+        q = json.loads(line)
+        sequence = int(q["event_id"].rsplit(":", 1)[1])
+        accepted[sequence] = q
+rejected = {r["wire_index"] for r in regressions}
+assert not set(accepted) & rejected
+assert len(accepted) + len(rejected) == wire
+indices = {
+    symbol: [r["received_ns"] for r in rows] for symbol, rows in messages.items()
+}
+labels = []
+attribution = defaultdict(Counter)
+endpoint_counts = defaultdict(Counter)
+with gzip.open(root / "kraken-spot-international-primary-labels.jsonl.gz", "rt") as source:
+    for line in source:
+        case = json.loads(line)
+        if case["complete"]:
+            continue
+        result = {
+            "evaluation_id": case["evaluation_id"], "symbol": case["symbol"],
+            "evaluation_ns": case["at_ns"], "horizon_ns": case["deadline_ns"],
+            "original_reasons": case["reasons"], "endpoints": {},
+        }
+        for endpoint, target in (("entry", case["at_ns"]), ("future", case["deadline_ns"])):
+            symbol = case["symbol"]
+            index = bisect_right(indices[symbol], target) - 1
+            last = messages[symbol][index] if index >= 0 else None
+            selected = case[endpoint]
+            native_age = (target - last["provider_ns"]) / 1e9 if last else None
+            receipt_age = (target - last["received_ns"]) / 1e9 if last else None
+            classification = (
+                "A_no_native_message_before_cutoff" if last is None
+                else "native_receipt_and_provider_within_contract" if
+                0 <= native_age <= 2 and 0 <= receipt_age <= 2
+                else "recent_transport_but_ticker_provider_timestamp_outside_contract" if
+                0 <= receipt_age <= 2
+                else "no_native_message_inside_receive_freshness_window"
+            )
+            selected_fresh = selected is not None and all(
+                0 <= target - selected[key] <= 2_000_000_000
+                for key in ("provider_ns", "received_ns")
+            )
+            endpoint_counts[symbol][classification] += 1
+            if selected_fresh:
+                classification = "original_selected_quote_satisfies_freshness"
+            result["endpoints"][endpoint] = {
+                "classification": classification,
+                "last_raw_before_cutoff": last, "original_selected_quote": selected,
+                "last_raw_provider_age_seconds": native_age,
+                "last_raw_receive_age_seconds": receipt_age,
+                "last_raw_was_high_water_rejected": last["wire_index"] in rejected if last else None,
+                "last_raw_consumer_acceptance": accepted.get(last["wire_index"]) if last else None,
+                "unselected_consumer_time_not_inferred": True,
+                "same_symbol_channel_connection_scoped": True,
+            }
+        a = attribution[case["symbol"]]
+        a["missing_labels"] += 1
+        if "INSUFFICIENT_DISPLAYED_LONG_SIZE" in case["reasons"]:
+            a["displayed_size"] += 1
+        elif any(
+            e["classification"] == "no_native_message_inside_receive_freshness_window"
+            for e in result["endpoints"].values()
+        ):
+            a["at_least_one_receive_gap"] += 1
+        elif any(
+            e["classification"] == "recent_transport_but_ticker_provider_timestamp_outside_contract"
+            for e in result["endpoints"].values()
+        ):
+            a["provider_timestamp_age_without_receive_gap"] += 1
+        else:
+            a["further_processing_or_selection_review"] += 1
+        labels.append(result)
+assert len(labels) == 133
+with gzip.open(output / "all-regressions.jsonl.gz", "wt", encoding="utf-8") as destination:
+    for row in regressions:
+        destination.write(canonical(row) + "\n")
+with gzip.open(output / "all-missing-label-correlations.jsonl.gz", "wt", encoding="utf-8") as destination:
+    for row in labels:
+        destination.write(canonical(row) + "\n")
+report = {
+    "schema": "kraken-ticker-clock-root-cause-v1", "raw_ticker_messages": wire,
+    "accepted_quotes": len(accepted), "all_regressions_traced": len(regressions),
+    "scoped_groups": [list(key) for key in sorted(grouping)],
+    "regression_classification": dict(counts),
+    "per_symbol": {key: dict(value) for key, value in symbol_counts.items()},
+    "missing_labels_correlated": len(labels),
+    "non_overlapping_failure_attribution": {key: dict(value) for key, value in attribution.items()},
+    "raw_endpoint_context_counts": {key: dict(value) for key, value in endpoint_counts.items()},
+    "original_data_protocol_and_coverage_modified": False,
+    "regressions_are_not_cross_symbol_or_cross_channel_comparisons": True,
+    "quote_callbacks_in_runner_are_sequential": True,
+    "high_water_rejections_are_not_all_distinct_wire_reversals": True,
+    "ticker_timestamp_semantics_stronger_than_provider_docs_proven": False,
+    "no_new_label_or_quote_written_to_v1": True,
+    "limitations": [
+        "Recent transport with old ticker time is a timestamp-age failure under the old contract, not proof the displayed quote was invalid.",
+        "Ticker documents describe ticker data time; last-trade-only clock semantics are not inferred from correlations.",
+        "Rejecting a timestamp below the high-water mark can discard changed BBO state; no historical values are corrected here.",
+        "An unselected raw message's exact consumer acceptance is not fabricated.",
+    ],
+    "artifacts": [],
+}
+for file in sorted(output.iterdir()):
+    data = file.read_bytes()
+    report["artifacts"].append({
+        "path": file.name, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(),
+    })
+(output / "root-cause.json").write_text(json.dumps(report, indent=2) + "\n")
+print(json.dumps(report, indent=2))

@@ -1,0 +1,5 @@
+# Preserve byte-hashed raw correlations, code snapshots and study artifacts.
+*.json -text whitespace=cr-at-eol
+*.txt -text whitespace=cr-at-eol
+*.eml -text whitespace=cr-at-eol
+*.gz -text

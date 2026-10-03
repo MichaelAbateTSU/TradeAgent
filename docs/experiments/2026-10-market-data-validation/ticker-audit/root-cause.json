@@ -1,0 +1,92 @@
+{
+  "schema": "kraken-ticker-clock-root-cause-v1",
+  "raw_ticker_messages": 15969,
+  "accepted_quotes": 15876,
+  "all_regressions_traced": 93,
+  "scoped_groups": [
+    [
+      "0f09a746-70b0-4a9e-92b0-f0be9836ae0e",
+      "ticker",
+      "BTC/USD"
+    ],
+    [
+      "0f09a746-70b0-4a9e-92b0-f0be9836ae0e",
+      "ticker",
+      "ETH/USD"
+    ]
+  ],
+  "regression_classification": {
+    "direct_wire_timestamp_regression": 73,
+    "snapshot_high_water_predecessor": 2,
+    "regressions_in_formal_window": 75,
+    "repeated_below_high_water_timestamp": 20
+  },
+  "per_symbol": {
+    "ETH/USD": {
+      "ticker_messages": 7431,
+      "size_only_changes": 6105,
+      "bbo_changed_same_timestamp": 2553,
+      "timestamp_changed_without_trade_stats_change": 4030,
+      "trade_count_changed_without_timestamp_change": 97,
+      "regressions": 65
+    },
+    "BTC/USD": {
+      "ticker_messages": 8538,
+      "size_only_changes": 7660,
+      "bbo_changed_same_timestamp": 3174,
+      "timestamp_changed_without_trade_stats_change": 4291,
+      "trade_count_changed_without_timestamp_change": 164,
+      "regressions": 28
+    }
+  },
+  "missing_labels_correlated": 133,
+  "non_overlapping_failure_attribution": {
+    "ETH/USD": {
+      "missing_labels": 87,
+      "at_least_one_receive_gap": 70,
+      "provider_timestamp_age_without_receive_gap": 17
+    },
+    "BTC/USD": {
+      "missing_labels": 46,
+      "at_least_one_receive_gap": 26,
+      "provider_timestamp_age_without_receive_gap": 19,
+      "displayed_size": 1
+    }
+  },
+  "raw_endpoint_context_counts": {
+    "ETH/USD": {
+      "native_receipt_and_provider_within_contract": 79,
+      "no_native_message_inside_receive_freshness_window": 77,
+      "recent_transport_but_ticker_provider_timestamp_outside_contract": 18
+    },
+    "BTC/USD": {
+      "native_receipt_and_provider_within_contract": 45,
+      "no_native_message_inside_receive_freshness_window": 28,
+      "recent_transport_but_ticker_provider_timestamp_outside_contract": 19
+    }
+  },
+  "original_data_protocol_and_coverage_modified": false,
+  "regressions_are_not_cross_symbol_or_cross_channel_comparisons": true,
+  "quote_callbacks_in_runner_are_sequential": true,
+  "high_water_rejections_are_not_all_distinct_wire_reversals": true,
+  "ticker_timestamp_semantics_stronger_than_provider_docs_proven": false,
+  "no_new_label_or_quote_written_to_v1": true,
+  "limitations": [
+    "Recent transport with old ticker time is a timestamp-age failure under the old contract, not proof the displayed quote was invalid.",
+    "Ticker documents describe ticker data time; last-trade-only clock semantics are not inferred from correlations.",
+    "Rejecting a timestamp below the high-water mark can discard changed BBO state; no historical values are corrected here.",
+    "An unselected raw message's exact consumer acceptance is not fabricated."
+  ],
+  "artifacts": [
+    {
+      "path": "all-missing-label-correlations.jsonl.gz",
+      "bytes": 41901,
+      "sha256": "560b2ceee06292093478e0a2646cff82f572fecfc110bf82b521b925bbd50eb5"
+    },
+    {
+      "path": "all-regressions.jsonl.gz",
+      "bytes": 11176,
+      "sha256": "58c057385e13ae95958a59c2978417a08ab116e866e8b27b40b6cdd6c448767d"
+    }
+  ]
+}

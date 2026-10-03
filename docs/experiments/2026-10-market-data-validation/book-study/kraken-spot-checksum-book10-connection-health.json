@@ -1,0 +1,41 @@
+[
+  {
+    "at_ns": 1791012704536256000,
+    "state": "book_invalidated",
+    "connected": false,
+    "connection_id": "c64c235b-08e7-442e-889f-85ec43458522",
+    "reason": "new_connection_requires_snapshot"
+  },
+  {
+    "at_ns": 1791012704536272000,
+    "state": "connecting_public",
+    "connected": false,
+    "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+  },
+  {
+    "at_ns": 1791012705870892000,
+    "state": "connected_public",
+    "connected": true,
+    "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+  },
+  {
+    "at_ns": 1791012706045487000,
+    "state": "subscribed",
+    "connected": true,
+    "connection_id": "c64c235b-08e7-442e-889f-85ec43458522",
+    "symbol": "BTC/USD"
+  },
+  {
+    "at_ns": 1791012706045592000,
+    "state": "subscribed",
+    "connected": true,
+    "connection_id": "c64c235b-08e7-442e-889f-85ec43458522",
+    "symbol": "ETH/USD"
+  },
+  {
+    "at_ns": 1791014705187546000,
+    "state": "planned_close",
+    "connected": false,
+    "connection_id": "c64c235b-08e7-442e-889f-85ec43458522"
+  }
+]

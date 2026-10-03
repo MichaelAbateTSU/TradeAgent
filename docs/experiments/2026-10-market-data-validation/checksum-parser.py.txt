@@ -1,0 +1,116 @@
+"""Decimal-precise, ordered depth-10 reconstruction for a separate diagnostic."""
+
+from decimal import Decimal, InvalidOperation
+import zlib
+
+
+def decimal(value):
+    if isinstance(value, bool) or not isinstance(value, (Decimal, str, int)):
+        raise ValueError("decode book numbers as Decimal, never binary floats")
+    try:
+        result = Decimal(value)
+    except InvalidOperation as error:
+        raise ValueError("invalid book decimal") from error
+    if not result.is_finite():
+        raise ValueError("non-finite book decimal")
+    return result
+
+
+def checksum(bids, asks):
+    chunks = []
+    for levels, reverse in ((asks, False), (bids, True)):
+        for price in sorted(levels, reverse=reverse)[:10]:
+            qty = levels[price]
+            chunks.extend(
+                format(value, "f").replace(".", "").lstrip("0")
+                for value in (price, qty)
+            )
+    return zlib.crc32("".join(chunks).encode("ascii")) & 0xFFFFFFFF
+
+
+class Book:
+    def __init__(self, depth=10):
+        if depth != 10:
+            raise ValueError("diagnostic subscription depth is fixed at ten")
+        self.depth = depth
+        self.bids = {}
+        self.asks = {}
+        self.valid = False
+        self.last_provider_ns = None
+        self.last_bbo = None
+        self.last_price_change_ns = {"bid": None, "ask": None}
+        self.last_size_change_ns = {"bid": None, "ask": None}
+        self.checks = 0
+        self.failures = 0
+        self.last_reason = "snapshot_required"
+
+    def invalidate(self, reason):
+        self.bids.clear()
+        self.asks.clear()
+        self.valid = False
+        self.last_provider_ns = None
+        self.last_bbo = None
+        self.last_price_change_ns = {"bid": None, "ask": None}
+        self.last_size_change_ns = {"bid": None, "ask": None}
+        self.last_reason = reason
+
+    def apply(self, row, message_type, provider_ns):
+        if message_type not in ("snapshot", "update"):
+            raise ValueError("unsupported book message type")
+        if message_type == "update" and not self.valid:
+            self.last_reason = "update_before_valid_snapshot"
+            return None
+        bids = {} if message_type == "snapshot" else dict(self.bids)
+        asks = {} if message_type == "snapshot" else dict(self.asks)
+        for updates, side in ((row.get("bids", []), bids), (row.get("asks", []), asks)):
+            for level in updates:
+                price, qty = decimal(level["price"]), decimal(level["qty"])
+                if price <= 0 or qty < 0:
+                    self.invalidate("invalid_book_level")
+                    raise ValueError("invalid book price or quantity")
+                if qty == 0:
+                    side.pop(price, None)
+                else:
+                    # Multiple changes to the same level must be applied in wire order.
+                    side[price] = qty
+        bids = {price: bids[price] for price in sorted(bids, reverse=True)[:self.depth]}
+        asks = {price: asks[price] for price in sorted(asks)[:self.depth]}
+        self.checks += 1
+        actual = checksum(bids, asks)
+        if actual != row["checksum"]:
+            self.failures += 1
+            self.invalidate("checksum_mismatch")
+            return None
+        if not bids or not asks or max(bids) >= min(asks):
+            self.invalidate("empty_locked_or_crossed_book")
+            return None
+        if self.last_provider_ns is not None and provider_ns < self.last_provider_ns:
+            self.failures += 1
+            self.invalidate("provider_book_timestamp_regression")
+            return None
+        bid, ask = max(bids), min(asks)
+        bbo = (bid, bids[bid], ask, asks[ask])
+        if self.last_bbo is None or bid != self.last_bbo[0]:
+            self.last_price_change_ns["bid"] = provider_ns
+        if self.last_bbo is None or ask != self.last_bbo[2]:
+            self.last_price_change_ns["ask"] = provider_ns
+        if self.last_bbo is None or bids[bid] != self.last_bbo[1]:
+            self.last_size_change_ns["bid"] = provider_ns
+        if self.last_bbo is None or asks[ask] != self.last_bbo[3]:
+            self.last_size_change_ns["ask"] = provider_ns
+        self.bids, self.asks = bids, asks
+        self.last_provider_ns = provider_ns
+        self.last_bbo = bbo
+        self.valid = True
+        self.last_reason = "checksum_validated"
+        return {
+            "bid": str(bid), "ask": str(ask),
+            "bid_size": str(bids[bid]), "ask_size": str(asks[ask]),
+            "provider_book_update_ns": provider_ns,
+            "bid_price_last_changed_ns": self.last_price_change_ns["bid"],
+            "ask_price_last_changed_ns": self.last_price_change_ns["ask"],
+            "bid_size_last_changed_ns": self.last_size_change_ns["bid"],
+            "ask_size_last_changed_ns": self.last_size_change_ns["ask"],
+            "checksum_expected": row["checksum"], "checksum_computed": actual,
+            "checksum_valid": True, "whole_top10_book_consistency_only": True,
+        }

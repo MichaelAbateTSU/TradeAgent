@@ -1,0 +1,80 @@
+{
+  "endpoint": "wss://ws.kraken.com/v2",
+  "channel": "book",
+  "depth": 10,
+  "checksums_verified_on_every_message": true,
+  "counts": {
+    "ETH/USD:messages": 1203,
+    "ETH/USD:checksum_success": 1203,
+    "BTC/USD:messages": 1538,
+    "BTC/USD:checksum_success": 1538
+  },
+  "subscription_acknowledgments": [
+    {
+      "method": "subscribe",
+      "req_id": 1,
+      "result": {
+        "channel": "book",
+        "depth": 10,
+        "snapshot": true,
+        "symbol": "BTC/USD"
+      },
+      "success": true,
+      "time_in": "2026-10-03T07:24:34.571148Z",
+      "time_out": "2026-10-03T07:24:34.571219Z"
+    },
+    {
+      "method": "subscribe",
+      "req_id": 1,
+      "result": {
+        "channel": "book",
+        "depth": 10,
+        "snapshot": true,
+        "symbol": "ETH/USD"
+      },
+      "success": true,
+      "time_in": "2026-10-03T07:24:34.571148Z",
+      "time_out": "2026-10-03T07:24:34.571219Z"
+    }
+  ],
+  "first_states": {
+    "ETH/USD": {
+      "received_at": "2026-10-03T07:24:34.900681+00:00",
+      "state": {
+        "bid": "2679.47",
+        "ask": "2679.48",
+        "bid_size": "3.13287788",
+        "ask_size": "0.76011828",
+        "provider_book_update_ns": 1791012274794820000,
+        "bid_price_last_changed_ns": 1791012274794820000,
+        "ask_price_last_changed_ns": 1791012274794820000,
+        "bid_size_last_changed_ns": 1791012274794820000,
+        "ask_size_last_changed_ns": 1791012274794820000,
+        "checksum_expected": 2888174339,
+        "checksum_computed": 2888174339,
+        "checksum_valid": true,
+        "whole_top10_book_consistency_only": true
+      }
+    },
+    "BTC/USD": {
+      "received_at": "2026-10-03T07:24:34.900847+00:00",
+      "state": {
+        "bid": "84582.2",
+        "ask": "84582.3",
+        "bid_size": "1.11071705",
+        "ask_size": "0.16680281",
+        "provider_book_update_ns": 1791012274791148000,
+        "bid_price_last_changed_ns": 1791012274791148000,
+        "ask_price_last_changed_ns": 1791012274791148000,
+        "bid_size_last_changed_ns": 1791012274791148000,
+        "ask_size_last_changed_ns": 1791012274791148000,
+        "checksum_expected": 2887688115,
+        "checksum_computed": 2887688115,
+        "checksum_valid": true,
+        "whole_top10_book_consistency_only": true
+      }
+    }
+  },
+  "orders_submitted": 0,
+  "no_quality_or_profitability_claim": true
+}

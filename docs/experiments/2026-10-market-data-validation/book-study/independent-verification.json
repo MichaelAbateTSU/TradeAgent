@@ -1,0 +1,27 @@
+{
+  "every_artifact_and_raw_chain_verified": true,
+  "every_book_crc_replayed": true,
+  "verified_frames": 98200,
+  "validated_book_messages": 96200,
+  "reconstruction_rejections": {},
+  "all_primary_labels_reproduced": 360,
+  "quote_clocks_and_causal_bounds_verified": true,
+  "counts": {
+    "BTC/USD": {
+      "matured": 180,
+      "complete": 178,
+      "missing": 2,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 1,
+      "DECISION_QUOTE_STALE_OR_MISSING": 1
+    },
+    "ETH/USD": {
+      "matured": 180,
+      "complete": 167,
+      "missing": 13,
+      "DECISION_QUOTE_STALE_OR_MISSING": 3,
+      "HORIZON_QUOTE_STALE_OR_MISSING": 2,
+      "INSUFFICIENT_DISPLAYED_LONG_SIZE": 8
+    }
+  },
+  "does_not_establish_execution_or_account_eligibility": true
+}

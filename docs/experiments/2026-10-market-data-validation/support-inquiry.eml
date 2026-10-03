@@ -1,0 +1,32 @@
+To: support@alpaca.markets
+Subject: Trading API paper crypto quote reference and native-stream 406 entitlement
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Hello Alpaca Support,
+
+I am researching BTC/USD and ETH/USD using an existing individual Trading API
+paper account. Trading remains disabled during observation-only research.
+I would appreciate authoritative clarification of the following technical facts:
+
+1. Which exact quote location/provider or aggregation supplies this account's
+   simulated BTC/USD and ETH/USD fills? Is there a directly accessible native
+   quote feed corresponding to that reference, with documented timestamps/sizes?
+2. How does that paper quote reference relate to the eligible live crypto
+   execution venue and region for an individual Trading API account?
+3. While one existing /v1beta3/crypto/us stream remained active, attempts to
+   authenticate separate us-1 and eu-1 streams returned code406 connection limit.
+   Do these locations share a crypto session quota for this account type?
+4. Is there a retail entitlement that increases simultaneous crypto sessions?
+   Please identify the exact quota, plan and read-only verification method.
+   Equity/option symbol limits or Broker API partner tiers would not establish
+   this personal account's crypto entitlement.
+5. Does an unchanged displayed quote retain validity when no quote event is
+   emitted, and what provider clock/continuity evidence should a client use to
+   verify current executable bid/ask state without fabricating timestamps?
+
+I have not included API keys, account numbers, source code or trading records.
+Please advise a secure authenticated support method if account-specific
+identification is required.
+
+Thank you.
