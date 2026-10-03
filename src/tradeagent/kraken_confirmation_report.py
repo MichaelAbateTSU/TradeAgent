@@ -12,7 +12,9 @@ from pydantic import JsonValue
 from tradeagent.kraken_confirmation import (
     NS,
     SLOTS,
+    STUDY_ID,
     SYMBOLS,
+    V2_STUDY_ID,
     ChunkHeader,
     ConfirmationProtocol,
     ConfirmationStore,
@@ -20,7 +22,10 @@ from tradeagent.kraken_confirmation import (
     Evaluation,
     Evidence,
     Label,
+    PausedV1Proof,
     Quote,
+    StudyId,
+    legacy_journal_compatibility,
     slot_context,
 )
 from tradeagent.persistence import Database
@@ -216,6 +221,15 @@ def build_report(
                 }.items()
             ):
                 raise ValueError("durable observer guard evidence violates frozen safety pins")
+            if protocol.study_id == V2_STUDY_ID:
+                if payload.get("guard_version") != 2:
+                    raise ValueError("durable confirmation-v2 guard version missing")
+                paused = PausedV1Proof.model_validate(payload.get("preserved_v1"))
+                if (
+                    paused.stop_control_sha256 != protocol.v1_stop_control_sha256
+                    or paused.protocol_hash != protocol.v1_protocol_hash
+                ):
+                    raise ValueError("durable paused-v1 guard stop-control pin differs")
             guard_checks += 1
         elif header.kind == "terminal" and payload is not None:
             terminal = payload
@@ -309,7 +323,12 @@ def build_report(
         and mature == SLOTS
         and at_ns >= protocol.capture_end_ns
     )
-    active_store = ConfirmationStore(store.database, latest.owner_id, clock=store.clock)
+    active_store = ConfirmationStore(
+        store.database,
+        latest.owner_id,
+        clock=store.clock,
+        study_id=store.study_id,
+    )
     state = (
         str(terminal["state"])
         if terminal is not None
@@ -337,7 +356,11 @@ def build_report(
     )
     btc, eth = statistics[("overall", SYMBOLS[0])], statistics[("overall", SYMBOLS[1])]
     return {
-        "schema": "kraken-book-confirmation-report-v1",
+        "schema": (
+            "kraken-book-confirmation-report-v1"
+            if protocol.study_id == STUDY_ID
+            else "kraken-book-confirmation-report-v2"
+        ),
         "protocol": protocol.model_dump(mode="json"),
         "protocol_hash": protocol.identity,
         "as_of": ns_datetime(at_ns).isoformat(),
@@ -390,15 +413,26 @@ def build_report(
     }
 
 
-def load_report(database: Database, *, verify_payloads: bool = False) -> dict[str, JsonValue]:
+def load_report(
+    database: Database,
+    *,
+    verify_payloads: bool = False,
+    study_id: StudyId = STUDY_ID,
+) -> dict[str, JsonValue]:
     """Read-only terminal/status API; an expired owner never becomes a resumable run."""
     return build_report(
-        ConfirmationStore(database, "read-only"),
+        ConfirmationStore(database, "read-only", study_id=study_id),
         at_ns=datetime_ns(datetime.now(UTC)),
         verify_payloads=verify_payloads,
     )
 
 
-def export_evidence(database: Database) -> Iterator[dict[str, JsonValue]]:
+def export_evidence(
+    database: Database,
+    *,
+    study_id: StudyId = STUDY_ID,
+) -> Iterator[dict[str, JsonValue]]:
     """Read-only streaming proof: exact compressed bytes, hashes and journal order."""
-    yield from ConfirmationStore(database, "read-only").export_chunks()
+    if study_id == V2_STUDY_ID:
+        legacy_journal_compatibility(database)
+    yield from ConfirmationStore(database, "read-only", study_id=study_id).export_chunks()

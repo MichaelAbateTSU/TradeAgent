@@ -1,8 +1,32 @@
 """Standalone public-only receiver. Importing this module does not launch a job.
 
 Callable: ``await run(protocol, database, guard=callback)``. The module CLI accepts
-``run PROTOCOL.json`` or read-only ``status [--verify]`` / ``export``.
+``run PROTOCOL.json`` or read-only ``preflight PROTOCOL.json``,
+``status [--verify] [--study-id ID]`` / ``export [--study-id ID]``.
 No worker entry point changes.
+
+Confirmation infrastructure v2 (not shadow research dataset v2):
+``ConfirmationProtocol(schema_version="kraken-book-confirmation-v2",
+study_id="kraken-book-confirmation-v2", v1_stop_control_sha256=HASH,
+v1_protocol_hash=ORIGINAL_SHADOW_PROTOCOL_HASH, ...)`` requires
+the exact SHA256 of the persisted UTF-8 stop-control value returned by
+``ProductionRepository(database).get_control(STOP_KEY)``. Do not reserialize parsed
+JSON to obtain this hash. The pinned existing control must identify
+``BROKER_SAFETY_MONITOR_UNAVAILABLE``, ``automatic_rearm=false`` and
+``protocol_changed=false``. Guard v2 requires fresh unchanged code/owner/account/
+connection and a specifically preserved ``paused_invalid`` v1 with stopped,
+unsubscribed, unauthenticated feed. This is NOT a safety-proof fallback: every
+check still performs current fixed-host GET-only paper/account/exposure/order
+verification and local authorization/model/order checks, and fails on unavailable
+or changed evidence. No v1 control is written and v1 is never rearmed.
+V1's protocol JSON, ID, subscription guard and immutable original journal remain
+backward compatible. Each literal ID has a distinct lease, claim and hash chain.
+V2 also verifies both the stored and recomputed original shadow-protocol identity.
+Preflight and v2 export first verify the original confirmation-v1 journal without
+writing it. V1 serialization excludes new optional fields, preserving its hash.
+New v2 broker GET failures report only exception class, allowlisted endpoint path
+and HTTP status when available, never headers/query/body/secrets. The old monitor
+is unchanged and its historical missing HTTP details remain unknown.
 
 Operator interface (nothing runs on import):
 * With the old 0015 observer unchanged, do NOT run global ``alembic upgrade head``.
@@ -17,11 +41,16 @@ Operator interface (nothing runs on import):
   after the uploaded source bytes are final. Save ``model_dump_json()`` at the
   operator-selected protocol path. This module does not choose/freeze dates.
 * Launch before start: ``python -m tradeagent.kraken_confirmation_runtime run PATH``.
+  First use ``preflight PATH`` to verify source bytes, existing schema and the full
+  current safety guard without installation or claim. V2 run repeats preflight
+  before claiming and performs another guard after the sole claim.
   ``status`` prints a bounded summary; ``status --verify`` also streams/verifies
   every blob. ``export`` emits JSONL with exact base64-encoded compressed bytes and
   per-chunk hash-chain headers; ``export_evidence(database)`` is its read-only
   iterator API. ``ConfirmationStore.chunks()`` reads decoded evidence by page.
   Terminal summaries are embedded in the immutable ``terminal`` journal record.
+  Status/export default to v1 forever; use ``--study-id kraken-book-confirmation-v2``
+  explicitly for the new namespace. Unknown IDs are rejected, never inferred.
 * The default guard reuses the existing GET-only paper monitor; an injected
   synchronous callback returns ``GuardEvidence`` and must prove the same pins.
   Broker credentials are never attached to the fixed public Kraken connection.
@@ -71,7 +100,7 @@ import json
 import sys
 import time
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
@@ -80,7 +109,15 @@ from typing import Literal, Never, Self
 from uuid import uuid4
 
 import httpx
-from pydantic import BaseModel, ConfigDict, JsonValue, TypeAdapter, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    JsonValue,
+    SerializerFunctionWrapHandler,
+    TypeAdapter,
+    model_serializer,
+    model_validator,
+)
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from websockets.asyncio.client import connect
@@ -89,19 +126,24 @@ from websockets.exceptions import ConnectionClosed, InvalidHandshake
 from tradeagent.alpaca_paper import AlpacaPaperSettings
 from tradeagent.config import AppConfig
 from tradeagent.kraken_confirmation import (
-    LOCK_NAME,
     NS,
     SOURCE_MODULES,
+    STUDY_ID,
+    STUDY_IDS,
     SYMBOLS,
+    V2_STUDY_ID,
     CausalGrid,
     ConfirmationProtocol,
     ConfirmationStore,
     Evidence,
+    PausedV1Proof,
     Quote,
     SourceDigest,
     check_schema,
     install_schema,
+    legacy_journal_compatibility,
     record,
+    study_id,
 )
 from tradeagent.kraken_confirmation_book import Book
 from tradeagent.kraken_confirmation_report import build_report, export_evidence, load_report
@@ -109,7 +151,7 @@ from tradeagent.persistence import Database, ProductionRepository, worker_locks
 from tradeagent.scalping_market import datetime_ns, timestamp_ns
 from tradeagent.scalping_store import canonical, utc
 from tradeagent.shadow_dataset import DATASET_ID, ShadowDatasetProtocol, shadow_datasets
-from tradeagent.shadow_dataset_monitor import PaperReadOnlyMonitor, local_safety
+from tradeagent.shadow_dataset_monitor import STOP_KEY, PaperReadOnlyMonitor, local_safety
 
 PUBLIC_URL = "wss://ws.kraken.com/v2"
 FRAME_LIMIT = 256 * 1024
@@ -155,12 +197,24 @@ class GuardEvidence(BaseModel):
     v1_runtime_sha: str
     v1_owner_id: str
     v1_connection_id: str
+    guard_version: Literal[1, 2] = 1
+    preserved_v1: PausedV1Proof | None = None
 
     @model_validator(mode="after")
     def get_only(self) -> Self:
         if self.read_methods != ("GET",):
             raise ValueError("broker safety observer must be GET-only")
+        if (self.guard_version == 2) != (self.preserved_v1 is not None):
+            raise ValueError("guard version and paused-v1 preservation proof disagree")
         return self
+
+    @model_serializer(mode="wrap")
+    def legacy_shape(self, handler: SerializerFunctionWrapHandler) -> dict[str, object]:
+        values: dict[str, object] = handler(self)
+        if self.guard_version == 1:
+            values.pop("guard_version", None)
+            values.pop("preserved_v1", None)
+        return values
 
 
 Guard = Callable[[], GuardEvidence]
@@ -170,67 +224,204 @@ class BackpressureError(RuntimeError):
     """No frame may silently disappear when durable persistence falls behind."""
 
 
+class CurrentBrokerProofError(RuntimeError):
+    """Safe new-guard diagnostics; never response bodies, headers, queries or secrets."""
+
+    def __init__(self, error: httpx.HTTPError) -> None:
+        request: httpx.Request | None = None
+        status: int | None = None
+        if isinstance(error, httpx.HTTPStatusError):
+            request, status = error.request, error.response.status_code
+        elif isinstance(error, httpx.RequestError):
+            try:
+                request = error.request
+            except RuntimeError:
+                request = None
+        endpoint = (
+            request.url.path
+            if (
+                request is not None
+                and request.url.host == "paper-api.alpaca.markets"
+                and request.url.path in {"/v2/account", "/v2/positions", "/v2/orders"}
+            )
+            else None
+        )
+        self.details: dict[str, JsonValue] = {
+            "error_type": type(error).__name__,
+            "endpoint": endpoint,
+            "http_status": status,
+        }
+        super().__init__("current GET-only broker proof failed: " + canonical(self.details))
+
+
+def _frozen_v1(database: Database, protocol: ConfirmationProtocol) -> ShadowDatasetProtocol:
+    with database.begin() as connection:
+        saved = (
+            connection.execute(
+                select(
+                    shadow_datasets.c.protocol,
+                    shadow_datasets.c.protocol_hash,
+                ).where(shadow_datasets.c.dataset_id == DATASET_ID)
+            )
+            .mappings()
+            .one()
+        )
+    frozen = ShadowDatasetProtocol.model_validate(saved["protocol"])
+    if frozen.account_digest != protocol.account_digest:
+        raise ValueError("observer account differs from the confirmation pin")
+    if protocol.study_id == V2_STUDY_ID and (
+        saved["protocol_hash"] != protocol.v1_protocol_hash
+        or frozen.identity != protocol.v1_protocol_hash
+    ):
+        raise ValueError("original pinned shadow protocol identity changed")
+    return frozen
+
+
+def _paused_proof(
+    database: Database,
+    protocol: ConfirmationProtocol,
+    details: Mapping[str, object],
+    feed: Mapping[str, object],
+) -> PausedV1Proof:
+    raw = ProductionRepository(database).get_control(STOP_KEY)
+    if raw is None or sha256(raw.encode("utf-8")).hexdigest() != protocol.v1_stop_control_sha256:
+        raise ValueError("pinned existing v1 stop control is absent or changed")
+    stop = JSON_OBJECT.validate_json(raw)
+    if (
+        details.get("state") != "paused_invalid"
+        or feed.get("state") != "stopped"
+        or feed.get("subscribed") is not False
+        or feed.get("authenticated") is not False
+        or stop.get("reason") != "BROKER_SAFETY_MONITOR_UNAVAILABLE"
+        or stop.get("automatic_rearm") is not False
+        or stop.get("protocol_changed") is not False
+        or details.get("account_digest") != protocol.account_digest
+        or details.get("trading_authorization") != "expired"
+        or details.get("model_state") != "no_support"
+        or details.get("orders_submitted") != 0
+        or details.get("economic_entries_enabled") is not False
+        or (
+            details.get("ordinary_entries_enabled") is not None
+            and details.get("ordinary_entries_enabled") is not False
+        )
+    ):
+        raise ValueError("specifically pinned paused v1 containment or authority changed")
+    if protocol.v1_protocol_hash is None:
+        raise ValueError("original shadow protocol pin unavailable")
+    return PausedV1Proof(
+        stop_control_sha256=sha256(raw.encode("utf-8")).hexdigest(),
+        protocol_hash=protocol.v1_protocol_hash,
+    )
+
+
+def _v1_sample(
+    database: Database,
+    protocol: ConfirmationProtocol,
+) -> tuple[datetime, PausedV1Proof | None]:
+    with database.begin() as connection:
+        lease = (
+            connection.execute(
+                select(worker_locks).where(
+                    worker_locks.c.lock_name == "tradeagent-event-worker",
+                )
+            )
+            .mappings()
+            .one()
+        )
+    heartbeat = ProductionRepository(database).latest_heartbeat("tradeagent-event-worker")
+    if heartbeat is None:
+        raise ValueError("v1 heartbeat unavailable")
+    details = heartbeat[2]
+    feed = details.get("feed") or {}
+    checked = datetime.now(UTC)
+    if (
+        not isinstance(feed, dict)
+        or not timedelta(0) <= checked - utc(heartbeat[1]) <= timedelta(seconds=30)
+        or not timedelta(0) <= checked - utc(lease["acquired_at"]) <= timedelta(seconds=90)
+        or heartbeat[0] != protocol.v1_owner_id
+        or lease["owner_id"] != protocol.v1_owner_id
+        or details.get("code_sha") != protocol.v1_runtime_sha
+        or feed.get("connection_id") != protocol.v1_connection_id
+        or (protocol.study_id == STUDY_ID and feed.get("subscribed") is not True)
+    ):
+        raise ValueError("v1 pinned source, ownership, connection or freshness changed")
+    paused = (
+        _paused_proof(database, protocol, details, feed)
+        if (protocol.study_id == V2_STUDY_ID)
+        else None
+    )
+    return checked, paused
+
+
+def _safe_local(safety: Mapping[str, object]) -> None:
+    if (
+        safety.get("local_order_attempts_since_freeze") != 0
+        or safety.get("reported_order_attempts") != 0
+        or safety.get("trading_authorization_renewed") is not False
+        or safety.get("reported_trading_authorization") != "expired"
+        or safety.get("reported_model_state") != "no_support"
+    ):
+        raise ValueError("zero-order or expired-authority guard failed")
+
+
+def _safe_current(
+    safety: Mapping[str, object],
+    broker: Mapping[str, object],
+    protocol: ConfirmationProtocol,
+) -> None:
+    _safe_local(safety)
+    if (
+        broker.get("positions") != 0
+        or broker.get("open_orders") != 0
+        or broker.get("broker_order_records_since_freeze") != 0
+    ):
+        raise ValueError("zero-order or expired-authority guard failed")
+    if protocol.study_id == V2_STUDY_ID and (
+        broker.get("account_digest") != protocol.account_digest
+        or broker.get("paper_host") != "https://paper-api.alpaca.markets"
+        or broker.get("read_methods") != ["GET"]
+        or broker.get("order_submission_calls") != 0
+    ):
+        raise ValueError("direct current GET-only pinned paper broker proof failed")
+
+
 def observer_guard(database: Database, protocol: ConfirmationProtocol) -> Guard:
-    """Reuse the previous read-only guard, with pinned account/runtime/owner/feed."""
+    """V1 requires subscription; v2 preserves one exact paused-v1 safety containment."""
 
     def check() -> GuardEvidence:
-        with database.begin() as connection:
-            frozen = ShadowDatasetProtocol.model_validate(
-                connection.scalar(
-                    select(shadow_datasets.c.protocol).where(
-                        shadow_datasets.c.dataset_id == DATASET_ID
-                    )
-                )
-            )
-            lease = (
-                connection.execute(
-                    select(worker_locks).where(
-                        worker_locks.c.lock_name == "tradeagent-event-worker"
-                    )
-                )
-                .mappings()
-                .one()
-            )
-        if frozen.account_digest != protocol.account_digest:
-            raise ValueError("observer account differs from the confirmation pin")
+        if protocol.study_id == V2_STUDY_ID:
+            check_schema(database)
+        frozen = _frozen_v1(database, protocol)
         safety = local_safety(database, frozen)
-        heartbeat = ProductionRepository(database).latest_heartbeat("tradeagent-event-worker")
-        if heartbeat is None:
-            raise ValueError("v1 heartbeat unavailable")
-        details = heartbeat[2]
-        feed = details.get("feed") or {}
-        checked = datetime.now(UTC)
-        if (
-            not timedelta(0) <= checked - utc(heartbeat[1]) <= timedelta(seconds=30)
-            or not timedelta(0) <= checked - utc(lease["acquired_at"]) <= timedelta(seconds=90)
-            or heartbeat[0] != protocol.v1_owner_id
-            or lease["owner_id"] != protocol.v1_owner_id
-            or details.get("code_sha") != protocol.v1_runtime_sha
-            or feed.get("connection_id") != protocol.v1_connection_id
-            or feed.get("subscribed") is not True
-        ):
-            raise ValueError("v1 pinned source, ownership, connection or freshness changed")
-        with httpx.Client(timeout=10, follow_redirects=False) as client:
-            broker = PaperReadOnlyMonitor(AlpacaPaperSettings.model_validate({}), client).snapshot(
-                frozen
-            )
-        if (
-            safety["local_order_attempts_since_freeze"] != 0
-            or safety["reported_order_attempts"] != 0
-            or safety["trading_authorization_renewed"] is not False
-            or safety["reported_trading_authorization"] != "expired"
-            or safety["reported_model_state"] != "no_support"
-            or broker["positions"] != 0
-            or broker["open_orders"] != 0
-            or broker["broker_order_records_since_freeze"] != 0
-        ):
-            raise ValueError("zero-order or expired-authority guard failed")
+        if protocol.study_id == V2_STUDY_ID:
+            _safe_local(safety)
+        checked, paused = _v1_sample(database, protocol)
+        try:
+            with httpx.Client(timeout=10, follow_redirects=False) as client:
+                broker = PaperReadOnlyMonitor(
+                    AlpacaPaperSettings.model_validate({}),
+                    client,
+                ).snapshot(frozen)
+        except httpx.HTTPError as error:
+            if protocol.study_id == STUDY_ID:
+                raise
+            raise CurrentBrokerProofError(error) from None
+        _safe_current(safety, broker, protocol)
+        if protocol.study_id == V2_STUDY_ID:
+            # Catch state/control/authority changes while the broker GETs were in flight.
+            check_schema(database)
+            _frozen_v1(database, protocol)
+            safety = local_safety(database, frozen)
+            _, paused = _v1_sample(database, protocol)
+            _safe_current(safety, broker, protocol)
         return GuardEvidence(
             account_digest=protocol.account_digest,
             checked_ns=datetime_ns(checked),
             v1_runtime_sha=protocol.v1_runtime_sha,
             v1_owner_id=protocol.v1_owner_id,
             v1_connection_id=protocol.v1_connection_id,
+            guard_version=2 if protocol.study_id == V2_STUDY_ID else 1,
+            preserved_v1=paused,
         )
 
     return check
@@ -247,6 +438,54 @@ def validate_guard(evidence: GuardEvidence, protocol: ConfirmationProtocol) -> N
         or not 0 <= now_ns() - evidence.checked_ns <= 30 * NS
     ):
         raise ValueError("injected observer guard did not prove the frozen safety pins")
+    if protocol.study_id == V2_STUDY_ID:
+        if (
+            evidence.guard_version != 2
+            or evidence.preserved_v1 is None
+            or evidence.preserved_v1.stop_control_sha256 != protocol.v1_stop_control_sha256
+            or evidence.preserved_v1.protocol_hash != protocol.v1_protocol_hash
+        ):
+            raise ValueError("confirmation v2 requires its exact paused-v1 preservation guard")
+    elif evidence.guard_version != 1:
+        raise ValueError("confirmation v1 guard semantics cannot be changed")
+
+
+async def preflight(
+    protocol: ConfirmationProtocol,
+    database: Database,
+    *,
+    guard: Guard | None = None,
+) -> dict[str, JsonValue]:
+    """Read-only source/schema/full-safety proof before any claim; no installation."""
+    protocol = ConfirmationProtocol.model_validate(protocol.model_dump(mode="json"))
+    verify_sources(protocol)
+    if not datetime_ns(protocol.frozen_at) <= now_ns() < datetime_ns(protocol.start):
+        raise ValueError("preflight requires a frozen prospective confirmation window")
+    schema = await asyncio.to_thread(check_schema, database)
+    compatibility = (
+        await asyncio.to_thread(legacy_journal_compatibility, database)
+        if (protocol.study_id == V2_STUDY_ID)
+        else None
+    )
+    check = guard if guard is not None else observer_guard(database, protocol)
+    evidence = await asyncio.to_thread(check)
+    validate_guard(evidence, protocol)
+    return {
+        "preflight": "passed",
+        "guard_verified": True,
+        "market_confirmation_evaluated": False,
+        "clean_integrity": False,
+        "decision": "PREFLIGHT_ONLY_NOT_MARKET_CONFIRMATION",
+        "v2_ready": False,
+        "study_id": protocol.study_id,
+        "protocol_hash": protocol.identity,
+        "storage": schema,
+        "legacy_journal_compatibility": compatibility,
+        "guard": evidence.model_dump(mode="json"),
+        "claim_created": False,
+        "orders_submitted": 0,
+        "private_kraken_requests": 0,
+    }
 
 
 class _Submission(BaseModel):
@@ -654,9 +893,15 @@ async def run(
     protocol = ConfirmationProtocol.model_validate(protocol.model_dump(mode="json"))
     verify_sources(protocol)
     await asyncio.to_thread(check_schema, database)
-    store = ConfirmationStore(database, str(uuid4()))
-    await asyncio.to_thread(store.claim, protocol)
     guard = guard if guard is not None else observer_guard(database, protocol)
+    if protocol.study_id == V2_STUDY_ID:
+        await preflight(protocol, database, guard=guard)
+    store = (
+        ConfirmationStore(database, str(uuid4()), study_id=protocol.study_id)
+        if protocol.study_id == V2_STUDY_ID
+        else ConfirmationStore(database, str(uuid4()))
+    )
+    await asyncio.to_thread(store.claim, protocol)
     writer = DurableWriter(store)
     writer.task = asyncio.create_task(writer.work())
     grid = CausalGrid(protocol)
@@ -742,6 +987,9 @@ async def run(
         httpx.HTTPError,
     ) as error:
         failure = f"{type(error).__name__}:{error}"
+        if isinstance(error, CurrentBrokerProofError):
+            receiver.last_error = canonical(error.details)
+            receiver.counts["current_broker_guard_failures"] += 1
         if isinstance(error, BackpressureError):
             receiver.counts["backpressure_failures"] += 1
         if "clock" in str(error):
@@ -787,7 +1035,11 @@ async def run(
             except (ValueError, RuntimeError, OSError, TimeoutError, SQLAlchemyError) as error:
                 failure = failure or f"final_evidence_verification_failed:{error}"
                 report = {
-                    "schema": "kraken-book-confirmation-report-v1",
+                    "schema": (
+                        "kraken-book-confirmation-report-v1"
+                        if protocol.study_id == STUDY_ID
+                        else "kraken-book-confirmation-report-v2"
+                    ),
                     "protocol_hash": protocol.identity,
                     "decision": "NO_GO",
                     "state": "failed_incomplete",
@@ -848,7 +1100,7 @@ async def run(
         finally:
             await asyncio.to_thread(
                 store.repository.release_worker_lock,
-                LOCK_NAME,
+                store.lock_name,
                 store.owner_id,
             )
     if failure is not None:
@@ -893,21 +1145,33 @@ def main() -> None:
     subcommands = parser.add_subparsers(dest="command", required=True)
     start = subcommands.add_parser("run")
     start.add_argument("protocol", type=Path)
+    inspect_start = subcommands.add_parser("preflight")
+    inspect_start.add_argument("protocol", type=Path)
     status = subcommands.add_parser("status")
     status.add_argument("--verify", action="store_true")
+    status.add_argument("--study-id", type=study_id, choices=STUDY_IDS, default=STUDY_ID)
     subcommands.add_parser("init-store")
-    subcommands.add_parser("export")
+    export = subcommands.add_parser("export")
+    export.add_argument("--study-id", type=study_id, choices=STUDY_IDS, default=STUDY_ID)
     args = parser.parse_args()
     with Database(AppConfig().database_url.get_secret_value(), pool_size=2) as database:
-        if args.command == "run":
+        if args.command in ("run", "preflight"):
             protocol = ConfirmationProtocol.model_validate_json(args.protocol.read_bytes())
-            result = asyncio.run(run(protocol, database))
+            result = asyncio.run(
+                preflight(protocol, database)
+                if args.command == "preflight"
+                else run(protocol, database),
+            )
         elif args.command == "init-store":
             result = install_schema(database)
         elif args.command == "status":
-            result = load_report(database, verify_payloads=args.verify)
+            result = load_report(
+                database,
+                verify_payloads=args.verify,
+                study_id=args.study_id,
+            )
         else:
-            for chunk in export_evidence(database):
+            for chunk in export_evidence(database, study_id=args.study_id):
                 print(canonical(chunk), flush=True)
             return
     print(canonical(result), flush=True)

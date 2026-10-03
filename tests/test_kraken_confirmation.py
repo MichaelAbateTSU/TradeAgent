@@ -5,16 +5,22 @@ from __future__ import annotations
 import asyncio
 import base64
 import importlib
+import json
+import sys
 import threading
 from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
+from pathlib import Path
+from types import SimpleNamespace
 from typing import cast
 
 import httpx
 import pytest
-from pydantic import JsonValue, ValidationError
+from pydantic import JsonValue, SecretStr, ValidationError
 from sqlalchemy import (
     Column,
     MetaData,
@@ -38,6 +44,8 @@ from tradeagent.kraken_confirmation import (
     NS,
     SLOTS,
     SOURCE_MODULES,
+    STUDY_ID,
+    V2_STUDY_ID,
     CausalGrid,
     ChunkHeader,
     ConfirmationProtocol,
@@ -45,14 +53,17 @@ from tradeagent.kraken_confirmation import (
     Evaluation,
     Evidence,
     Label,
+    PausedV1Proof,
     Quote,
     SourceDigest,
+    StudyId,
     Symbol,
     check_schema,
     confirmation_evidence,
     confirmation_schema_version,
     decode_blob,
     install_schema,
+    legacy_journal_compatibility,
     measure,
     record,
 )
@@ -64,6 +75,7 @@ from tradeagent.kraken_confirmation_report import (
     build_report,
     export_evidence,
     final_decision,
+    load_report,
 )
 from tradeagent.kraken_confirmation_runtime import (
     BackpressureError,
@@ -71,14 +83,22 @@ from tradeagent.kraken_confirmation_runtime import (
     GuardEvidence,
     Receiver,
     observer_guard,
+    preflight,
     source_digests,
     validate_guard,
     verify_sources,
 )
-from tradeagent.persistence import Database, ProductionRepository, worker_locks
+from tradeagent.persistence import (
+    Database,
+    ProductionRepository,
+    controls,
+    heartbeats,
+    worker_locks,
+)
 from tradeagent.scalping_market import datetime_ns, ns_datetime
-from tradeagent.scalping_store import canonical
+from tradeagent.scalping_store import canonical, scalping_cycles, scalping_order_links
 from tradeagent.shadow_dataset import ShadowDatasetProtocol, shadow_datasets
+from tradeagent.shadow_dataset_monitor import STOP_KEY, PaperReadOnlyMonitor, local_safety
 
 legacy_version = Table(
     "alembic_version",
@@ -1262,3 +1282,934 @@ def test_scoped_install_refuses_wrong_shape_without_altering_it(
             confirmation_evidence.name,
         )
     ] == ["unexpected"]
+
+
+@dataclass
+class CurrentV1:
+    database: Database
+    protocol: ConfirmationProtocol
+    details: dict[str, JsonValue]
+    instance_id: str
+    stop: dict[str, JsonValue]
+    observed_at: datetime | None = None
+    account_id: str = "synthetic-paper-account"
+    positions: list[JsonValue] = field(default_factory=list)
+    open_orders: list[JsonValue] = field(default_factory=list)
+    recent_orders: list[JsonValue] = field(default_factory=list)
+    requests: list[httpx.Request] = field(default_factory=list)
+    unavailable: bool = False
+
+    @property
+    def feed(self) -> dict[str, JsonValue]:
+        value = self.details["feed"]
+        assert isinstance(value, dict)
+        return value
+
+    def publish(self) -> None:
+        ProductionRepository(self.database).heartbeat(
+            "tradeagent-event-worker",
+            self.instance_id,
+            self.details,
+            observed_at=self.observed_at or datetime.now(UTC),
+        )
+
+    def write_stop(self, *, repin: bool = False) -> None:
+        raw = canonical(self.stop)
+        ProductionRepository(self.database).set_control(STOP_KEY, raw)
+        if repin:
+            self.protocol = ConfirmationProtocol.model_validate(
+                {
+                    **self.protocol.model_dump(mode="json"),
+                    "v1_stop_control_sha256": sha256(raw.encode()).hexdigest(),
+                }
+            )
+
+
+@pytest.fixture
+def current_v1(
+    database: Database,
+    protocol: ConfirmationProtocol,
+    monkeypatch: pytest.MonkeyPatch,
+) -> CurrentV1:
+    for target in (controls, heartbeats, shadow_datasets, scalping_cycles, scalping_order_links):
+        target.create(database.engine, checkfirst=True)
+    account = "synthetic-paper-account"
+    stop: dict[str, JsonValue] = {
+        "reason": "BROKER_SAFETY_MONITOR_UNAVAILABLE",
+        "automatic_rearm": False,
+        "protocol_changed": False,
+        "observed_at": "2027-01-07T11:00:00+00:00",
+    }
+    current = ConfirmationProtocol.model_validate(
+        {
+            **protocol.model_dump(mode="json"),
+            "schema_version": V2_STUDY_ID,
+            "study_id": V2_STUDY_ID,
+            "account_digest": sha256(account.encode()).hexdigest(),
+            "v1_stop_control_sha256": sha256(canonical(stop).encode()).hexdigest(),
+            "v1_protocol_hash": ShadowDatasetProtocol(
+                frozen_at=datetime(2026, 9, 29, tzinfo=UTC),
+                code_sha="d" * 40,
+                account_digest=sha256(account.encode()).hexdigest(),
+            ).identity,
+        }
+    )
+    frozen = ShadowDatasetProtocol(
+        frozen_at=datetime(2026, 9, 29, tzinfo=UTC),
+        code_sha="d" * 40,
+        account_digest=current.account_digest,
+    )
+    with database.begin() as connection:
+        connection.execute(
+            insert(shadow_datasets).values(
+                dataset_id=frozen.dataset_id,
+                protocol_hash=frozen.identity,
+                protocol=frozen.model_dump(mode="json"),
+                created_at=frozen.frozen_at,
+                state="paused_invalid",
+                source_root=frozen.identity,
+                source_batches=0,
+                stored_bytes=0,
+                quality={},
+            )
+        )
+        connection.execute(
+            insert(worker_locks).values(
+                lock_name="tradeagent-event-worker",
+                owner_id=current.v1_owner_id,
+                acquired_at=datetime.now(UTC),
+            )
+        )
+    scenario = CurrentV1(
+        database=database,
+        protocol=current,
+        instance_id=current.v1_owner_id,
+        stop=stop,
+        details={
+            "state": "paused_invalid",
+            "code_sha": current.v1_runtime_sha,
+            "account_digest": current.account_digest,
+            "orders_submitted": 0,
+            "trading_authorization": "expired",
+            "model_state": "no_support",
+            "economic_entries_enabled": False,
+            "feed": {
+                "state": "stopped",
+                "connection_id": current.v1_connection_id,
+                "authenticated": False,
+                "subscribed": False,
+            },
+        },
+    )
+    scenario.write_stop()
+    scenario.publish()
+    original_client = httpx.Client
+
+    def response(request: httpx.Request) -> httpx.Response:
+        scenario.requests.append(request)
+        assert request.method == "GET" and request.url.host == "paper-api.alpaca.markets"
+        if scenario.unavailable:
+            raise httpx.ReadTimeout("synthetic current broker unavailable", request=request)
+        if request.url.path == "/v2/account":
+            data: JsonValue = {"id": scenario.account_id, "status": "ACTIVE"}
+        elif request.url.path == "/v2/positions":
+            data = scenario.positions
+        elif request.url.params.get("status") == "open":
+            data = scenario.open_orders
+        else:
+            data = scenario.recent_orders
+        return httpx.Response(200, json=data)
+
+    def client(*, timeout: int, follow_redirects: bool) -> httpx.Client:
+        assert timeout == 10 and not follow_redirects
+        return original_client(
+            timeout=timeout,
+            follow_redirects=False,
+            transport=httpx.MockTransport(response),
+        )
+
+    monkeypatch.setenv("ALPACA_KEY_ID", "synthetic-key")
+    monkeypatch.setenv("ALPACA_SECRET_KEY", "synthetic-secret")
+    monkeypatch.setattr(httpx, "Client", client)
+    return scenario
+
+
+def test_legacy_frozen_protocol_roundtrip_identity_is_exact() -> None:
+    path = (
+        Path(__file__).parents[1]
+        / "docs"
+        / "experiments"
+        / "2026-10-book-confirmation-72h"
+        / "frozen-protocol.json"
+    )
+    original = json.loads(path.read_bytes())
+    protocol = ConfirmationProtocol.model_validate(original)
+    assert protocol.model_dump(mode="json") == original
+    assert "v1_stop_control_sha256" not in json.loads(protocol.model_dump_json())
+    assert "v1_protocol_hash" not in json.loads(protocol.model_dump_json())
+    assert protocol.identity == "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982"
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"schema_version": V2_STUDY_ID},
+        {"study_id": V2_STUDY_ID},
+        {
+            "schema_version": "kraken-book-confirmation-v3",
+            "study_id": "kraken-book-confirmation-v3",
+        },
+        {"schema_version": V2_STUDY_ID, "study_id": V2_STUDY_ID},
+        {"v1_stop_control_sha256": "a" * 64},
+        {"v1_protocol_hash": "a" * 64},
+    ],
+)
+def test_version_pairs_and_required_stop_pin_are_closed(
+    protocol: ConfirmationProtocol,
+    changes: dict[str, object],
+) -> None:
+    with pytest.raises(ValidationError):
+        ConfirmationProtocol.model_validate({**protocol.model_dump(), **changes})
+
+
+def test_current_preserved_paused_v1_and_real_read_only_safety_pass_without_mutation(
+    current_v1: CurrentV1,
+) -> None:
+    def snapshot() -> list[list[dict[str, object]]]:
+        with current_v1.database.begin() as connection:
+            return [
+                [dict(row) for row in connection.execute(select(target)).mappings()]
+                for target in (
+                    controls,
+                    heartbeats,
+                    worker_locks,
+                    shadow_datasets,
+                    confirmation_evidence,
+                )
+            ]
+
+    before = snapshot()
+    evidence = observer_guard(current_v1.database, current_v1.protocol)()
+    validate_guard(evidence, current_v1.protocol)
+    assert evidence.guard_version == 2 and evidence.preserved_v1 is not None
+    assert evidence.preserved_v1.stop_control_sha256 == current_v1.protocol.v1_stop_control_sha256
+    assert snapshot() == before
+    assert len(current_v1.requests) == 4
+    assert all(request.method == "GET" for request in current_v1.requests)
+
+
+def test_legacy_stopped_subscription_guard_remains_rejected(current_v1: CurrentV1) -> None:
+    legacy = ConfirmationProtocol.model_validate(
+        {
+            **current_v1.protocol.model_dump(mode="json"),
+            "schema_version": STUDY_ID,
+            "study_id": STUDY_ID,
+            "v1_stop_control_sha256": None,
+            "v1_protocol_hash": None,
+        }
+    )
+    with pytest.raises(ValueError, match="pinned source"):
+        observer_guard(current_v1.database, legacy)()
+    assert current_v1.requests == []
+    legacy_evidence = guard_evidence(legacy, datetime_ns(datetime.now(UTC)))
+    assert "guard_version" not in legacy_evidence.model_dump(mode="json")
+    assert "preserved_v1" not in legacy_evidence.model_dump(mode="json")
+
+
+@pytest.mark.parametrize("which", ["absent", "mismatch", "malformed"])
+def test_v2_rejects_missing_changed_or_malformed_stop(current_v1: CurrentV1, which: str) -> None:
+    repo = ProductionRepository(current_v1.database)
+    if which == "absent":
+        with current_v1.database.begin() as connection:
+            connection.execute(delete(controls).where(controls.c.control_key == STOP_KEY))
+    elif which == "mismatch":
+        repo.set_control(STOP_KEY, canonical({**current_v1.stop, "extra": "changed"}))
+    else:
+        raw = "{bad-json"
+        repo.set_control(STOP_KEY, raw)
+        current_v1.protocol = ConfirmationProtocol.model_validate(
+            {
+                **current_v1.protocol.model_dump(mode="json"),
+                "v1_stop_control_sha256": sha256(raw.encode()).hexdigest(),
+            }
+        )
+    with pytest.raises(ValueError):
+        observer_guard(current_v1.database, current_v1.protocol)()
+    assert current_v1.requests == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("reason", "QUALITY_PAUSE"),
+        ("reason", None),
+        ("automatic_rearm", True),
+        ("automatic_rearm", None),
+        ("automatic_rearm", 0),
+        ("protocol_changed", True),
+        ("protocol_changed", None),
+        ("protocol_changed", 0),
+    ],
+)
+def test_v2_rejects_wrong_stop_semantics_even_when_hash_matches(
+    current_v1: CurrentV1,
+    key: str,
+    value: JsonValue,
+) -> None:
+    current_v1.stop[key] = value
+    current_v1.write_stop(repin=True)
+    with pytest.raises(ValueError, match="containment"):
+        observer_guard(current_v1.database, current_v1.protocol)()
+    assert current_v1.requests == []
+
+
+@pytest.mark.parametrize(
+    ("scope", "key", "value"),
+    [
+        ("details", "state", "collecting"),
+        ("details", "state", None),
+        ("details", "code_sha", "0" * 40),
+        ("details", "account_digest", "0" * 64),
+        ("details", "orders_submitted", 1),
+        ("details", "orders_submitted", None),
+        ("details", "trading_authorization", "active"),
+        ("details", "model_state", "supported"),
+        ("details", "economic_entries_enabled", True),
+        ("details", "economic_entries_enabled", None),
+        ("details", "ordinary_entries_enabled", True),
+        ("feed", "state", "streaming"),
+        ("feed", "subscribed", True),
+        ("feed", "subscribed", None),
+        ("feed", "authenticated", True),
+        ("feed", "authenticated", None),
+        ("feed", "connection_id", "changed"),
+    ],
+)
+def test_v2_rejects_changed_source_state_and_authority(
+    current_v1: CurrentV1,
+    scope: str,
+    key: str,
+    value: JsonValue,
+) -> None:
+    target = current_v1.details if scope == "details" else current_v1.feed
+    target[key] = value
+    current_v1.publish()
+    with pytest.raises(ValueError):
+        observer_guard(current_v1.database, current_v1.protocol)()
+    assert current_v1.requests == []
+
+
+@pytest.mark.parametrize(
+    "which",
+    [
+        "heartbeat-owner",
+        "lease-owner",
+        "heartbeat-stale",
+        "lease-stale",
+        "heartbeat-future",
+        "lease-future",
+    ],
+)
+def test_v2_keeps_exact_identity_and_clock_fences(current_v1: CurrentV1, which: str) -> None:
+    if which.startswith("heartbeat"):
+        if which.endswith("owner"):
+            current_v1.instance_id = "changed"
+        else:
+            current_v1.observed_at = datetime.now(UTC) + timedelta(
+                seconds=5 if which.endswith("future") else -31,
+            )
+        current_v1.publish()
+    else:
+        values: dict[str, object] = (
+            {"owner_id": "changed"}
+            if which.endswith("owner")
+            else {
+                "acquired_at": datetime.now(UTC)
+                + timedelta(
+                    seconds=5 if which.endswith("future") else -91,
+                )
+            }
+        )
+        with current_v1.database.begin() as connection:
+            connection.execute(
+                update(worker_locks)
+                .where(
+                    worker_locks.c.lock_name == "tradeagent-event-worker",
+                )
+                .values(**values)
+            )
+    with pytest.raises(ValueError, match="pinned source"):
+        observer_guard(current_v1.database, current_v1.protocol)()
+
+
+@pytest.mark.parametrize(
+    "which", ["positions", "open-orders", "recent-orders", "account", "unavailable"]
+)
+def test_v2_requires_direct_current_broker_proof(current_v1: CurrentV1, which: str) -> None:
+    if which == "positions":
+        current_v1.positions = [{"symbol": "unsafe"}]
+    elif which == "open-orders":
+        current_v1.open_orders = [{"id": "unsafe"}]
+    elif which == "recent-orders":
+        current_v1.recent_orders = [{"id": "unsafe"}]
+    elif which == "account":
+        current_v1.account_id = "wrong-account"
+    else:
+        current_v1.unavailable = True
+    with pytest.raises((ValueError, runtime.CurrentBrokerProofError)):
+        observer_guard(current_v1.database, current_v1.protocol)()
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("local_order_attempts_since_freeze", 1),
+        ("local_order_attempts_since_freeze", None),
+        ("reported_order_attempts", 1),
+        ("reported_order_attempts", None),
+        ("trading_authorization_renewed", True),
+        ("trading_authorization_renewed", None),
+        ("reported_trading_authorization", "active"),
+        ("reported_model_state", "supported"),
+    ],
+)
+def test_v2_rejects_unsafe_or_unavailable_local_safety(
+    current_v1: CurrentV1,
+    monkeypatch: pytest.MonkeyPatch,
+    key: str,
+    value: object,
+) -> None:
+    frozen = ShadowDatasetProtocol(
+        frozen_at=datetime(2026, 9, 29, tzinfo=UTC),
+        code_sha="d" * 40,
+        account_digest=current_v1.protocol.account_digest,
+    )
+    safe: dict[str, object] = local_safety(current_v1.database, frozen)
+    monkeypatch.setattr(runtime, "local_safety", lambda db, p: {**safe, key: value})
+    with pytest.raises(ValueError, match="guard failed"):
+        observer_guard(current_v1.database, current_v1.protocol)()
+
+
+@pytest.mark.parametrize("change", ["feed", "stop", "schema", "local"])
+def test_v2_rechecks_stop_and_source_after_current_broker_gets(
+    current_v1: CurrentV1,
+    monkeypatch: pytest.MonkeyPatch,
+    change: str,
+) -> None:
+    original = PaperReadOnlyMonitor.snapshot
+
+    def changed(monitor: PaperReadOnlyMonitor, frozen: ShadowDatasetProtocol) -> dict[str, object]:
+        broker: dict[str, object] = original(monitor, frozen)
+        if change == "feed":
+            current_v1.feed["subscribed"] = True
+            current_v1.publish()
+        elif change == "stop":
+            current_v1.stop["extra"] = "changed during broker reads"
+            current_v1.write_stop()
+        elif change == "schema":
+            with current_v1.database.begin() as connection:
+                connection.execute(
+                    update(legacy_version).values(
+                        version_num="0016_kraken_confirmation",
+                    )
+                )
+        else:
+            current_v1.details["orders_submitted"] = 1
+            current_v1.publish()
+        return broker
+
+    monkeypatch.setattr(PaperReadOnlyMonitor, "snapshot", changed)
+    with pytest.raises((ValueError, RuntimeError)):
+        observer_guard(current_v1.database, current_v1.protocol)()
+
+
+def test_v2_guard_cannot_be_omitted_or_replaced_by_legacy_evidence(
+    current_v1: CurrentV1,
+    monkeypatch: pytest.MonkeyPatch,
+    clock: Clock,
+) -> None:
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    legacy = guard_evidence(current_v1.protocol, clock.ns())
+    with pytest.raises(ValueError, match="requires its exact"):
+        validate_guard(legacy, current_v1.protocol)
+    bad = legacy.model_copy(
+        update={
+            "guard_version": 2,
+            "preserved_v1": PausedV1Proof(
+                stop_control_sha256="0" * 64,
+                protocol_hash="d" * 64,
+            ),
+        }
+    )
+    with pytest.raises(ValueError, match="requires its exact"):
+        validate_guard(bad, current_v1.protocol)
+
+
+def test_read_only_preflight_before_any_claim_and_source_pins_remain_exact(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    evidence = observer_guard(current_v1.database, current_v1.protocol)().model_copy(
+        update={"checked_ns": clock.ns()},
+    )
+    writes: list[str] = []
+
+    def record_writes(
+        connection: Connection,
+        cursor: object,
+        statement: str,
+        parameters: object,
+        context: object,
+        executemany: bool,
+    ) -> None:
+        if (
+            statement.lstrip()
+            .upper()
+            .startswith(("INSERT ", "UPDATE ", "CREATE ", "DELETE ", "ALTER "))
+        ):
+            writes.append(statement)
+
+    event.listen(current_v1.database.engine, "before_cursor_execute", record_writes)
+    try:
+        report = asyncio.run(
+            preflight(
+                current_v1.protocol,
+                current_v1.database,
+                guard=lambda: evidence,
+            )
+        )
+    finally:
+        event.remove(current_v1.database.engine, "before_cursor_execute", record_writes)
+    assert report["preflight"] == "passed" and report["claim_created"] is False
+    assert report["guard_verified"] is True
+    assert report["market_confirmation_evaluated"] is False
+    assert report["clean_integrity"] is False
+    assert report["decision"] == "PREFLIGHT_ONLY_NOT_MARKET_CONFIRMATION"
+    assert report["v2_ready"] is False
+    assert not ConfirmationStore(current_v1.database, "read-only", study_id=V2_STUDY_ID).exists()
+    assert writes == []
+    wrong = current_v1.protocol.model_copy(
+        update={
+            "source_hashes": tuple(
+                SourceDigest(name=name, sha256="0" * 64) for name in SOURCE_MODULES
+            ),
+        }
+    )
+    with pytest.raises(ValueError, match="source modules differ"):
+        asyncio.run(preflight(wrong, current_v1.database, guard=lambda: evidence))
+    with pytest.raises(ValueError, match="requires its exact"):
+        asyncio.run(
+            preflight(
+                current_v1.protocol,
+                current_v1.database,
+                guard=lambda: guard_evidence(current_v1.protocol, clock.ns()),
+            )
+        )
+
+
+def test_two_literal_studies_coexist_without_original_root_or_row_change(
+    store: ConfirmationStore,
+    current_v1: CurrentV1,
+    clock: Clock,
+) -> None:
+    store.append(
+        "terminal",
+        "terminal",
+        {
+            "state": "failed_incomplete",
+            "reason": "original startup guard failure",
+        },
+        at_ns=clock.ns(),
+    )
+    original = list(export_evidence(store.database))
+    original_rows = [row for row in _all_rows(store.database) if row["study_id"] == STUDY_ID]
+    newer = ConfirmationStore(
+        store.database,
+        "confirmation-v2-owner",
+        clock=clock,
+        study_id=V2_STUDY_ID,
+    )
+    newer.claim(current_v1.protocol)
+    newer.append("quality", "quality:final", {"counts": {"frames": 0}}, at_ns=clock.ns())
+    assert list(export_evidence(store.database)) == original
+    assert [
+        row for row in _all_rows(store.database) if row["study_id"] == STUDY_ID
+    ] == original_rows
+    assert newer.load_protocol().study_id == V2_STUDY_ID
+    assert all(
+        ChunkHeader.model_validate(item["header"]).study_id == V2_STUDY_ID
+        for item in export_evidence(store.database, study_id=V2_STUDY_ID)
+    )
+    assert load_report(store.database)["state"] == "failed_incomplete"
+    newer_report = load_report(store.database, study_id=V2_STUDY_ID, verify_payloads=True)
+    new_protocol = newer_report["protocol"]
+    assert isinstance(new_protocol, dict) and new_protocol["study_id"] == V2_STUDY_ID
+    assert newer_report["journal_chunks"] == 2
+    with pytest.raises(RuntimeError, match="no_restart"):
+        newer.claim(current_v1.protocol)
+    with pytest.raises(RuntimeError, match="no_restart"):
+        store.claim(store.load_protocol())
+
+
+def test_unknown_study_selector_never_falls_back_to_original(database: Database) -> None:
+    with pytest.raises(ValueError, match="unknown confirmation"):
+        ConfirmationStore(database, "read-only", study_id="unknown")  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="unknown confirmation"):
+        list(export_evidence(database, study_id="unknown"))  # type: ignore[arg-type]
+
+
+def test_v2_preflight_requires_existing_auxiliary_and_global_0015_schema(
+    current_v1: CurrentV1,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    with current_v1.database.begin() as connection:
+        connection.execute(update(legacy_version).values(version_num="0016_kraken_confirmation"))
+    with pytest.raises(RuntimeError, match="unchanged global 0015"):
+        asyncio.run(preflight(current_v1.protocol, current_v1.database))
+    assert current_v1.requests == []
+    with current_v1.database.begin() as connection:
+        connection.execute(
+            update(legacy_version).values(version_num=confirmation.LEGACY_SCHEMA_REVISION)
+        )
+        confirmation_schema_version.drop(connection)
+    with pytest.raises(RuntimeError, match="research table missing"):
+        asyncio.run(preflight(current_v1.protocol, current_v1.database))
+    assert not inspect(current_v1.database.engine).has_table(confirmation_schema_version.name)
+
+
+def test_v2_unavailable_current_broker_fails_before_claim_without_touching_original(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = list(export_evidence(store.database))
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    current_v1.unavailable = True
+    with pytest.raises(runtime.CurrentBrokerProofError):
+        asyncio.run(runtime.run(current_v1.protocol, store.database))
+    assert not ConfirmationStore(store.database, "read-only", study_id=V2_STUDY_ID).exists()
+    assert list(export_evidence(store.database)) == original
+
+
+def test_v2_post_claim_failure_seals_only_its_own_namespace(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = list(export_evidence(store.database))
+    evidence = observer_guard(current_v1.database, current_v1.protocol)().model_copy(
+        update={"checked_ns": clock.ns()},
+    )
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+
+    def factory(
+        database: Database, owner: str, *, study_id: StudyId = STUDY_ID
+    ) -> ConfirmationStore:
+        return ConfirmationStore(database, owner, clock=clock, study_id=study_id)
+
+    async def failed_capture(receiver: Receiver, stop: asyncio.Event) -> None:
+        raise RuntimeError("synthetic isolated capture failure")
+
+    monkeypatch.setattr(runtime, "ConfirmationStore", factory)
+    monkeypatch.setattr(Receiver, "work", failed_capture)
+    with pytest.raises(RuntimeError, match="sealed failed/incomplete"):
+        asyncio.run(
+            runtime.run(
+                current_v1.protocol,
+                store.database,
+                guard=lambda: evidence,
+            )
+        )
+    assert list(export_evidence(store.database)) == original
+    report = load_report(store.database, study_id=V2_STUDY_ID, verify_payloads=True)
+    assert report["state"] == "failed_incomplete" and report["guard_checks"] == 1
+    assert report["raw_frames_verified"] == 0 and report["decision"] == NO_GO
+    with store.database.begin() as connection:
+        assert (
+            connection.scalar(
+                select(worker_locks.c.owner_id).where(
+                    worker_locks.c.lock_name == "research:" + V2_STUDY_ID,
+                )
+            )
+            is None
+        )
+    with pytest.raises(RuntimeError, match="no_restart"):
+        factory(store.database, "new-owner", study_id=V2_STUDY_ID).claim(current_v1.protocol)
+
+
+def test_v2_durable_guard_proof_cannot_omit_its_stop_pin(
+    current_v1: CurrentV1,
+    clock: Clock,
+) -> None:
+    store = ConfirmationStore(
+        current_v1.database,
+        "new-owner",
+        clock=clock,
+        study_id=V2_STUDY_ID,
+    )
+    store.claim(current_v1.protocol)
+    legacy = guard_evidence(current_v1.protocol, clock.ns())
+    store.append("guard", "bad", legacy.model_dump(mode="json"), at_ns=clock.ns())
+    with pytest.raises(ValueError, match="guard version missing"):
+        build_report(store, at_ns=clock.ns())
+
+
+@pytest.mark.parametrize(
+    ("command", "selector"),
+    [
+        ("status", STUDY_ID),
+        ("status", V2_STUDY_ID),
+        ("export", STUDY_ID),
+        ("export", V2_STUDY_ID),
+    ],
+)
+def test_read_only_cli_selects_exact_literal_namespace(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    command: str,
+    selector: StudyId,
+) -> None:
+    store.append("terminal", "terminal", {"state": "failed_incomplete"}, at_ns=clock.ns())
+    newer = ConfirmationStore(
+        store.database,
+        "new-owner",
+        clock=clock,
+        study_id=V2_STUDY_ID,
+    )
+    newer.claim(current_v1.protocol)
+    before = _all_rows(store.database)
+
+    @contextmanager
+    def diagnostic_database(url: str, *, pool_size: int) -> Iterator[Database]:
+        yield store.database
+
+    monkeypatch.setattr(runtime, "Database", diagnostic_database)
+    monkeypatch.setattr(
+        runtime,
+        "AppConfig",
+        lambda: SimpleNamespace(
+            database_url=SecretStr("sqlite://"),
+        ),
+    )
+    args = ["confirmation", command]
+    if selector != STUDY_ID:
+        args.extend(["--study-id", selector])
+    monkeypatch.setattr(sys, "argv", args)
+    runtime.main()
+    output = capsys.readouterr().out
+    if command == "status":
+        assert json.loads(output)["protocol"]["study_id"] == selector
+    else:
+        assert all(
+            json.loads(line)["header"]["study_id"] == selector for line in output.splitlines()
+        )
+    assert _all_rows(store.database) == before
+
+
+def test_preflight_cli_routes_without_install_or_claim(
+    current_v1: CurrentV1,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    @contextmanager
+    def diagnostic_database(url: str, *, pool_size: int) -> Iterator[Database]:
+        yield current_v1.database
+
+    class SuppliedProtocol:
+        def __init__(self, value: str) -> None:
+            assert value == "PROTOCOL_V2.json"
+
+        def read_bytes(self) -> bytes:
+            return current_v1.protocol.model_dump_json().encode()
+
+    async def checked(protocol: ConfirmationProtocol, database: Database) -> dict[str, JsonValue]:
+        assert protocol.study_id == V2_STUDY_ID
+        assert not ConfirmationStore(database, "read-only", study_id=V2_STUDY_ID).exists()
+        return {"preflight": "passed", "claim_created": False}
+
+    monkeypatch.setattr(runtime, "Database", diagnostic_database)
+    monkeypatch.setattr(
+        runtime, "AppConfig", lambda: SimpleNamespace(database_url=SecretStr("sqlite://"))
+    )
+    monkeypatch.setattr(runtime, "Path", SuppliedProtocol)
+    monkeypatch.setattr(runtime, "preflight", checked)
+    monkeypatch.setattr(sys, "argv", ["confirmation", "preflight", "PROTOCOL_V2.json"])
+    runtime.main()
+    assert json.loads(capsys.readouterr().out)["claim_created"] is False
+
+
+def test_cli_rejects_unknown_id_before_database_access(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        sys, "argv", ["confirmation", "status", "--study-id", "kraken-book-confirmation-v3"]
+    )
+    with pytest.raises(SystemExit) as error:
+        runtime.main()
+    assert error.value.code == 2
+
+
+@pytest.mark.parametrize("which", ["pin", "stored-hash", "actual-protocol"])
+def test_v2_requires_the_original_actual_shadow_protocol_identity(
+    current_v1: CurrentV1,
+    which: str,
+) -> None:
+    if which == "pin":
+        current_v1.protocol = ConfirmationProtocol.model_validate(
+            {
+                **current_v1.protocol.model_dump(mode="json"),
+                "v1_protocol_hash": "0" * 64,
+            }
+        )
+    elif which == "stored-hash":
+        with current_v1.database.begin() as connection:
+            connection.execute(update(shadow_datasets).values(protocol_hash="0" * 64))
+    else:
+        with current_v1.database.begin() as connection:
+            value = connection.execute(select(shadow_datasets.c.protocol)).scalar_one()
+            frozen = ShadowDatasetProtocol.model_validate(value)
+            changed = frozen.model_copy(update={"fee_unknown_reason": "changed after freeze"})
+            connection.execute(
+                update(shadow_datasets).values(protocol=changed.model_dump(mode="json"))
+            )
+    with pytest.raises(ValueError, match="shadow protocol identity changed"):
+        observer_guard(current_v1.database, current_v1.protocol)()
+    assert current_v1.requests == []
+
+
+def test_production_like_preflight_preserves_exact_original_archive_identity(
+    current_v1: CurrentV1,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = (
+        Path(__file__).parents[1]
+        / "docs"
+        / "experiments"
+        / "2026-10-book-confirmation-72h"
+        / "frozen-protocol.json"
+    )
+    original = ConfirmationProtocol.model_validate_json(path.read_bytes())
+    old_clock = Clock(original.frozen_at + timedelta(seconds=1))
+    archived = ConfirmationStore(current_v1.database, "archived-original", clock=old_clock)
+    archived.claim(original)
+    archived.append(
+        "terminal",
+        "terminal",
+        {"state": "failed_incomplete", "reason": "original startup failure"},
+        at_ns=old_clock.ns(),
+    )
+    before = list(export_evidence(current_v1.database))
+    compat = legacy_journal_compatibility(current_v1.database)
+    assert compat["protocol_hash"] == (
+        "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982"
+    )
+    evidence = observer_guard(current_v1.database, current_v1.protocol)().model_copy(
+        update={"checked_ns": clock.ns()},
+    )
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    checked = asyncio.run(
+        preflight(
+            current_v1.protocol,
+            current_v1.database,
+            guard=lambda: evidence,
+        )
+    )
+    assert checked["legacy_journal_compatibility"] == compat
+    assert checked["clean_integrity"] is False
+    assert list(export_evidence(current_v1.database)) == before
+
+
+def test_safe_broker_diagnostics_exclude_body_headers_queries_and_secrets() -> None:
+    request = httpx.Request(
+        "GET",
+        "https://paper-api.alpaca.markets/v2/orders?secret=never-log-this",
+        headers={"APCA-API-KEY-ID": "never-log-key"},
+    )
+    response = httpx.Response(403, request=request, text="never-log-body")
+    error = runtime.CurrentBrokerProofError(
+        httpx.HTTPStatusError(
+            "never-log-message",
+            request=request,
+            response=response,
+        )
+    )
+    assert error.details == {
+        "error_type": "HTTPStatusError",
+        "endpoint": "/v2/orders",
+        "http_status": 403,
+    }
+    assert "never-log" not in str(error)
+    timeout = runtime.CurrentBrokerProofError(
+        httpx.ReadTimeout(
+            "never-log-message",
+            request=request,
+        )
+    )
+    assert timeout.details == {
+        "error_type": "ReadTimeout",
+        "endpoint": "/v2/orders",
+        "http_status": None,
+    }
+    assert "never-log" not in str(timeout)
+
+
+def test_post_claim_new_broker_failure_persists_safe_endpoint_and_status(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original = list(export_evidence(store.database))
+    evidence = observer_guard(current_v1.database, current_v1.protocol)().model_copy(
+        update={"checked_ns": clock.ns()},
+    )
+    request = httpx.Request("GET", "https://paper-api.alpaca.markets/v2/positions")
+    response = httpx.Response(503, request=request, text="never-log-body")
+    error = runtime.CurrentBrokerProofError(
+        httpx.HTTPStatusError(
+            "never-log-message",
+            request=request,
+            response=response,
+        )
+    )
+    calls = 0
+
+    def current_proof() -> GuardEvidence:
+        nonlocal calls
+        calls += 1
+        if calls >= 3:
+            raise error
+        return evidence
+
+    def factory(
+        database: Database, owner: str, *, study_id: StudyId = STUDY_ID
+    ) -> ConfirmationStore:
+        return ConfirmationStore(database, owner, clock=clock, study_id=study_id)
+
+    async def waiting_capture(receiver: Receiver, stop: asyncio.Event) -> None:
+        await stop.wait()
+
+    monkeypatch.setattr(runtime, "ConfirmationStore", factory)
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    monkeypatch.setattr(Receiver, "work", waiting_capture)
+    with pytest.raises(RuntimeError, match="sealed failed/incomplete"):
+        asyncio.run(runtime.run(current_v1.protocol, store.database, guard=current_proof))
+    result = load_report(store.database, study_id=V2_STUDY_ID, verify_payloads=True)
+    assert "503" in str(result["terminal_reason"])
+    assert "/v2/positions" in str(result["terminal_reason"])
+    assert "HTTPStatusError" in str(result["terminal_reason"])
+    assert "never-log" not in canonical(result)
+    quality = result["latest_quality"]
+    assert isinstance(quality, dict) and "HTTPStatusError" in str(quality["last_error"])
+    assert list(export_evidence(store.database)) == original

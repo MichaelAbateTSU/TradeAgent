@@ -1,0 +1,33 @@
+{
+  "schema": "kraken-confirmation-guard-revision-validation-v1",
+  "full_suite": {
+    "command": "python -m pytest",
+    "passed": 2080,
+    "skipped": 2,
+    "warnings": 34,
+    "duration_seconds": "480.25"
+  },
+  "focused_confirmation_tests": {
+    "passed": 155,
+    "scope": "Legacy identity/guard compatibility, strict v2 pins, read-only preflight, study isolation, safe failures and existing collector/report contracts"
+  },
+  "lint": {
+    "command": "python -m ruff check .",
+    "passed": true
+  },
+  "strict_types": {
+    "command": "python -m mypy src\\tradeagent",
+    "source_files": 125,
+    "passed": true
+  },
+  "legacy_protocol_identity_verified": "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982",
+  "native_book_implementation_bytes_unchanged": true,
+  "native_book_sha256": "fc273dc0e5a38f1ffb0876f63b079cfe955a552a59951b7634c5ceb7a3dafd50",
+  "original_v1_and_failed_confirmation_archives_changed": false,
+  "pinned_observer_source_changed": false,
+  "global_migration_performed": false,
+  "measurement_thresholds_changed": false,
+  "historical_unknown_http_status_reconstructed": false,
+  "market_quality_pass_proven_by_local_tests": false,
+  "trading_authorized": false
+}

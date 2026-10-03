@@ -15,7 +15,16 @@ from decimal import Decimal
 from hashlib import sha256
 from typing import Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, JsonValue, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
@@ -47,6 +56,9 @@ SLOTS: Literal[25920] = 25_920
 type Symbol = Literal["BTC/USD", "ETH/USD"]
 SYMBOLS: tuple[Symbol, Symbol] = ("BTC/USD", "ETH/USD")
 STUDY_ID: Literal["kraken-book-confirmation-v1"] = "kraken-book-confirmation-v1"
+V2_STUDY_ID: Literal["kraken-book-confirmation-v2"] = "kraken-book-confirmation-v2"
+type StudyId = Literal["kraken-book-confirmation-v1", "kraken-book-confirmation-v2"]
+STUDY_IDS: tuple[StudyId, StudyId] = (STUDY_ID, V2_STUDY_ID)
 LOCK_NAME = "research:" + STUDY_ID
 PAYLOAD_BUDGET: Literal[3221225472] = 3_221_225_472
 TERMINAL_RESERVE = 4 * 1024**2
@@ -70,8 +82,8 @@ class SourceDigest(BaseModel):
 class ConfirmationProtocol(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", allow_inf_nan=False)
 
-    schema_version: Literal["kraken-book-confirmation-v1"] = STUDY_ID
-    study_id: Literal["kraken-book-confirmation-v1"] = STUDY_ID
+    schema_version: StudyId = STUDY_ID
+    study_id: StudyId = STUDY_ID
     frozen_at: AwareDatetime
     start: AwareDatetime
     end: AwareDatetime
@@ -81,6 +93,8 @@ class ConfirmationProtocol(BaseModel):
     v1_runtime_sha: str = Field(pattern=r"^[0-9a-f]{40}$")
     v1_owner_id: str = Field(min_length=1, max_length=128)
     v1_connection_id: str = Field(min_length=1, max_length=128)
+    v1_stop_control_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    v1_protocol_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     symbols: tuple[Literal["BTC/USD", "ETH/USD"], ...] = ("BTC/USD", "ETH/USD")
     duration_hours: Literal[72] = 72
     slots_per_symbol: Literal[25920] = SLOTS
@@ -107,6 +121,16 @@ class ConfirmationProtocol(BaseModel):
 
     @model_validator(mode="after")
     def contract(self) -> Self:
+        if self.schema_version != self.study_id:
+            raise ValueError("confirmation schema and study ID must be a matched literal pair")
+        if self.study_id == V2_STUDY_ID and self.v1_stop_control_sha256 is None:
+            raise ValueError("confirmation v2 must pin the exact existing v1 stop control")
+        if self.study_id == V2_STUDY_ID and self.v1_protocol_hash is None:
+            raise ValueError("confirmation v2 must pin the original shadow protocol identity")
+        if self.study_id == STUDY_ID and (
+            self.v1_stop_control_sha256 is not None or self.v1_protocol_hash is not None
+        ):
+            raise ValueError("confirmation v1 guard semantics cannot be changed")
         if self.end - self.start != timedelta(hours=72) or self.frozen_at >= self.start:
             raise ValueError("freeze before one exactly 72-hour prospective window")
         if self.symbols != SYMBOLS:
@@ -123,6 +147,14 @@ class ConfirmationProtocol(BaseModel):
         if datetime_ns(self.start) % (10 * NS):
             raise ValueError("start must be aligned to the fixed UTC ten-second grid")
         return self
+
+    @model_serializer(mode="wrap")
+    def legacy_shape(self, handler: SerializerFunctionWrapHandler) -> dict[str, object]:
+        values: dict[str, object] = handler(self)
+        if self.schema_version == STUDY_ID:
+            values.pop("v1_stop_control_sha256", None)
+            values.pop("v1_protocol_hash", None)
+        return values
 
     @property
     def identity(self) -> str:
@@ -143,6 +175,29 @@ class ConfirmationProtocol(BaseModel):
 
     def matured(self, at_ns: int) -> int:
         return max(0, min(SLOTS, (at_ns - datetime_ns(self.start) - 62 * NS) // (10 * NS) + 1))
+
+
+class PausedV1Proof(BaseModel):
+    """Confirmation-v2 preservation proof, not permission to rearm the v1 observer."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    state: Literal["paused_invalid"] = "paused_invalid"
+    feed_state: Literal["stopped"] = "stopped"
+    subscribed: Literal[False] = False
+    authenticated: Literal[False] = False
+    stop_control_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    protocol_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    reason: Literal["BROKER_SAFETY_MONITOR_UNAVAILABLE"] = "BROKER_SAFETY_MONITOR_UNAVAILABLE"
+    automatic_rearm: Literal[False] = False
+    protocol_changed: Literal[False] = False
+
+
+def study_id(value: str) -> StudyId:
+    if value == STUDY_ID:
+        return STUDY_ID
+    if value == V2_STUDY_ID:
+        return V2_STUDY_ID
+    raise ValueError("unknown confirmation study ID")
 
 
 class Quote(BookQuote):
@@ -603,8 +658,13 @@ class ConfirmationStore:
         owner_id: str,
         *,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+        study_id: StudyId = STUDY_ID,
     ) -> None:
+        if study_id not in STUDY_IDS:
+            raise ValueError("unknown confirmation study ID")
         self.database, self.owner_id, self.clock = database, owner_id, clock
+        self.study_id = study_id
+        self.lock_name = "research:" + study_id
         self.repository = ProductionRepository(database)
 
     @staticmethod
@@ -619,7 +679,9 @@ class ConfirmationStore:
             connection.exec_driver_sql("SET LOCAL lock_timeout = '5000ms'")
         row = (
             connection.execute(
-                select(worker_locks).where(worker_locks.c.lock_name == LOCK_NAME).with_for_update()
+                select(worker_locks)
+                .where(worker_locks.c.lock_name == self.lock_name)
+                .with_for_update()
             )
             .mappings()
             .one_or_none()
@@ -632,14 +694,25 @@ class ConfirmationStore:
 
     def claim(self, protocol: ConfirmationProtocol) -> None:
         protocol = ConfirmationProtocol.model_validate(protocol.model_dump(mode="json"))
+        if protocol.study_id != self.study_id:
+            raise ValueError("protocol belongs to a different confirmation namespace")
         now = self.clock()
         if not protocol.frozen_at <= now < protocol.start:
             raise ValueError("missed prospective start or future freeze")
         with self.database.begin() as connection:
-            if connection.scalar(select(confirmation_evidence.c.sequence).limit(1)) is not None:
+            if (
+                connection.scalar(
+                    select(confirmation_evidence.c.sequence)
+                    .where(
+                        confirmation_evidence.c.study_id == self.study_id,
+                    )
+                    .limit(1)
+                )
+                is not None
+            ):
                 raise RuntimeError("single_confirmation_already_claimed_no_restart")
         if not self.repository.acquire_worker_lock(
-            LOCK_NAME,
+            self.lock_name,
             self.owner_id,
             stale_after_seconds=90,
             observed_at=now,
@@ -654,7 +727,7 @@ class ConfirmationStore:
                 claim=True,
             )
         except (RuntimeError, ValueError):
-            self.repository.release_worker_lock(LOCK_NAME, self.owner_id)
+            self.repository.release_worker_lock(self.lock_name, self.owner_id)
             raise
 
     def refresh(self) -> None:
@@ -663,7 +736,7 @@ class ConfirmationStore:
             connection.execute(
                 update(worker_locks)
                 .where(
-                    worker_locks.c.lock_name == LOCK_NAME,
+                    worker_locks.c.lock_name == self.lock_name,
                     worker_locks.c.owner_id == self.owner_id,
                 )
                 .values(acquired_at=self.clock()),
@@ -688,6 +761,7 @@ class ConfirmationStore:
             previous = (
                 connection.execute(
                     select(confirmation_evidence)
+                    .where(confirmation_evidence.c.study_id == self.study_id)
                     .order_by(
                         confirmation_evidence.c.sequence.desc(),
                     )
@@ -699,7 +773,10 @@ class ConfirmationStore:
             )
             existing = (
                 connection.execute(
-                    select(confirmation_evidence).where(confirmation_evidence.c.key == key)
+                    select(confirmation_evidence).where(
+                        confirmation_evidence.c.study_id == self.study_id,
+                        confirmation_evidence.c.key == key,
+                    )
                 )
                 .mappings()
                 .one_or_none()
@@ -741,7 +818,7 @@ class ConfirmationStore:
             if charged + charge > limit:
                 raise RuntimeError("confirmation_payload_budget_exceeded")
             header = ChunkHeader(
-                study_id=STUDY_ID,
+                study_id=self.study_id,
                 sequence=sequence,
                 key=key,
                 kind=kind,
@@ -780,7 +857,11 @@ class ConfirmationStore:
                 raise ValueError("evidence export payload unavailable")
             decode_blob(blob, header.decoded_bytes)
             yield {
-                "schema": "kraken-book-confirmation-evidence-export-v1",
+                "schema": (
+                    "kraken-book-confirmation-evidence-export-v1"
+                    if self.study_id == STUDY_ID
+                    else "kraken-book-confirmation-evidence-export-v2"
+                ),
                 "encoding": "zlib-json-v1",
                 "header": header.model_dump(mode="json"),
                 "payload_base64": base64.b64encode(blob).decode("ascii"),
@@ -808,7 +889,11 @@ class ConfirmationStore:
         )
         with self.database.begin() as connection:
             self._read_only(connection)
-            last_sequence = connection.scalar(select(func.max(confirmation_evidence.c.sequence)))
+            last_sequence = connection.scalar(
+                select(func.max(confirmation_evidence.c.sequence)).where(
+                    confirmation_evidence.c.study_id == self.study_id,
+                ),
+            )
         if last_sequence is None:
             return
         while True:
@@ -817,6 +902,7 @@ class ConfirmationStore:
                 headers = (
                     connection.execute(
                         select(*columns, blob_column)
+                        .where(confirmation_evidence.c.study_id == self.study_id)
                         .where(confirmation_evidence.c.sequence > sequence)
                         .where(confirmation_evidence.c.sequence <= last_sequence)
                         .order_by(confirmation_evidence.c.sequence)
@@ -833,7 +919,7 @@ class ConfirmationStore:
                 header = ChunkHeader.model_validate(row)
                 if (
                     header.sequence != sequence + 1
-                    or header.study_id != STUDY_ID
+                    or header.study_id != self.study_id
                     or header.calculated_hash() != header.chain_hash
                     or (expected_root is not None and header.previous_hash != expected_root)
                     or (owner is not None and owner != header.owner_id)
@@ -858,7 +944,10 @@ class ConfirmationStore:
             self._read_only(connection)
             row = (
                 connection.execute(
-                    select(confirmation_evidence).where(confirmation_evidence.c.sequence == 0)
+                    select(confirmation_evidence).where(
+                        confirmation_evidence.c.study_id == self.study_id,
+                        confirmation_evidence.c.sequence == 0,
+                    )
                 )
                 .mappings()
                 .one()
@@ -870,7 +959,8 @@ class ConfirmationStore:
         payload = decode_blob(blob, header.decoded_bytes)
         protocol = ConfirmationProtocol.model_validate(payload["protocol"])
         if (
-            payload["protocol_hash"] != protocol.identity
+            protocol.study_id != self.study_id
+            or payload["protocol_hash"] != protocol.identity
             or header.previous_hash != protocol.identity
             or header.chain_hash != header.calculated_hash()
         ):
@@ -880,14 +970,22 @@ class ConfirmationStore:
     def exists(self) -> bool:
         with self.database.begin() as connection:
             self._read_only(connection)
-            return bool(connection.scalar(select(func.count()).select_from(confirmation_evidence)))
+            return bool(
+                connection.scalar(
+                    select(func.count())
+                    .select_from(confirmation_evidence)
+                    .where(
+                        confirmation_evidence.c.study_id == self.study_id,
+                    ),
+                )
+            )
 
     def owner_alive(self) -> bool:
         with self.database.begin() as connection:
             self._read_only(connection)
             row = (
                 connection.execute(
-                    select(worker_locks).where(worker_locks.c.lock_name == LOCK_NAME)
+                    select(worker_locks).where(worker_locks.c.lock_name == self.lock_name)
                 )
                 .mappings()
                 .one_or_none()
@@ -897,6 +995,27 @@ class ConfirmationStore:
             and row["owner_id"] == self.owner_id
             and timedelta(0) <= self.clock() - utc(row["acquired_at"]) <= timedelta(seconds=90)
         )
+
+
+def legacy_journal_compatibility(database: Database) -> dict[str, JsonValue]:
+    """Read-only verification of the original v1 protocol and exact stored chain."""
+    original = ConfirmationStore(database, "legacy-compatibility-reader")
+    if not original.exists():
+        raise RuntimeError("original confirmation-v1 journal unavailable for compatibility check")
+    protocol = original.load_protocol()
+    latest: ChunkHeader | None = None
+    for header, _ in original.chunks(verify_payloads=True):
+        latest = header
+    if latest is None:
+        raise RuntimeError("original confirmation-v1 journal is empty")
+    return {
+        "verified": True,
+        "study_id": STUDY_ID,
+        "protocol_hash": protocol.identity,
+        "hash_chain_root": latest.chain_hash,
+        "journal_chunks": latest.sequence + 1,
+        "writes": 0,
+    }
 
 
 def record(model: Evaluation | Label) -> Evidence:

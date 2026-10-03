@@ -90,8 +90,12 @@ describe the next hypothesis and evidence analysis; they do **not** activate a n
 trading cohort or authorize live money.
 The [completed retrospective](docs/experiments/2026-10-scalping-research/retrospective-findings.md)
 is retained with a coverage-superseded notice after an L1/L2 replay defect was identified.
-The next phase is [Shadow Research Dataset v1](docs/experiments/2026-10-shadow-dataset-v1/protocol.md):
-a fixed, prospective observation run with zero broker orders and quality-gated analysis.
+[Shadow Research Dataset v1](docs/experiments/2026-10-shadow-dataset-v1/protocol.md)
+failed its quality gate and remains preserved under safety containment, not restarted.
+The current [native-book confirmation infrastructure](docs/experiments/2026-10-book-confirmation-72h-v2/root-cause-and-repair.md)
+uses independent, current broker safety proof while preserving that exact paused v1.
+This separately versioned confirmation does not start Shadow Research Dataset v2,
+promote the model, or authorize orders.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 
