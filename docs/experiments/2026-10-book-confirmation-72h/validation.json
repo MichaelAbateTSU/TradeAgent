@@ -1,0 +1,74 @@
+{
+  "schema": "kraken-confirmation-validation-v1",
+  "receiver_code_sha": "255e50a9f51298b55ca3c20bcf0534cb7cb7735f",
+  "protocol_identity": "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982",
+  "local": {
+    "full_suite": {
+      "command": "python -m pytest",
+      "passed": 2000,
+      "skipped": 2,
+      "warnings": 34,
+      "duration_seconds": "479.46"
+    },
+    "focused_tests": {
+      "command": "python -m pytest tests\\test_kraken_confirmation.py",
+      "passed": 75
+    },
+    "lint": {
+      "command": "python -m ruff check .",
+      "passed": true
+    },
+    "strict_types": {
+      "command": "python -m mypy src\\tradeagent",
+      "passed": true,
+      "source_files": 125
+    },
+    "all_frozen_source_byte_hashes_match": true,
+    "old_v1_source_and_experiment_archive_changed": false
+  },
+  "production": {
+    "global_schema_after_auxiliary_install": "0015_shadow_research_dataset",
+    "schema_install_job": "job-db0km0dg1s2s73eglfc0",
+    "schema_install_check_completed": true,
+    "schema_install_job_exit_success": false,
+    "schema_install_cleanup_error": "AttributeError: 'Database' object has no attribute 'close'",
+    "receiver_job": "job-db0kv4ou01pc73aquhmg",
+    "receiver_success": false,
+    "read_only_export_job": "job-db0lss9srm7s7385tnq0",
+    "read_only_export_success": true,
+    "sealed_state": "failed_incomplete",
+    "sealed_decision": "NO_GO",
+    "raw_frames_verified": 0,
+    "evaluation_count_records": 0,
+    "successful_guard_checks": 0,
+    "journal_chunks": 3,
+    "journal_kinds": ["protocol", "quality", "terminal"],
+    "hash_chain_root": "1ec4d51937c9761c3f5692c643d8431861cbeefa2ebfb8412865f04fe776b463",
+    "full_payload_verification": true,
+    "independent_compressed_payload_hashes_decoded_lengths_and_previous_links_verified": true,
+    "orders_submitted": 0,
+    "private_kraken_requests": 0,
+    "successful_collection_smoke": false,
+    "endurance_72h_verified": false,
+    "mature_72h_coverage_available": false,
+    "guard_relaxed": false,
+    "original_claim_rearmed": false,
+    "successor_started": false,
+    "v2_ready": false
+  },
+  "capacity": {
+    "database_bytes_before_install": 17322219187,
+    "database_gib_before_install": "16.13257377129048",
+    "confirmation_payload_budget_gib": 3,
+    "true_disk_wal_index_headroom_verified": false
+  },
+  "deployment_policy": {
+    "checked_date_utc": "2026-10-03",
+    "event_worker_auto_deploy": "no",
+    "dashboard_auto_deploy": "no",
+    "notifier_auto_deploy": "no",
+    "legacy_shadow_auto_deploy": "no",
+    "legacy_shadow_suspended": true,
+    "existing_services_redeployed_for_this_confirmation": false
+  }
+}

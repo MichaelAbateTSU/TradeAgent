@@ -1,0 +1,64 @@
+{
+  "schema": "kraken-confirmation-startup-guard-evidence-v1",
+  "study_id": "kraken-book-confirmation-v1",
+  "protocol_identity": "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982",
+  "receiver_job": {
+    "id": "job-db0kv4ou01pc73aquhmg",
+    "created_at": "2026-10-03T18:55:15.114354992Z",
+    "started_at": "2026-10-03T18:55:19Z",
+    "finished_at": "2026-10-03T18:55:45Z",
+    "status": "failed",
+    "error": "confirmation sealed failed/incomplete: ValueError:v1 pinned source, ownership, connection or freshness changed"
+  },
+  "read_only_probe": {
+    "job_id": "job-db0lnvfavr4c7389r6ag",
+    "checked_at": "2026-10-03T19:48:34.899424Z",
+    "observed_at": "2026-10-03T19:48:33.859890Z",
+    "instance_id": "srv-dae4tr7qj5pc73a9e0k0-6467cc5744-4txxf",
+    "code_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+    "feed": {
+      "state": "stopped",
+      "authenticated": false,
+      "subscribed": false,
+      "connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+      "connections": 1,
+      "reconnects": 0,
+      "market_events": 1115238,
+      "receive_sequence": 1115242,
+      "last_error": null,
+      "btc_book_reason": "feed_stopped",
+      "eth_book_reason": "feed_stopped"
+    },
+    "lease": {
+      "owner_id": "srv-dae4tr7qj5pc73a9e0k0-6467cc5744-4txxf",
+      "acquired_at": "2026-10-03T19:48:33.859890Z"
+    },
+    "heartbeat_and_lease_age_seconds": "1.039534",
+    "code_owner_connection_pins_match": true,
+    "subscription_predicate_passes": false,
+    "not_a_snapshot_of_original_failure_instant": true
+  },
+  "v1_dashboard": {
+    "endpoint": "https://tradeagent-runtime-dashboard.onrender.com/api/shadow-dataset",
+    "state": "paused_invalid",
+    "trading_authorization": "expired",
+    "model_state": "no_support",
+    "orders_submitted": 0,
+    "stop_reason": {
+      "observed_at": "2026-10-03T11:56:55.016924Z",
+      "reason": "BROKER_SAFETY_MONITOR_UNAVAILABLE",
+      "automatic_rearm": false,
+      "protocol_changed": false
+    }
+  },
+  "conclusions": {
+    "current_failed_guard_predicate_demonstrated": "feed.subscribed is not true",
+    "collector_or_mapping_defect_demonstrated": false,
+    "original_broker_monitor_outage_cause_proven": false,
+    "current_broker_safety_proven_by_this_probe": false,
+    "guard_modified": false,
+    "sealed_claim_rearmed": false,
+    "successor_started": false,
+    "v2_started": false
+  }
+}

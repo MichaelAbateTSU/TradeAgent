@@ -1,0 +1,28 @@
+{
+  "schema": "kraken-confirmation-readonly-broker-proof-v1",
+  "job_id": "job-db0lv9qd0e5s73c7c1eg",
+  "checked_at": "2026-10-03T20:04:13.759813Z",
+  "diagnostic_only": true,
+  "authorizes_restart": false,
+  "orders_since": "2026-09-30T14:27:29.406732Z",
+  "broker": {
+    "paper_host": "https://paper-api.alpaca.markets",
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "positions": 0,
+    "open_orders": 0,
+    "broker_order_records_since_freeze": 0,
+    "read_methods": ["GET"],
+    "order_submission_calls": 0
+  },
+  "local_safety": {
+    "local_order_attempts_since_freeze": 0,
+    "reported_order_attempts": 0,
+    "trading_authorization_renewed": false,
+    "reported_trading_authorization": "expired",
+    "reported_model_state": "no_support"
+  },
+  "broker_zero_exposure_verified": true,
+  "local_safety_verified": true,
+  "explains_original_monitor_failure": false,
+  "clears_persistent_v1_containment": false
+}
