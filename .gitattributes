@@ -5,3 +5,7 @@ research/results/v30-*.json.gz -text
 research/results/v30-*.txt.gz -text
 research/results/email-daily-*.json -text
 research/results/email-daily-*.txt -text
+src/tradeagent/kraken_confirmation.py text eol=lf
+src/tradeagent/kraken_confirmation_book.py text eol=lf
+src/tradeagent/kraken_confirmation_report.py text eol=lf
+src/tradeagent/kraken_confirmation_runtime.py text eol=lf

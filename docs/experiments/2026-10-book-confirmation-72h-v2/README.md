@@ -5,6 +5,16 @@ Dataset v2 or a model promotion. The original v1 dataset remains
 `paused_invalid`; the first confirmation remains `failed_incomplete`.
 Neither is restarted or rewritten.
 
+**Frozen window:** October 4, 2026, 00:00 UTC to October 7, 00:00 UTC
+(October 3, 8 p.m. to October 6, 8 p.m. Eastern). The fixed capture tail
+ends October 7 at 00:01:15 UTC. Protocol identity:
+`e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a`.
+
+The single receiver job is `job-db0p1ovavr4c738nlkg0`, using source
+`d5578551e4bb675675b567f9219f4079c85c89af`. It passed current safety
+preflight and began native-book warm-up before the fixed start.
+Warm-up data is not counted as scheduled/mature primary coverage.
+
 `root-cause-and-repair.md` explains the three original broker-monitor
 failures and the demonstrated independent-collector guard dependency.
 The repaired guard requires preservation of that exact paused observer
@@ -38,8 +48,11 @@ updates do not refresh ETH. Missing scheduled slots and unwritten mature
 labels remain in the denominator. Integrity/freshness/conditional size
 diagnostics do not replace the full gate.
 
-The native book parser's bytes are unchanged from the independently
-verified short trial. No ticket, threshold, maturity rule, venue, or
+The native book implementation is unchanged by this guard repair. Release
+packaging uses canonical committed LF source bytes; earlier Windows
+bundles used CRLF, with identical Python content. Release verification
+records both representations without changing historical hashes.
+No ticket, threshold, maturity rule, venue, or
 measurement formula was optimized to get a favorable result.
 
 ## Guard and immutable lineage
@@ -101,12 +114,31 @@ a trading adapter, open an Alpaca market-data connection, or change
 credentials. The global schema stays at 0015; do not run a global
 `alembic upgrade head`.
 
+The four pinned source modules have scoped LF Git attributes so a future
+Windows checkout matches the committed release hashes. Do not regenerate
+a frozen protocol to accommodate different local source bytes.
+
+The first read-only preflight exposed a deployment-wrapper namespace
+error (`runpy` without `alter_sys=True`). Correcting only that wrapper
+made preflight pass, with no claim from the failed preflight and no
+receiver source or protocol change. Both attempts are preserved.
+
 Append-only compressed raw/quote/label/guard evidence and hash-chain
 manifests persist in PostgreSQL. Bounded queues, rings and storage limits
 fail closed. Hourly, fixed-block and terminal reports persist
 automatically. Process death produces failed/incomplete evidence, not
 automatic continuation. A successful warm-up smoke does not prove the
 72-hour quality gate.
+
+The live reader verifies a fixed journal prefix but uses the latest
+quality snapshot, which can be older. Its raw-frame comparison may
+therefore be false while capture advances. Supplementary read-only
+verification found **22,733 contiguous durable frames and 21,591
+quotes** through one prefix; the quality-row cutoff matched exactly at
+22,700 frames and 21,564 quotes, with 33 newer durable frames.
+`live-prefix-readback.json` records both cutoffs. This is not a changed
+gate or a completed integrity pass. At final closure, capture stops and
+drains before `quality:final`; exact final counters are required.
 
 There is no favorable-window restart, denominator substitution, missing
 label backfill, extension, source switch, order-size reduction or ETH

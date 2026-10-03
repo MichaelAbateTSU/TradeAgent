@@ -1,0 +1,52 @@
+{
+  "schema_version": "kraken-book-confirmation-v2",
+  "study_id": "kraken-book-confirmation-v2",
+  "frozen_at": "2026-10-03T23:30:19.460364Z",
+  "start": "2026-10-04T00:00:00Z",
+  "end": "2026-10-07T00:00:00Z",
+  "code_sha": "d5578551e4bb675675b567f9219f4079c85c89af",
+  "source_hashes": [
+    {
+      "name": "kraken_confirmation.py",
+      "sha256": "bdbdd8dd4eef171fbcc49910ecda743bc4a6bd7d1d11626444157d7ad1404591"
+    },
+    {
+      "name": "kraken_confirmation_book.py",
+      "sha256": "8c380681bcfe8b5abf353c36d0b3788b96717912eb6153d2131423a9881d81ca"
+    },
+    {
+      "name": "kraken_confirmation_report.py",
+      "sha256": "4ed8182d5eca5858902d7a6437fa725ca73e4ea03bdac56ef8d85c2f33646f97"
+    },
+    {
+      "name": "kraken_confirmation_runtime.py",
+      "sha256": "f2a8570d340da49e044c41272b1e4ce5d57a1c80f64d06849e029259aa393dd9"
+    }
+  ],
+  "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+  "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+  "v1_owner_id": "srv-dae4tr7qj5pc73a9e0k0-6467cc5744-4txxf",
+  "v1_connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+  "v1_stop_control_sha256": "b5e4e4348054ec0d8f97df2b4d186e406ad8603c38a3eb276ec5c27fa0a94d7e",
+  "v1_protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+  "symbols": [
+    "BTC/USD",
+    "ETH/USD"
+  ],
+  "duration_hours": 72,
+  "slots_per_symbol": 25920,
+  "evaluation_seconds": 10,
+  "horizon_seconds": 60,
+  "settle_seconds": 2,
+  "capture_tail_seconds": 75,
+  "freshness_seconds": 2,
+  "notional_usd": "10.25",
+  "minimum_coverage": "0.95",
+  "depth": 10,
+  "maximum_payload_bytes": 3221225472,
+  "maximum_connections": 4,
+  "orders_enabled": false,
+  "private_kraken_requests": 0,
+  "trading_authorization": "expired",
+  "model_state": "no_support"
+}

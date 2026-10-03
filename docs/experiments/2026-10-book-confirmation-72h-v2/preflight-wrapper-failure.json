@@ -1,0 +1,17 @@
+{
+  "schema": "confirmation-readonly-preflight-wrapper-failure-v1",
+  "job_id": "job-db0p037avr4c738nf030",
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "status": "failed",
+  "started_at": "2026-10-03T23:30:36Z",
+  "finished_at": "2026-10-03T23:30:49Z",
+  "exception": "PydanticUserError",
+  "safe_message": "GuardEvidence is not fully defined; define Literal then call model_rebuild",
+  "execution_wrapper": "runpy.run_module with run_name=__main__ and default alter_sys=False",
+  "correction": "Use alter_sys=True to emulate python -m and expose the actual main-module namespace",
+  "receiver_source_changed": false,
+  "frozen_protocol_changed": false,
+  "study_claim_attempted_by_preflight": false,
+  "quote_capture_started": false,
+  "original_v1_rearmed": false
+}

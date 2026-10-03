@@ -1,0 +1,35 @@
+{
+  "schema": "confirmation-release-byte-verification-v1",
+  "source_commit": "d5578551e4bb675675b567f9219f4079c85c89af",
+  "committed_source_bytes_materialized_exactly": true,
+  "python_content_unchanged": true,
+  "native_book_git_blob_unchanged_since_initial_durable_collector": true,
+  "earlier_failed_manifest_rewritten": false,
+  "modules": [
+    {
+      "name": "kraken_confirmation.py",
+      "previous_worktree_sha256": "c453ba67a930893c752179b89065ca7c127d990c712a389b82180e622b706d08",
+      "committed_and_deployed_sha256": "bdbdd8dd4eef171fbcc49910ecda743bc4a6bd7d1d11626444157d7ad1404591",
+      "difference_only_crlf_to_lf": true
+    },
+    {
+      "name": "kraken_confirmation_book.py",
+      "previous_worktree_sha256": "fc273dc0e5a38f1ffb0876f63b079cfe955a552a59951b7634c5ceb7a3dafd50",
+      "committed_and_deployed_sha256": "8c380681bcfe8b5abf353c36d0b3788b96717912eb6153d2131423a9881d81ca",
+      "difference_only_crlf_to_lf": true
+    },
+    {
+      "name": "kraken_confirmation_report.py",
+      "previous_worktree_sha256": "48061e8bcf38a4d857e6ae030b64aabd2c8722bbe97638309527f762187b4066",
+      "committed_and_deployed_sha256": "4ed8182d5eca5858902d7a6437fa725ca73e4ea03bdac56ef8d85c2f33646f97",
+      "difference_only_crlf_to_lf": true
+    },
+    {
+      "name": "kraken_confirmation_runtime.py",
+      "previous_worktree_sha256": "9067858d76f61e3343e1aa79a5a4b705f628124e118fbd3dce8d72b80d2f2f38",
+      "committed_and_deployed_sha256": "f2a8570d340da49e044c41272b1e4ce5d57a1c80f64d06849e029259aa393dd9",
+      "difference_only_crlf_to_lf": true
+    }
+  ],
+  "compressed_bundle_characters": 59220
+}
