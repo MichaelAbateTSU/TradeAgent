@@ -15,6 +15,15 @@ The single receiver job is `job-db0p1ovavr4c738nlkg0`, using source
 preflight and began native-book warm-up before the fixed start.
 Warm-up data is not counted as scheduled/mature primary coverage.
 
+**Formal-start smoke:** at 00:02:31 UTC, both symbols had nine matured
+scheduled primary outcomes written, with no missing scheduled slots or
+unwritten mature outcomes. BTC had six complete labels and three
+freshness rejections; ETH had nine complete labels. These tiny,
+correlated counts are not a sustained 95% pass. All 52,403 book checksum
+checks at the quality cutoff passed, and thirty current safety guards
+passed; orders remained zero. The BTC failures are retained, not
+replaced. See `first-mature-readback.json` and `formal-smoke-verdict.json`.
+
 `root-cause-and-repair.md` explains the three original broker-monitor
 failures and the demonstrated independent-collector guard dependency.
 The repaired guard requires preservation of that exact paused observer
@@ -144,6 +153,12 @@ There is no favorable-window restart, denominator substitution, missing
 label backfill, extension, source switch, order-size reduction or ETH
 removal. At the fixed end, wait for the original capture tail and inspect
 the terminal report; do not keep collecting replacement observations.
+
+A one-time **read-only closeout** is scheduled for October 7 at 00:04 UTC,
+after the fixed tail. It will verify and archive final per-symbol results,
+including failure categories and fixed blocks. It must not restart a
+failed receiver, change the contract, authorize orders, or promote the
+model even if coverage passes.
 
 ## Remaining economic and operational uncertainty
 

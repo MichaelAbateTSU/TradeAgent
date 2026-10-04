@@ -1,0 +1,18 @@
+{
+  "schema": "confirmation-readonly-closeout-schedule-v1",
+  "scope": "same session, one-time",
+  "scheduled_at": "2026-10-03T23:57:40.859Z",
+  "run_at": "2026-10-07T00:04:00Z",
+  "study_id": "kraken-book-confirmation-v2",
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "receiver_job_id": "job-db0p1ovavr4c738nlkg0",
+  "capture_tail_end": "2026-10-07T00:01:15Z",
+  "read_only_data_and_broker_checks": true,
+  "archive_actual_results": true,
+  "collector_restart_allowed": false,
+  "old_v1_rearm_allowed": false,
+  "protocol_changes_allowed": false,
+  "trading_authorization_allowed": false,
+  "automatic_shadow_research_v2_allowed": false,
+  "automatic_model_promotion_allowed": false
+}

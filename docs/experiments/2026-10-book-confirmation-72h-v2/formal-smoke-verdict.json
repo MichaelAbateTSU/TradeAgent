@@ -1,0 +1,55 @@
+{
+  "schema": "confirmation-formal-start-smoke-v1",
+  "observed_as_of": "2026-10-04T00:02:31.814651Z",
+  "study_id": "kraken-book-confirmation-v2",
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "receiver_job": "job-db0p1ovavr4c738nlkg0",
+  "status_readback_job": "job-db0pf37avr4c738pelf0",
+  "state": "collecting",
+  "formal_start_verified": true,
+  "durable_evaluation_and_mature_outcome_pipeline_verified": true,
+  "full_payload_verification": true,
+  "raw_frames_verified_through_readback_prefix": 55351,
+  "successful_guard_checks": 30,
+  "source_connections": 1,
+  "checksum_checks_at_quality_cutoff": 52403,
+  "checksum_valid_quotes_at_quality_cutoff": 52403,
+  "checksum_failures_at_quality_cutoff": 0,
+  "timestamp_errors_at_quality_cutoff": 0,
+  "rejected_book_messages_at_quality_cutoff": 0,
+  "disconnects_at_quality_cutoff": 0,
+  "per_symbol_mature_primary": {
+    "BTC/USD": {
+      "matured": 9,
+      "outcomes_written": 9,
+      "complete": 6,
+      "missing": 3,
+      "coverage": "0.6666666666666666",
+      "missed_scheduled_slots": 0,
+      "missing_label_records": 0,
+      "reasons": {
+        "DECISION_QUOTE_STALE_OR_MISSING": 2,
+        "HORIZON_QUOTE_STALE_OR_MISSING": 1
+      }
+    },
+    "ETH/USD": {
+      "matured": 9,
+      "outcomes_written": 9,
+      "complete": 9,
+      "missing": 0,
+      "coverage": "1.0",
+      "missed_scheduled_slots": 0,
+      "missing_label_records": 0,
+      "reasons": {}
+    }
+  },
+  "small_correlated_sample_not_sustained_reliability": true,
+  "completed_72h_gate_passed": false,
+  "early_btc_freshness_failures_preserved": true,
+  "study_restarted_to_improve_results": false,
+  "orders_submitted": 0,
+  "private_kraken_requests": 0,
+  "model_state": "no_support",
+  "trading_authorization": "expired",
+  "shadow_research_v2_ready": false
+}
