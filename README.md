@@ -92,10 +92,14 @@ The [completed retrospective](docs/experiments/2026-10-scalping-research/retrosp
 is retained with a coverage-superseded notice after an L1/L2 replay defect was identified.
 [Shadow Research Dataset v1](docs/experiments/2026-10-shadow-dataset-v1/protocol.md)
 failed its quality gate and remains preserved under safety containment, not restarted.
-The current [native-book confirmation infrastructure](docs/experiments/2026-10-book-confirmation-72h-v2/root-cause-and-repair.md)
-uses independent, current broker safety proof while preserving that exact paused v1.
-This separately versioned confirmation does not start Shadow Research Dataset v2,
-promote the model, or authorize orders.
+The [native-book confirmation infrastructure](docs/experiments/2026-10-book-confirmation-72h-v2/root-cause-and-repair.md)
+uses independent broker safety proof while preserving that exact paused v1.
+Its second fixed run stopped after approximately fifteen hours with an expired
+collector lease. The [complete reliability and missing-label audit](docs/experiments/2026-10-book-confirmation-reliability-audit/README.md)
+verified all 1,632,695 native book updates and separately identified reporting-induced
+scheduling/lookup failures, genuine freshness/size limitations and process-loss
+missingness. The failed studies remain unchanged and **NO-GO**; an observation-layer
+repair does not start a replacement window, research v2, model promotion or orders.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 

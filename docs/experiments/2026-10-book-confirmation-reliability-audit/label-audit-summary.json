@@ -1,0 +1,184 @@
+{
+  "study_id": "kraken-book-confirmation-v2",
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "read_only": true,
+  "writes": 0,
+  "journal_chunks_verified": 168121,
+  "journal_root": "54782507ee32d1d6a4c4b80561aa9d045975c96f6ddc0f8bf5aec3d3a8f03ab2",
+  "contiguous_frames_verified": 1688284,
+  "native_book_updates_independently_replayed": 1632695,
+  "stored_quotes_matching_native_replay": 1632695,
+  "selected_quotes_matching_raw_persistence": 10814,
+  "quote_mismatches": 0,
+  "capture_rejections": {},
+  "clock_or_reconstruction_counts": {},
+  "maximum_provider_to_receive_ns": {
+    "BTC/USD": 2930350739,
+    "ETH/USD": 2943530765
+  },
+  "evaluations": {
+    "BTC/USD": 5401,
+    "ETH/USD": 5401
+  },
+  "labels": {
+    "BTC/USD": 5394,
+    "ETH/USD": 5394
+  },
+  "periodic_report_lags": [
+    {
+      "appended_ns": 1791075609027528871,
+      "as_of_ns": 1791075600000000000,
+      "completion_lag_ns": 9027528871,
+      "sequence": 15720
+    },
+    {
+      "appended_ns": 1791079213854531545,
+      "as_of_ns": 1791079200000000000,
+      "completion_lag_ns": 13854531545,
+      "sequence": 26939
+    },
+    {
+      "appended_ns": 1791082821947553340,
+      "as_of_ns": 1791082800000000000,
+      "completion_lag_ns": 21947553340,
+      "sequence": 37494
+    },
+    {
+      "appended_ns": 1791086427617789465,
+      "as_of_ns": 1791086400000000000,
+      "completion_lag_ns": 27617789465,
+      "sequence": 47650
+    },
+    {
+      "appended_ns": 1791090034420617153,
+      "as_of_ns": 1791090000000000000,
+      "completion_lag_ns": 34420617153,
+      "sequence": 56739
+    },
+    {
+      "appended_ns": 1791093638325257310,
+      "as_of_ns": 1791093600000000000,
+      "completion_lag_ns": 38325257310,
+      "sequence": 67541
+    },
+    {
+      "appended_ns": 1791097241655069541,
+      "as_of_ns": 1791097200000000000,
+      "completion_lag_ns": 41655069541,
+      "sequence": 77820
+    },
+    {
+      "appended_ns": 1791100854627700703,
+      "as_of_ns": 1791100800000000000,
+      "completion_lag_ns": 54627700703,
+      "sequence": 88643
+    },
+    {
+      "appended_ns": 1791104452630689041,
+      "as_of_ns": 1791104400000000000,
+      "completion_lag_ns": 52630689041,
+      "sequence": 100167
+    },
+    {
+      "appended_ns": 1791108059838519672,
+      "as_of_ns": 1791108000000000000,
+      "completion_lag_ns": 59838519672,
+      "sequence": 111562
+    },
+    {
+      "appended_ns": 1791111665845712498,
+      "as_of_ns": 1791111600000000000,
+      "completion_lag_ns": 65845712498,
+      "sequence": 123402
+    },
+    {
+      "appended_ns": 1791115271747969483,
+      "as_of_ns": 1791115200000000000,
+      "completion_lag_ns": 71747969483,
+      "sequence": 134245
+    },
+    {
+      "appended_ns": 1791118878426069314,
+      "as_of_ns": 1791118800000000000,
+      "completion_lag_ns": 78426069314,
+      "sequence": 145544
+    },
+    {
+      "appended_ns": 1791122482743387780,
+      "as_of_ns": 1791122400000000000,
+      "completion_lag_ns": 82743387780,
+      "sequence": 156796
+    }
+  ],
+  "maximum_report_completion_lag_ns": 82743387780,
+  "last_captured_ns": 1791126083264074307,
+  "last_observed_evaluation_slot": 5400,
+  "case_count": 1497,
+  "post_process_loss_slots_are_not_source_availability_evidence": true,
+  "does_not_change_frozen_coverage_or_create_labels": true,
+  "late_receipt_does_not_prove_network_vs_receiver_delay": true,
+  "schema": "confirmation-immutable-label-audit-v2",
+  "original_complete": {
+    "BTC/USD": 4616,
+    "ETH/USD": 4689
+  },
+  "failure_buckets": {
+    "BTC/USD": {
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 648,
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 69,
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 12,
+      "DECLARED_MISSED_SCHEDULED_EVALUATION": 45,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4,
+      "EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS": 7
+    },
+    "ETH/USD": {
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 226,
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 402,
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 28,
+      "DECLARED_MISSED_SCHEDULED_EVALUATION": 45,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4,
+      "EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS": 7
+    }
+  },
+  "endpoint_failures_excluding_declared_schedule_misses": {
+    "BTC/USD": {
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 697,
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 69,
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 12,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4
+    },
+    "ETH/USD": {
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 237,
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 420,
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 28,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4
+    }
+  },
+  "reference_method_corrections": [
+    {
+      "symbol": "BTC/USD",
+      "slot": 4374,
+      "endpoint": "future",
+      "preliminary_category": "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED",
+      "correct_frozen_contract_category": "VALID_ENDPOINT",
+      "explanation": "Future reception cutoff is horizon; acceptance cutoff includes the frozen two-second settlement."
+    }
+  ],
+  "timestamp_semantics": {
+    "provider_and_receive_cutoff": true,
+    "provider_and_receive_freshness_ns": 2000000000,
+    "entry_acceptance_cutoff": "evaluation",
+    "future_receive_cutoff": "evaluation_plus_60s",
+    "future_acceptance_cutoff": "evaluation_plus_62s",
+    "selection_order": "reverse_acceptance_order",
+    "future_acceptance_at_horizon_requirement": false,
+    "acceptance_clock_preserved": true,
+    "settlement_ns": 2000000000
+  },
+  "counterfactual_reference_quotes_are_diagnostics_not_replacement_labels": true,
+  "pipeline_lookup_misses_report_overlap": {
+    "BTC/USD": 4,
+    "ETH/USD": 4
+  },
+  "case_artifact_sha256": "1e21872478a23c591c7b3f60736cd340a9bfdb602e6ce268baff00fa82d0f197"
+}

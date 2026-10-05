@@ -6,6 +6,7 @@ from collections import Counter, deque
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from hashlib import sha256
+from threading import Event as ThreadEvent
 
 from pydantic import JsonValue
 
@@ -24,6 +25,7 @@ from tradeagent.kraken_confirmation import (
     Label,
     PausedV1Proof,
     Quote,
+    ReportCancelledError,
     StudyId,
     legacy_journal_compatibility,
     slot_context,
@@ -136,6 +138,7 @@ def build_report(
     at_ns: int,
     verify_payloads: bool = False,
     completing: bool = False,
+    cancel: ThreadEvent | None = None,
 ) -> dict[str, JsonValue]:
     protocol = store.load_protocol()
     mature = protocol.matured(at_ns)
@@ -148,7 +151,11 @@ def build_report(
     proof = _ProofRing()
     guard_checks = 0
     kinds = frozenset({"protocol", "evaluation", "label", "quality", "guard", "terminal"})
-    for header, payload in store.chunks(verify_payloads=verify_payloads, kinds=kinds):
+    for header, payload in store.chunks(
+        verify_payloads=verify_payloads,
+        kinds=kinds,
+        cancel=cancel,
+    ):
         latest = header
         if header.kind == "capture" and verify_payloads:
             if payload is None:
@@ -221,7 +228,7 @@ def build_report(
                 }.items()
             ):
                 raise ValueError("durable observer guard evidence violates frozen safety pins")
-            if protocol.study_id == V2_STUDY_ID:
+            if protocol.study_id != STUDY_ID:
                 if payload.get("guard_version") != 2:
                     raise ValueError("durable confirmation-v2 guard version missing")
                 paused = PausedV1Proof.model_validate(payload.get("preserved_v1"))
@@ -249,6 +256,8 @@ def build_report(
     statistics: dict[tuple[str, str], Counter[str]] = {}
     reasons: dict[tuple[str, str], Counter[str]] = {}
     for slot in range(SLOTS):
+        if slot % 256 == 0 and cancel is not None and cancel.is_set():
+            raise ReportCancelledError("read-only report cancelled at grid boundary")
         contexts = ("overall", *slot_context(protocol, slot))
         for symbol in SYMBOLS:
             key = (slot, symbol)
@@ -360,6 +369,8 @@ def build_report(
             "kraken-book-confirmation-report-v1"
             if protocol.study_id == STUDY_ID
             else "kraken-book-confirmation-report-v2"
+            if protocol.study_id == V2_STUDY_ID
+            else "kraken-book-confirmation-report-v3"
         ),
         "protocol": protocol.model_dump(mode="json"),
         "protocol_hash": protocol.identity,
@@ -433,6 +444,7 @@ def export_evidence(
     study_id: StudyId = STUDY_ID,
 ) -> Iterator[dict[str, JsonValue]]:
     """Read-only streaming proof: exact compressed bytes, hashes and journal order."""
-    if study_id == V2_STUDY_ID:
+    store = ConfirmationStore(database, "read-only", study_id=study_id)
+    if study_id != STUDY_ID:
         legacy_journal_compatibility(database)
-    yield from ConfirmationStore(database, "read-only", study_id=study_id).export_chunks()
+    yield from store.export_chunks()

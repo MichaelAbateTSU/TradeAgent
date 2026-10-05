@@ -1,0 +1,30 @@
+[
+  {
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "name": "tradeagent-news-worker",
+    "autoDeploy": "no",
+    "suspended": "not_suspended",
+    "type": "background_worker"
+  },
+  {
+    "id": "srv-dadoa3740ujc73cb09c0",
+    "name": "tradeagent-runtime-dashboard",
+    "autoDeploy": "no",
+    "suspended": "not_suspended",
+    "type": "web_service"
+  },
+  {
+    "id": "srv-dadnn6mq1p3s73ef7ef0",
+    "name": "tradeagent-notifier",
+    "autoDeploy": "no",
+    "suspended": "not_suspended",
+    "type": "background_worker"
+  },
+  {
+    "id": "srv-dadn8son74is73apqcc0",
+    "name": "tradeagent-shadow-worker",
+    "autoDeploy": "no",
+    "suspended": "suspended",
+    "type": "background_worker"
+  }
+]

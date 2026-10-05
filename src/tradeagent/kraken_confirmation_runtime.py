@@ -28,6 +28,24 @@ New v2 broker GET failures report only exception class, allowlisted endpoint pat
 and HTTP status when available, never headers/query/body/secrets. The old monitor
 is unchanged and its historical missing HTTP details remain unknown.
 
+Confirmation infrastructure v3 uses the exact matched schema/study ID
+``kraken-book-confirmation-v3`` and requires ``warmup_seconds=60``. It retains v2's
+preserved-paused-v1 safety guard and every original observation threshold.
+Launch admission is only within the sixty seconds before the frozen start;
+schedule externally rather than starting a multi-day warmup capture. This is a
+maximum lead/admission bound, not a minimum book age or a changed freshness rule.
+Lease heartbeat, current safety proof and cumulative reporting each have their own
+single-worker executor and single-connection pool. The writer retains its supplied
+pool. Reporting cannot delay cadence or renewals; at most one hourly scan is active,
+and a scan lasting an hour or falling more than an hour behind fails closed.
+Mature labels resolve in that independent cadence loop at the unchanged +62-second
+boundary; the quote ring remains seventy seconds and missing inputs are not backfilled.
+The unchanged 90-second owner
+fence samples current time after acquiring the lock, never from quote/event time.
+Heartbeat and safety checks remain active during final verification; loss of
+ownership cannot seal or rewrite the immutable claim. Old v1/v2 paths, serialized
+identities, claims and roots remain unchanged. Use explicit v3 status/export IDs.
+
 Operator interface (nothing runs on import):
 * With the old 0015 observer unchanged, do NOT run global ``alembic upgrade head``.
   Invoke ``install_schema(database)`` or the explicit ``init-store`` subcommand.
@@ -59,7 +77,8 @@ Callable modules/sequence:
 ``tradeagent.kraken_confirmation`` exports ``ConfirmationProtocol``,
 ``install_schema(database)`` and ``check_schema(database)``.
 ``tradeagent.kraken_confirmation_runtime`` exports ``source_digests()``,
-``observer_guard(database, protocol)`` and ``await run(protocol, database, guard=None)``.
+``observer_guard(database, protocol)`` and
+``await run(protocol, database, guard=None, runtime_io=None)``.
 Use the existing ``Database(AppConfig().database_url.get_secret_value(), pool_size=2)``
 context; the CLI reads the existing ``TRADEAGENT_DATABASE_URL`` configuration.
 Install/check storage first, without claiming a study. Construct the model with
@@ -90,6 +109,13 @@ expiry; there is no restart, rearm, or delete command. Disk exhaustion/DB loss c
 prevent terminal append; read-only status then exposes the incomplete frozen grid.
 Production database connection timeouts/capacity and 72-hour provider endurance
 must be established by the operator; these local contracts do not certify them.
+For bounded read-only forensics, ``ConfirmationStore(..., study_id=ID).
+latest_header(kind)`` locates a single journal row and ``read_chunk(sequence)``
+returns its header and decoded payload after checking that row's hashes. Batch
+payloads contain ``records[*].payload``; quality/report/terminal are direct objects.
+These targeted reads do not certify full-prefix completeness; use status --verify
+or the streaming export for that. Cooperative report cancellation raises explicitly
+at page/row and scheduled-grid boundaries, never returns a successful partial scan.
 """
 
 from __future__ import annotations
@@ -101,10 +127,12 @@ import sys
 import time
 from collections import Counter
 from collections.abc import Callable, Mapping
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from pathlib import Path
+from threading import Event as ThreadEvent
 from typing import Literal, Never, Self
 from uuid import uuid4
 
@@ -132,6 +160,7 @@ from tradeagent.kraken_confirmation import (
     STUDY_IDS,
     SYMBOLS,
     V2_STUDY_ID,
+    V3_STUDY_ID,
     CausalGrid,
     ConfirmationProtocol,
     ConfirmationStore,
@@ -157,6 +186,7 @@ PUBLIC_URL = "wss://ws.kraken.com/v2"
 FRAME_LIMIT = 256 * 1024
 QUEUE_CAPACITY = 128
 QUEUE_TIMEOUT = 5
+REPORT_SCAN_TIMEOUT_SECONDS: Literal[3600] = 3600
 JSON_OBJECT = TypeAdapter(dict[str, JsonValue])
 
 
@@ -269,7 +299,7 @@ def _frozen_v1(database: Database, protocol: ConfirmationProtocol) -> ShadowData
     frozen = ShadowDatasetProtocol.model_validate(saved["protocol"])
     if frozen.account_digest != protocol.account_digest:
         raise ValueError("observer account differs from the confirmation pin")
-    if protocol.study_id == V2_STUDY_ID and (
+    if protocol.study_id != STUDY_ID and (
         saved["protocol_hash"] != protocol.v1_protocol_hash
         or frozen.identity != protocol.v1_protocol_hash
     ):
@@ -347,7 +377,7 @@ def _v1_sample(
         raise ValueError("v1 pinned source, ownership, connection or freshness changed")
     paused = (
         _paused_proof(database, protocol, details, feed)
-        if (protocol.study_id == V2_STUDY_ID)
+        if (protocol.study_id != STUDY_ID)
         else None
     )
     return checked, paused
@@ -376,7 +406,7 @@ def _safe_current(
         or broker.get("broker_order_records_since_freeze") != 0
     ):
         raise ValueError("zero-order or expired-authority guard failed")
-    if protocol.study_id == V2_STUDY_ID and (
+    if protocol.study_id != STUDY_ID and (
         broker.get("account_digest") != protocol.account_digest
         or broker.get("paper_host") != "https://paper-api.alpaca.markets"
         or broker.get("read_methods") != ["GET"]
@@ -389,11 +419,11 @@ def observer_guard(database: Database, protocol: ConfirmationProtocol) -> Guard:
     """V1 requires subscription; v2 preserves one exact paused-v1 safety containment."""
 
     def check() -> GuardEvidence:
-        if protocol.study_id == V2_STUDY_ID:
+        if protocol.study_id != STUDY_ID:
             check_schema(database)
         frozen = _frozen_v1(database, protocol)
         safety = local_safety(database, frozen)
-        if protocol.study_id == V2_STUDY_ID:
+        if protocol.study_id != STUDY_ID:
             _safe_local(safety)
         checked, paused = _v1_sample(database, protocol)
         try:
@@ -407,7 +437,7 @@ def observer_guard(database: Database, protocol: ConfirmationProtocol) -> Guard:
                 raise
             raise CurrentBrokerProofError(error) from None
         _safe_current(safety, broker, protocol)
-        if protocol.study_id == V2_STUDY_ID:
+        if protocol.study_id != STUDY_ID:
             # Catch state/control/authority changes while the broker GETs were in flight.
             check_schema(database)
             _frozen_v1(database, protocol)
@@ -420,7 +450,7 @@ def observer_guard(database: Database, protocol: ConfirmationProtocol) -> Guard:
             v1_runtime_sha=protocol.v1_runtime_sha,
             v1_owner_id=protocol.v1_owner_id,
             v1_connection_id=protocol.v1_connection_id,
-            guard_version=2 if protocol.study_id == V2_STUDY_ID else 1,
+            guard_version=2 if protocol.study_id != STUDY_ID else 1,
             preserved_v1=paused,
         )
 
@@ -438,7 +468,7 @@ def validate_guard(evidence: GuardEvidence, protocol: ConfirmationProtocol) -> N
         or not 0 <= now_ns() - evidence.checked_ns <= 30 * NS
     ):
         raise ValueError("injected observer guard did not prove the frozen safety pins")
-    if protocol.study_id == V2_STUDY_ID:
+    if protocol.study_id != STUDY_ID:
         if (
             evidence.guard_version != 2
             or evidence.preserved_v1 is None
@@ -464,7 +494,7 @@ async def preflight(
     schema = await asyncio.to_thread(check_schema, database)
     compatibility = (
         await asyncio.to_thread(legacy_journal_compatibility, database)
-        if (protocol.study_id == V2_STUDY_ID)
+        if (protocol.study_id != STUDY_ID)
         else None
     )
     check = guard if guard is not None else observer_guard(database, protocol)
@@ -888,9 +918,14 @@ async def run(
     database: Database,
     *,
     guard: Guard | None = None,
+    runtime_io: RuntimeIO | None = None,
 ) -> dict[str, JsonValue]:
     """Claim once, run once. Fatal errors seal incomplete; no replay/resume mode."""
     protocol = ConfirmationProtocol.model_validate(protocol.model_dump(mode="json"))
+    if protocol.study_id == V3_STUDY_ID:
+        return await _run_v3(protocol, database, guard=guard, runtime_io=runtime_io)
+    if runtime_io is not None:
+        raise ValueError("isolated runtime IO is a confirmation-v3 capability only")
     verify_sources(protocol)
     await asyncio.to_thread(check_schema, database)
     guard = guard if guard is not None else observer_guard(database, protocol)
@@ -1103,6 +1138,415 @@ async def run(
                 store.lock_name,
                 store.owner_id,
             )
+    if failure is not None:
+        raise RuntimeError(f"confirmation sealed failed/incomplete: {failure}")
+    return report
+
+
+class RuntimeIO:
+    """Three bounded IO lanes/pools so a cumulative scan cannot starve fencing/safety."""
+
+    def __init__(
+        self,
+        database: Database,
+        *,
+        lease_database: Database | None = None,
+        safety_database: Database | None = None,
+        report_database: Database | None = None,
+    ) -> None:
+        supplied = (lease_database, safety_database, report_database)
+        self.owned: tuple[Database, ...] = ()
+        if any(item is not None for item in supplied):
+            if any(item is None for item in supplied):
+                raise ValueError("supply all three isolated IO database handles")
+            assert lease_database is not None and safety_database is not None
+            assert report_database is not None
+        else:
+            url = database.engine.url
+            if url.get_backend_name() == "sqlite" and url.database in (None, "", ":memory:"):
+                raise ValueError("v3 requires isolated pools; memory tests must supply IO handles")
+            address = url.render_as_string(hide_password=False)
+            lease_database = Database(address, pool_size=1)
+            safety_database = Database(address, pool_size=1)
+            report_database = Database(address, pool_size=1)
+            self.owned = (lease_database, safety_database, report_database)
+        self.lease_database = lease_database
+        self.safety_database = safety_database
+        self.report_database = report_database
+        self.executors = {
+            name: ThreadPoolExecutor(max_workers=1, thread_name_prefix="confirmation-" + name)
+            for name in ("lease", "safety", "report")
+        }
+        self.report_cancel = ThreadEvent()
+
+    async def call[T](
+        self, lane: Literal["lease", "safety", "report"], function: Callable[[], T]
+    ) -> T:
+        return await asyncio.get_running_loop().run_in_executor(self.executors[lane], function)
+
+    async def close(self) -> None:
+        self.report_cancel.set()
+        for executor in self.executors.values():
+            await asyncio.to_thread(executor.shutdown, wait=True, cancel_futures=True)
+        for database in self.owned:
+            database.dispose()
+
+
+async def _pause(stop: asyncio.Event, seconds: float) -> None:
+    with suppress(TimeoutError):
+        await asyncio.wait_for(stop.wait(), seconds)
+
+
+async def _lease_heartbeat(store: ConfirmationStore, io: RuntimeIO, stop: asyncio.Event) -> None:
+    while not stop.is_set():
+        await io.call("lease", store.refresh)
+        await _pause(stop, 10)
+
+
+async def _safety_watch(
+    protocol: ConfirmationProtocol,
+    guard: Guard,
+    io: RuntimeIO,
+    writer: DurableWriter,
+    stop: asyncio.Event,
+) -> None:
+    sequence = 0
+    while not stop.is_set():
+        verify_sources(protocol)
+        evidence = await io.call("safety", guard)
+        validate_guard(evidence, protocol)
+        await writer.flush()
+        validate_guard(evidence, protocol)
+        await writer.append_metadata(
+            "guard",
+            f"guard:watch:{sequence}",
+            evidence.model_dump(mode="json"),
+        )
+        sequence += 1
+        await _pause(stop, 60)
+
+
+async def _quality_watch(receiver: Receiver, writer: DurableWriter, stop: asyncio.Event) -> None:
+    sequence = 0
+    while not stop.is_set():
+        await writer.flush()
+        await writer.append_metadata("quality", f"quality:watch:{sequence}", receiver.quality())
+        sequence += 1
+        await _pause(stop, 10)
+
+
+async def _guarded_capture(
+    protocol: ConfirmationProtocol,
+    guard: Guard,
+    io: RuntimeIO,
+    receiver: Receiver,
+    writer: DurableWriter,
+    stop: asyncio.Event,
+) -> None:
+    verify_sources(protocol)
+    evidence = await io.call("safety", guard)
+    validate_guard(evidence, protocol)
+    await writer.append_metadata("guard", "guard:initial", evidence.model_dump(mode="json"))
+    await receiver.work(stop)
+
+
+async def _report_watch(
+    protocol: ConfirmationProtocol,
+    reader: ConfirmationStore,
+    io: RuntimeIO,
+    writer: DurableWriter,
+    stop: asyncio.Event,
+) -> None:
+    completed_hour = 0
+    while not stop.is_set():
+        hour = min(72, max(0, (now_ns() - datetime_ns(protocol.start)) // (3600 * NS)))
+        if hour > completed_hour:
+            if hour != completed_hour + 1:
+                raise RuntimeError("hourly_report_backlog_budget_exceeded")
+            verify_sources(protocol)
+            at = datetime_ns(protocol.start) + hour * 3600 * NS
+
+            def calculate_report(target: int = at) -> dict[str, JsonValue]:
+                return build_report(reader, at_ns=target, cancel=io.report_cancel)
+
+            try:
+                report = await asyncio.wait_for(
+                    io.call("report", calculate_report),
+                    REPORT_SCAN_TIMEOUT_SECONDS,
+                )
+            except TimeoutError as error:
+                io.report_cancel.set()
+                raise RuntimeError("hourly_report_duration_budget_exceeded") from error
+            await writer.flush()
+            await writer.append_metadata("report", f"hour:{hour}", report)
+            completed_hour = hour
+        await _pause(stop, 1)
+
+
+async def _watched[T](
+    operation: asyncio.Future[T],
+    watchers: tuple[asyncio.Task[None], ...],
+) -> T:
+    async def signal() -> None:
+        await asyncio.shield(operation)
+
+    ready = asyncio.create_task(signal())
+    try:
+        done, _ = await asyncio.wait((ready, *watchers), return_when=asyncio.FIRST_COMPLETED)
+        for watcher in watchers:
+            if watcher in done:
+                await watcher
+                raise RuntimeError("essential confirmation service unexpectedly stopped")
+        return await operation
+    finally:
+        if not ready.done():
+            ready.cancel()
+        await asyncio.gather(ready, return_exceptions=True)
+
+
+async def _run_v3(
+    protocol: ConfirmationProtocol,
+    database: Database,
+    *,
+    guard: Guard | None,
+    runtime_io: RuntimeIO | None,
+) -> dict[str, JsonValue]:
+    start = datetime_ns(protocol.start)
+    if not start - 60 * NS <= now_ns() < start:
+        raise ValueError("v3 launch admission is only the sixty seconds before its frozen start")
+    io = runtime_io or RuntimeIO(database)
+    check = guard if guard is not None else observer_guard(io.safety_database, protocol)
+    try:
+        await preflight(protocol, io.safety_database, guard=check)
+    except (ValueError, RuntimeError, OSError, SQLAlchemyError, httpx.HTTPError):
+        await io.close()
+        raise
+    store = ConfirmationStore(database, str(uuid4()), study_id=protocol.study_id)
+    lease_store = ConfirmationStore(
+        io.lease_database,
+        store.owner_id,
+        study_id=protocol.study_id,
+        clock=store.clock,
+    )
+    reader = ConfirmationStore(
+        io.report_database,
+        store.owner_id,
+        study_id=protocol.study_id,
+        clock=store.clock,
+    )
+    try:
+        await asyncio.to_thread(store.claim, protocol)
+    except (ValueError, RuntimeError, OSError, SQLAlchemyError):
+        await io.close()
+        raise
+    writer = DurableWriter(store)
+    writer.task = asyncio.create_task(writer.work())
+    grid = CausalGrid(protocol)
+    receiver = Receiver(protocol, grid, writer)
+    capture_stop, lease_stop, safety_stop, auxiliary_stop = (
+        asyncio.Event(),
+        asyncio.Event(),
+        asyncio.Event(),
+        asyncio.Event(),
+    )
+    heartbeat = asyncio.create_task(_lease_heartbeat(lease_store, io, lease_stop))
+    safety = asyncio.create_task(_safety_watch(protocol, check, io, writer, safety_stop))
+    capture = asyncio.create_task(
+        _guarded_capture(protocol, check, io, receiver, writer, capture_stop),
+    )
+    quality = asyncio.create_task(_quality_watch(receiver, writer, auxiliary_stop))
+    reports = asyncio.create_task(_report_watch(protocol, reader, io, writer, auxiliary_stop))
+    services = (heartbeat, safety, quality, reports)
+    failure: str | None = None
+    sealed = False
+    report: dict[str, JsonValue] = {}
+    try:
+        while now_ns() < protocol.capture_end_ns:
+            for task in (writer.task, capture, *services):
+                if task.done():
+                    await task
+                    if task is capture and now_ns() >= protocol.capture_end_ns:
+                        break
+                    raise RuntimeError("essential confirmation task stopped before fixed end")
+            evaluations, labels = grid.advance(now_ns())
+            for kind, rows in (("evaluation", evaluations), ("label", labels)):
+                if rows:
+                    await writer.submit(kind, tuple(record(row) for row in rows))
+            await asyncio.sleep(0.1)
+    except (
+        ValueError,
+        RuntimeError,
+        OSError,
+        TimeoutError,
+        SQLAlchemyError,
+        httpx.HTTPError,
+    ) as error:
+        failure = f"{type(error).__name__}:{error}"
+        if isinstance(error, CurrentBrokerProofError):
+            receiver.last_error = canonical(error.details)
+            receiver.counts["current_broker_guard_failures"] += 1
+        if isinstance(error, BackpressureError):
+            receiver.counts["backpressure_failures"] += 1
+    except asyncio.CancelledError:
+        failure = "process_cancelled_no_restart"
+        raise
+    finally:
+        active = sys.exception()
+        if failure is None and active is not None:
+            failure = f"unhandled_process_failure:{type(active).__name__}"
+        capture_stop.set()
+        if not capture.done():
+            capture.cancel()
+        capture_results = await asyncio.gather(capture, return_exceptions=True)
+        for result in capture_results:
+            if isinstance(result, Exception) and failure is None:
+                failure = f"{type(result).__name__}:{result}"
+        auxiliary_stop.set()
+        if failure is not None:
+            io.report_cancel.set()
+            for task in (quality, reports):
+                task.cancel()
+        auxiliary = asyncio.gather(quality, reports, return_exceptions=True)
+        try:
+            watchers = (heartbeat, safety) if failure is None else (heartbeat,)
+            results = await _watched(auxiliary, watchers)
+            for result in results:
+                if isinstance(result, Exception) and failure is None:
+                    failure = f"{type(result).__name__}:{result}"
+            if failure is None:
+                evaluations, labels = grid.advance(now_ns())
+                for kind, rows in (("evaluation", evaluations), ("label", labels)):
+                    if rows:
+                        await writer.submit(kind, tuple(record(row) for row in rows))
+            try:
+                await writer.flush()
+            except (ValueError, RuntimeError, OSError, TimeoutError, SQLAlchemyError) as error:
+                failure = failure or f"durable_writer_failure:{error}"
+                receiver.counts["persistence_failures"] += 1
+                if writer.task is not None and not writer.task.done():
+                    writer.task.cancel()
+                    await asyncio.gather(writer.task, return_exceptions=True)
+            await io.call("lease", lease_store.refresh)
+            await writer.append_metadata("quality", "quality:final", receiver.quality())
+            if failure is not None:
+                # Cancelled hourly scans must not be mistaken for final verification.
+                io.report_cancel = ThreadEvent()
+            verification = asyncio.create_task(
+                io.call(
+                    "report",
+                    lambda: build_report(
+                        reader,
+                        at_ns=now_ns(),
+                        verify_payloads=True,
+                        completing=failure is None,
+                        cancel=io.report_cancel,
+                    ),
+                )
+            )
+            watchers = (heartbeat, safety) if failure is None else (heartbeat,)
+            try:
+                verify_sources(protocol)
+                report = await _watched(verification, watchers)
+            except (
+                ValueError,
+                RuntimeError,
+                OSError,
+                TimeoutError,
+                SQLAlchemyError,
+                httpx.HTTPError,
+            ) as error:
+                failure = failure or f"final_verification_or_safety_failed:{error}"
+                io.report_cancel.set()
+                verification.cancel()
+                await asyncio.gather(verification, return_exceptions=True)
+                report = {
+                    "schema": "kraken-book-confirmation-report-v3",
+                    "protocol_hash": protocol.identity,
+                    "decision": "NO_GO",
+                    "state": "failed_incomplete",
+                    "clean_integrity": False,
+                    "full_payload_verification": False,
+                    "verification_error": str(error),
+                    "orders_submitted": 0,
+                    "private_kraken_requests": 0,
+                    "v2_ready": False,
+                }
+            safety_stop.set()
+            if failure is not None and not safety.done():
+                safety.cancel()
+            outcomes = await asyncio.gather(safety, return_exceptions=True)
+            for outcome in outcomes:
+                if isinstance(outcome, Exception) and failure is None:
+                    failure = f"{type(outcome).__name__}:{outcome}"
+            if failure is None:
+                try:
+                    verify_sources(protocol)
+                    final = await io.call("safety", check)
+                    validate_guard(final, protocol)
+                    await writer.append_metadata(
+                        "guard", "guard:final", final.model_dump(mode="json")
+                    )
+                except (
+                    ValueError,
+                    RuntimeError,
+                    OSError,
+                    TimeoutError,
+                    SQLAlchemyError,
+                    httpx.HTTPError,
+                ) as error:
+                    failure = f"final_current_safety_failed:{error}"
+            if writer.task is not None and not writer.task.done():
+                try:
+                    await writer.close()
+                except (ValueError, RuntimeError, OSError, TimeoutError, SQLAlchemyError) as error:
+                    failure = failure or f"durable_writer_close_failure:{error}"
+                    writer.task.cancel()
+                    await asyncio.gather(writer.task, return_exceptions=True)
+            if failure is not None:
+                report.update(
+                    {
+                        "state": "failed_incomplete",
+                        "decision": "NO_GO",
+                        "clean_integrity": False,
+                        "terminal_reason": failure,
+                    }
+                )
+            await writer.append_metadata(
+                "terminal",
+                "terminal",
+                {
+                    "state": "completed" if failure is None else "failed_incomplete",
+                    "reason": failure,
+                    "report": report,
+                },
+            )
+            sealed = True
+        except (
+            ValueError,
+            RuntimeError,
+            OSError,
+            TimeoutError,
+            SQLAlchemyError,
+            httpx.HTTPError,
+        ) as error:
+            io.report_cancel.set()
+            raise RuntimeError(
+                "confirmation v3 failed/incomplete and could not seal; "
+                f"original={failure}; sealing={error}",
+            ) from error
+        finally:
+            for event in (lease_stop, safety_stop, auxiliary_stop):
+                event.set()
+            io.report_cancel.set()
+            for task in (writer.task, capture, *services):
+                if not task.done():
+                    task.cancel()
+            await asyncio.gather(writer.task, capture, *services, return_exceptions=True)
+            await io.close()
+            if sealed:
+                await asyncio.to_thread(
+                    store.repository.release_worker_lock, store.lock_name, store.owner_id
+                )
     if failure is not None:
         raise RuntimeError(f"confirmation sealed failed/incomplete: {failure}")
     return report

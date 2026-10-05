@@ -1,0 +1,235 @@
+{
+  "read_only": true,
+  "study_id": "kraken-book-confirmation-v2",
+  "receiver_job": "job-db0p1ovavr4c738nlkg0",
+  "records": [
+    {
+      "id": "ac5dbb3f-1577-4c97-9466-c66408d56d12",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "Traceback (most recent call last):",
+      "timestamp": "2026-10-04T15:01:35.414899593Z"
+    },
+    {
+      "id": "00b2b460-6faa-4bb0-9e66-ef95ef3c735c",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/kraken_confirmation_runtime.py\", line 1031, in run",
+      "timestamp": "2026-10-04T15:01:35.41555181Z"
+    },
+    {
+      "id": "025ba3d6-222e-4c47-b89c-89cba43fed0d",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/kraken_confirmation.py\", line 735, in refresh",
+      "timestamp": "2026-10-04T15:01:35.415591361Z"
+    },
+    {
+      "id": "08fc7c92-fdab-44de-a22f-e89e02146760",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/kraken_confirmation.py\", line 693, in _lease",
+      "timestamp": "2026-10-04T15:01:35.415600982Z"
+    },
+    {
+      "id": "12a6f44e-7837-4895-be9a-8ff8d7d9c44f",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "    raise RuntimeError(\"confirmation_lease_expired\")",
+      "timestamp": "2026-10-04T15:01:35.415604162Z"
+    },
+    {
+      "id": "74938acd-9504-48f9-b1b9-bec7cad4c600",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "RuntimeError: confirmation_lease_expired",
+      "timestamp": "2026-10-04T15:01:35.415607131Z"
+    },
+    {
+      "id": "025eb30b-5ed9-4fe5-b828-df8ca1dadf74",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "Traceback (most recent call last):",
+      "timestamp": "2026-10-04T15:01:35.415629902Z"
+    },
+    {
+      "id": "6005a83f-3133-4d0b-b168-0bcdc8c0cf36",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/kraken_confirmation_runtime.py\", line 1181, in <module>",
+      "timestamp": "2026-10-04T15:01:35.490222253Z"
+    },
+    {
+      "id": "2247e2c4-9b5a-48bf-91ff-043b61b2e647",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/kraken_confirmation_runtime.py\", line 1160, in main",
+      "timestamp": "2026-10-04T15:01:35.490230663Z"
+    },
+    {
+      "id": "a305ba2d-68f4-427b-889f-e1031a7d47e4",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "  File \"/opt/render/project/src/.venv/lib/python3.13/site-packages/tradeagent/kraken_confirmation_runtime.py\", line 1097, in run",
+      "timestamp": "2026-10-04T15:01:35.490273054Z"
+    },
+    {
+      "id": "a984654a-be2c-4770-b34d-15588e866f20",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "        f\"confirmation failed to seal; original={failure}; sealing={sealing_error}\",",
+      "timestamp": "2026-10-04T15:01:35.490281384Z"
+    },
+    {
+      "id": "a935cb21-f0e7-42d0-bf4d-82bb2a29bcda",
+      "labels": [
+        {
+          "name": "resource",
+          "value": "job-db0p1ovavr4c738nlkg0"
+        },
+        {
+          "name": "level",
+          "value": "info"
+        },
+        {
+          "name": "type",
+          "value": "app"
+        }
+      ],
+      "message": "RuntimeError: confirmation failed to seal; original=RuntimeError:confirmation_lease_expired; sealing=confirmation_lease_expired",
+      "timestamp": "2026-10-04T15:01:35.490285224Z"
+    }
+  ]
+}

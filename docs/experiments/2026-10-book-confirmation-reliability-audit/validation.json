@@ -1,0 +1,34 @@
+{
+  "final_full_suite": {
+    "command": "python -m pytest",
+    "passed": 2098,
+    "skipped": 2,
+    "seconds": 518.78
+  },
+  "focused": {
+    "command": "python -m pytest tests\\test_kraken_confirmation.py",
+    "passed": 173,
+    "seconds": 26.88
+  },
+  "lint": {
+    "command": "python -m ruff check .",
+    "passed": true
+  },
+  "strict_types": {
+    "command": "python -m mypy --strict src\\tradeagent tests\\test_kraken_confirmation.py",
+    "files": 126,
+    "passed": true
+  },
+  "diff_check": true,
+  "source_byte_sha256": {
+    "kraken_confirmation.py": "5b822d20e807ede0e3708ababb6f50a2a40d083d01214e64279481506f8901fe",
+    "kraken_confirmation_book.py": "8c380681bcfe8b5abf353c36d0b3788b96717912eb6153d2131423a9881d81ca",
+    "kraken_confirmation_report.py": "b9d675c89dd896d83d4475c0cb90a15d823709a3bf90460d53abbfe5dba0ddbf",
+    "kraken_confirmation_runtime.py": "2f7014f7d5c716f4e2518276fd30827287a345110d0772dac23d2cd68fc765fa"
+  },
+  "historical_claims_or_protocols_changed": false,
+  "strategy_or_trading_state_changed": false,
+  "deployment_component_smoke": "pending",
+  "postgresql_lock_integration_certified": false,
+  "new_study_frozen_or_claimed": false
+}

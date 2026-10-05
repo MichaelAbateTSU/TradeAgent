@@ -1,0 +1,153 @@
+import gzip
+import hashlib
+import json
+from collections import Counter
+from decimal import Decimal
+from pathlib import Path
+
+ROOT = Path(__file__).parent
+preliminary = json.loads((ROOT / "confirmation-full-label-audit-summary.json").read_text())
+cases = [
+    json.loads(line) for line in gzip.decompress(
+        (ROOT / "confirmation-full-label-audit-cases.jsonl.gz").read_bytes()
+    ).splitlines()
+]
+FRESH = 2_000_000_000
+SIZE = Decimal("10.25")
+SYMBOLS = ("BTC/USD", "ETH/USD")
+priority = (
+    "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED",
+    "RECEIVED_IN_TIME_QUOTE_ACCEPTED_AFTER_CUTOFF",
+    "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF",
+    "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK",
+    "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL",
+)
+
+
+def causal(q, at, endpoint):
+    known = at if endpoint == "entry" else at + FRESH
+    return q is not None and q["received_ns"] <= at and q["accepted_ns"] <= known
+
+
+def fresh(q, at, endpoint):
+    return causal(q, at, endpoint) and all(
+        0 <= at - q[key] <= FRESH for key in ("received_ns", "provider_book_update_ns")
+    )
+
+
+buckets = {s: Counter() for s in SYMBOLS}
+endpoints = {s: Counter() for s in SYMBOLS}
+pipeline_cases = []
+corrections = []
+for case in cases:
+    for endpoint in case.get("endpoints", []):
+        at = endpoint["cutoff_ns"]
+        actual = endpoint["recorded"]
+        choices = [q for q in (
+            endpoint["latest_causal_native"], actual, endpoint["late_provider_time_witness"]
+        ) if causal(q, at, endpoint["endpoint"])]
+        reference = max(choices, key=lambda q: (q["accepted_ns"], q["frame_id"]), default=None)
+        endpoint["latest_protocol_causal_native"] = reference
+        actual_size = actual is not None and Decimal(actual["selected_side_notional_usd"]) >= SIZE
+        reference_size = reference is not None and Decimal(
+            reference["selected_side_notional_usd"]
+        ) >= SIZE
+        if fresh(actual, at, endpoint["endpoint"]) and actual_size:
+            category = "VALID_ENDPOINT"
+        elif fresh(reference, at, endpoint["endpoint"]) and (
+            not fresh(actual, at, endpoint["endpoint"]) or reference_size
+        ):
+            category = "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED"
+        elif not fresh(actual, at, endpoint["endpoint"]):
+            witness = endpoint["late_provider_time_witness"]
+            category = (
+                "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF"
+                if witness is not None and witness["received_ns"] > at else
+                "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK"
+            )
+        else:
+            category = "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL"
+        if category != endpoint["category"]:
+            corrections.append({
+                "symbol": case["symbol"], "slot": case["slot"],
+                "endpoint": endpoint["endpoint"],
+                "preliminary_category": endpoint["category"],
+                "correct_frozen_contract_category": category,
+                "explanation": "Future reception cutoff is horizon; acceptance cutoff includes the frozen two-second settlement.",
+            })
+        endpoint["category"] = category
+        if case["failure_bucket"] == "DECLARED_MISSED_SCHEDULED_EVALUATION":
+            endpoint["attribution"] = "SCHEDULER_DECLARED_MISSED_NOT_SELECTOR_DEFECT"
+        elif category != "VALID_ENDPOINT":
+            endpoints[case["symbol"]][category] += 1
+    if case.get("endpoints") and case["failure_bucket"] != "DECLARED_MISSED_SCHEDULED_EVALUATION":
+        case["failure_bucket"] = next(
+            candidate for candidate in priority if any(
+                endpoint["category"] == candidate for endpoint in case["endpoints"]
+            )
+        )
+    buckets[case["symbol"]][case["failure_bucket"]] += 1
+    if case["failure_bucket"] == "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED":
+        pipeline_cases.append(case)
+
+summary = {
+    key: preliminary[key] for key in (
+        "study_id", "protocol_hash", "read_only", "writes",
+        "journal_chunks_verified", "journal_root", "contiguous_frames_verified",
+        "native_book_updates_independently_replayed", "stored_quotes_matching_native_replay",
+        "selected_quotes_matching_raw_persistence", "quote_mismatches", "capture_rejections",
+        "clock_or_reconstruction_counts", "maximum_provider_to_receive_ns",
+        "evaluations", "labels", "periodic_report_lags",
+        "maximum_report_completion_lag_ns", "last_captured_ns",
+        "last_observed_evaluation_slot", "case_count",
+        "post_process_loss_slots_are_not_source_availability_evidence",
+        "does_not_change_frozen_coverage_or_create_labels",
+        "late_receipt_does_not_prove_network_vs_receiver_delay",
+    )
+}
+summary.update({
+    "schema": "confirmation-immutable-label-audit-v2",
+    "original_complete": {s: preliminary["recorded_failure_buckets"][s]["ORIGINAL_COMPLETE"] for s in SYMBOLS},
+    "failure_buckets": {s: dict(buckets[s]) for s in SYMBOLS},
+    "endpoint_failures_excluding_declared_schedule_misses": {
+        s: dict(endpoints[s]) for s in SYMBOLS
+    },
+    "reference_method_corrections": corrections,
+    "timestamp_semantics": {
+        "provider_and_receive_cutoff": True,
+        "provider_and_receive_freshness_ns": FRESH,
+        "entry_acceptance_cutoff": "evaluation",
+        "future_receive_cutoff": "evaluation_plus_60s",
+        "future_acceptance_cutoff": "evaluation_plus_62s",
+        "selection_order": "reverse_acceptance_order",
+        "future_acceptance_at_horizon_requirement": False,
+        "acceptance_clock_preserved": True,
+        "settlement_ns": FRESH,
+    },
+    "counterfactual_reference_quotes_are_diagnostics_not_replacement_labels": True,
+    "pipeline_lookup_misses_report_overlap": {
+        s: sum(
+            case["symbol"] == s and any(e["periodic_report_lag_overlap"] for e in case["endpoints"])
+            for case in pipeline_cases
+        ) for s in SYMBOLS
+    },
+})
+compressed = gzip.compress(
+    ("\n".join(json.dumps(c, separators=(",", ":")) for c in cases) + "\n").encode(),
+    mtime=0,
+)
+summary["case_artifact_sha256"] = hashlib.sha256(compressed).hexdigest()
+(ROOT / "confirmation-final-label-audit-cases.jsonl.gz").write_bytes(compressed)
+(ROOT / "confirmation-final-label-audit-summary.json").write_text(
+    json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+)
+(ROOT / "confirmation-report-expiry-witnesses.json").write_text(
+    json.dumps(pipeline_cases, indent=2) + "\n", encoding="utf-8"
+)
+print(json.dumps({
+    "failure_buckets": summary["failure_buckets"],
+    "reference_method_corrections": corrections,
+    "pipeline_lookup_misses_report_overlap": summary["pipeline_lookup_misses_report_overlap"],
+    "case_count": len(cases),
+    "compressed_sha256": summary["case_artifact_sha256"],
+}, indent=2))

@@ -1,0 +1,171 @@
+{
+  "absent_scheduled_slots_through_last_observed_evaluation": {
+    "BTC/USD": [],
+    "ETH/USD": []
+  },
+  "capture_rejections": {},
+  "case_artifact_compressed_bytes": 339467,
+  "case_artifact_sha256": "b79d54e96629ccb115a748e1d5fa9ed7b58b1ad006d4e876027221e127cb63d8",
+  "case_count": 1497,
+  "clock_or_reconstruction_counts": {},
+  "contiguous_frames_verified": 1688284,
+  "does_not_change_frozen_coverage_or_create_labels": true,
+  "elapsed_seconds": 547.1087501428556,
+  "endpoint_failure_buckets": {
+    "BTC/USD": {
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 70,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 58,
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 12,
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 699
+    },
+    "ETH/USD": {
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 28,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 57,
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 237,
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 422
+    }
+  },
+  "endpoint_selection_comparisons": {
+    "BTC/USD": {
+      "endpoint_reference_matches_recorded": 10730
+    },
+    "ETH/USD": {
+      "endpoint_reference_matches_recorded": 10731
+    }
+  },
+  "evaluations": {
+    "BTC/USD": 5401,
+    "ETH/USD": 5401
+  },
+  "journal_chunks_verified": 168121,
+  "journal_root": "54782507ee32d1d6a4c4b80561aa9d045975c96f6ddc0f8bf5aec3d3a8f03ab2",
+  "labels": {
+    "BTC/USD": 5394,
+    "ETH/USD": 5394
+  },
+  "last_captured_ns": 1791126083264074307,
+  "last_observed_evaluation_slot": 5400,
+  "late_receipt_does_not_prove_network_vs_receiver_delay": true,
+  "maximum_provider_to_receive_ns": {
+    "BTC/USD": 2930350739,
+    "ETH/USD": 2943530765
+  },
+  "maximum_report_completion_lag_ns": 82743387780,
+  "maximum_rss_kib": 243904,
+  "native_book_updates_independently_replayed": 1632695,
+  "periodic_report_lags": [
+    {
+      "appended_ns": 1791075609027528871,
+      "as_of_ns": 1791075600000000000,
+      "completion_lag_ns": 9027528871,
+      "sequence": 15720
+    },
+    {
+      "appended_ns": 1791079213854531545,
+      "as_of_ns": 1791079200000000000,
+      "completion_lag_ns": 13854531545,
+      "sequence": 26939
+    },
+    {
+      "appended_ns": 1791082821947553340,
+      "as_of_ns": 1791082800000000000,
+      "completion_lag_ns": 21947553340,
+      "sequence": 37494
+    },
+    {
+      "appended_ns": 1791086427617789465,
+      "as_of_ns": 1791086400000000000,
+      "completion_lag_ns": 27617789465,
+      "sequence": 47650
+    },
+    {
+      "appended_ns": 1791090034420617153,
+      "as_of_ns": 1791090000000000000,
+      "completion_lag_ns": 34420617153,
+      "sequence": 56739
+    },
+    {
+      "appended_ns": 1791093638325257310,
+      "as_of_ns": 1791093600000000000,
+      "completion_lag_ns": 38325257310,
+      "sequence": 67541
+    },
+    {
+      "appended_ns": 1791097241655069541,
+      "as_of_ns": 1791097200000000000,
+      "completion_lag_ns": 41655069541,
+      "sequence": 77820
+    },
+    {
+      "appended_ns": 1791100854627700703,
+      "as_of_ns": 1791100800000000000,
+      "completion_lag_ns": 54627700703,
+      "sequence": 88643
+    },
+    {
+      "appended_ns": 1791104452630689041,
+      "as_of_ns": 1791104400000000000,
+      "completion_lag_ns": 52630689041,
+      "sequence": 100167
+    },
+    {
+      "appended_ns": 1791108059838519672,
+      "as_of_ns": 1791108000000000000,
+      "completion_lag_ns": 59838519672,
+      "sequence": 111562
+    },
+    {
+      "appended_ns": 1791111665845712498,
+      "as_of_ns": 1791111600000000000,
+      "completion_lag_ns": 65845712498,
+      "sequence": 123402
+    },
+    {
+      "appended_ns": 1791115271747969483,
+      "as_of_ns": 1791115200000000000,
+      "completion_lag_ns": 71747969483,
+      "sequence": 134245
+    },
+    {
+      "appended_ns": 1791118878426069314,
+      "as_of_ns": 1791118800000000000,
+      "completion_lag_ns": 78426069314,
+      "sequence": 145544
+    },
+    {
+      "appended_ns": 1791122482743387780,
+      "as_of_ns": 1791122400000000000,
+      "completion_lag_ns": 82743387780,
+      "sequence": 156796
+    }
+  ],
+  "post_process_loss_slots_are_not_source_availability_evidence": true,
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "quote_mismatches": 0,
+  "read_only": true,
+  "recorded_failure_buckets": {
+    "BTC/USD": {
+      "DECLARED_MISSED_SCHEDULED_EVALUATION": 45,
+      "EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS": 7,
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 69,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 5,
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 12,
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 647,
+      "ORIGINAL_COMPLETE": 4616
+    },
+    "ETH/USD": {
+      "DECLARED_MISSED_SCHEDULED_EVALUATION": 45,
+      "EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS": 7,
+      "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 28,
+      "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4,
+      "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 226,
+      "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 402,
+      "ORIGINAL_COMPLETE": 4689
+    }
+  },
+  "schema": "confirmation-immutable-label-audit-v1",
+  "selected_quotes_matching_raw_persistence": 10814,
+  "stored_quotes_matching_native_replay": 1632695,
+  "study_id": "kraken-book-confirmation-v2",
+  "writes": 0
+}

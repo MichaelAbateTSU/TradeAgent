@@ -13,6 +13,7 @@ from collections.abc import Callable, Iterator
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from hashlib import sha256
+from threading import Event as ThreadEvent
 from typing import Literal, Self
 
 from pydantic import (
@@ -57,8 +58,13 @@ type Symbol = Literal["BTC/USD", "ETH/USD"]
 SYMBOLS: tuple[Symbol, Symbol] = ("BTC/USD", "ETH/USD")
 STUDY_ID: Literal["kraken-book-confirmation-v1"] = "kraken-book-confirmation-v1"
 V2_STUDY_ID: Literal["kraken-book-confirmation-v2"] = "kraken-book-confirmation-v2"
-type StudyId = Literal["kraken-book-confirmation-v1", "kraken-book-confirmation-v2"]
-STUDY_IDS: tuple[StudyId, StudyId] = (STUDY_ID, V2_STUDY_ID)
+V3_STUDY_ID: Literal["kraken-book-confirmation-v3"] = "kraken-book-confirmation-v3"
+type StudyId = Literal[
+    "kraken-book-confirmation-v1",
+    "kraken-book-confirmation-v2",
+    "kraken-book-confirmation-v3",
+]
+STUDY_IDS: tuple[StudyId, StudyId, StudyId] = (STUDY_ID, V2_STUDY_ID, V3_STUDY_ID)
 LOCK_NAME = "research:" + STUDY_ID
 PAYLOAD_BUDGET: Literal[3221225472] = 3_221_225_472
 TERMINAL_RESERVE = 4 * 1024**2
@@ -95,6 +101,7 @@ class ConfirmationProtocol(BaseModel):
     v1_connection_id: str = Field(min_length=1, max_length=128)
     v1_stop_control_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     v1_protocol_hash: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    warmup_seconds: Literal[60] | None = None
     symbols: tuple[Literal["BTC/USD", "ETH/USD"], ...] = ("BTC/USD", "ETH/USD")
     duration_hours: Literal[72] = 72
     slots_per_symbol: Literal[25920] = SLOTS
@@ -123,14 +130,19 @@ class ConfirmationProtocol(BaseModel):
     def contract(self) -> Self:
         if self.schema_version != self.study_id:
             raise ValueError("confirmation schema and study ID must be a matched literal pair")
-        if self.study_id == V2_STUDY_ID and self.v1_stop_control_sha256 is None:
+        if self.study_id != STUDY_ID and self.v1_stop_control_sha256 is None:
             raise ValueError("confirmation v2 must pin the exact existing v1 stop control")
-        if self.study_id == V2_STUDY_ID and self.v1_protocol_hash is None:
+        if self.study_id != STUDY_ID and self.v1_protocol_hash is None:
             raise ValueError("confirmation v2 must pin the original shadow protocol identity")
         if self.study_id == STUDY_ID and (
             self.v1_stop_control_sha256 is not None or self.v1_protocol_hash is not None
         ):
             raise ValueError("confirmation v1 guard semantics cannot be changed")
+        if self.study_id == V3_STUDY_ID:
+            if self.warmup_seconds != 60:
+                raise ValueError("confirmation v3 requires bounded sixty-second warmup admission")
+        elif self.warmup_seconds is not None:
+            raise ValueError("legacy warmup/serialization semantics cannot be changed")
         if self.end - self.start != timedelta(hours=72) or self.frozen_at >= self.start:
             raise ValueError("freeze before one exactly 72-hour prospective window")
         if self.symbols != SYMBOLS:
@@ -154,6 +166,8 @@ class ConfirmationProtocol(BaseModel):
         if self.schema_version == STUDY_ID:
             values.pop("v1_stop_control_sha256", None)
             values.pop("v1_protocol_hash", None)
+        if self.schema_version != V3_STUDY_ID:
+            values.pop("warmup_seconds", None)
         return values
 
     @property
@@ -197,6 +211,8 @@ def study_id(value: str) -> StudyId:
         return STUDY_ID
     if value == V2_STUDY_ID:
         return V2_STUDY_ID
+    if value == V3_STUDY_ID:
+        return V3_STUDY_ID
     raise ValueError("unknown confirmation study ID")
 
 
@@ -651,6 +667,10 @@ def decode_blob(blob: bytes, size: int) -> dict[str, JsonValue]:
     return Evidence.model_validate({"key": "decode", "at_ns": 0, "payload": value}).payload
 
 
+class ReportCancelledError(RuntimeError):
+    """Cooperative cancellation of read-only reporting; never a successful fallback."""
+
+
 class ConfirmationStore:
     def __init__(
         self,
@@ -673,7 +693,7 @@ class ConfirmationStore:
             connection.exec_driver_sql("SET TRANSACTION READ ONLY")
             connection.exec_driver_sql("SET LOCAL statement_timeout = '15000ms'")
 
-    def _lease(self, connection: Connection) -> None:
+    def _lease(self, connection: Connection) -> datetime:
         if connection.dialect.name == "postgresql":
             connection.exec_driver_sql("SET LOCAL statement_timeout = '15000ms'")
             connection.exec_driver_sql("SET LOCAL lock_timeout = '5000ms'")
@@ -688,9 +708,11 @@ class ConfirmationStore:
         )
         if row is None or row["owner_id"] != self.owner_id:
             raise RuntimeError("confirmation_lease_lost")
-        age = self.clock() - utc(row["acquired_at"])
+        checked_at = self.clock()
+        age = checked_at - utc(row["acquired_at"])
         if not timedelta(0) <= age <= timedelta(seconds=90):
             raise RuntimeError("confirmation_lease_expired")
+        return checked_at
 
     def claim(self, protocol: ConfirmationProtocol) -> None:
         protocol = ConfirmationProtocol.model_validate(protocol.model_dump(mode="json"))
@@ -732,14 +754,14 @@ class ConfirmationStore:
 
     def refresh(self) -> None:
         with self.database.begin() as connection:
-            self._lease(connection)
+            checked_at = self._lease(connection)
             connection.execute(
                 update(worker_locks)
                 .where(
                     worker_locks.c.lock_name == self.lock_name,
                     worker_locks.c.owner_id == self.owner_id,
                 )
-                .values(acquired_at=self.clock()),
+                .values(acquired_at=checked_at),
             )
 
     def append(
@@ -844,9 +866,14 @@ class ConfirmationStore:
         *,
         verify_payloads: bool = False,
         kinds: frozenset[str] | None = None,
+        cancel: ThreadEvent | None = None,
     ) -> Iterator[tuple[ChunkHeader, dict[str, JsonValue] | None]]:
         """Page by sequence; never read the whole capture into memory."""
-        for header, blob in self._blob_chunks(verify_payloads=verify_payloads, kinds=kinds):
+        for header, blob in self._blob_chunks(
+            verify_payloads=verify_payloads,
+            kinds=kinds,
+            cancel=cancel,
+        ):
             yield header, decode_blob(blob, header.decoded_bytes) if blob is not None else None
 
     def export_chunks(self) -> Iterator[dict[str, JsonValue]]:
@@ -861,17 +888,70 @@ class ConfirmationStore:
                     "kraken-book-confirmation-evidence-export-v1"
                     if self.study_id == STUDY_ID
                     else "kraken-book-confirmation-evidence-export-v2"
+                    if self.study_id == V2_STUDY_ID
+                    else "kraken-book-confirmation-evidence-export-v3"
                 ),
                 "encoding": "zlib-json-v1",
                 "header": header.model_dump(mode="json"),
                 "payload_base64": base64.b64encode(blob).decode("ascii"),
             }
 
+    def read_chunk(self, sequence: int) -> tuple[ChunkHeader, dict[str, JsonValue]]:
+        """Targeted read-only payload/hash check, not a full-prefix chain verification."""
+        if sequence < 0:
+            raise ValueError("journal sequence must be nonnegative")
+        with self.database.begin() as connection:
+            self._read_only(connection)
+            row = (
+                connection.execute(
+                    select(confirmation_evidence).where(
+                        confirmation_evidence.c.study_id == self.study_id,
+                        confirmation_evidence.c.sequence == sequence,
+                    )
+                )
+                .mappings()
+                .one()
+            )
+        header = ChunkHeader.model_validate(row)
+        blob = bytes(row["payload"])
+        if (
+            header.calculated_hash() != header.chain_hash
+            or sha256(blob).hexdigest() != header.payload_hash
+        ):
+            raise ValueError("targeted evidence hash verification failed")
+        return header, decode_blob(blob, header.decoded_bytes)
+
+    def latest_header(self, kind: str) -> ChunkHeader | None:
+        """Bounded metadata-only locator for parent forensics; does not decode a corpus."""
+        columns = [item for item in confirmation_evidence.c if item.name != "payload"]
+        with self.database.begin() as connection:
+            self._read_only(connection)
+            row = (
+                connection.execute(
+                    select(*columns)
+                    .where(
+                        confirmation_evidence.c.study_id == self.study_id,
+                        confirmation_evidence.c.kind == kind,
+                    )
+                    .order_by(confirmation_evidence.c.sequence.desc())
+                    .limit(1)
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            return None
+        header = ChunkHeader.model_validate(row)
+        if header.calculated_hash() != header.chain_hash:
+            raise ValueError("targeted evidence header hash verification failed")
+        return header
+
     def _blob_chunks(
         self,
         *,
         verify_payloads: bool = False,
         kinds: frozenset[str] | None = None,
+        cancel: ThreadEvent | None = None,
     ) -> Iterator[tuple[ChunkHeader, bytes | None]]:
         sequence = -1
         expected_root: str | None = None
@@ -897,6 +977,8 @@ class ConfirmationStore:
         if last_sequence is None:
             return
         while True:
+            if cancel is not None and cancel.is_set():
+                raise ReportCancelledError("read-only report cancelled at page boundary")
             with self.database.begin() as connection:
                 self._read_only(connection)
                 headers = (
@@ -916,6 +998,8 @@ class ConfirmationStore:
                     raise ValueError("durable_evidence_snapshot_incomplete")
                 return
             for row in headers:
+                if cancel is not None and cancel.is_set():
+                    raise ReportCancelledError("read-only report cancelled at row boundary")
                 header = ChunkHeader.model_validate(row)
                 if (
                     header.sequence != sequence + 1

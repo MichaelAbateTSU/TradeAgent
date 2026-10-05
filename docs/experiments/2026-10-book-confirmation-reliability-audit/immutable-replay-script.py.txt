@@ -1,0 +1,401 @@
+import base64
+import bisect
+import calendar
+import gzip
+import hashlib
+import json
+import re
+import resource
+import time
+import zlib
+from collections import Counter
+from datetime import UTC, datetime
+from decimal import Decimal
+
+from sqlalchemy import func, select
+
+from tradeagent.config import AppConfig
+from tradeagent.kraken_confirmation import ConfirmationStore, confirmation_evidence
+from tradeagent.kraken_confirmation_book import Book
+from tradeagent.persistence import Database
+
+STUDY = "kraken-book-confirmation-v2"
+IDENTITY = "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a"
+NS = 1_000_000_000
+FRESH = 2 * NS
+SIZE = Decimal("10.25")
+SYMBOLS = ("BTC/USD", "ETH/USD")
+STARTED = time.monotonic()
+
+
+def utc_ns(value):
+    match = re.fullmatch(
+        r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d{1,9}))?Z", value
+    )
+    if match is None:
+        raise ValueError("unexpected native timestamp representation")
+    whole = datetime.strptime(match[1], "%Y-%m-%dT%H:%M:%S")
+    return calendar.timegm(whole.timetuple()) * NS + int((match[2] or "").ljust(9, "0"))
+
+
+def fresh(quote, at):
+    return quote is not None and all(
+        0 <= at - quote[field] <= FRESH
+        for field in ("provider_book_update_ns", "received_ns")
+    ) and quote["accepted_ns"] <= at
+
+
+def notional(quote, endpoint):
+    if quote is None:
+        return None
+    side = "ask" if endpoint == "entry" else "bid"
+    return Decimal(quote[side]) * Decimal(quote[f"{side}_size"])
+
+
+def compact(quote, at, endpoint):
+    if quote is None:
+        return None
+    return {
+        **{key: quote[key] for key in (
+            "symbol", "frame_id", "connection_id", "epoch",
+            "provider_book_update_ns", "received_ns", "accepted_ns",
+            "bid", "ask", "bid_size", "ask_size",
+        )},
+        "provider_age_ns": at - quote["provider_book_update_ns"],
+        "receive_age_ns": at - quote["received_ns"],
+        "provider_to_receive_ns": quote["received_ns"] - quote["provider_book_update_ns"],
+        "receive_to_accept_ns": quote["accepted_ns"] - quote["received_ns"],
+        "selected_side_notional_usd": str(notional(quote, endpoint)),
+    }
+
+
+def fingerprint(quote):
+    if quote is None:
+        return None
+    return (
+        *(quote[k] for k in (
+            "symbol", "frame_id", "connection_id", "epoch",
+            "provider_book_update_ns", "received_ns", "accepted_ns",
+            "checksum_expected", "checksum_computed",
+        )),
+        *(Decimal(quote[k]) for k in ("bid", "ask", "bid_size", "ask_size")),
+    )
+
+
+with Database(AppConfig().database_url.get_secret_value(), pool_size=2) as db:
+    db.engine = db.engine.execution_options(postgresql_readonly=True)
+    store = ConfirmationStore(db, "read-only-audit", study_id=STUDY)
+    protocol = store.load_protocol()
+    if protocol.identity != IDENTITY:
+        raise ValueError("frozen study identity changed")
+    evaluations = {}
+    labels = {}
+    reports = []
+    wanted = {}
+    with db.begin() as connection:
+        connection.exec_driver_sql("SET TRANSACTION READ ONLY")
+        high = connection.scalar(
+            select(func.max(confirmation_evidence.c.sequence))
+            .where(confirmation_evidence.c.study_id == STUDY)
+        )
+        result = connection.execution_options(stream_results=True).execute(
+            select(confirmation_evidence).where(
+                confirmation_evidence.c.study_id == STUDY,
+                confirmation_evidence.c.sequence <= high,
+                confirmation_evidence.c.kind.in_(("evaluation", "label", "report")),
+            ).order_by(confirmation_evidence.c.sequence)
+        ).mappings().yield_per(256)
+        for row in result:
+            raw = bytes(row["payload"])
+            if hashlib.sha256(raw).hexdigest() != row["payload_hash"]:
+                raise ValueError("inventory payload hash mismatch")
+            payload = json.loads(zlib.decompress(raw))
+            if row["kind"] == "report":
+                scheduled = int(datetime.fromisoformat(payload["as_of"]).timestamp()) * NS
+                reports.append({
+                    "sequence": row["sequence"],
+                    "as_of_ns": scheduled,
+                    "appended_ns": row["at_ns"],
+                    "completion_lag_ns": row["at_ns"] - scheduled,
+                })
+                continue
+            for record in payload["records"]:
+                value = record["payload"]
+                evaluation = value if row["kind"] == "evaluation" else value["evaluation"]
+                key = (evaluation["symbol"], evaluation["slot"])
+                if row["kind"] == "evaluation":
+                    if key in evaluations:
+                        raise ValueError("duplicate evaluation key")
+                    evaluations[key] = value
+                else:
+                    if key in labels:
+                        raise ValueError("duplicate label key")
+                    labels[key] = value
+                quotes = [evaluation["entry"]]
+                if row["kind"] == "label":
+                    quotes.append(value["future"])
+                for quote in quotes:
+                    if quote is not None:
+                        qkey = (quote["symbol"], quote["frame_id"])
+                        fp = fingerprint(quote)
+                        if qkey in wanted and wanted[qkey] != fp:
+                            raise ValueError("selected quote changed across records")
+                        wanted[qkey] = fp
+    all_evaluations = {**evaluations, **{
+        key: value["evaluation"] for key, value in labels.items()
+    }}
+    first_cutoff = min(value["at_ns"] for value in all_evaluations.values())
+    last_cutoff = max(value["at_ns"] for value in all_evaluations.values())
+    targets = {
+        symbol: list(range(first_cutoff, last_cutoff + 180 * NS, 10 * NS))
+        for symbol in SYMBOLS
+    }
+    indices = dict.fromkeys(SYMBOLS, 0)
+    latest = dict.fromkeys(SYMBOLS)
+    candidates = {symbol: {} for symbol in SYMBOLS}
+    late = {symbol: {} for symbol in SYMBOLS}
+    transport = {}
+    all_targets = sorted(set(targets["BTC/USD"]) | set(targets["ETH/USD"]))
+    transport_index = 0
+    last_transport = None
+    books = {symbol: Book() for symbol in SYMBOLS}
+    frames = quotes_count = replayed = quote_mismatches = 0
+    selected_quotes_found = set()
+    rejections = Counter()
+    clock_counts = Counter()
+    maximum_latency = dict.fromkeys(SYMBOLS, 0)
+    last = None
+    last_frame_ns = 0
+    last_received_ns = 0
+    for header, payload in store.chunks(verify_payloads=True):
+        last = header
+        if header.sequence > high:
+            raise ValueError("immutable audit high-water changed")
+        if header.kind != "capture":
+            continue
+        for record in payload["records"]:
+            frame = record["payload"]
+            if frame["frame_id"] != frames + 1:
+                raise ValueError("raw frame-ID gap, duplicate or reordering")
+            frames += 1
+            received = frame["received_ns"]
+            if received < last_received_ns:
+                clock_counts["receive_clock_regressions"] += 1
+            last_received_ns = received
+            while transport_index < len(all_targets) and all_targets[transport_index] < received:
+                transport[all_targets[transport_index]] = last_transport
+                transport_index += 1
+            last_transport = {"frame_id": frame["frame_id"], "received_ns": received}
+            last_frame_ns = max(last_frame_ns, frame["accepted_ns"])
+            if frame["rejection"] is not None:
+                rejections[frame["rejection"]] += 1
+            captured = frame["quotes"]
+            message = json.loads(frame["payload_text"], parse_float=Decimal)
+            reconstructed = []
+            if message.get("channel") == "book":
+                for row in message["data"]:
+                    symbol = row["symbol"]
+                    expected = books[symbol].apply(row, message["type"], utc_ns(row["timestamp"]))
+                    if expected is None:
+                        clock_counts["reconstruction_failure"] += 1
+                        continue
+                    reconstructed.append((symbol, expected))
+                    replayed += 1
+            if len(reconstructed) != len(captured):
+                raise ValueError("native reconstructed quote count differs from persistence")
+            for (symbol, expected), quote in zip(reconstructed, captured, strict=True):
+                quotes_count += 1
+                for field in ("bid", "ask", "bid_size", "ask_size"):
+                    if Decimal(quote[field]) != getattr(expected, field):
+                        quote_mismatches += 1
+                        raise ValueError("native price/quantity differs from stored quote")
+                for field in ("provider_book_update_ns", "checksum_expected", "checksum_computed"):
+                    if quote[field] != getattr(expected, field):
+                        raise ValueError("native clock/checksum differs from stored quote")
+                qkey = (symbol, quote["frame_id"])
+                if qkey in wanted:
+                    if wanted[qkey] != fingerprint(quote):
+                        raise ValueError("selected quote differs from immutable capture")
+                    selected_quotes_found.add(qkey)
+                available = max(quote["accepted_ns"], quote["received_ns"])
+                while indices[symbol] < len(targets[symbol]) and targets[symbol][indices[symbol]] < available:
+                    target = targets[symbol][indices[symbol]]
+                    candidates[symbol][target] = latest[symbol]
+                    indices[symbol] += 1
+                latest[symbol] = quote
+                provider = quote["provider_book_update_ns"]
+                maximum_latency[symbol] = max(maximum_latency[symbol], received - provider)
+                low = bisect.bisect_left(targets[symbol], provider)
+                high_target = bisect.bisect_right(
+                    targets[symbol], min(provider + FRESH, available - 1)
+                )
+                for target in targets[symbol][low:high_target]:
+                    if target not in late[symbol] or available < max(
+                        late[symbol][target]["accepted_ns"], late[symbol][target]["received_ns"]
+                    ):
+                        late[symbol][target] = quote
+            if frames % 100000 == 0:
+                print("AUDIT_PROGRESS=" + json.dumps({
+                    "frames": frames, "replayed": replayed,
+                    "elapsed_seconds": time.monotonic() - STARTED,
+                    "rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+                }), flush=True)
+            if time.monotonic() - STARTED > 1800:
+                raise TimeoutError("bounded immutable audit time budget exceeded")
+    for symbol in SYMBOLS:
+        while indices[symbol] < len(targets[symbol]):
+            candidates[symbol][targets[symbol][indices[symbol]]] = latest[symbol]
+            indices[symbol] += 1
+    if selected_quotes_found != set(wanted):
+        raise ValueError("recorded selected quote is absent from immutable capture")
+    buckets = {symbol: Counter() for symbol in SYMBOLS}
+    endpoint_buckets = {symbol: Counter() for symbol in SYMBOLS}
+    comparisons = {symbol: Counter() for symbol in SYMBOLS}
+    cases = []
+    for key, label in sorted(labels.items()):
+        symbol, slot = key
+        evaluation = label["evaluation"]
+        if key in evaluations and evaluations[key] != evaluation:
+            raise ValueError("label evaluation does not match stored evaluation")
+        endpoint_cases = []
+        for endpoint, actual, at in (
+            ("entry", evaluation["entry"], evaluation["at_ns"]),
+            ("future", label["future"], evaluation["at_ns"] + 60 * NS),
+        ):
+            reference = candidates[symbol][at]
+            actual_fresh = fresh(actual, at)
+            reference_fresh = fresh(reference, at)
+            actual_size = actual is not None and notional(actual, endpoint) >= SIZE
+            reference_size = reference is not None and notional(reference, endpoint) >= SIZE
+            comparisons[symbol]["endpoint_reference_matches_recorded"] += (
+                fingerprint(actual) == fingerprint(reference)
+            )
+            if actual_fresh and actual_size:
+                category = "VALID_ENDPOINT"
+            elif reference_fresh and (not actual_fresh or reference_size):
+                category = "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED"
+            elif not actual_fresh:
+                witness = late[symbol].get(at)
+                if witness is not None:
+                    category = (
+                        "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF"
+                        if witness["received_ns"] > at else
+                        "RECEIVED_IN_TIME_QUOTE_ACCEPTED_AFTER_CUTOFF"
+                    )
+                else:
+                    category = "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK"
+            else:
+                category = "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL"
+            if category != "VALID_ENDPOINT":
+                endpoint_buckets[symbol][category] += 1
+            resolved_delay = label["resolved_ns"] - (evaluation["at_ns"] + 62 * NS)
+            report_overlap = any(
+                r["as_of_ns"] <= at <= r["appended_ns"] or
+                r["as_of_ns"] <= label["resolved_ns"] <= r["appended_ns"]
+                for r in reports
+            )
+            endpoint_cases.append({
+                "endpoint": endpoint, "cutoff_ns": at, "category": category,
+                "recorded": compact(actual, at, endpoint),
+                "latest_causal_native": compact(reference, at, endpoint),
+                "late_provider_time_witness": compact(late[symbol].get(at), at, endpoint),
+                "last_socket_frame_before_cutoff": transport.get(at),
+                "resolved_delay_ns": resolved_delay,
+                "periodic_report_lag_overlap": report_overlap,
+            })
+        if label["eligibility"]["complete"]:
+            buckets[symbol]["ORIGINAL_COMPLETE"] += 1
+            continue
+        priority = (
+            "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED",
+            "RECEIVED_IN_TIME_QUOTE_ACCEPTED_AFTER_CUTOFF",
+            "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF",
+            "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK",
+            "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL",
+        )
+        category = next(
+            (candidate for candidate in priority if any(
+                endpoint["category"] == candidate for endpoint in endpoint_cases
+            )), "OTHER_OR_DECLARED_SCHEDULE_FAILURE",
+        )
+        if evaluation["missed_scheduled_slot"]:
+            category = "DECLARED_MISSED_SCHEDULED_EVALUATION"
+        buckets[symbol][category] += 1
+        cases.append({
+            "symbol": symbol, "slot": slot,
+            "evaluation_ns": evaluation["at_ns"],
+            "evaluation_recorded_ns": evaluation["recorded_ns"],
+            "resolved_ns": label["resolved_ns"],
+            "original_reasons": label["eligibility"]["reasons"],
+            "failure_bucket": category, "endpoints": endpoint_cases,
+            "historical_label_changed": False,
+        })
+    for key, evaluation in sorted(evaluations.items()):
+        if key in labels:
+            continue
+        symbol, slot = key
+        buckets[symbol]["EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS"] += 1
+        cases.append({
+            "symbol": symbol, "slot": slot, "evaluation_ns": evaluation["at_ns"],
+            "failure_bucket": "EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS",
+            "horizon_within_capture": evaluation["at_ns"] + 60 * NS <= last_frame_ns,
+            "historical_label_changed": False,
+        })
+    last_scheduled_slot = max(key[1] for key in all_evaluations)
+    absent_slots = {symbol: [] for symbol in SYMBOLS}
+    for symbol in SYMBOLS:
+        for slot in range(last_scheduled_slot + 1):
+            key = (symbol, slot)
+            if key not in all_evaluations:
+                absent_slots[symbol].append(slot)
+                buckets[symbol]["SCHEDULED_EVALUATION_AND_OUTCOME_UNWRITTEN"] += 1
+                at = first_cutoff + slot * 10 * NS
+                cases.append({
+                    "symbol": symbol, "slot": slot, "evaluation_ns": at,
+                    "failure_bucket": "SCHEDULED_EVALUATION_AND_OUTCOME_UNWRITTEN",
+                    "latest_causal_native_entry": compact(
+                        candidates[symbol][at], at, "entry"
+                    ),
+                    "historical_label_changed": False,
+                })
+    summary = {
+        "schema": "confirmation-immutable-label-audit-v1",
+        "study_id": STUDY, "protocol_hash": protocol.identity,
+        "read_only": True, "writes": 0,
+        "journal_chunks_verified": last.sequence + 1,
+        "journal_root": last.chain_hash,
+        "contiguous_frames_verified": frames,
+        "native_book_updates_independently_replayed": replayed,
+        "stored_quotes_matching_native_replay": quotes_count,
+        "selected_quotes_matching_raw_persistence": len(selected_quotes_found),
+        "quote_mismatches": quote_mismatches,
+        "capture_rejections": dict(rejections),
+        "clock_or_reconstruction_counts": dict(clock_counts),
+        "maximum_provider_to_receive_ns": maximum_latency,
+        "evaluations": {s: sum(k[0] == s for k in evaluations) for s in SYMBOLS},
+        "labels": {s: sum(k[0] == s for k in labels) for s in SYMBOLS},
+        "recorded_failure_buckets": {s: dict(buckets[s]) for s in SYMBOLS},
+        "endpoint_failure_buckets": {s: dict(endpoint_buckets[s]) for s in SYMBOLS},
+        "endpoint_selection_comparisons": {s: dict(comparisons[s]) for s in SYMBOLS},
+        "absent_scheduled_slots_through_last_observed_evaluation": absent_slots,
+        "last_observed_evaluation_slot": last_scheduled_slot,
+        "periodic_report_lags": reports,
+        "maximum_report_completion_lag_ns": max(r["completion_lag_ns"] for r in reports),
+        "last_captured_ns": last_frame_ns,
+        "case_count": len(cases),
+        "elapsed_seconds": time.monotonic() - STARTED,
+        "maximum_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+        "post_process_loss_slots_are_not_source_availability_evidence": True,
+        "does_not_change_frozen_coverage_or_create_labels": True,
+        "late_receipt_does_not_prove_network_vs_receiver_delay": True,
+    }
+    compressed = gzip.compress(
+        ("\n".join(json.dumps(row, separators=(",", ":")) for row in cases) + "\n").encode(),
+        mtime=0,
+    )
+    encoded = base64.b64encode(compressed).decode()
+    summary["case_artifact_sha256"] = hashlib.sha256(compressed).hexdigest()
+    summary["case_artifact_compressed_bytes"] = len(compressed)
+    print("LABEL_AUDIT_SUMMARY=" + json.dumps(summary, sort_keys=True), flush=True)
+    for index, offset in enumerate(range(0, len(encoded), 10000)):
+        print(f"LABEL_AUDIT_CASES_PART={index}:" + encoded[offset:offset + 10000], flush=True)

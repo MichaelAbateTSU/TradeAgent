@@ -8,7 +8,7 @@ import importlib
 import json
 import sys
 import threading
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -34,7 +34,7 @@ from sqlalchemy import (
     select,
     update,
 )
-from sqlalchemy.engine import Connection
+from sqlalchemy.engine import Connection, make_url
 from sqlalchemy.pool import StaticPool
 
 import tradeagent.kraken_confirmation as confirmation
@@ -46,6 +46,7 @@ from tradeagent.kraken_confirmation import (
     SOURCE_MODULES,
     STUDY_ID,
     V2_STUDY_ID,
+    V3_STUDY_ID,
     CausalGrid,
     ChunkHeader,
     ConfirmationProtocol,
@@ -1456,8 +1457,8 @@ def test_legacy_frozen_protocol_roundtrip_identity_is_exact() -> None:
         {"schema_version": V2_STUDY_ID},
         {"study_id": V2_STUDY_ID},
         {
-            "schema_version": "kraken-book-confirmation-v3",
-            "study_id": "kraken-book-confirmation-v3",
+            "schema_version": "kraken-book-confirmation-v4",
+            "study_id": "kraken-book-confirmation-v4",
         },
         {"schema_version": V2_STUDY_ID, "study_id": V2_STUDY_ID},
         {"v1_stop_control_sha256": "a" * 64},
@@ -2052,7 +2053,7 @@ def test_cli_rejects_unknown_id_before_database_access(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        sys, "argv", ["confirmation", "status", "--study-id", "kraken-book-confirmation-v3"]
+        sys, "argv", ["confirmation", "status", "--study-id", "kraken-book-confirmation-v4"]
     )
     with pytest.raises(SystemExit) as error:
         runtime.main()
@@ -2213,3 +2214,717 @@ def test_post_claim_new_broker_failure_persists_safe_endpoint_and_status(
     quality = result["latest_quality"]
     assert isinstance(quality, dict) and "HTTPStatusError" in str(quality["last_error"])
     assert list(export_evidence(store.database)) == original
+
+
+def protocol_v3(value: ConfirmationProtocol) -> ConfirmationProtocol:
+    return ConfirmationProtocol.model_validate(
+        {
+            **value.model_dump(mode="json"),
+            "schema_version": V3_STUDY_ID,
+            "study_id": V3_STUDY_ID,
+            "warmup_seconds": 60,
+        }
+    )
+
+
+def test_demonstrated_legacy_slow_report_expires_lease_and_misses_grid(
+    current_v1: CurrentV1,
+    clock: Clock,
+) -> None:
+    protocol = current_v1.protocol
+    store = ConfirmationStore(
+        current_v1.database,
+        "legacy-simulation",
+        clock=clock,
+        study_id=V2_STUDY_ID,
+    )
+    store.claim(protocol)
+    clock.set(protocol.slot_ns(360))
+    store.repository.refresh_worker_lock(store.lock_name, store.owner_id, observed_at=clock.at)
+    grid = CausalGrid(protocol)
+    grid.next_slot = 360
+    grid.advance(clock.ns())
+    renewed = clock.at
+
+    async def original_await_path() -> None:
+        def cumulative_report() -> None:
+            clock.at += timedelta(seconds=110)
+
+        await asyncio.to_thread(cumulative_report)
+        evaluations, _ = grid.advance(clock.ns())
+        assert sum(row.missed_scheduled_slot for row in evaluations) == 20
+        with pytest.raises(RuntimeError, match="lease_expired"):
+            store.refresh()
+
+    asyncio.run(original_await_path())
+    with store.database.begin() as connection:
+        stored = connection.scalar(
+            select(worker_locks.c.acquired_at).where(
+                worker_locks.c.lock_name == store.lock_name,
+            )
+        )
+    assert stored is not None and stored.replace(tzinfo=UTC) == renewed
+
+
+@pytest.mark.parametrize("report_stall_seconds", [71, 82, 110])
+def test_demonstrated_report_stall_evicts_otherwise_fresh_horizon_from_ring(
+    protocol: ConfirmationProtocol,
+    report_stall_seconds: int,
+) -> None:
+    grid = CausalGrid(protocol)
+    start = protocol.slot_ns(0)
+    horizon: dict[str, Quote] = {}
+    resolved: list[Label] = []
+    resolve_second = 60 + report_stall_seconds
+    for second in range(resolve_second + 1):
+        current = start + second * NS
+        for offset, symbol in enumerate(confirmation.SYMBOLS):
+            item = quote(current, symbol=symbol, frame=second * 2 + offset + 1)
+            grid.accept(item)
+            if second == 60:
+                horizon[symbol] = item
+        if second < 60 or second == resolve_second:
+            _, labels = grid.advance(current)
+            resolved.extend(labels)
+    first = [item for item in resolved if item.evaluation.slot == 0]
+    assert len(first) == 2
+    for label in first:
+        assert label.evaluation.entry is not None
+        assert measure(label.evaluation.entry, horizon[label.evaluation.symbol], start).complete
+        assert label.future is None
+        assert label.resolved_ns == start + resolve_second * NS
+        assert label.information_available_ns == start + 62 * NS
+        assert "HORIZON_QUOTE_STALE_OR_MISSING" in label.eligibility.reasons
+
+
+def test_owner_fence_samples_clock_after_database_row_acquisition(
+    store: ConfirmationStore,
+    clock: Clock,
+) -> None:
+    original = clock.at
+    advanced = False
+
+    def delayed_lock(
+        connection: Connection,
+        cursor: object,
+        statement: str,
+        parameters: object,
+        context: object,
+        executemany: bool,
+    ) -> None:
+        nonlocal advanced
+        if (
+            not advanced
+            and statement.lstrip().upper().startswith("SELECT")
+            and "worker_locks" in statement
+        ):
+            advanced = True
+            clock.at += timedelta(seconds=91)
+
+    event.listen(store.database.engine, "before_cursor_execute", delayed_lock)
+    try:
+        with pytest.raises(RuntimeError, match="lease_expired"):
+            store.refresh()
+    finally:
+        event.remove(store.database.engine, "before_cursor_execute", delayed_lock)
+    with store.database.begin() as connection:
+        retained = connection.scalar(select(worker_locks.c.acquired_at))
+    assert retained is not None and retained.replace(tzinfo=UTC) == original
+
+
+def test_v3_bounded_warmup_and_legacy_v2_identity_are_exact(
+    current_v1: CurrentV1,
+) -> None:
+    third = protocol_v3(current_v1.protocol)
+    assert third.warmup_seconds == 60
+    for seconds in (0, 61, 3600):
+        with pytest.raises(ValidationError):
+            ConfirmationProtocol.model_validate(
+                {
+                    **third.model_dump(mode="json"),
+                    "warmup_seconds": seconds,
+                }
+            )
+    with pytest.raises(ValidationError):
+        ConfirmationProtocol.model_validate(
+            {
+                **current_v1.protocol.model_dump(mode="json"),
+                "warmup_seconds": 60,
+            }
+        )
+    path = (
+        Path(__file__).parents[1]
+        / "docs"
+        / "experiments"
+        / "2026-10-book-confirmation-72h-v2"
+        / "frozen-protocol.json"
+    )
+    old = json.loads(path.read_bytes())
+    parsed = ConfirmationProtocol.model_validate(old)
+    assert parsed.model_dump(mode="json") == old
+    assert parsed.identity == "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a"
+    assert "warmup_seconds" not in parsed.model_dump(mode="json")
+
+
+def test_v3_early_launch_rejects_without_capture_claim_or_io(
+    current_v1: CurrentV1,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    third = protocol_v3(current_v1.protocol)
+    monkeypatch.setattr(runtime, "now_ns", lambda: datetime_ns(third.start) - 4 * 86400 * NS)
+    with pytest.raises(ValueError, match="sixty seconds"):
+        asyncio.run(runtime.run(third, current_v1.database))
+    assert not ConfirmationStore(
+        current_v1.database,
+        "read-only",
+        study_id=V3_STUDY_ID,
+    ).exists()
+    assert current_v1.requests == []
+
+
+def test_slow_report_lane_does_not_starve_lease_cadence_or_safety(
+    current_v1: CurrentV1,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    third = protocol_v3(current_v1.protocol)
+    evidence = observer_guard(current_v1.database, third)()
+    store = ConfirmationStore(
+        current_v1.database,
+        "third-simulation",
+        clock=clock,
+        study_id=V3_STUDY_ID,
+    )
+    store.claim(third)
+    clock.set(third.slot_ns(360))
+    store.repository.refresh_worker_lock(store.lock_name, store.owner_id, observed_at=clock.at)
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    entered, release = threading.Event(), threading.Event()
+    report_threads: list[int] = []
+    safety_times: list[int] = []
+
+    def slow_report(
+        reader: ConfirmationStore,
+        *,
+        at_ns: int,
+        cancel: threading.Event | None = None,
+    ) -> dict[str, JsonValue]:
+        report_threads.append(threading.get_ident())
+        entered.set()
+        while not release.wait(0.001):
+            if cancel is not None and cancel.is_set():
+                raise confirmation.ReportCancelledError("test report cancelled")
+        return {"as_of_ns": at_ns, "clean_integrity": False, "decision": NO_GO}
+
+    async def virtual_pause(stop: asyncio.Event, seconds: float) -> None:
+        until = clock.ns() + int(seconds * NS)
+        while not stop.is_set() and clock.ns() < until:
+            await asyncio.sleep(0.001)
+
+    def safe() -> GuardEvidence:
+        safety_times.append(clock.ns())
+        return evidence.model_copy(update={"checked_ns": clock.ns()})
+
+    monkeypatch.setattr(runtime, "build_report", slow_report)
+    monkeypatch.setattr(runtime, "_pause", virtual_pause)
+
+    async def simulation() -> None:
+        io = runtime.RuntimeIO(
+            current_v1.database,
+            lease_database=current_v1.database,
+            safety_database=current_v1.database,
+            report_database=current_v1.database,
+        )
+        writer = DurableWriter(store)
+        writer.task = asyncio.create_task(writer.work())
+        stop = asyncio.Event()
+        pulse = asyncio.create_task(runtime._lease_heartbeat(store, io, stop))
+        safety = asyncio.create_task(runtime._safety_watch(third, safe, io, writer, stop))
+        reporting = asyncio.create_task(runtime._report_watch(third, store, io, writer, stop))
+        grid = CausalGrid(third)
+        grid.next_slot = 354
+        report_boundary = clock.ns()
+        for second in range(-60, 1):
+            current = report_boundary + second * NS
+            for offset, symbol in enumerate(confirmation.SYMBOLS):
+                grid.accept(
+                    quote(current, symbol=symbol, frame=(second + 60) * 2 + offset + 1),
+                )
+            grid.advance(current)
+        missed = 0
+        resolved: list[Label] = []
+        try:
+            for _ in range(1000):
+                if entered.is_set():
+                    break
+                await asyncio.sleep(0.001)
+            assert entered.is_set()
+            for second in range(110):
+                clock.at += timedelta(seconds=1)
+                for offset, symbol in enumerate(confirmation.SYMBOLS):
+                    grid.accept(
+                        quote(clock.ns(), symbol=symbol, frame=(second + 61) * 2 + offset + 1),
+                    )
+                evaluations, labels = grid.advance(clock.ns())
+                resolved.extend(labels)
+                missed += sum(row.missed_scheduled_slot for row in evaluations)
+                assert all(row.eligibility.complete and row.future is not None for row in labels)
+                assert all(
+                    row.information_available_ns == row.evaluation.at_ns + 62 * NS for row in labels
+                )
+                await asyncio.sleep(0.005)
+            assert missed == 0
+            first = [row for row in resolved if row.evaluation.slot == 354]
+            assert len(first) == 2
+            assert all(
+                row.resolved_ns == report_boundary + 2 * NS
+                and row.future is not None
+                and row.future.accepted_ns == report_boundary
+                for row in first
+            )
+            assert not pulse.done() and not safety.done()
+            store.refresh()
+            assert len(safety_times) >= 2
+            release.set()
+            for _ in range(1000):
+                if store.latest_header("report") is not None:
+                    break
+                await asyncio.sleep(0.001)
+            assert store.latest_header("report") is not None
+            assert report_threads
+        finally:
+            stop.set()
+            release.set()
+            await asyncio.gather(pulse, safety, reporting)
+            await writer.close()
+            await io.close()
+
+    asyncio.run(simulation())
+
+
+def test_read_only_report_cancellation_is_explicit_and_targeted_payload_api(
+    store: ConfirmationStore,
+    clock: Clock,
+) -> None:
+    store.append("quality", "latest", {"counts": {"frames": 0}}, at_ns=clock.ns())
+    located = store.latest_header("quality")
+    assert located is not None
+    header, payload = store.read_chunk(located.sequence)
+    assert header == located and payload == {"counts": {"frames": 0}}
+    cancel = threading.Event()
+    cancel.set()
+    with pytest.raises(confirmation.ReportCancelledError):
+        list(store.chunks(cancel=cancel))
+    with pytest.raises(confirmation.ReportCancelledError):
+        build_report(store, at_ns=clock.ns(), cancel=cancel)
+
+
+def test_runtime_io_has_distinct_bounded_threads_and_no_default_executor_dependency(
+    database: Database,
+) -> None:
+    async def simulation() -> None:
+        io = runtime.RuntimeIO(
+            database,
+            lease_database=database,
+            safety_database=database,
+            report_database=database,
+        )
+        entered, release = threading.Event(), threading.Event()
+
+        def blocked() -> int:
+            entered.set()
+            release.wait(5)
+            return threading.get_ident()
+
+        scan = asyncio.create_task(io.call("report", blocked))
+        try:
+            while not entered.is_set():
+                await asyncio.sleep(0.001)
+            lease_thread = await asyncio.wait_for(io.call("lease", threading.get_ident), 1)
+            safety_thread = await asyncio.wait_for(io.call("safety", threading.get_ident), 1)
+            release.set()
+            report_thread = await scan
+            assert len({lease_thread, safety_thread, report_thread}) == 3
+        finally:
+            release.set()
+            await io.close()
+
+    asyncio.run(simulation())
+
+
+@pytest.mark.parametrize("failure_kind", ["capture", "safety"])
+def test_v3_runtime_failure_seals_truthfully_without_changing_prior_studies(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+    failure_kind: str,
+) -> None:
+    prior = list(export_evidence(store.database))
+    second = ConfirmationStore(
+        store.database,
+        "preserved-failed-second",
+        study_id=V2_STUDY_ID,
+        clock=clock,
+    )
+    second.claim(current_v1.protocol)
+    second.append(
+        "terminal",
+        "terminal",
+        {"state": "failed_incomplete", "reason": "historical failed run"},
+        at_ns=clock.ns(),
+    )
+    second.repository.release_worker_lock(second.lock_name, second.owner_id)
+    prior_second = list(export_evidence(store.database, study_id=V2_STUDY_ID))
+    third = protocol_v3(current_v1.protocol)
+    evidence = observer_guard(store.database, third)().model_copy(
+        update={"checked_ns": clock.ns()},
+    )
+    test_clock = clock
+
+    def factory(
+        database: Database,
+        owner: str,
+        *,
+        study_id: StudyId = STUDY_ID,
+        clock: Callable[[], datetime] | None = None,
+    ) -> ConfirmationStore:
+        return ConfirmationStore(
+            database,
+            owner,
+            study_id=study_id,
+            clock=clock or test_clock,
+        )
+
+    async def failed(receiver: Receiver, stop: asyncio.Event) -> None:
+        if failure_kind == "safety":
+            await stop.wait()
+            return
+        await asyncio.sleep(0.02)
+        raise RuntimeError("synthetic v3 observation failure")
+
+    proofs = 0
+
+    def proof() -> GuardEvidence:
+        nonlocal proofs
+        proofs += 1
+        if failure_kind == "safety" and proofs > 1:
+            request = httpx.Request("GET", "https://paper-api.alpaca.markets/v2/positions")
+            raise runtime.CurrentBrokerProofError(
+                httpx.HTTPStatusError(
+                    "synthetic unsafe message never saved",
+                    request=request,
+                    response=httpx.Response(503, request=request),
+                ),
+            )
+        return evidence
+
+    monkeypatch.setattr(runtime, "ConfirmationStore", factory)
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    monkeypatch.setattr(Receiver, "work", failed)
+
+    async def simulation() -> None:
+        io = runtime.RuntimeIO(
+            store.database,
+            lease_database=store.database,
+            safety_database=store.database,
+            report_database=store.database,
+        )
+        with pytest.raises(RuntimeError, match="sealed failed/incomplete"):
+            await runtime.run(third, store.database, guard=proof, runtime_io=io)
+
+    asyncio.run(simulation())
+    result = load_report(store.database, study_id=V3_STUDY_ID, verify_payloads=True)
+    assert result["state"] == "failed_incomplete"
+    assert result["decision"] == NO_GO and result["clean_integrity"] is False
+    assert result["raw_frames_verified"] == 0
+    if failure_kind == "safety":
+        assert "/v2/positions" in str(result["terminal_reason"])
+        assert "503" in str(result["terminal_reason"])
+        assert "synthetic unsafe" not in canonical(result)
+    assert list(export_evidence(store.database)) == prior
+    assert list(export_evidence(store.database, study_id=V2_STUDY_ID)) == prior_second
+    third_export = list(export_evidence(store.database, study_id=V3_STUDY_ID))
+    assert third_export and all(
+        value["schema"] == "kraken-book-confirmation-evidence-export-v3" for value in third_export
+    )
+    with pytest.raises(RuntimeError, match="no_restart"):
+        factory(store.database, "replacement", study_id=V3_STUDY_ID).claim(third)
+
+
+def test_default_production_runtime_io_uses_three_distinct_pools(
+    database: Database,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    address = "postgresql+psycopg://synthetic:synthetic@not-a-real-host/research"
+    monkeypatch.setattr(database.engine, "url", make_url(address))
+    constructed: list[Database] = []
+
+    def fresh(url: str, *, pool_size: int) -> Database:
+        assert url == address and pool_size == 1
+        value = Database("sqlite://", pool_size=1)
+        constructed.append(value)
+        return value
+
+    monkeypatch.setattr(runtime, "Database", fresh)
+    io = runtime.RuntimeIO(database)
+    assert len(constructed) == 3
+    assert len({id(value.engine.pool) for value in constructed}) == 3
+    assert io.lease_database is not io.report_database
+    assert io.safety_database is not io.report_database
+    assert io.lease_database is not database
+    asyncio.run(io.close())
+
+
+@pytest.mark.parametrize("loss", ["owner", "expired"])
+def test_v3_report_wait_aborts_on_fencing_failure_and_cannot_append(
+    current_v1: CurrentV1,
+    clock: Clock,
+    loss: str,
+) -> None:
+    third = protocol_v3(current_v1.protocol)
+    store = ConfirmationStore(
+        current_v1.database,
+        "fenced-third",
+        clock=clock,
+        study_id=V3_STUDY_ID,
+    )
+    store.claim(third)
+    before = list(store.export_chunks())
+
+    async def simulation() -> None:
+        io = runtime.RuntimeIO(
+            current_v1.database,
+            lease_database=current_v1.database,
+            safety_database=current_v1.database,
+            report_database=current_v1.database,
+        )
+        entered = threading.Event()
+
+        def report() -> dict[str, JsonValue]:
+            entered.set()
+            while not io.report_cancel.wait(0.001):
+                pass
+            raise confirmation.ReportCancelledError("verification cancelled explicitly")
+
+        async def lose_fence() -> None:
+            while not entered.is_set():
+                await asyncio.sleep(0.001)
+            if loss == "owner":
+                with current_v1.database.begin() as connection:
+                    connection.execute(
+                        update(worker_locks)
+                        .where(
+                            worker_locks.c.lock_name == store.lock_name,
+                        )
+                        .values(owner_id="different-owner"),
+                    )
+            else:
+                clock.at += timedelta(seconds=91)
+            await io.call("lease", store.refresh)
+
+        verification = asyncio.create_task(io.call("report", report))
+        heartbeat = asyncio.create_task(lose_fence())
+        try:
+            with pytest.raises(RuntimeError, match=r"lease_lost|lease_expired"):
+                await runtime._watched(verification, (heartbeat,))
+            with pytest.raises(RuntimeError, match=r"lease_lost|lease_expired"):
+                store.append("terminal", "terminal", {"state": "completed"}, at_ns=clock.ns())
+        finally:
+            io.report_cancel.set()
+            await asyncio.gather(verification, heartbeat, return_exceptions=True)
+            await io.close()
+
+    asyncio.run(simulation())
+    assert list(store.export_chunks()) == before
+
+
+@pytest.mark.parametrize("safety_failure", [False, True])
+def test_v3_final_verification_keeps_lease_and_safety_live(
+    current_v1: CurrentV1,
+    store: ConfirmationStore,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+    safety_failure: bool,
+) -> None:
+    third = protocol_v3(current_v1.protocol)
+    initial = observer_guard(current_v1.database, third)()
+    proof_times: list[int] = []
+    entered, release = threading.Event(), threading.Event()
+    unavailable = threading.Event()
+    simulated_clock = clock
+
+    def factory(
+        database: Database,
+        owner: str,
+        *,
+        study_id: StudyId = STUDY_ID,
+        clock: Callable[[], datetime] | None = None,
+    ) -> ConfirmationStore:
+        return ConfirmationStore(
+            database,
+            owner,
+            clock=clock or simulated_clock,
+            study_id=study_id,
+        )
+
+    def proof() -> GuardEvidence:
+        proof_times.append(clock.ns())
+        if unavailable.is_set():
+            request = httpx.Request("GET", "https://paper-api.alpaca.markets/v2/account")
+            raise runtime.CurrentBrokerProofError(
+                httpx.HTTPStatusError(
+                    "never disclose this response description",
+                    request=request,
+                    response=httpx.Response(503, request=request),
+                ),
+            )
+        return initial.model_copy(update={"checked_ns": clock.ns()})
+
+    async def skip_history(receiver: Receiver, stop: asyncio.Event) -> None:
+        # Only finalization is under test; synthesize the preceding healthy interval.
+        receiver.grid.next_slot = SLOTS
+        clock.set(third.capture_end_ns)
+        receiver.writer.store.repository.refresh_worker_lock(
+            receiver.writer.store.lock_name,
+            receiver.writer.store.owner_id,
+            observed_at=clock.at,
+        )
+        await stop.wait()
+
+    async def no_hourly_history(
+        protocol: ConfirmationProtocol,
+        reader: ConfirmationStore,
+        io: runtime.RuntimeIO,
+        writer: DurableWriter,
+        stop: asyncio.Event,
+    ) -> None:
+        await stop.wait()
+
+    async def virtual_pause(stop: asyncio.Event, seconds: float) -> None:
+        until = clock.ns() + int(seconds * NS)
+        while not stop.is_set() and clock.ns() < until:
+            await asyncio.sleep(0.001)
+
+    def final_report(
+        reader: ConfirmationStore,
+        *,
+        at_ns: int,
+        verify_payloads: bool,
+        completing: bool,
+        cancel: threading.Event | None,
+    ) -> dict[str, JsonValue]:
+        assert verify_payloads and completing
+        entered.set()
+        while not release.wait(0.001):
+            if cancel is not None and cancel.is_set():
+                raise confirmation.ReportCancelledError("final verification cancelled")
+        return {"state": "completed", "decision": NO_GO, "clean_integrity": False}
+
+    monkeypatch.setattr(runtime, "ConfirmationStore", factory)
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    monkeypatch.setattr(runtime, "_pause", virtual_pause)
+    monkeypatch.setattr(runtime, "_report_watch", no_hourly_history)
+    monkeypatch.setattr(runtime, "build_report", final_report)
+    monkeypatch.setattr(Receiver, "work", skip_history)
+
+    async def simulation() -> None:
+        io = runtime.RuntimeIO(
+            current_v1.database,
+            lease_database=current_v1.database,
+            safety_database=current_v1.database,
+            report_database=current_v1.database,
+        )
+        process = asyncio.create_task(
+            runtime.run(third, current_v1.database, guard=proof, runtime_io=io),
+        )
+        try:
+            for _ in range(1000):
+                if entered.is_set() or process.done():
+                    break
+                await asyncio.sleep(0.001)
+            if process.done():
+                await process
+            assert entered.is_set()
+            for second in range(110):
+                clock.at += timedelta(seconds=1)
+                if safety_failure and second >= 30:
+                    unavailable.set()
+                await asyncio.sleep(0.005)
+                if safety_failure and process.done():
+                    break
+                assert not process.done()
+            release.set()
+            if safety_failure:
+                with pytest.raises(RuntimeError, match="sealed failed/incomplete"):
+                    await process
+            else:
+                assert len(proof_times) >= 4
+                result = await process
+                assert result["state"] == "completed"
+                assert result["decision"] == NO_GO and result["clean_integrity"] is False
+        finally:
+            release.set()
+            if not process.done():
+                process.cancel()
+            await asyncio.gather(process, return_exceptions=True)
+
+    asyncio.run(simulation())
+    reader = factory(current_v1.database, "read-only", study_id=V3_STUDY_ID)
+    terminal = reader.latest_header("terminal")
+    assert terminal is not None
+    _, payload = reader.read_chunk(terminal.sequence)
+    if safety_failure:
+        assert payload["state"] == "failed_incomplete"
+        assert "503" in str(payload["reason"]) and "/v2/account" in str(payload["reason"])
+        assert "never disclose" not in canonical(payload)
+
+
+def test_hourly_scan_budget_cancels_explicitly_without_partial_success(
+    current_v1: CurrentV1,
+    clock: Clock,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    third = protocol_v3(current_v1.protocol)
+    store = ConfirmationStore(
+        current_v1.database,
+        "bounded-third",
+        clock=clock,
+        study_id=V3_STUDY_ID,
+    )
+    store.claim(third)
+    clock.set(third.slot_ns(360))
+    monkeypatch.setattr(runtime, "now_ns", clock.ns)
+    monkeypatch.setattr(runtime, "REPORT_SCAN_TIMEOUT_SECONDS", 0.1)
+
+    def scan(
+        reader: ConfirmationStore,
+        *,
+        at_ns: int,
+        cancel: threading.Event | None,
+    ) -> dict[str, JsonValue]:
+        assert cancel is not None
+        cancel.wait(5)
+        raise confirmation.ReportCancelledError("budget exhausted")
+
+    monkeypatch.setattr(runtime, "build_report", scan)
+
+    async def simulation() -> None:
+        io = runtime.RuntimeIO(
+            current_v1.database,
+            lease_database=current_v1.database,
+            safety_database=current_v1.database,
+            report_database=current_v1.database,
+        )
+        writer = DurableWriter(store)
+        writer.task = asyncio.create_task(writer.work())
+        try:
+            with pytest.raises(RuntimeError, match="hourly_report_duration_budget_exceeded"):
+                await runtime._report_watch(third, store, io, writer, asyncio.Event())
+            assert io.report_cancel.is_set()
+            assert store.latest_header("report") is None
+        finally:
+            await writer.close()
+            await io.close()
+
+    asyncio.run(simulation())
