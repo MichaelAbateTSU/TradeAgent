@@ -1,0 +1,11 @@
+{
+  "id": "job-db1s5lpsrm7s73d23q80",
+  "status": "succeeded",
+  "createdAt": "2026-10-05T15:31:35.744019Z",
+  "startedAt": "2026-10-05T15:31:35Z",
+  "finishedAt": "2026-10-05T15:36:11Z",
+  "code_sha": "908637086fba34a441dbf08a64b263d62b0f1ada",
+  "component_only": true,
+  "existing_services_redeployed": false,
+  "formal_run": false
+}

@@ -132,8 +132,9 @@ Deterministic 71-, 82- and 110-second reporting delays reproduce the
 legacy horizon-quote eviction; the repaired independent resolution loop
 writes the outcome at its normal 60-second horizon plus two-second
 settlement while the report is still blocked. Finalization and ownership
-loss are also covered. All 173 focused regressions, repository lint and
-strict source/test typing pass.
+loss are also covered. Final validation passed all **2,098 tests** with
+two skipped, all 173 focused regressions, repository lint and strict
+source/test typing over 126 files.
 
 The supported prospective schema and study ID are
 `kraken-book-confirmation-v3`. No v3 protocol has been frozen or claimed.
@@ -147,8 +148,47 @@ book data, fixed cadence/maturity, isolated scratch SQLite evidence, current
 GET-only safety proof and concurrent read-only historical reporting.
 It must write no production claims, evidence, worker locks, schema or
 trading state. Its results cannot certify PostgreSQL contention behavior,
-72-hour endurance or market-source feasibility. Deployment readbacks are
-archived only after that bounded diagnostic has completed.
+72-hour endurance or market-source feasibility.
+
+**Deployment diagnostic passed.** Isolated job
+`job-db1s5lpsrm7s73d23q80` used exact committed LF source
+`908637086fba34a441dbf08a64b263d62b0f1ada` for a bounded 240-second native
+capture. No existing service was redeployed. The archived harness, release
+manifest, job receipt and `deployment-component-smoke.json` reproduce and
+identify this component-only test.
+
+| Deployed component check | Result |
+|---|---:|
+| Native checksum checks, all valid | 53,590 |
+| Scheduled symbol evaluations / mature outcomes | 48 / 36 |
+| Missed scheduled slots / horizon-selection mismatches | 0 / 0 |
+| Fresh horizon witnesses lost from the ring | 0 |
+| Outcomes resolved while reporting was blocked | 10 |
+| Real historical report duration | 115.04 seconds |
+| Scratch ownership renewals / maximum renewal gap | 25 / 10.667 seconds |
+| Maximum scheduler / label-resolution delay | 97.43 ms / 92.20 ms |
+| Current GET-only safety checks | 7 |
+| Production writes / orders / new formal claims | 0 / 0 / 0 |
+
+The reporting lane remained occupied longer than the unchanged 90-second
+lease while cadence, maturity and scratch ownership continued normally.
+Measured report time was real historical read work, not a fabricated
+115-second delay; recorded deterministic padding was less than 0.02 ms.
+Scratch charged evidence was 6,063,214 bytes within a 32 MiB limit, and
+scratch storage was removed. Twelve immature outcomes at the diagnostic
+deadline were reported as pending, not silently promoted to completed.
+
+The failed e05 protocol and full journal root were unchanged before and
+after the diagnostic. Its latest current guard still proved zero
+positions/orders, expired authorization, `no_support`, and preservation
+of the exact stopped v1. The native book parser bytes remain unchanged.
+
+This validates bounded **component concurrency and observation plumbing**,
+not a full production PostgreSQL ownership claim: scratch SQLite cannot
+certify PostgreSQL row locks, fencing or pool contention. Historical
+reporting in this smoke verified header/selected-payload consistency,
+not all raw blobs; the separate full immutable-corpus audit above verified
+all raw payloads. The small native sample is not a market-quality pass.
 
 ## Decision
 
@@ -168,3 +208,8 @@ fills, execution eligibility, economic edge or profitability.
 The existing October 7 read-only closeout remains responsible for archiving
 the original fixed window honestly. No failed claim may be resumed,
 extended, reseeded, backfilled or relabeled successful.
+
+`readiness.json` records the final split decision: repaired components
+passed bounded validation, but source feasibility and research remain
+**NO-GO**. No source was selected, no v3 configuration/window was frozen,
+and the prerequisites for a formal successor are not all satisfied.

@@ -1,0 +1,37 @@
+{
+  "schema": "confirmation-repair-readiness-v1",
+  "observation_runtime_repair": "BOUNDED_COMPONENT_VALIDATION_PASS",
+  "source_feasibility": "NO_GO",
+  "research_v2": "NOT_AUTHORIZED_OR_STARTED",
+  "confirmation_v3": "SUPPORTED_BUT_NOT_FROZEN_OR_CLAIMED",
+  "selected_alternative_source": null,
+  "prospective_v3_configuration": null,
+  "unchanged_contract": {
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "cadence_seconds": 10,
+    "primary_horizon_seconds": 60,
+    "settlement_seconds": 2,
+    "provider_and_receive_freshness_seconds": 2,
+    "best_side_notional_usd": "10.25",
+    "coverage_denominator": "all_scheduled_mature_evaluations",
+    "minimum_coverage_per_symbol_percent": 95
+  },
+  "all_prerequisites_for_v3_freeze_satisfied": false,
+  "trading_authorization": "expired",
+  "model_state": "no_support",
+  "orders_submitted": 0,
+  "historical_studies_changed_or_restarted": false,
+  "remaining_requirements": [
+    "Venue-matched native executable-price evidence passing unchanged freshness/size contract separately for BTC and ETH.",
+    "Real PostgreSQL lock/fencing/pool integration and declared endurance/capacity validation before a formal collector claim.",
+    "Verified personal venue/account eligibility and actual fees; public fee scenarios do not establish executable economic edge."
+  ],
+  "next_permitted_action": "Investigate a defensible source/execution relationship or explicitly propose a separate research contract; do not restart a failed study or optimize thresholds to rescue it.",
+  "read_only_original_closeout_preserved": {
+    "run_at": "2026-10-07T00:04:00Z",
+    "study_id": "kraken-book-confirmation-v2"
+  }
+}

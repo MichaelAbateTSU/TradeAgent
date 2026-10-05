@@ -1,0 +1,676 @@
+"""Operator-only component diagnostic; never a confirmation cohort or deployment.
+
+python confirmation_repair_component_smoke.py --expected-source-hashes manifest.json
+Default: 240s native capture, 360s supervisor hard timeout, 32MiB scratch evidence.
+Requires existing production configuration/Alpaca paper credentials; never prints them.
+The e05 archival window must still contain the diagnostic's live sampling interval.
+No dates/protocol are constructed or frozen. No ConfirmationStore.claim/run/preflight.
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import subprocess
+import sys
+import time
+import zlib
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from hashlib import sha256
+from pathlib import Path
+from uuid import uuid4
+
+import httpx
+from pydantic import JsonValue, TypeAdapter
+from sqlalchemy import event, select
+from sqlalchemy.engine import URL, Connection, make_url
+from sqlalchemy.exc import SQLAlchemyError
+
+from tradeagent.config import AppConfig
+from tradeagent.kraken_confirmation import (
+    NS,
+    SLOTS,
+    SYMBOLS,
+    V2_STUDY_ID,
+    CausalGrid,
+    ChunkHeader,
+    ConfirmationProtocol,
+    ConfirmationStore,
+    Evaluation,
+    Label,
+    Quote,
+    ReportCancelledError,
+    SourceDigest,
+    confirmation_evidence,
+    measure,
+    record,
+)
+from tradeagent.kraken_confirmation_report import build_report
+from tradeagent.kraken_confirmation_runtime import (
+    CurrentBrokerProofError,
+    DurableWriter,
+    Guard,
+    Receiver,
+    RuntimeIO,
+    now_ns,
+    observer_guard,
+    source_digests,
+    validate_guard,
+)
+from tradeagent.persistence import Database, worker_locks
+from tradeagent.scalping_market import datetime_ns
+from tradeagent.scalping_store import canonical
+
+PROTOCOL_HASH = "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a"
+JOURNAL_ROOT = "54782507ee32d1d6a4c4b80561aa9d045975c96f6ddc0f8bf5aec3d3a8f03ab2"
+LAST_SEQUENCE = 168120
+SCRATCH_BUDGET = 32 * 1024**2
+HARD_TIMEOUT_SECONDS = 360
+STALL_SECONDS = 110
+JSON_OBJECT = TypeAdapter(dict[str, JsonValue])
+SOURCE_LIST = TypeAdapter(tuple[SourceDigest, ...])
+
+
+@dataclass
+class ReadOnlyAudit:
+    statements: int = 0
+    denied_mutations: int = 0
+    server_read_only_verified: bool = False
+
+    def statement(
+        self,
+        connection: Connection,
+        cursor: object,
+        statement: str,
+        parameters: object,
+        context: object,
+        executemany: bool,
+    ) -> None:
+        self.statements += 1
+        normalized = " ".join(statement.upper().split())
+        allowed = (
+            normalized.startswith("SELECT ")
+            or normalized.startswith("SHOW ")
+            or normalized
+            in {
+                "SET TRANSACTION READ ONLY",
+                "SET LOCAL STATEMENT_TIMEOUT = '15000MS'",
+                "SET LOCAL LOCK_TIMEOUT = '5000MS'",
+            }
+        )
+        if not allowed:
+            self.denied_mutations += 1
+            raise RuntimeError("production diagnostic SQL rejected")
+
+
+def read_only_database(address: str, audit: ReadOnlyAudit) -> Database:
+    url = make_url(address)
+    if url.get_backend_name() != "postgresql":
+        raise ValueError("production diagnostic requires PostgreSQL, not scratch SQLite")
+    original_options = url.query.get("options", "")
+    if not isinstance(original_options, str):
+        raise ValueError("ambiguous production connection options")
+    query = {
+        **url.query,
+        "connect_timeout": "5",
+        "options": original_options
+        + " -c default_transaction_read_only=on -c statement_timeout=15000",
+    }
+    database = Database(url.set(query=query).render_as_string(hide_password=False), pool_size=1)
+    event.listen(database.engine, "before_cursor_execute", audit.statement)
+    try:
+        with database.begin() as connection:
+            if connection.exec_driver_sql("SHOW transaction_read_only").scalar_one() != "on":
+                raise RuntimeError("server refused read-only production transaction")
+    except (RuntimeError, OSError, SQLAlchemyError):
+        database.dispose()
+        raise
+    audit.server_read_only_verified = True
+    return database
+
+
+def reference_snapshot(database: Database) -> tuple[ConfirmationProtocol, ChunkHeader]:
+    reader = ConfirmationStore(database, "component-read-only", study_id=V2_STUDY_ID)
+    protocol = reader.load_protocol()
+    with database.begin() as connection:
+        row = (
+            connection.execute(
+                select(confirmation_evidence)
+                .where(
+                    confirmation_evidence.c.study_id == V2_STUDY_ID,
+                )
+                .order_by(confirmation_evidence.c.sequence.desc())
+                .limit(1),
+            )
+            .mappings()
+            .one()
+        )
+    header = ChunkHeader.model_validate(row)
+    if (
+        protocol.identity != PROTOCOL_HASH
+        or header.sequence != LAST_SEQUENCE
+        or header.chain_hash != JOURNAL_ROOT
+        or header.calculated_hash() != header.chain_hash
+        or sha256(bytes(row["payload"])).hexdigest() != header.payload_hash
+    ):
+        raise ValueError("immutable e05 reference differs from declared diagnostic evidence")
+    return protocol, header
+
+
+class ScratchStore(ConfirmationStore):
+    """A component-only seed/chain, not a protocol record or formal study claim."""
+
+    def __init__(self, database: Database, owner: str) -> None:
+        if database.engine.dialect.name != "sqlite":
+            raise ValueError("component scratch writer requires SQLite only")
+        super().__init__(database, owner, study_id=V2_STUDY_ID)
+        self.charged = 0
+
+    def append(
+        self,
+        kind: str,
+        key: str,
+        payload: dict[str, JsonValue],
+        *,
+        at_ns: int,
+        claim: bool = False,
+    ) -> ChunkHeader:
+        charge = len(zlib.compress(canonical(payload).encode())) + 512
+        if self.charged + charge > SCRATCH_BUDGET:
+            raise RuntimeError("component scratch evidence budget exceeded")
+        header = super().append(kind, key, payload, at_ns=at_ns, claim=claim)
+        self.charged = header.stored_bytes
+        if self.charged > SCRATCH_BUDGET:
+            raise RuntimeError("component scratch charge invariant failed")
+        return header
+
+    def seed(self) -> None:
+        if not self.repository.acquire_worker_lock(
+            self.lock_name,
+            self.owner_id,
+            stale_after_seconds=90,
+            observed_at=datetime.now(UTC),
+        ):
+            raise RuntimeError("scratch diagnostic ownership unavailable")
+        self.append(
+            "component_only",
+            "component_only",
+            {
+                "component_only": True,
+                "not_a_protocol_freeze": True,
+                "reference_protocol_hash": PROTOCOL_HASH,
+                # The append primitive requires a root for sequence zero; this is
+                # random diagnostic provenance, never a ConfirmationProtocol identity.
+                "protocol_hash": sha256(("component-only:" + self.owner_id).encode()).hexdigest(),
+            },
+            at_ns=now_ns(),
+            claim=True,
+        )
+
+
+@dataclass
+class Measurements:
+    pending: dict[tuple[int, str], Evaluation] = field(default_factory=dict)
+    horizon: dict[tuple[int, str], Quote] = field(default_factory=dict)
+    evaluations: int = 0
+    labels: int = 0
+    missed_slots: int = 0
+    complete_labels: int = 0
+    fresh_horizon_missing: int = 0
+    label_selection_mismatches: int = 0
+    max_label_resolution_delay_ns: int = 0
+    max_scheduler_delay_ns: int = 0
+    lease_renewals: int = 0
+    max_lease_gap_ns: int = 0
+    last_lease_ns: int = 0
+    guard_checks: int = 0
+    latest_guard: dict[str, JsonValue] = field(default_factory=dict)
+    labels_during_report_stall: int = 0
+    report_started: float = 0
+    report_elapsed: float = 0
+    historic_read_seconds: float = 0
+    deterministic_padding_seconds: float = 0
+    historic_read_complete: bool = False
+    report_cancelled: bool = False
+    report_lane_finished: bool = False
+
+    def observe_quote(self, quote: Quote) -> None:
+        for key, evaluation in tuple(self.pending.items()):
+            target = evaluation.at_ns + 60 * NS
+            if (
+                quote.symbol == evaluation.symbol
+                and quote.received_ns <= target
+                and quote.accepted_ns <= target + 2 * NS
+            ):
+                self.horizon[key] = quote
+
+    def observe_evaluation(self, evaluation: Evaluation) -> None:
+        self.evaluations += 1
+        self.missed_slots += int(evaluation.missed_scheduled_slot)
+        self.max_scheduler_delay_ns = max(
+            self.max_scheduler_delay_ns,
+            evaluation.recorded_ns - evaluation.at_ns,
+        )
+        self.pending[(evaluation.slot, evaluation.symbol)] = evaluation
+        if len(self.pending) > 32:
+            raise RuntimeError("component witness backlog exceeded")
+
+    def observe_label(self, label: Label) -> None:
+        key = (label.evaluation.slot, label.evaluation.symbol)
+        candidate = self.horizon.pop(key, None)
+        self.pending.pop(key)
+        self.labels += 1
+        self.complete_labels += int(label.eligibility.complete)
+        self.max_label_resolution_delay_ns = max(
+            self.max_label_resolution_delay_ns,
+            label.resolved_ns - label.information_available_ns,
+        )
+        if (
+            candidate is not None
+            and measure(
+                label.evaluation.entry,
+                candidate,
+                label.evaluation.at_ns,
+            ).future_fresh
+        ):
+            self.fresh_horizon_missing += int(label.future is None)
+            self.label_selection_mismatches += int(
+                label.future is not None and label.future != candidate,
+            )
+        if self.report_started and not self.report_lane_finished:
+            self.labels_during_report_stall += 1
+
+
+class WitnessReceiver(Receiver):
+    def __init__(
+        self,
+        protocol: ConfirmationProtocol,
+        grid: CausalGrid,
+        writer: DurableWriter,
+        measurements: Measurements,
+    ) -> None:
+        super().__init__(protocol, grid, writer)
+        self.measurements = measurements
+
+    async def frame(self, raw: str | bytes) -> None:
+        await super().frame(raw)
+        for symbol in SYMBOLS:
+            history = self.grid.history[symbol]
+            if history:
+                latest = history[-1]
+                if isinstance(latest, Quote) and latest.frame_id == self.frame_id:
+                    self.measurements.observe_quote(latest)
+
+
+async def pause(stop: asyncio.Event, seconds: float) -> None:
+    try:
+        await asyncio.wait_for(stop.wait(), seconds)
+    except TimeoutError:
+        return
+
+
+async def renew(
+    store: ConfirmationStore,
+    io: RuntimeIO,
+    measurements: Measurements,
+    stop: asyncio.Event,
+) -> None:
+    while not stop.is_set():
+        await io.call("lease", store.refresh)
+        sampled = now_ns()
+        if measurements.last_lease_ns:
+            measurements.max_lease_gap_ns = max(
+                measurements.max_lease_gap_ns,
+                sampled - measurements.last_lease_ns,
+            )
+        measurements.last_lease_ns = sampled
+        measurements.lease_renewals += 1
+        await pause(stop, 10)
+
+
+async def safety(
+    guard: Guard,
+    protocol: ConfirmationProtocol,
+    io: RuntimeIO,
+    measurements: Measurements,
+    stop: asyncio.Event,
+) -> None:
+    while not stop.is_set():
+        evidence = await io.call("safety", guard)
+        validate_guard(evidence, protocol)
+        measurements.latest_guard = evidence.model_dump(mode="json")
+        measurements.guard_checks += 1
+        await pause(stop, 60)
+
+
+def historic_reporting(
+    reader: ConfirmationStore,
+    io: RuntimeIO,
+    measurements: Measurements,
+) -> dict[str, JsonValue]:
+    measurements.report_started = time.monotonic()
+    try:
+        build_report(reader, at_ns=now_ns(), cancel=io.report_cancel)
+        measurements.historic_read_seconds = time.monotonic() - measurements.report_started
+        measurements.historic_read_complete = True
+        padding_start = time.monotonic()
+        remaining = max(0.0, STALL_SECONDS - measurements.historic_read_seconds)
+        if io.report_cancel.wait(remaining):
+            raise ReportCancelledError("component report padding cancelled")
+        measurements.deterministic_padding_seconds = time.monotonic() - padding_start
+    except ReportCancelledError:
+        measurements.report_cancelled = True
+    finally:
+        measurements.report_elapsed = time.monotonic() - measurements.report_started
+        measurements.report_lane_finished = True
+    return {
+        "real_historic_report_completed": measurements.historic_read_complete,
+        "cancelled_explicitly": measurements.report_cancelled,
+        "full_historic_payload_verification": False,
+        "read_seconds": measurements.historic_read_seconds,
+        "deterministic_padding_seconds": measurements.deterministic_padding_seconds,
+        "total_report_lane_seconds": measurements.report_elapsed,
+    }
+
+
+def check_sources(manifest: Path) -> tuple[SourceDigest, ...]:
+    expected = SOURCE_LIST.validate_json(manifest.read_bytes())
+    if expected != source_digests():
+        raise ValueError("deployed repaired source bytes differ from diagnostic manifest")
+    return expected
+
+
+async def component_smoke(
+    *,
+    seconds: int,
+    manifest: Path,
+    scratch_directory: Path,
+) -> dict[str, JsonValue]:
+    if not 180 <= seconds <= 300:
+        raise ValueError("capture duration must be 180..300 seconds")
+    sources = check_sources(manifest)
+    scratch_directory = scratch_directory.resolve()
+    scratch_directory.relative_to(Path.cwd().resolve())
+    scratch_path = scratch_directory / ("confirmation-component-only-" + str(uuid4()) + ".sqlite")
+    address = AppConfig().database_url.get_secret_value()
+    audit = ReadOnlyAudit()
+    handles: list[Database] = []
+    io: RuntimeIO | None = None
+    writer: DurableWriter | None = None
+    tasks: list[asyncio.Task[None]] = []
+    report_task: asyncio.Task[dict[str, JsonValue]] | None = None
+    capture_stop, service_stop = asyncio.Event(), asyncio.Event()
+    measurements = Measurements()
+    receiver: WitnessReceiver | None = None
+    scratch: ScratchStore | None = None
+    failure: dict[str, JsonValue] | None = None
+    unchanged = False
+    report_result: dict[str, JsonValue] = {}
+    try:
+        production_safety = read_only_database(address, audit)
+        handles.append(production_safety)
+        production_report = read_only_database(address, audit)
+        handles.append(production_report)
+        protocol, before = await asyncio.to_thread(reference_snapshot, production_safety)
+        if (
+            not datetime_ns(protocol.start)
+            <= now_ns()
+            < (datetime_ns(protocol.end) - (seconds + 65) * NS)
+        ):
+            raise ValueError("diagnostic live interval must fit existing archival e05 grid")
+        guard = observer_guard(production_safety, protocol)
+        initial = await asyncio.to_thread(guard)
+        validate_guard(initial, protocol)
+        measurements.latest_guard = initial.model_dump(mode="json")
+        measurements.guard_checks = 1
+        scratch_database = Database(
+            URL.create("sqlite", database=str(scratch_path)).render_as_string(),
+            pool_size=2,
+        )
+        handles.append(scratch_database)
+        lease_database = Database(
+            URL.create("sqlite", database=str(scratch_path)).render_as_string(),
+            pool_size=1,
+        )
+        handles.append(lease_database)
+        worker_locks.create(scratch_database.engine)
+        confirmation_evidence.create(scratch_database.engine)
+        scratch = ScratchStore(scratch_database, "component-only-" + str(uuid4()))
+        await asyncio.to_thread(scratch.seed)
+        lease_store = ConfirmationStore(
+            lease_database,
+            scratch.owner_id,
+            study_id=V2_STUDY_ID,
+        )
+        io = RuntimeIO(
+            scratch_database,
+            lease_database=lease_database,
+            safety_database=production_safety,
+            report_database=production_report,
+        )
+        writer = DurableWriter(scratch)
+        writer.task = asyncio.create_task(writer.work())
+        grid = CausalGrid(protocol)
+        grid.next_slot = (now_ns() - datetime_ns(protocol.start) + 10 * NS - 1) // (10 * NS)
+        if not 0 <= grid.next_slot < SLOTS:
+            raise ValueError("diagnostic scheduling subset is outside archival grid")
+        receiver = WitnessReceiver(protocol, grid, writer, measurements)
+        capture = asyncio.create_task(receiver.work(capture_stop))
+        heartbeat = asyncio.create_task(renew(lease_store, io, measurements, service_stop))
+        safety_task = asyncio.create_task(safety(guard, protocol, io, measurements, service_stop))
+        tasks = [capture, heartbeat, safety_task]
+        reader = ConfirmationStore(production_report, "component-read-only", study_id=V2_STUDY_ID)
+        report_task = asyncio.create_task(
+            io.call(
+                "report",
+                lambda: historic_reporting(reader, io, measurements),
+            )
+        )
+        end = time.monotonic() + seconds
+        while time.monotonic() < end:
+            for task in (writer.task, *tasks):
+                if task.done():
+                    await task
+                    raise RuntimeError("essential component stopped before diagnostic deadline")
+            if report_task.done():
+                await report_task
+            evaluations, labels = grid.advance(now_ns())
+            for evaluation in evaluations:
+                measurements.observe_evaluation(evaluation)
+            for label in labels:
+                measurements.observe_label(label)
+            for kind, rows in (("evaluation", evaluations), ("label", labels)):
+                if rows:
+                    await writer.submit(kind, tuple(record(row) for row in rows))
+            await asyncio.sleep(0.1)
+        capture_stop.set()
+        await asyncio.wait_for(capture, 15)
+        await writer.flush()
+        await writer.close()
+        final = await io.call("safety", guard)
+        validate_guard(final, protocol)
+        measurements.latest_guard = final.model_dump(mode="json")
+        measurements.guard_checks += 1
+        after_protocol, after = await io.call(
+            "safety",
+            lambda: reference_snapshot(production_safety),
+        )
+        unchanged = after_protocol.identity == protocol.identity and before == after
+        check_sources(manifest)
+    except (
+        ValueError,
+        RuntimeError,
+        OSError,
+        TimeoutError,
+        SQLAlchemyError,
+        httpx.HTTPError,
+    ) as error:
+        failure = {"error_type": type(error).__name__}
+        if isinstance(error, CurrentBrokerProofError):
+            failure.update(error.details)
+    finally:
+        capture_stop.set()
+        service_stop.set()
+        if io is not None:
+            io.report_cancel.set()
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        if writer is not None and writer.task is not None:
+            if not writer.task.done():
+                writer.task.cancel()
+            writer_results = await asyncio.gather(writer.task, return_exceptions=True)
+            for outcome in writer_results:
+                if isinstance(outcome, Exception) and failure is None:
+                    failure = {"error_type": type(outcome).__name__, "stage": "scratch_writer"}
+        service_results = await asyncio.gather(*tasks, return_exceptions=True)
+        for outcome in service_results:
+            if isinstance(outcome, Exception) and failure is None:
+                failure = {"error_type": type(outcome).__name__, "stage": "component_service"}
+        if report_task is not None:
+            try:
+                report_result = await report_task
+            except (ValueError, RuntimeError, OSError, TimeoutError, SQLAlchemyError) as error:
+                failure = {"error_type": type(error).__name__, "stage": "historic_report"}
+        if io is not None:
+            await io.close()
+        for database in handles:
+            database.dispose()
+        if scratch_path.exists():
+            scratch_path.unlink()
+    quality = receiver.quality() if receiver is not None else {}
+    counts = receiver.counts if receiver is not None else {}
+    ok = (
+        failure is None
+        and unchanged
+        and audit.denied_mutations == 0
+        and measurements.report_elapsed >= STALL_SECONDS
+        and measurements.labels_during_report_stall > 0
+        and measurements.missed_slots == 0
+        and measurements.fresh_horizon_missing == 0
+        and measurements.label_selection_mismatches == 0
+        and measurements.max_lease_gap_ns < 90 * NS
+        and all(
+            counts.get(name, 0) == 0
+            for name in (
+                "checksum_failures",
+                "timestamp_errors",
+                "protocol_errors",
+                "disconnects",
+            )
+        )
+        and counts.get("checksum_checks", 0) > 0
+    )
+    return {
+        "schema": "confirmation-repair-component-smoke-v1",
+        "component_only": True,
+        "component_reliability_observed": ok,
+        "market_quality_pass": False,
+        "new_72h_study_authorized": False,
+        "postgresql_lock_or_pool_certification": False,
+        "full_72h_grid_tested": False,
+        "formal_claim_created": False,
+        "production_writes": 0,
+        "production_mutation_attempts_denied": audit.denied_mutations,
+        "production_read_only_verified": audit.server_read_only_verified,
+        "production_sql_statements": audit.statements,
+        "reference_protocol_hash": PROTOCOL_HASH,
+        "reference_journal_root": JOURNAL_ROOT,
+        "reference_unchanged": unchanged,
+        "source_hashes": [value.model_dump(mode="json") for value in sources],
+        "capture_seconds_requested": seconds,
+        "supervisor_hard_timeout_seconds": HARD_TIMEOUT_SECONDS,
+        "scratch_charged_bytes": scratch.charged if scratch is not None else 0,
+        "scratch_budget_bytes": SCRATCH_BUDGET,
+        "scratch_removed": not scratch_path.exists(),
+        "lease_renewals": measurements.lease_renewals,
+        "maximum_lease_gap_ns": measurements.max_lease_gap_ns,
+        "evaluations": measurements.evaluations,
+        "labels": measurements.labels,
+        "unmatured_pending_at_stop": len(measurements.pending),
+        "missed_scheduled_slots": measurements.missed_slots,
+        "eligible_labels_observed_not_a_market_gate": measurements.complete_labels,
+        "fresh_horizon_witness_missing": measurements.fresh_horizon_missing,
+        "horizon_selection_mismatches": measurements.label_selection_mismatches,
+        "maximum_scheduler_delay_ns": measurements.max_scheduler_delay_ns,
+        "maximum_label_resolution_delay_ns": measurements.max_label_resolution_delay_ns,
+        "labels_during_report_stall": measurements.labels_during_report_stall,
+        "guard_checks": measurements.guard_checks,
+        "latest_current_guard": measurements.latest_guard,
+        "historic_reporting": report_result,
+        "quality": quality,
+        "orders_submitted": 0,
+        "private_kraken_requests": 0,
+        "failure": failure,
+        "limits": [
+            "Scratch SQLite cannot certify PostgreSQL row locks, fencing or pool contention.",
+            "Historic reporting checks header chain/selected payloads, not every raw payload.",
+            "A diagnostic subset and native freshness/size observations cannot establish 95%/72h.",
+            "At least 110s report occupancy may include explicitly recorded deterministic padding.",
+        ],
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--expected-source-hashes", type=Path, required=True)
+    parser.add_argument("--scratch-directory", type=Path, default=Path.cwd())
+    parser.add_argument("--seconds", type=int, choices=range(180, 301), default=240)
+    parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
+    args = parser.parse_args()
+    if args.worker:
+        result = asyncio.run(
+            component_smoke(
+                seconds=args.seconds,
+                manifest=args.expected_source_hashes,
+                scratch_directory=args.scratch_directory,
+            )
+        )
+        print(canonical(result), flush=True)
+        raise SystemExit(0 if result["component_reliability_observed"] else 1)
+    command = [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:], "--worker"]
+    try:
+        child = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=HARD_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        # subprocess.run kills and waits for its own child PID, including its threads.
+        print(
+            canonical(
+                {
+                    "component_only": True,
+                    "component_reliability_observed": False,
+                    "market_quality_pass": False,
+                    "new_72h_study_authorized": False,
+                    "postgresql_lock_or_pool_certification": False,
+                    "failure": {"error_type": "SupervisorHardTimeout"},
+                    "final_reference_verification_completed": False,
+                }
+            ),
+            flush=True,
+        )
+        raise SystemExit(1) from None
+    try:
+        result = JSON_OBJECT.validate_json(child.stdout)
+    except ValueError:
+        result = {
+            "component_only": True,
+            "component_reliability_observed": False,
+            "market_quality_pass": False,
+            "failure": {"error_type": "ChildDidNotReturnDiagnosticJSON"},
+        }
+    print(canonical(result), flush=True)
+    raise SystemExit(
+        child.returncode
+        if child.returncode
+        else (0 if result.get("component_reliability_observed") is True else 1)
+    )
+
+
+if __name__ == "__main__":
+    main()

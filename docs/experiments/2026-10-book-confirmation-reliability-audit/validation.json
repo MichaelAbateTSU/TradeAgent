@@ -28,7 +28,8 @@
   },
   "historical_claims_or_protocols_changed": false,
   "strategy_or_trading_state_changed": false,
-  "deployment_component_smoke": "pending",
+  "deployment_component_smoke": "passed_bounded_components_only",
   "postgresql_lock_integration_certified": false,
-  "new_study_frozen_or_claimed": false
+  "new_study_frozen_or_claimed": false,
+  "component_only": true
 }

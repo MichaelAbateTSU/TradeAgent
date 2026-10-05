@@ -1,0 +1,148 @@
+{
+  "capture_seconds_requested": 240,
+  "component_only": true,
+  "component_reliability_observed": true,
+  "eligible_labels_observed_not_a_market_gate": 31,
+  "evaluations": 48,
+  "failure": null,
+  "formal_claim_created": false,
+  "fresh_horizon_witness_missing": 0,
+  "full_72h_grid_tested": false,
+  "guard_checks": 7,
+  "historic_reporting": {
+    "cancelled_explicitly": false,
+    "deterministic_padding_seconds": 1.4640390872955322e-05,
+    "full_historic_payload_verification": false,
+    "read_seconds": 115.03989531099796,
+    "real_historic_report_completed": true,
+    "total_report_lane_seconds": 115.04012283496559
+  },
+  "horizon_selection_mismatches": 0,
+  "labels": 36,
+  "labels_during_report_stall": 10,
+  "latest_current_guard": {
+    "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+    "authorization_renewed": false,
+    "broker_order_records_since_freeze": 0,
+    "checked_ns": 1791214567704918000,
+    "guard_version": 2,
+    "model_state": "no_support",
+    "open_orders": 0,
+    "order_attempts": 0,
+    "paper_host": "https://paper-api.alpaca.markets",
+    "positions": 0,
+    "preserved_v1": {
+      "authenticated": false,
+      "automatic_rearm": false,
+      "feed_state": "stopped",
+      "protocol_changed": false,
+      "protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+      "reason": "BROKER_SAFETY_MONITOR_UNAVAILABLE",
+      "state": "paused_invalid",
+      "stop_control_sha256": "b5e4e4348054ec0d8f97df2b4d186e406ad8603c38a3eb276ec5c27fa0a94d7e",
+      "subscribed": false
+    },
+    "read_methods": [
+      "GET"
+    ],
+    "trading_authorization": "expired",
+    "v1_connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+    "v1_owner_id": "srv-dae4tr7qj5pc73a9e0k0-6467cc5744-4txxf",
+    "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b"
+  },
+  "lease_renewals": 25,
+  "limits": [
+    "Scratch SQLite cannot certify PostgreSQL row locks, fencing or pool contention.",
+    "Historic reporting checks header chain/selected payloads, not every raw payload.",
+    "A diagnostic subset and native freshness/size observations cannot establish 95%/72h.",
+    "At least 110s report occupancy may include explicitly recorded deterministic padding."
+  ],
+  "market_quality_pass": false,
+  "maximum_label_resolution_delay_ns": 92195815,
+  "maximum_lease_gap_ns": 10667304569,
+  "maximum_scheduler_delay_ns": 97432824,
+  "missed_scheduled_slots": 0,
+  "new_72h_study_authorized": false,
+  "orders_submitted": 0,
+  "postgresql_lock_or_pool_certification": false,
+  "private_kraken_requests": 0,
+  "production_mutation_attempts_denied": 0,
+  "production_read_only_verified": true,
+  "production_sql_statements": 63392,
+  "production_writes": 0,
+  "quality": {
+    "connected": false,
+    "connection_id": "f4941eb2-eade-4575-941b-9d5fd6d8dabb",
+    "counts": {
+      "book_messages": 53590,
+      "checksum_checks": 53590,
+      "checksum_valid_quotes": 53590,
+      "connections": 1,
+      "duplicate_book_states": 1,
+      "equal_provider_timestamps": 4765,
+      "frames": 53831,
+      "subscription_acknowledgments": 2
+    },
+    "epoch": 1,
+    "last_error": null,
+    "maximum_db_write_latency_ns": 419529905,
+    "maximum_label_backlog": 14,
+    "maximum_provider_receipt_latency_ns": 565999574,
+    "maximum_quote_cache": 9861,
+    "maximum_receipt_acceptance_latency_ns": 197854924,
+    "maximum_writer_queue": 128,
+    "per_symbol_counts": {
+      "BTC/USD": {
+        "book_messages": 26791,
+        "checksum_checks": 26791,
+        "checksum_failures": 0,
+        "checksum_valid_quotes": 26791,
+        "disconnects": 0,
+        "duplicate_book_states": 1,
+        "equal_provider_timestamps": 2455,
+        "rejected_book_messages": 0,
+        "timestamp_errors": 0,
+        "unverified_book_updates": 0
+      },
+      "ETH/USD": {
+        "book_messages": 26799,
+        "checksum_checks": 26799,
+        "checksum_failures": 0,
+        "checksum_valid_quotes": 26799,
+        "disconnects": 0,
+        "duplicate_book_states": 0,
+        "equal_provider_timestamps": 2310,
+        "rejected_book_messages": 0,
+        "timestamp_errors": 0,
+        "unverified_book_updates": 0
+      }
+    }
+  },
+  "reference_journal_root": "54782507ee32d1d6a4c4b80561aa9d045975c96f6ddc0f8bf5aec3d3a8f03ab2",
+  "reference_protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "reference_unchanged": true,
+  "schema": "confirmation-repair-component-smoke-v1",
+  "scratch_budget_bytes": 33554432,
+  "scratch_charged_bytes": 6063214,
+  "scratch_removed": true,
+  "source_hashes": [
+    {
+      "name": "kraken_confirmation.py",
+      "sha256": "5b822d20e807ede0e3708ababb6f50a2a40d083d01214e64279481506f8901fe"
+    },
+    {
+      "name": "kraken_confirmation_book.py",
+      "sha256": "8c380681bcfe8b5abf353c36d0b3788b96717912eb6153d2131423a9881d81ca"
+    },
+    {
+      "name": "kraken_confirmation_report.py",
+      "sha256": "b9d675c89dd896d83d4475c0cb90a15d823709a3bf90460d53abbfe5dba0ddbf"
+    },
+    {
+      "name": "kraken_confirmation_runtime.py",
+      "sha256": "2f7014f7d5c716f4e2518276fd30827287a345110d0772dac23d2cd68fc765fa"
+    }
+  ],
+  "supervisor_hard_timeout_seconds": 360,
+  "unmatured_pending_at_stop": 12
+}

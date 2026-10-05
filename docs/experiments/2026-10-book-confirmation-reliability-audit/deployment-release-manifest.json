@@ -1,0 +1,13 @@
+{
+  "code_sha": "908637086fba34a441dbf08a64b263d62b0f1ada",
+  "source_byte_sha256": {
+    "kraken_confirmation.py": "5b822d20e807ede0e3708ababb6f50a2a40d083d01214e64279481506f8901fe",
+    "kraken_confirmation_book.py": "8c380681bcfe8b5abf353c36d0b3788b96717912eb6153d2131423a9881d81ca",
+    "kraken_confirmation_report.py": "b9d675c89dd896d83d4475c0cb90a15d823709a3bf90460d53abbfe5dba0ddbf",
+    "kraken_confirmation_runtime.py": "2f7014f7d5c716f4e2518276fd30827287a345110d0772dac23d2cd68fc765fa"
+  },
+  "bundle_base64_bytes": 68064,
+  "existing_services_redeployed": false,
+  "prospective_study_frozen_or_claimed": false,
+  "native_book_parser_unchanged": true
+}
