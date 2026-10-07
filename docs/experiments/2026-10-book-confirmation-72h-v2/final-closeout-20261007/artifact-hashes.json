@@ -1,0 +1,12 @@
+{
+  "closeout-verdict.json": "1832a07e9bcdc9ac253f7f75174ace4185332751623b55554432ad99d7e6d5cf",
+  "final-status-readback.json": "54246907265bed56632fde60f33fb0edfab6ae671d4dac077208439f7bd1ee81",
+  "fixed-blocks.json": "06fabb972560ecbea205cd668c5136ac0b98d7df345ec56fc89876dd626098f7",
+  "immutable-journal-and-safety-proof.json": "72f4a73794e913bd441e28db96a533b6c877efcce837c744bd85004ba15d1ecc",
+  "independent-verification-script.py.txt": "a33156794b85ba7b279eec0e7440c74844732b7093f2348970ec46d2ec7c29f4",
+  "read-only-closeout-script.py.txt": "7ea852b4097ec7f8d72d3d027a2bdfac3fb24cd456e353bdd99a9161e62a482c",
+  "read-only-job-receipt.json": "b1977b80ec54fcfc90a30cc4251ca6b3bd529d44ab2916dce05bbd46ca8e1919",
+  "read-only-wrapper-failure-receipt.json": "ac562325e213103620c3ab3b3147293627bab6093794e9803e964986301939d2",
+  "README.md": "83de43f6b81ac81886c967b70a81b3935f5b42c6799214c5ba3d6e79d9cbc764",
+  "receiver-and-deployment-readback.json": "cd7651c71fc1e615ce527837cc1c4e94c50b6f21159f834dfc479e38e313f50b"
+}

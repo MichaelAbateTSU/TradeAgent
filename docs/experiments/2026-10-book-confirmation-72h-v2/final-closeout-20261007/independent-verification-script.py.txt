@@ -1,0 +1,137 @@
+import hashlib
+import json
+from datetime import datetime, timedelta
+from decimal import Decimal
+from pathlib import Path
+
+ROOT = Path(__file__).parent
+REPO = Path(r"C:\git\TradeAgent")
+ARCHIVE = REPO / "docs" / "experiments" / "2026-10-book-confirmation-72h-v2" / "final-closeout-20261007"
+report = json.loads((ROOT / "confirmation-v2-final-status.json").read_text())
+proof = json.loads((ROOT / "confirmation-v2-final-proof.json").read_text())
+frozen = json.loads(
+    (REPO / "docs" / "experiments" / "2026-10-book-confirmation-72h-v2" / "frozen-protocol.json").read_text()
+)
+audit = json.loads(
+    (REPO / "docs" / "experiments" / "2026-10-book-confirmation-reliability-audit" / "label-audit-summary.json").read_text()
+)
+start = datetime.fromisoformat(frozen["start"].replace("Z", "+00:00"))
+end = datetime.fromisoformat(frozen["end"].replace("Z", "+00:00"))
+as_of = datetime.fromisoformat(report["as_of"])
+assert end - start == timedelta(hours=72)
+assert as_of > end + timedelta(seconds=frozen["capture_tail_seconds"])
+denominator = int((end - start).total_seconds()) // frozen["evaluation_seconds"]
+assert denominator == frozen["slots_per_symbol"] == 25920
+assert report["protocol_hash"] == proof["protocol_hash"] == audit["protocol_hash"]
+assert proof["journal_root"] == audit["journal_root"] == report["hash_chain_root"]
+assert report["full_payload_verification"] is True
+assert proof["contiguous_frames_verified"] == report["raw_frames_verified"] == 1688284
+assert proof["durable_native_quotes"] == audit["native_book_updates_independently_replayed"] == 1632695
+assert proof["journal_chunks_verified"] == audit["journal_chunks_verified"] == 168121
+assert proof["transaction_read_only"] == "on" and proof["production_writes"] == 0
+assert proof["database_statement_counts"]["mutation_attempts_denied"] == 0
+assert proof["source_hashes"] == frozen["source_hashes"]
+assert proof["current_safety_guard"]["verified"]
+guard = proof["current_safety_guard"]["evidence"]
+assert guard["trading_authorization"] == "expired" and guard["model_state"] == "no_support"
+assert guard["positions"] == guard["open_orders"] == guard["order_attempts"] == 0
+assert proof["first_failed_confirmation"]["unchanged"]
+assert not proof["final_quality_present"] and not proof["closed_final_counters_certified"]
+assert not report["clean_integrity"] and not report["raw_frame_counter_consistent"]
+assert proof["durable_frames_after_last_quality"] == 1747
+assert proof["durable_quotes_after_last_quality"] == 1658
+assert proof["last_quality"]["durable_frames_at_quality"] == proof["last_quality"]["counts"]["frames"]
+assert proof["last_quality"]["durable_quotes_at_quality"] == proof["last_quality"]["counts"]["checksum_valid_quotes"]
+
+blocks = {(row["block"], row["symbol"]): row for row in report["blocks"]}
+symbols = ("BTC/USD", "ETH/USD")
+summary = {}
+for symbol in symbols:
+    overall = blocks["overall", symbol]
+    six = [blocks[f"6h:{number:02d}", symbol] for number in range(12)]
+    days = [
+        blocks[f"utc_day:{(start + timedelta(days=number)).date().isoformat()}", symbol]
+        for number in range(3)
+    ]
+    assert all(row["scheduled"] == row["matured"] == 2160 for row in six)
+    assert all(row["scheduled"] == row["matured"] == 8640 for row in days)
+    assert overall["scheduled"] == overall["matured"] == denominator
+    assert overall["not_yet_mature"] == 0
+    for field in ("scheduled", "matured", "complete", "labels_written", "missing_label_records"):
+        assert sum(row[field] for row in six) == overall[field]
+        assert sum(row[field] for row in days) == overall[field]
+        assert blocks["weekday", symbol][field] + blocks["weekend", symbol][field] == overall[field]
+    assert overall["complete"] == proof["original_complete_labels"][symbol] == audit["original_complete"][symbol]
+    assert overall["labels_written"] == proof["primary_outcomes_written"][symbol] == 5394
+    assert proof["evaluations_written"][symbol] == 5401
+    assert overall["missing_label_records"] == denominator - 5394 == 20526
+    assert overall["missed_scheduled_slots"] == 45
+    failures = dict(audit["failure_buckets"][symbol])
+    pre_stop_unwritten = failures.pop("EVALUATION_PRESENT_OUTCOME_UNWRITTEN_AT_PROCESS_LOSS")
+    assert pre_stop_unwritten == 7
+    assert sum(failures.values()) == overall["labels_written"] - overall["complete"]
+    fraction = Decimal(overall["complete"]) / Decimal(denominator)
+    assert abs(Decimal(str(overall["coverage"])) - fraction) < Decimal("1e-15")
+    summary[symbol] = {
+        "scheduled_and_mature": denominator,
+        "complete_original_labels": overall["complete"],
+        "coverage_percent": str(fraction * 100),
+        "written_rejected_labels": overall["labels_written"] - overall["complete"],
+        "unwritten_mature_outcomes": overall["missing_label_records"],
+        "existing_evaluation_unwritten_outcome_at_stall": pre_stop_unwritten,
+        "absent_evaluations_after_coordinator_stall": denominator - 5401,
+        "written_rejected_mutually_exclusive_buckets": failures,
+        "original_endpoint_reason_counts_may_overlap": overall["reasons"],
+    }
+
+verdict = {
+    "schema": "fixed-confirmation-closeout-verdict-v1",
+    "study_id": frozen["study_id"], "protocol_hash": report["protocol_hash"],
+    "source_commit": frozen["code_sha"],
+    "window_start": frozen["start"], "window_end": frozen["end"],
+    "capture_tail_end": (end + timedelta(seconds=frozen["capture_tail_seconds"])).isoformat(),
+    "status_as_of": report["as_of"],
+    "state": report["state"], "decision": report["decision"],
+    "decision_reasons": [
+        "The original receiver failed with lease expiry and did not resume.",
+        "Both full fixed-denominator mature primary-label coverages are below 95%.",
+        "No drained quality:final record or successful terminal seal exists.",
+        "True final-counter agreement therefore cannot be certified; historical gates remain unchanged.",
+    ],
+    "per_symbol": summary,
+    "all_fixed_blocks_independently_verified": True,
+    "raw_payload_hash_chain_and_frame_ids_verified": True,
+    "prior_all_native_book_replay_root_unchanged": True,
+    "closed_final_counters_certified": False,
+    "last_quality_snapshot_matches_its_own_durable_prefix": True,
+    "frames_after_last_quality_snapshot": 1747,
+    "quotes_after_last_quality_snapshot": 1658,
+    "post_process_loss_missingness_is_not_upstream_availability_evidence": True,
+    "current_broker_guard_verified_get_only": True,
+    "first_failed_confirmation_and_original_paused_v1_preserved": True,
+    "zero_database_or_trading_mutations": True,
+    "trading_authorization": "expired", "model_state": "no_support",
+    "new_study_or_research_v2_started": False,
+    "venue_account_eligibility_and_actual_fees_verified": False,
+    "next_permitted_decision": "Source/execution feasibility and unmet PostgreSQL endurance/account-cost validation only; no automatic replacement study, strategy optimization or promotion.",
+}
+ARCHIVE.mkdir(parents=True, exist_ok=True)
+for filename, value in (
+    ("final-status-readback.json", report),
+    ("immutable-journal-and-safety-proof.json", proof),
+    ("closeout-verdict.json", verdict),
+):
+    (ARCHIVE / filename).write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+(ARCHIVE / "fixed-blocks.json").write_text(json.dumps(report["blocks"], indent=2) + "\n", encoding="utf-8")
+receipt = json.loads((ROOT / "confirmation-v2-final-closeout-completed-job.json").read_text())
+(ARCHIVE / "read-only-job-receipt.json").write_text(
+    json.dumps({key: receipt.get(key) for key in (
+        "id", "status", "createdAt", "startedAt", "finishedAt"
+    )}, indent=2) + "\n", encoding="utf-8",
+)
+manifest = {
+    p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+    for p in sorted(ARCHIVE.glob("*.json"))
+}
+(ARCHIVE / "artifact-hashes.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+print(json.dumps({"verified": True, "decision": verdict["decision"], "per_symbol": summary}, indent=2))

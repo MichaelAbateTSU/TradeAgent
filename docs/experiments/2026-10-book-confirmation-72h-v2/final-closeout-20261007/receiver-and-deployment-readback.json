@@ -1,0 +1,16 @@
+{
+  "actions": "GET_ONLY",
+  "service": {
+    "id": "srv-dae4tr7qj5pc73a9e0k0",
+    "autoDeploy": "no",
+    "suspended": "not_suspended"
+  },
+  "checked_at": "2026-10-07T00:25:27.1293154Z",
+  "receiver": {
+    "id": "job-db0p1ovavr4c738nlkg0",
+    "status": "failed",
+    "createdAt": "2026-10-03T23:33:55.843981Z",
+    "startedAt": "2026-10-03T23:33:55Z",
+    "finishedAt": "2026-10-04T15:01:39Z"
+  }
+}

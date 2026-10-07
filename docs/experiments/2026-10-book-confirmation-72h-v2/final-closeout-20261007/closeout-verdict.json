@@ -1,0 +1,80 @@
+{
+  "schema": "fixed-confirmation-closeout-verdict-v1",
+  "study_id": "kraken-book-confirmation-v2",
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "source_commit": "d5578551e4bb675675b567f9219f4079c85c89af",
+  "window_start": "2026-10-04T00:00:00Z",
+  "window_end": "2026-10-07T00:00:00Z",
+  "capture_tail_end": "2026-10-07T00:01:15+00:00",
+  "status_as_of": "2026-10-07T00:12:11.635646+00:00",
+  "state": "failed_incomplete_process_lost_no_restart",
+  "decision": "NO_GO",
+  "decision_reasons": [
+    "The original receiver failed with lease expiry and did not resume.",
+    "Both full fixed-denominator mature primary-label coverages are below 95%.",
+    "No drained quality:final record or successful terminal seal exists.",
+    "True final-counter agreement therefore cannot be certified; historical gates remain unchanged."
+  ],
+  "per_symbol": {
+    "BTC/USD": {
+      "scheduled_and_mature": 25920,
+      "complete_original_labels": 4616,
+      "coverage_percent": "17.80864197530864197530864198",
+      "written_rejected_labels": 778,
+      "unwritten_mature_outcomes": 20526,
+      "existing_evaluation_unwritten_outcome_at_stall": 7,
+      "absent_evaluations_after_coordinator_stall": 20519,
+      "written_rejected_mutually_exclusive_buckets": {
+        "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 648,
+        "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 69,
+        "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 12,
+        "DECLARED_MISSED_SCHEDULED_EVALUATION": 45,
+        "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4
+      },
+      "original_endpoint_reason_counts_may_overlap": {
+        "DECISION_QUOTE_STALE_OR_MISSING": 430,
+        "HORIZON_QUOTE_STALE_OR_MISSING": 388,
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE": 12,
+        "OVERDUE_UNWRITTEN_LABEL": 20526
+      }
+    },
+    "ETH/USD": {
+      "scheduled_and_mature": 25920,
+      "complete_original_labels": 4689,
+      "coverage_percent": "18.09027777777777777777777778",
+      "written_rejected_labels": 705,
+      "unwritten_mature_outcomes": 20526,
+      "existing_evaluation_unwritten_outcome_at_stall": 7,
+      "absent_evaluations_after_coordinator_stall": 20519,
+      "written_rejected_mutually_exclusive_buckets": {
+        "GENUINELY_INSUFFICIENT_BEST_SIDE_NOTIONAL": 226,
+        "NO_FRESH_NATIVE_BOOK_UPDATE_UNDER_FROZEN_CLOCK": 402,
+        "FRESH_PROVIDER_TIME_QUOTE_RECEIVED_AFTER_CUTOFF": 28,
+        "DECLARED_MISSED_SCHEDULED_EVALUATION": 45,
+        "FRESH_STORED_QUOTE_MISSED_OR_OLDER_QUOTE_SELECTED": 4
+      },
+      "original_endpoint_reason_counts_may_overlap": {
+        "DECISION_QUOTE_STALE_OR_MISSING": 270,
+        "HORIZON_QUOTE_STALE_OR_MISSING": 229,
+        "INSUFFICIENT_DISPLAYED_LONG_SIZE": 226,
+        "OVERDUE_UNWRITTEN_LABEL": 20526
+      }
+    }
+  },
+  "all_fixed_blocks_independently_verified": true,
+  "raw_payload_hash_chain_and_frame_ids_verified": true,
+  "prior_all_native_book_replay_root_unchanged": true,
+  "closed_final_counters_certified": false,
+  "last_quality_snapshot_matches_its_own_durable_prefix": true,
+  "frames_after_last_quality_snapshot": 1747,
+  "quotes_after_last_quality_snapshot": 1658,
+  "post_process_loss_missingness_is_not_upstream_availability_evidence": true,
+  "current_broker_guard_verified_get_only": true,
+  "first_failed_confirmation_and_original_paused_v1_preserved": true,
+  "zero_database_or_trading_mutations": true,
+  "trading_authorization": "expired",
+  "model_state": "no_support",
+  "new_study_or_research_v2_started": false,
+  "venue_account_eligibility_and_actual_fees_verified": false,
+  "next_permitted_decision": "Source/execution feasibility and unmet PostgreSQL endurance/account-cost validation only; no automatic replacement study, strategy optimization or promotion."
+}

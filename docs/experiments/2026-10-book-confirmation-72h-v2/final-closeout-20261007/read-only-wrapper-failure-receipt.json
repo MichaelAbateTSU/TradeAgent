@@ -1,0 +1,13 @@
+{
+  "id": "job-db2oreui0phs738q8leg",
+  "status": "pending",
+  "createdAt": "2026-10-07T00:09:31.598974841Z",
+  "startedAt": null,
+  "finishedAt": null,
+  "observed_terminal_status": "failed",
+  "failure_phase": "module import before database initialization",
+  "exception": "ImportError: validate_guard belongs to frozen runtime, not store module",
+  "production_writes": 0,
+  "claim_created": false,
+  "scope": "operational wrapper only"
+}

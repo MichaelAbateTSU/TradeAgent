@@ -1,0 +1,160 @@
+import contextlib
+import io
+import json
+import sys
+from datetime import UTC, datetime
+
+import httpx
+from sqlalchemy import event
+
+import tradeagent.kraken_confirmation_runtime as runtime
+from tradeagent.config import AppConfig
+from tradeagent.kraken_confirmation import ConfirmationStore
+from tradeagent.persistence import Database
+
+STUDY = "kraken-book-confirmation-v2"
+EXPECTED_PROTOCOL = "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a"
+EXPECTED_ROOT = "54782507ee32d1d6a4c4b80561aa9d045975c96f6ddc0f8bf5aec3d3a8f03ab2"
+EXPECTED_OLD_PROTOCOL = "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982"
+EXPECTED_OLD_ROOT = "1ec4d51937c9761c3f5692c643d8431861cbeefa2ebfb8412865f04fe776b463"
+STATEMENTS = {"reads": 0, "mutation_attempts_denied": 0}
+
+
+class ReadOnlyDatabase(Database):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.engine = self.engine.execution_options(postgresql_readonly=True)
+
+        @event.listens_for(self.engine, "connect")
+        def enforce_read_only(connection, _):
+            with connection.cursor() as cursor:
+                cursor.execute("SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY")
+            connection.commit()
+
+        @event.listens_for(self.engine, "before_cursor_execute")
+        def deny_mutation(_, __, statement, ___, ____, _____):
+            verb = statement.lstrip().split(None, 1)[0].upper()
+            if verb not in ("SELECT", "SHOW", "SET"):
+                STATEMENTS["mutation_attempts_denied"] += 1
+                raise RuntimeError("closeout_production_mutation_denied")
+            STATEMENTS["reads"] += 1
+
+
+runtime.Database = ReadOnlyDatabase
+sys.argv = [
+    "kraken_confirmation_runtime", "status", "--verify", "--study-id", STUDY
+]
+status_output = io.StringIO()
+with contextlib.redirect_stdout(status_output):
+    runtime.main()
+report = json.loads(status_output.getvalue())
+if report["protocol_hash"] != EXPECTED_PROTOCOL:
+    raise ValueError("closeout protocol identity changed")
+print("CLOSEOUT_STATUS=" + json.dumps(report, sort_keys=True), flush=True)
+
+with ReadOnlyDatabase(AppConfig().database_url.get_secret_value(), pool_size=2) as db:
+    with db.begin() as connection:
+        read_only = connection.exec_driver_sql("SHOW transaction_read_only").scalar_one()
+        if read_only != "on":
+            raise RuntimeError("production transaction is not read-only")
+    store = ConfirmationStore(db, "read-only-closeout", study_id=STUDY)
+    protocol = store.load_protocol()
+    frames = quotes = 0
+    evaluations = {"BTC/USD": set(), "ETH/USD": set()}
+    labels = {"BTC/USD": set(), "ETH/USD": set()}
+    complete = {"BTC/USD": 0, "ETH/USD": 0}
+    last = None
+    quality = None
+    final_quality = None
+    maximum_capture_ns = 0
+    for header, payload in store.chunks(verify_payloads=True):
+        last = header
+        if header.kind == "capture":
+            for evidence in payload["records"]:
+                value = evidence["payload"]
+                if value["frame_id"] != frames + 1:
+                    raise ValueError("closeout raw frame gap or duplicate")
+                frames += 1
+                quotes += len(value["quotes"])
+                maximum_capture_ns = max(maximum_capture_ns, value["accepted_ns"])
+        elif header.kind in ("evaluation", "label"):
+            for evidence in payload["records"]:
+                value = evidence["payload"]
+                evaluation = value if header.kind == "evaluation" else value["evaluation"]
+                symbol, slot = evaluation["symbol"], evaluation["slot"]
+                target = evaluations if header.kind == "evaluation" else labels
+                if slot in target[symbol]:
+                    raise ValueError("duplicate closeout evaluation or label")
+                target[symbol].add(slot)
+                if header.kind == "label":
+                    complete[symbol] += int(value["eligibility"]["complete"])
+        elif header.kind == "quality":
+            quality = {
+                "sequence": header.sequence, "key": header.key,
+                "at_ns": header.at_ns, "counts": payload["counts"],
+                "durable_frames_at_quality": frames,
+                "durable_quotes_at_quality": quotes,
+            }
+            if header.key == "quality:final":
+                final_quality = quality
+    if last is None or quality is None or last.chain_hash != EXPECTED_ROOT:
+        raise ValueError("closeout immutable journal root or quality proof changed")
+    if quality["durable_frames_at_quality"] > quality["counts"]["frames"]:
+        raise ValueError("quality counter is smaller than its already-durable prefix")
+    old = ConfirmationStore(db, "read-only-closeout", study_id="kraken-book-confirmation-v1")
+    old_protocol = old.load_protocol()
+    old_last = None
+    old_chunks = 0
+    for old_header, _ in old.chunks(verify_payloads=True):
+        old_last = old_header
+        old_chunks += 1
+    if (
+        old_protocol.identity != EXPECTED_OLD_PROTOCOL
+        or old_last is None
+        or old_last.chain_hash != EXPECTED_OLD_ROOT
+        or old_chunks != 3
+    ):
+        raise ValueError("first failed confirmation evidence changed")
+    current_guard = {"verified": False}
+    try:
+        guard = runtime.observer_guard(db, protocol)()
+        runtime.validate_guard(guard, protocol)
+        current_guard = {"verified": True, "evidence": guard.model_dump(mode="json")}
+    except (httpx.HTTPError, RuntimeError, ValueError) as error:
+        current_guard = {
+            "verified": False, "exception_class": type(error).__name__,
+            "consequence": "Current broker safety proof unavailable; no safety or trading approval.",
+        }
+    print("CLOSEOUT_PROOF=" + json.dumps({
+        "schema": "fixed-confirmation-readonly-closeout-v1",
+        "checked_at": datetime.now(UTC).isoformat(),
+        "read_only": True, "transaction_read_only": read_only,
+        "database_statement_counts": STATEMENTS, "production_writes": 0,
+        "source_hashes": [value.model_dump(mode="json") for value in runtime.source_digests()],
+        "protocol_hash": protocol.identity,
+        "journal_chunks_verified": last.sequence + 1,
+        "journal_root": last.chain_hash,
+        "contiguous_frames_verified": frames,
+        "durable_native_quotes": quotes,
+        "last_captured_ns": maximum_capture_ns,
+        "evaluations_written": {s: len(v) for s, v in evaluations.items()},
+        "primary_outcomes_written": {s: len(v) for s, v in labels.items()},
+        "original_complete_labels": complete,
+        "last_quality": quality,
+        "final_quality_present": final_quality is not None,
+        "closed_final_counters_certified": (
+            final_quality is not None
+            and final_quality["counts"]["frames"] == frames
+            and final_quality["counts"]["checksum_valid_quotes"] == quotes
+        ),
+        "durable_frames_after_last_quality": frames - quality["counts"]["frames"],
+        "durable_quotes_after_last_quality": quotes - quality["counts"]["checksum_valid_quotes"],
+        "first_failed_confirmation": {
+            "protocol_hash": old_protocol.identity, "journal_chunks": old_chunks,
+            "journal_root": old_last.chain_hash, "unchanged": True,
+        },
+        "current_safety_guard": current_guard,
+        "orders_submitted": 0, "claims_created": 0,
+        "historical_protocols_or_evidence_changed": False,
+        "prior_full_native_replay_matches_current_immutable_root": True,
+    }, sort_keys=True), flush=True)

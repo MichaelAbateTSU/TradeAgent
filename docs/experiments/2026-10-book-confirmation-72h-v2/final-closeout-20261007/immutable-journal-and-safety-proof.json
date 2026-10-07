@@ -1,0 +1,111 @@
+{
+  "checked_at": "2026-10-07T00:21:42.231757+00:00",
+  "claims_created": 0,
+  "closed_final_counters_certified": false,
+  "contiguous_frames_verified": 1688284,
+  "current_safety_guard": {
+    "evidence": {
+      "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+      "authorization_renewed": false,
+      "broker_order_records_since_freeze": 0,
+      "checked_ns": 1791332501729145000,
+      "guard_version": 2,
+      "model_state": "no_support",
+      "open_orders": 0,
+      "order_attempts": 0,
+      "paper_host": "https://paper-api.alpaca.markets",
+      "positions": 0,
+      "preserved_v1": {
+        "authenticated": false,
+        "automatic_rearm": false,
+        "feed_state": "stopped",
+        "protocol_changed": false,
+        "protocol_hash": "b408f5444145d5e8dfe40751c7eb1f9b2bb4b1bda64736f941406f6be7fe8ab5",
+        "reason": "BROKER_SAFETY_MONITOR_UNAVAILABLE",
+        "state": "paused_invalid",
+        "stop_control_sha256": "b5e4e4348054ec0d8f97df2b4d186e406ad8603c38a3eb276ec5c27fa0a94d7e",
+        "subscribed": false
+      },
+      "read_methods": [
+        "GET"
+      ],
+      "trading_authorization": "expired",
+      "v1_connection_id": "1bb1b7ef-06e8-4c44-9d0b-086ce2298122",
+      "v1_owner_id": "srv-dae4tr7qj5pc73a9e0k0-6467cc5744-4txxf",
+      "v1_runtime_sha": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b"
+    },
+    "verified": true
+  },
+  "database_statement_counts": {
+    "mutation_attempts_denied": 0,
+    "reads": 126176
+  },
+  "durable_frames_after_last_quality": 1747,
+  "durable_native_quotes": 1632695,
+  "durable_quotes_after_last_quality": 1658,
+  "evaluations_written": {
+    "BTC/USD": 5401,
+    "ETH/USD": 5401
+  },
+  "final_quality_present": false,
+  "first_failed_confirmation": {
+    "journal_chunks": 3,
+    "journal_root": "1ec4d51937c9761c3f5692c643d8431861cbeefa2ebfb8412865f04fe776b463",
+    "protocol_hash": "4a232f3b8ad5e1a02db909f4cae86cc90f6ea25e01578491cab8f5e3839dc982",
+    "unchanged": true
+  },
+  "historical_protocols_or_evidence_changed": false,
+  "journal_chunks_verified": 168121,
+  "journal_root": "54782507ee32d1d6a4c4b80561aa9d045975c96f6ddc0f8bf5aec3d3a8f03ab2",
+  "last_captured_ns": 1791126083264074307,
+  "last_quality": {
+    "at_ns": 1791125993492911506,
+    "counts": {
+      "book_messages": 1631037,
+      "checksum_checks": 1631037,
+      "checksum_valid_quotes": 1631037,
+      "connections": 1,
+      "duplicate_book_states": 1,
+      "equal_provider_timestamps": 262485,
+      "frames": 1686537,
+      "subscription_acknowledgments": 2
+    },
+    "durable_frames_at_quality": 1686537,
+    "durable_quotes_at_quality": 1631037,
+    "key": "quality:1791125993324025240",
+    "sequence": 167895
+  },
+  "orders_submitted": 0,
+  "original_complete_labels": {
+    "BTC/USD": 4616,
+    "ETH/USD": 4689
+  },
+  "primary_outcomes_written": {
+    "BTC/USD": 5394,
+    "ETH/USD": 5394
+  },
+  "prior_full_native_replay_matches_current_immutable_root": true,
+  "production_writes": 0,
+  "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+  "read_only": true,
+  "schema": "fixed-confirmation-readonly-closeout-v1",
+  "source_hashes": [
+    {
+      "name": "kraken_confirmation.py",
+      "sha256": "bdbdd8dd4eef171fbcc49910ecda743bc4a6bd7d1d11626444157d7ad1404591"
+    },
+    {
+      "name": "kraken_confirmation_book.py",
+      "sha256": "8c380681bcfe8b5abf353c36d0b3788b96717912eb6153d2131423a9881d81ca"
+    },
+    {
+      "name": "kraken_confirmation_report.py",
+      "sha256": "4ed8182d5eca5858902d7a6437fa725ca73e4ea03bdac56ef8d85c2f33646f97"
+    },
+    {
+      "name": "kraken_confirmation_runtime.py",
+      "sha256": "f2a8570d340da49e044c41272b1e4ce5d57a1c80f64d06849e029259aa393dd9"
+    }
+  ],
+  "transaction_read_only": "on"
+}
