@@ -20,6 +20,17 @@ Every source must independently satisfy the unchanged two-symbol full frozen
 grid/95% gate, closed integrity, same-venue execution validation, account
 eligibility, actual account fee schedule and additional friction evidence.
 Public/configured rates can produce discovery-only hurdles, never cost readiness.
+BUY treatment must be explicit: ``base_inventory`` withholds credited base;
+``quote_added`` adds the entry fee to quote-currency cash outlay. Account readiness
+requires independently approved confirmed fee-currency records for both legs and
+both frozen symbols. Preferences (including quote BUY/base SELL Kraken defaults)
+are not confirmed settlement currency. Only quote-withheld cash SELL fees are
+modeled; base-fee SELLs and unknown treatment have no numeric frontier. Fee-net
+return bases must identify the same embedded treatments without double charging.
+Net targets/outputs use all-in entry capital. Nonembedded friction must explicitly
+declare ``all_in_entry_capital`` or ``entry_trade_notional``; the latter is divided
+by the quote-added BUY capital multiplier before comparison. Missing units block
+a full frontier and account readiness, never silently defaulting to either basis.
 Even qualified evidence allows only considering offline research; model_ready,
 trading_allowed and profitability_claim remain false. No fitting, optimization,
 broker client, persistence, artifact replacement, or actual fee defaults.
@@ -48,7 +59,10 @@ from pydantic import (
     model_validator,
 )
 
-from tradeagent.scalping_cost_math import long_cash_return_bps
+from tradeagent.scalping_cost_math import (
+    long_cash_return_bps,
+    long_quote_funded_cash_return_bps,
+)
 
 NS = 1_000_000_000
 SLOTS: Literal[25920] = 25920
@@ -62,6 +76,11 @@ Count = Annotated[int, Field(ge=0, le=SLOTS)]
 Venue = Literal["kraken", "alpaca_paper"]
 Symbol = Literal["BTC/USD", "ETH/USD"]
 ReturnBasis = Literal["raw_ask_to_bid", "entry_fee_net_ask_to_bid", "cash_net_ask_to_bid"]
+EntryCharge = Literal["base_inventory", "quote_added", "unknown"]
+ExitCharge = Literal["cash", "base_inventory", "unknown"]
+FeePreference = Literal["quote", "base", "unknown"]
+FeeCurrencyEvidence = Literal["confirmed_fill_fee_records", "preference_only", "unknown"]
+FrictionBasis = Literal["all_in_entry_capital", "entry_trade_notional", "unknown"]
 Role = Literal[
     "source_auditor", "execution_auditor", "account_provider", "fee_provider", "friction_auditor"
 ]
@@ -196,6 +215,8 @@ class ExecutionRelationship(Frozen):
     supporting_records_sha256: Digest
     validated_return_basis: ReturnBasis
     fee_embedding_records_sha256: Digest | None
+    embedded_entry_charge: EntryCharge | None = None
+    embedded_exit_charge: ExitCharge | None = None
     verified_entry_liquidity: Literal["maker", "taker", "unconfirmed"]
     verified_at_ns: Clock
 
@@ -219,8 +240,16 @@ class FeeSchedule(Frozen):
     scope: Literal["account_specific", "public_tier", "configured_model", "unknown"]
     maker_bps: Annotated[Decimal, Field(ge=0, lt=10000)] | None
     taker_bps: Annotated[Decimal, Field(ge=0, lt=10000)] | None
-    entry_charge: Literal["base_inventory"]
-    exit_charge: Literal["cash"]
+    entry_charge: EntryCharge | None
+    entry_preference: FeePreference | None = None
+    exit_preference: FeePreference | None = None
+    entry_charge_evidence_sha256: Digest | None = None
+    entry_charge_evidence_kind: FeeCurrencyEvidence | None = None
+    entry_charge_symbols: tuple[Literal["BTC/USD"], Literal["ETH/USD"]] | None = None
+    exit_charge: ExitCharge | None
+    exit_charge_evidence_sha256: Digest | None = None
+    exit_charge_evidence_kind: FeeCurrencyEvidence | None = None
+    exit_charge_symbols: tuple[Literal["BTC/USD"], Literal["ETH/USD"]] | None = None
     effective_from_ns: Clock
     effective_until_ns: Clock
 
@@ -238,6 +267,7 @@ class AdditionalFriction(Frozen):
     source_quality_sha256: Digest
     basis: ReturnBasis
     residual_bps: Annotated[Decimal, Field(ge=0, le=10000)]
+    residual_basis: FrictionBasis | None = None
     covers: tuple[Literal["slippage"], Literal["impact"], Literal["adverse_selection"]]
     methodology: Literal["independently_validated_nonembedded_allowance"]
     supporting_records_sha256: Digest
@@ -282,9 +312,12 @@ class CostScenario(Frozen):
     entry_liquidity: Literal["maker_verified", "taker", "unconfirmed_worst_rate"]
     entry_fee_bps: Annotated[Decimal, Field(ge=0, lt=10000)] | None
     exit_fee_bps: Annotated[Decimal, Field(ge=0, lt=10000)] | None
-    entry_charge: Literal["base_inventory"]
-    exit_charge: Literal["cash"]
+    entry_charge: EntryCharge | None
+    exit_charge: ExitCharge | None
+    entry_preference: FeePreference | None = None
+    exit_preference: FeePreference | None = None
     residual_nonembedded_bps: Annotated[Decimal, Field(ge=0, le=10000)] | None
+    residual_basis: FrictionBasis | None = None
     target_net_bps: Annotated[Decimal, Field(ge=0, le=10000)]
     observed_basis_return_bps: Annotated[Decimal, Field(gt=-10000, le=100000)] | None
 
@@ -362,10 +395,21 @@ class ReadinessEnvelope(Frozen):
 
 class HurdleDiagnostic(Frozen):
     scenario_id: Name
+    entry_charge: EntryCharge | None
+    exit_charge: ExitCharge | None
+    entry_preference: FeePreference | None
+    exit_preference: FeePreference | None
+    residual_basis: FrictionBasis | None
+    net_return_basis: Literal["all_in_entry_capital"] = "all_in_entry_capital"
     discovery_only: Literal[True] = True
     profitability_claim: Literal[False] = False
     status: Literal[
-        "hypothetical_full_cost_frontier", "unknown_nonembedded_friction", "unknown_fees"
+        "hypothetical_full_cost_frontier",
+        "unknown_nonembedded_friction",
+        "unknown_fees",
+        "unknown_entry_fee_treatment",
+        "unknown_exit_fee_treatment",
+        "unsupported_exit_base_fee_treatment",
     ]
     required_basis_return_bps: str | None
     required_raw_ask_to_bid_return_bps: str | None
@@ -388,9 +432,48 @@ def _rounded_fraction(value: Fraction, *, upward: bool = False) -> str:
 
 def cost_hurdle(scenario: CostScenario) -> HurdleDiagnostic:
     scenario = CostScenario.model_validate_json(scenario.model_dump_json())
+    if scenario.exit_charge != "cash":
+        return HurdleDiagnostic(
+            scenario_id=scenario.scenario_id,
+            entry_charge=scenario.entry_charge,
+            exit_charge=scenario.exit_charge,
+            entry_preference=scenario.entry_preference,
+            exit_preference=scenario.exit_preference,
+            residual_basis=scenario.residual_basis,
+            status=(
+                "unsupported_exit_base_fee_treatment"
+                if scenario.exit_charge == "base_inventory"
+                else "unknown_exit_fee_treatment"
+            ),
+            required_basis_return_bps=None,
+            required_raw_ask_to_bid_return_bps=None,
+            fees_only_raw_floor_bps=None,
+            net_at_observed_basis_return_bps=None,
+            observed_target_satisfied_exactly=None,
+        )
+    if scenario.entry_charge is None or scenario.entry_charge == "unknown":
+        return HurdleDiagnostic(
+            scenario_id=scenario.scenario_id,
+            entry_charge=scenario.entry_charge,
+            exit_charge=scenario.exit_charge,
+            entry_preference=scenario.entry_preference,
+            exit_preference=scenario.exit_preference,
+            residual_basis=scenario.residual_basis,
+            status="unknown_entry_fee_treatment",
+            required_basis_return_bps=None,
+            required_raw_ask_to_bid_return_bps=None,
+            fees_only_raw_floor_bps=None,
+            net_at_observed_basis_return_bps=None,
+            observed_target_satisfied_exactly=None,
+        )
     if scenario.entry_fee_bps is None or scenario.exit_fee_bps is None:
         return HurdleDiagnostic(
             scenario_id=scenario.scenario_id,
+            entry_charge=scenario.entry_charge,
+            exit_charge=scenario.exit_charge,
+            entry_preference=scenario.entry_preference,
+            exit_preference=scenario.exit_preference,
+            residual_basis=scenario.residual_basis,
             status="unknown_fees",
             required_basis_return_bps=None,
             required_raw_ask_to_bid_return_bps=None,
@@ -400,7 +483,8 @@ def cost_hurdle(scenario: CostScenario) -> HurdleDiagnostic:
         )
     entry = Fraction(scenario.entry_fee_bps) / 10000
     exit_fee = Fraction(scenario.exit_fee_bps) / 10000
-    raw_factor = (1 - entry) * (1 - exit_fee)
+    entry_factor = 1 - entry if scenario.entry_charge == "base_inventory" else 1 / (1 + entry)
+    raw_factor = entry_factor * (1 - exit_fee)
     fee_floor = (1 / raw_factor - 1) * 10000
     basis_factor = (
         raw_factor
@@ -410,9 +494,14 @@ def cost_hurdle(scenario: CostScenario) -> HurdleDiagnostic:
         else Fraction(1)
     )
     residual = scenario.residual_nonembedded_bps
-    if residual is None:
+    if residual is None or scenario.residual_basis in (None, "unknown"):
         return HurdleDiagnostic(
             scenario_id=scenario.scenario_id,
+            entry_charge=scenario.entry_charge,
+            exit_charge=scenario.exit_charge,
+            entry_preference=scenario.entry_preference,
+            exit_preference=scenario.exit_preference,
+            residual_basis=scenario.residual_basis,
             status="unknown_nonembedded_friction",
             required_basis_return_bps=None,
             required_raw_ask_to_bid_return_bps=None,
@@ -420,16 +509,21 @@ def cost_hurdle(scenario: CostScenario) -> HurdleDiagnostic:
             net_at_observed_basis_return_bps=None,
             observed_target_satisfied_exactly=None,
         )
-    target_plus_cost = Fraction(scenario.target_net_bps) + Fraction(residual)
+    capital_multiplier = 1 + entry if scenario.entry_charge == "quote_added" else Fraction(1)
+    normalized_residual = (
+        Fraction(residual) / capital_multiplier
+        if scenario.residual_basis == "entry_trade_notional"
+        else Fraction(residual)
+    )
+    target_plus_cost = Fraction(scenario.target_net_bps) + normalized_residual
     required = 1 + target_plus_cost / 10000
     observed = scenario.observed_basis_return_bps
     exact_net = (
-        ((1 + Fraction(observed) / 10000) * basis_factor - 1) * 10000 - Fraction(residual)
+        ((1 + Fraction(observed) / 10000) * basis_factor - 1) * 10000 - normalized_residual
         if observed is not None
         else None
     )
-    # Reuse the research arithmetic while retaining exact rational comparison at
-    # a hurdle: a rounded display must never turn a below-target input into a pass.
+    # Rational comparison prevents rounded displays from passing a below-target input.
     net_display: str | None = None
     if observed is not None:
         with localcontext(Context(prec=64, rounding=ROUND_HALF_EVEN)):
@@ -439,16 +533,26 @@ def cost_hurdle(scenario: CostScenario) -> HurdleDiagnostic:
             applied_exit = (
                 scenario.exit_fee_bps if scenario.basis != "cash_net_ask_to_bid" else Decimal(0)
             )
+            cash_return = (
+                long_cash_return_bps
+                if scenario.entry_charge == "base_inventory"
+                else long_quote_funded_cash_return_bps
+            )
             net_display = str(
-                long_cash_return_bps(
+                cash_return(
                     1 + observed / 10000,
                     applied_entry,
                     applied_exit,
                 )
-                - residual
+                - Decimal(normalized_residual.numerator) / Decimal(normalized_residual.denominator)
             )
     return HurdleDiagnostic(
         scenario_id=scenario.scenario_id,
+        entry_charge=scenario.entry_charge,
+        exit_charge=scenario.exit_charge,
+        entry_preference=scenario.entry_preference,
+        exit_preference=scenario.exit_preference,
+        residual_basis=scenario.residual_basis,
         status="hypothetical_full_cost_frontier",
         required_basis_return_bps=_rounded_fraction(
             (required / basis_factor - 1) * 10000, upward=True
@@ -502,6 +606,9 @@ class ReadinessReport(Frozen):
         "Hashes/approved manifests establish identity and declared trust, not external truth.",
         "This gate is not training, economic validation, executable orders or promotion.",
         "Public/configured fees do not establish account-specific rates or eligibility.",
+        "Both legs need approved confirmed fee-currency evidence; preferences are not proof.",
+        "Base-fee SELL settlement is unsupported, not treated as a quote-cash deduction.",
+        "Friction needs declared units; net outputs/targets use all-in entry capital.",
         "Ask-to-bid returns embed spread; passive orders do not establish maker fills.",
     )
 
@@ -663,6 +770,24 @@ def evaluate_readiness(
                 or fees.effective_until_ns < max(contract.end_ns, envelope.assessed_at_ns)
             ):
                 reasons.append("ACCOUNT_SPECIFIC_FEES_UNPROVEN")
+            if not isinstance(fees, FeeSchedule) or (
+                fees.entry_charge is None
+                or fees.entry_charge == "unknown"
+                or fees.entry_charge_evidence_sha256 is None
+                or fees.entry_charge_evidence_kind != "confirmed_fill_fee_records"
+                or fees.entry_charge_symbols != contract.symbols
+            ):
+                reasons.append("ENTRY_FEE_TREATMENT_UNPROVEN")
+            if not isinstance(fees, FeeSchedule) or (
+                fees.exit_charge is None
+                or fees.exit_charge == "unknown"
+                or fees.exit_charge_evidence_sha256 is None
+                or fees.exit_charge_evidence_kind != "confirmed_fill_fee_records"
+                or fees.exit_charge_symbols != contract.symbols
+            ):
+                reasons.append("EXIT_FEE_TREATMENT_UNPROVEN")
+            if isinstance(fees, FeeSchedule) and fees.exit_charge == "base_inventory":
+                reasons.append("EXIT_BASE_FEE_TREATMENT_UNSUPPORTED")
         if (
             scenario is None
             or scenario.provenance != "account_evidence"
@@ -670,6 +795,16 @@ def evaluate_readiness(
         ):
             reasons.append("COST_SCENARIO_NOT_ACCOUNT_EVIDENCE")
         else:
+            if scenario.entry_charge is None or scenario.entry_charge == "unknown":
+                reasons.append("ENTRY_FEE_TREATMENT_UNPROVEN")
+            elif isinstance(fees, FeeSchedule) and scenario.entry_charge != fees.entry_charge:
+                reasons.append("SCENARIO_ENTRY_FEE_TREATMENT_DIFFERS_FROM_ACCOUNT_EVIDENCE")
+            if scenario.exit_charge is None or scenario.exit_charge == "unknown":
+                reasons.append("EXIT_FEE_TREATMENT_UNPROVEN")
+            elif scenario.exit_charge == "base_inventory":
+                reasons.append("EXIT_BASE_FEE_TREATMENT_UNSUPPORTED")
+            elif isinstance(fees, FeeSchedule) and scenario.exit_charge != fees.exit_charge:
+                reasons.append("SCENARIO_EXIT_FEE_TREATMENT_DIFFERS_FROM_ACCOUNT_EVIDENCE")
             if (
                 isinstance(fees, FeeSchedule)
                 and fees.maker_bps is not None
@@ -696,12 +831,20 @@ def evaluate_readiness(
                 execution.validated_return_basis != scenario.basis
                 or (
                     scenario.basis != "raw_ask_to_bid"
-                    and execution.fee_embedding_records_sha256 is None
+                    and (
+                        execution.fee_embedding_records_sha256 is None
+                        or execution.embedded_entry_charge != scenario.entry_charge
+                        or (
+                            scenario.basis == "cash_net_ask_to_bid"
+                            and execution.embedded_exit_charge != scenario.exit_charge
+                        )
+                    )
                 )
             ):
                 reasons.append("DECLARED_RETURN_BASIS_OR_EMBEDDED_FEE_PROOF_UNSUPPORTED")
             if (
                 scenario.residual_nonembedded_bps is None
+                or scenario.residual_basis in (None, "unknown")
                 or not isinstance(friction, AdditionalFriction)
                 or (
                     friction.execution_venue != envelope.execution_venue
@@ -709,6 +852,7 @@ def evaluate_readiness(
                     or friction.source_quality_sha256 != binding.source_quality_sha256
                     or friction.basis != scenario.basis
                     or friction.residual_bps != scenario.residual_nonembedded_bps
+                    or friction.residual_basis != scenario.residual_basis
                 )
             ):
                 reasons.append("NONEMBEDDED_FRICTION_UNPROVEN")
@@ -876,6 +1020,10 @@ def closeout_example(protocol_bytes: bytes, verdict_bytes: bytes) -> ReadinessRe
             "public_tier_scenario",
             "configured_model_scenario",
         ],
+        entry_charge: EntryCharge,
+        exit_charge: ExitCharge,
+        entry_preference: FeePreference | None,
+        exit_preference: FeePreference | None,
     ) -> CostScenario:
         return CostScenario(
             scenario_id=name,
@@ -885,18 +1033,45 @@ def closeout_example(protocol_bytes: bytes, verdict_bytes: bytes) -> ReadinessRe
             entry_liquidity="unconfirmed_worst_rate",
             entry_fee_bps=Decimal(fee),
             exit_fee_bps=Decimal(fee),
-            entry_charge="base_inventory",
-            exit_charge="cash",
+            entry_charge=entry_charge,
+            exit_charge=exit_charge,
+            entry_preference=entry_preference,
+            exit_preference=exit_preference,
             residual_nonembedded_bps=None,
             target_net_bps=Decimal(0),
             observed_basis_return_bps=None,
         )
 
     scenarios = (
-        scenario("kraken-public-maker-not-account-tier", "kraken", "40", "public_tier_scenario"),
-        scenario("kraken-public-taker-not-account-tier", "kraken", "80", "public_tier_scenario"),
         scenario(
-            "alpaca-configured-not-actual-fees", "alpaca_paper", "25", "configured_model_scenario"
+            "kraken-public-maker-not-account-tier",
+            "kraken",
+            "40",
+            "public_tier_scenario",
+            "quote_added",
+            "unknown",
+            "quote",
+            "base",
+        ),
+        scenario(
+            "kraken-public-taker-not-account-tier",
+            "kraken",
+            "80",
+            "public_tier_scenario",
+            "quote_added",
+            "unknown",
+            "quote",
+            "base",
+        ),
+        scenario(
+            "alpaca-configured-not-actual-fees",
+            "alpaca_paper",
+            "25",
+            "configured_model_scenario",
+            "base_inventory",
+            "cash",
+            None,
+            None,
         ),
     )
     envelope = ReadinessEnvelope(

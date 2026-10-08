@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-10-08T17:30:23.312571+00:00",
+  "active_processes_healthy": true,
+  "operational_findings": [],
+  "active_source": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+  "auto_deploy_disabled": true,
+  "state": "paused_invalid",
+  "model_state": "no_support",
+  "trading_authorization": "expired",
+  "orders_submitted": 0,
+  "feed_state": "stopped",
+  "acquisition": [
+    "GET"
+  ],
+  "production_mutations": 0
+}

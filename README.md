@@ -105,6 +105,9 @@ healthy processes from intentionally suspended roles and preserved failed-study 
 The [offline profitability-readiness gate](docs/SCALPING_PROFITABILITY_READINESS.md)
 checks approved source/execution/account/cost evidence and exact fee hurdles before
 further economic research; it does not fit or promote a model from failed labels.
+The [venue-and-cost investigation](docs/experiments/2026-10-venue-cost-readiness/README.md)
+records current account/fee evidence, alternatives and guarded native-access
+discovery separately from any source-quality or model-profitability claim.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 

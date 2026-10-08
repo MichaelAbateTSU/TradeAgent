@@ -15,3 +15,12 @@ def long_cash_return_bps(
 ) -> Decimal:
     """Raw ask-to-bid ratio, base-inventory entry fee, then cash exit fee."""
     return (price_ratio * (1 - entry_fee_bps / 10000) * (1 - exit_fee_bps / 10000) - 1) * 10000
+
+
+def long_quote_funded_cash_return_bps(
+    price_ratio: Decimal,
+    entry_fee_bps: Decimal,
+    exit_fee_bps: Decimal,
+) -> Decimal:
+    """Quote-added BUY fee increases entry cash outlay without withholding base."""
+    return (price_ratio * (1 - exit_fee_bps / 10000) / (1 + entry_fee_bps / 10000) - 1) * 10000

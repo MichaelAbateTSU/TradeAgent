@@ -1,0 +1,70 @@
+{
+  "schema": "venue-cost-public-evidence-v1",
+  "kraken_fees": {
+    "retrieved_at": "2026-10-08T15:02:22.891998+00:00",
+    "source_url": "https://support.kraken.com/articles/cross-platform-fee-tier-changes",
+    "response_sha256": "7a7c437b230684116d671756f0662360e565c608f28378629a93b9f7d48fd100",
+    "effective_from": "2026-07-09",
+    "method": "GET; independent HTML table parsing",
+    "selected_public_tiers": [
+      {"tier": 1, "volume_threshold_usd": "0", "assets_threshold_usd": null, "maker_percent": "0.40", "taker_percent": "0.80"},
+      {"tier": 2, "volume_threshold_usd": "2500", "assets_threshold_usd": null, "maker_percent": "0.30", "taker_percent": "0.60"},
+      {"tier": 3, "volume_threshold_usd": "10000", "assets_threshold_usd": "20000", "maker_percent": "0.22", "taker_percent": "0.38"}
+    ],
+    "personal_tier_verified": false,
+    "consumer_Kraken_plus_not_API_fee_evidence": true
+  },
+  "kraken_pairs": {
+    "retrieved_at": "2026-10-08T15:02:23.467117+00:00",
+    "endpoint": "https://api.kraken.com/0/public/AssetPairs",
+    "requested_pairs": ["XBTUSD", "ETHUSD"],
+    "BTC/USD": {
+      "rest_identifier": "XBTUSD",
+      "execution_venue": "international",
+      "status": "online",
+      "minimum_base_quantity": "0.00005",
+      "minimum_usd_cost": "0.5",
+      "quantity_decimals": 8,
+      "price_decimals": 1,
+      "price_tick_usd": "0.1",
+      "deprecated_fee_arrays": []
+    },
+    "ETH/USD": {
+      "rest_identifier": "ETHUSD",
+      "execution_venue": "international",
+      "status": "online",
+      "minimum_base_quantity": "0.001",
+      "minimum_usd_cost": "0.5",
+      "quantity_decimals": 8,
+      "price_decimals": 2,
+      "price_tick_usd": "0.01",
+      "deprecated_fee_arrays": []
+    },
+    "personal_pair_access_verified": false,
+    "empty_fee_arrays_mean_zero": false
+  },
+  "fee_currency_evidence": {
+    "alpaca_source": "https://docs.alpaca.markets/us/docs/crypto-fees",
+    "alpaca_buy": "Fee charged in credited base asset",
+    "alpaca_sell": "Fee charged in credited USD",
+    "kraken_rest_source": "https://docs.kraken.com/api-reference/trading/add-order",
+    "kraken_websocket_source": "https://docs.kraken.com/exchange/api-reference/spot-websocket-v2/add_order",
+    "kraken_buy_default_preference": "quote",
+    "kraken_sell_default_preference": "base",
+    "preferences_are_confirmed_personal_charge_currency": false,
+    "interpretation": "Do not transplant Alpaca's base-withheld BUY and USD-withheld SELL convention into Kraken. Both fee legs require explicit supported evidence; defaults/preferences do not certify settlement."
+  },
+  "execution_environment_evidence": {
+    "alpaca_source": "https://docs.alpaca.markets/us/docs/paper-trading",
+    "alpaca_paper": "Real-time simulated quote fills; orders are not routed to a live exchange",
+    "alpaca_paper_exclusions": ["market impact", "latency slippage", "queue position"],
+    "kraken_source": "https://docs.kraken.com/exchange/guides/websockets/introduction",
+    "kraken_primary_and_beta": "Production spot trading engine; beta is not paper",
+    "coinbase_sandbox_source": "https://docs.cdp.coinbase.com/exchange/introduction/sandbox",
+    "coinbase_sandbox": "Separate fake-fund environment, separate keys, subset of order books; functional testing does not establish production execution economics",
+    "private_alternative_account_access_verified": false
+  },
+  "orders_submitted": 0,
+  "accounts_or_keys_created": false,
+  "subscription_or_exchange_migration_performed": false
+}

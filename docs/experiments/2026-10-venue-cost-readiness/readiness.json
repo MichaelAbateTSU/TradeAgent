@@ -1,0 +1,80 @@
+{
+  "schema": "venue-cost-readiness-decision-v1",
+  "decision": "NO_GO",
+  "selected_execution_source": null,
+  "proposed_v2_configuration": null,
+  "all_prerequisites_for_new_observation_freeze_satisfied": false,
+  "completed_checks": {
+    "pinned_paper_account_identity": "VERIFIED",
+    "paper_positions_and_open_orders": 0,
+    "public_pair_minima_and_fees": "VERIFIED_PUBLIC_FACTS_NOT_PERSONAL_EXECUTION_ENTITLEMENT",
+    "historical_paper_fee_activity_pagination": "COMPLETE_BOUNDED_READ_NO_SYNTHESIZED_ORDER_ATTRIBUTION",
+    "documented_alpaca_individual_native_access": "PASS_SEQUENTIAL_BOUNDED_DISCOVERY",
+    "actual_postgresql_row_lock_fencing_pool_concurrency": "PASS_BOUNDED_LOCAL_SYNTHETIC_INTEGRATION",
+    "fee_treatment_assumptions": "CORRECTED_EXPLICIT_BOTH_LEG_EVIDENCE_REQUIRED",
+    "alternative_execution_environments": "AUTHORITATIVE_DOCUMENTATION_REVIEWED_NO_ACCOUNT_MIGRATION"
+  },
+  "unresolved_requirements": [
+    {
+      "requirement": "Alpaca paper fill-reference quote location and corresponding accessible feed",
+      "status": "UNPROVEN",
+      "needed_evidence": "Authoritative provider clarification specific enough to bind the pinned paper account's BTC/USD and ETH/USD fill reference; successful data authentication is not routing proof"
+    },
+    {
+      "requirement": "Personal Kraken or alternative venue eligibility and actual account fees",
+      "status": "UNPROVEN",
+      "needed_evidence": "An existing eligible account, approved read-only account/pair fee evidence and legal-entity/product-access proof; no keys, accounts, payments or trading permissions are created automatically"
+    },
+    {
+      "requirement": "Confirmed entry and exit fee settlement and nonembedded friction",
+      "status": "UNPROVEN",
+      "needed_evidence": "Independently approved both-symbol, both-leg charge evidence with explicit cash/base and embedding treatment plus explicit friction basis; order preferences are not confirmed charges"
+    },
+    {
+      "requirement": "Unchanged two-symbol mature-label coverage gate",
+      "status": "NO_PASSING_VENUE_MATCHED_CANDIDATE",
+      "needed_evidence": "Justified predeclared prospective source test, unchanged 2-second provider/receive freshness, displayed-side notional, cadence, horizon and full mature denominator, independently at least 95% for BTC and ETH"
+    },
+    {
+      "requirement": "Production-specific collector endurance and capacity",
+      "status": "NOT_CERTIFIED_BY_LOCAL_POSTGRES_SMOKE",
+      "needed_evidence": "Declared endurance/capacity and relevant production configuration validation before a formal receiver claim; no failed historical receiver is resumed"
+    }
+  ],
+  "preserved_observation_contract": {
+    "symbols": ["BTC/USD", "ETH/USD"],
+    "cadence_seconds": 10,
+    "primary_horizon_seconds": 60,
+    "settlement_seconds": 2,
+    "provider_and_receive_freshness_seconds": 2,
+    "displayed_side_notional_usd": "10.25",
+    "minimum_mature_coverage_percent_per_symbol": 95,
+    "denominator": "all scheduled mature evaluations"
+  },
+  "original_failed_confirmation": {
+    "protocol_hash": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+    "btc_complete": 4616,
+    "eth_complete": 4689,
+    "mature_denominator_per_symbol": 25920,
+    "unwritten_outcomes_per_symbol": 20526,
+    "historical_labels_or_denominator_changed": false,
+    "post_process_loss_missingness_is_upstream_inactivity": false
+  },
+  "subsequent_work": {
+    "new_source_quality_study_started": false,
+    "new_model_research_dataset_started": false,
+    "model_training_or_promotion_performed": false,
+    "strategy_revised": false,
+    "chronological_edge_or_profitability_validation": "BLOCKED_UNTIL_MEASUREMENT_AND_EXECUTION_COST_PREREQUISITES_PASS",
+    "paper_or_live_trading_authorized": false
+  },
+  "safety": {
+    "original_v1_and_failed_confirmations_preserved": true,
+    "trading_authorization": "expired",
+    "model_state": "no_support",
+    "orders_submitted": 0,
+    "production_restarted_or_redeployed": false,
+    "support_inquiry_sent": false
+  },
+  "interpretation": "Completed infrastructure/evidence checks do not create a profitable model or permission to advance through failed gates. Remaining external account/provider and source-quality requirements are explicit blockers, not assumptions."
+}

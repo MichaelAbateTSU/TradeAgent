@@ -1,0 +1,32 @@
+{
+  "scope": "Only four validated source files and new dossier text artifacts",
+  "reason": "Windows core.autocrlf=true otherwise makes captured working bytes differ from published Git LF blobs",
+  "sources": [
+    {
+      "path": "infra\\render\\crypto_access_probe.py",
+      "original_validated_sha256": "86775e287ea9055a10d031129c243c876be30e1117276f9d64d5370971491449",
+      "lf_repository_sha256": "5771674c9c40bc2cdfaa4e606c4f495d9b896021b21b90a7c1209ee42d55a65f",
+      "ast_identical": true
+    },
+    {
+      "path": "src\\tradeagent\\kraken_confirmation_pg_validation.py",
+      "original_validated_sha256": "93835cd7f7bd7ed54b2f9622801fe96cf41d9bb81672bb034d35ba7ad0e65863",
+      "lf_repository_sha256": "82ee3448777fe89b6160a9c68cace5b5988da5e3f83d027645eaef0462927ce7",
+      "ast_identical": true
+    },
+    {
+      "path": "src\\tradeagent\\scalping_cost_math.py",
+      "original_validated_sha256": "54af4013e2ae7c54c865820baa6ed068deeea6c27f66cc5366acd3060b90195e",
+      "lf_repository_sha256": "8c4c3750eafa59c0e14903863d7b6e203df9a5fbcc9b8a4839106fea60f90578",
+      "ast_identical": true
+    },
+    {
+      "path": "src\\tradeagent\\scalping_profitability_readiness.py",
+      "original_validated_sha256": "c266661e5c4b02bb141534ec9cdeec189e42b5c4bef80aaaa23669704754c780",
+      "lf_repository_sha256": "597cec4e6215df68b6bc360db42dfd9c374dd8940fa7372c982679dccb2297e8",
+      "ast_identical": true
+    }
+  ],
+  "historical_capture_source_hashes_preserved": true,
+  "historical_studies_or_user_files_normalized": false
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "venue-cost-readiness-artifact-manifest-v1",
+  "created_at": "2026-10-08T17:36:13.351426+00:00",
+  "files": {
+    ".gitattributes": "35afe1b296fa96ddaab26e1e97c4d4147b8bfe6eecb56663873c7bfbddbf374e",
+    "access-evidence.json": "c5110db2dd7e443c077b27a33d56f5c6b0c3d7cc7df13eebd482d70b22b6166b",
+    "access-native-frames.jsonl.gz": "e3e70f079a2dd4f408caf6fa708a23dae48ba0b392b3570489a09cee5175afb1",
+    "account-and-fee-evidence.json": "f382ab32cbcbea71352fab092dea579fec4dc6dc4a804f91e75746876692a9d7",
+    "final-safety-readback.json": "12a178c605aa36c74df3cedf88c352cd69f69676b05cafe92c49a4e33bdf1ea5",
+    "postgres-independent-verification.json": "9940e5e683c7f13c70646977344217c9cb78ddb314428b8e98ca9ea59e02a7b6",
+    "postgres-preflight-failure.json": "bafdd897866826e9c7c9f0b5e39515c1a2bc5e516a783a3b7e3a0c7d9998acdd",
+    "postgres-validation.json": "9af06badd034d53acae6a16420b4170c60b72c8d85c5aabacb5844f3b1dc64e4",
+    "profitability-readiness.json": "49efa448218c30560c2c13360178e22986b0bb9b63da3c5cb3b2af006f42d1e6",
+    "public-venue-evidence.json": "37a0f5dfe7bf7acf9a103f485ff4860ff9eb27dab755cc3fd168bda8e4842714",
+    "readiness.json": "b5ce1bb982eddeb91a2a9e81cf99a7a70d98007a6b204d0cae636efd2fc47832",
+    "README.md": "45d6fa401d80c86c1060a744e2c9f11b9f20ac22c02c9b420ac3f301012ba6aa",
+    "scratch-cleanup.json": "66a891c014d2e0e1bc0f521de5b59287393e21a24b98fc141d5e10d62bc87492",
+    "source-line-ending-verification.json": "5648eb88c4dcf9a13dc30377989f66fd76f792707aa1d313dac55bd50831dd5b",
+    "validation.json": "1ca6865a7bd85c0808a82f1bd97de3c0346c02d672b2cc1534ce694699f8c06f"
+  },
+  "source_files": {
+    "infra\\render\\crypto_access_probe.py": "5771674c9c40bc2cdfaa4e606c4f495d9b896021b21b90a7c1209ee42d55a65f",
+    "src\\tradeagent\\kraken_confirmation_pg_validation.py": "82ee3448777fe89b6160a9c68cace5b5988da5e3f83d027645eaef0462927ce7",
+    "src\\tradeagent\\scalping_cost_math.py": "8c4c3750eafa59c0e14903863d7b6e203df9a5fbcc9b8a4839106fea60f90578",
+    "src\\tradeagent\\scalping_profitability_readiness.py": "597cec4e6215df68b6bc360db42dfd9c374dd8940fa7372c982679dccb2297e8"
+  },
+  "source_line_endings": "LF; original CRLF capture/test identities are preserved in source-line-ending-verification.json"
+}

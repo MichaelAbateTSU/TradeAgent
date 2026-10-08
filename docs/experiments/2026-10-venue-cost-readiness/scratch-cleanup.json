@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-10-08T17:30:22.285653+00:00",
+  "specific_owned_container_removed": true,
+  "anonymous_scratch_volumes_removed": true,
+  "post_full_suite_owned_schemas_absent": true,
+  "post_full_suite_external_witness_unchanged": true,
+  "host_bind_mounts": 0,
+  "production_resources_stopped_or_deleted": 0,
+  "other_containers_or_volumes_modified": 0
+}

@@ -11,7 +11,11 @@ import pytest
 from pydantic import ValidationError
 
 import tradeagent.scalping_profitability_readiness as readiness
-from tradeagent.scalping_cost_math import long_cash_return_bps, retained_base_quantity
+from tradeagent.scalping_cost_math import (
+    long_cash_return_bps,
+    long_quote_funded_cash_return_bps,
+    retained_base_quantity,
+)
 from tradeagent.scalping_profitability_readiness import (
     NS,
     SLOTS,
@@ -45,6 +49,7 @@ def scenario(**changes: object) -> CostScenario:
         "entry_charge": "base_inventory",
         "exit_charge": "cash",
         "residual_nonembedded_bps": "2",
+        "residual_basis": "all_in_entry_capital",
         "target_net_bps": "0",
         "observed_basis_return_bps": "200",
     }
@@ -130,6 +135,8 @@ def qualified(
         supporting_records_sha256="e" * 64,
         validated_return_basis=cost.basis,
         fee_embedding_records_sha256=None,
+        embedded_entry_charge=cost.entry_charge if cost.basis != "raw_ask_to_bid" else None,
+        embedded_exit_charge=cost.exit_charge if cost.basis == "cash_net_ask_to_bid" else None,
         verified_entry_liquidity="unconfirmed",
         verified_at_ns=fixed.end_ns + 75 * NS,
     )
@@ -151,8 +158,14 @@ def qualified(
         scope="account_specific",
         maker_bps=Decimal(40),
         taker_bps=Decimal(80),
-        entry_charge="base_inventory",
-        exit_charge="cash",
+        entry_charge=cost.entry_charge,
+        entry_charge_evidence_sha256="9" * 64,
+        entry_charge_evidence_kind="confirmed_fill_fee_records",
+        entry_charge_symbols=("BTC/USD", "ETH/USD"),
+        exit_charge=cost.exit_charge,
+        exit_charge_evidence_sha256="8" * 64,
+        exit_charge_evidence_kind="confirmed_fill_fee_records",
+        exit_charge_symbols=("BTC/USD", "ETH/USD"),
         effective_from_ns=fixed.start_ns,
         effective_until_ns=fixed.end_ns + 3600 * NS,
     )
@@ -164,6 +177,7 @@ def qualified(
         source_quality_sha256=quality.identity,
         basis=cost.basis,
         residual_bps=Decimal(2),
+        residual_basis=cost.residual_basis,
         covers=("slippage", "impact", "adverse_selection"),
         methodology="independently_validated_nonembedded_allowance",
         supporting_records_sha256="f" * 64,
@@ -331,6 +345,43 @@ def test_maturity_denominator_cannot_be_reported_as_observed_or_partial_slice() 
         ("fee_schedule", {"scope": "public_tier"}, "ACCOUNT_SPECIFIC_FEES_UNPROVEN"),
         ("fee_schedule", {"scope": "configured_model"}, "ACCOUNT_SPECIFIC_FEES_UNPROVEN"),
         ("fee_schedule", {"maker_bps": None}, "ACCOUNT_SPECIFIC_FEES_UNPROVEN"),
+        ("fee_schedule", {"scope": "unknown"}, "ACCOUNT_SPECIFIC_FEES_UNPROVEN"),
+        ("fee_schedule", {"entry_charge": None}, "ENTRY_FEE_TREATMENT_UNPROVEN"),
+        ("fee_schedule", {"entry_charge": "unknown"}, "ENTRY_FEE_TREATMENT_UNPROVEN"),
+        (
+            "fee_schedule",
+            {"entry_charge_evidence_sha256": None},
+            "ENTRY_FEE_TREATMENT_UNPROVEN",
+        ),
+        ("fee_schedule", {"entry_charge_symbols": None}, "ENTRY_FEE_TREATMENT_UNPROVEN"),
+        (
+            "fee_schedule",
+            {"entry_charge_evidence_kind": "preference_only"},
+            "ENTRY_FEE_TREATMENT_UNPROVEN",
+        ),
+        ("fee_schedule", {"exit_charge": None}, "EXIT_FEE_TREATMENT_UNPROVEN"),
+        ("fee_schedule", {"exit_charge": "unknown"}, "EXIT_FEE_TREATMENT_UNPROVEN"),
+        (
+            "fee_schedule",
+            {"exit_charge_evidence_sha256": None},
+            "EXIT_FEE_TREATMENT_UNPROVEN",
+        ),
+        ("fee_schedule", {"exit_charge_symbols": None}, "EXIT_FEE_TREATMENT_UNPROVEN"),
+        (
+            "fee_schedule",
+            {"exit_charge_evidence_kind": "preference_only"},
+            "EXIT_FEE_TREATMENT_UNPROVEN",
+        ),
+        (
+            "fee_schedule",
+            {"exit_charge": "base_inventory"},
+            "EXIT_BASE_FEE_TREATMENT_UNSUPPORTED",
+        ),
+        (
+            "fee_schedule",
+            {"entry_charge": "quote_added"},
+            "SCENARIO_ENTRY_FEE_TREATMENT_DIFFERS_FROM_ACCOUNT_EVIDENCE",
+        ),
         ("fee_schedule", {"entry_charge": "cash"}, None),
         (
             "execution_relationship",
@@ -353,6 +404,13 @@ def test_maturity_denominator_cannot_be_reported_as_observed_or_partial_slice() 
             "SOURCE_EXECUTION_RELATIONSHIP_UNPROVEN",
         ),
         ("additional_friction", {"residual_bps": "0"}, "NONEMBEDDED_FRICTION_UNPROVEN"),
+        ("additional_friction", {"residual_basis": None}, "NONEMBEDDED_FRICTION_UNPROVEN"),
+        ("additional_friction", {"residual_basis": "unknown"}, "NONEMBEDDED_FRICTION_UNPROVEN"),
+        (
+            "additional_friction",
+            {"residual_basis": "entry_trade_notional"},
+            "NONEMBEDDED_FRICTION_UNPROVEN",
+        ),
     ],
 )
 def test_unknown_or_mismatching_evidence_fails_closed(
@@ -520,6 +578,332 @@ def test_entry_inventory_and_cash_fee_net_bases_are_not_double_charged() -> None
         scenario(fees_bps="160")  # Aggregate additive fees cannot silently replace both legs.
 
 
+@pytest.mark.parametrize("charge", ["base_inventory", "quote_added"])
+def test_entry_treatment_has_distinct_exact_hurdles_and_net_returns(charge: str) -> None:
+    cost = scenario(
+        entry_charge=charge,
+        entry_fee_bps="1000",
+        exit_fee_bps="2000",
+        residual_nonembedded_bps="0",
+        observed_basis_return_bps="1000",
+    )
+    result = cost_hurdle(cost)
+    factor = Fraction(9, 10) * Fraction(4, 5) if charge == "base_inventory" else Fraction(8, 11)
+    expected = (1 / factor - 1) * 10000
+    assert result.entry_charge == charge and result.required_raw_ask_to_bid_return_bps is not None
+    shown = Fraction(Decimal(result.required_raw_ask_to_bid_return_bps))
+    assert shown >= expected and shown - expected < Fraction(1, 10**55)
+    assert result.net_at_observed_basis_return_bps is not None
+    assert Decimal(result.net_at_observed_basis_return_bps) == Decimal(
+        "-2080" if charge == "base_inventory" else "-2000",
+    )
+    other = cost_hurdle(
+        scenario(
+            entry_charge="quote_added" if charge == "base_inventory" else "base_inventory",
+            entry_fee_bps="1000",
+            exit_fee_bps="2000",
+            residual_nonembedded_bps="0",
+        )
+    )
+    assert result.required_raw_ask_to_bid_return_bps != other.required_raw_ask_to_bid_return_bps
+    assert not result.spread_charged_again
+    assert long_quote_funded_cash_return_bps(
+        Decimal("1.1"),
+        Decimal(1000),
+        Decimal(2000),
+    ) == Decimal(-2000)
+    assert long_cash_return_bps(
+        Decimal("1.1"),
+        Decimal(1000),
+        Decimal(2000),
+    ) == Decimal(-2080)
+
+
+@pytest.mark.parametrize("charge", ["base_inventory", "quote_added"])
+def test_raw_entry_net_cash_net_apply_each_declared_fee_once(charge: str) -> None:
+    expected_net = "-2080" if charge == "base_inventory" else "-2000"
+    rows = [
+        scenario(
+            entry_charge=charge,
+            entry_fee_bps="1000",
+            exit_fee_bps="2000",
+            residual_nonembedded_bps="0",
+            basis=basis,
+            observed_basis_return_bps=observed,
+        )
+        for basis, observed in (
+            ("raw_ask_to_bid", "1000"),
+            ("entry_fee_net_ask_to_bid", "-100" if charge == "base_inventory" else "0"),
+            ("cash_net_ask_to_bid", expected_net),
+        )
+    ]
+    results = [cost_hurdle(row) for row in rows]
+    assert all(
+        result.net_at_observed_basis_return_bps is not None
+        and Decimal(result.net_at_observed_basis_return_bps) == Decimal(expected_net)
+        for result in results
+    )
+    assert len({result.required_raw_ask_to_bid_return_bps for result in results}) == 1
+    assert all(result.observed_target_satisfied_exactly is False for result in results)
+
+
+def test_quote_fee_target_uses_exact_cash_outlay_denominator_at_boundary() -> None:
+    cost = scenario(
+        entry_charge="quote_added",
+        entry_fee_bps="1000",
+        exit_fee_bps="2000",
+        residual_nonembedded_bps="0",
+        observed_basis_return_bps="3750",
+    )
+    result = cost_hurdle(cost)
+    assert result.required_raw_ask_to_bid_return_bps == "3750"
+    assert result.net_at_observed_basis_return_bps is not None
+    assert Decimal(result.net_at_observed_basis_return_bps) == 0
+    assert result.observed_target_satisfied_exactly is True
+    below = scenario(
+        entry_charge="quote_added",
+        entry_fee_bps="1000",
+        exit_fee_bps="2000",
+        residual_nonembedded_bps="0",
+        observed_basis_return_bps="3749.99999999999999999999999999",
+    )
+    assert cost_hurdle(below).observed_target_satisfied_exactly is False
+    assert result.discovery_only and not result.profitability_claim
+
+
+@pytest.mark.parametrize("fee", ["40", "80"])
+@pytest.mark.parametrize("charge", ["base_inventory", "quote_added"])
+def test_parent_verified_fee_only_frontiers_keep_distinct_capital_conventions(
+    fee: str,
+    charge: str,
+) -> None:
+    value = Fraction(Decimal(fee)) / 10000
+    ratio = 1 / (1 - value) ** 2 if charge == "base_inventory" else (1 + value) / (1 - value)
+    result = cost_hurdle(
+        scenario(
+            entry_charge=charge,
+            entry_fee_bps=fee,
+            exit_fee_bps=fee,
+            residual_nonembedded_bps="0",
+        )
+    )
+    assert result.required_raw_ask_to_bid_return_bps is not None
+    displayed = Fraction(Decimal(result.required_raw_ask_to_bid_return_bps))
+    expected = (ratio - 1) * 10000
+    assert displayed >= expected and displayed - expected < Fraction(1, 10**55)
+    assert result.net_return_basis == "all_in_entry_capital"
+
+
+@pytest.mark.parametrize(
+    "basis",
+    [
+        "raw_ask_to_bid",
+        "entry_fee_net_ask_to_bid",
+        "cash_net_ask_to_bid",
+    ],
+)
+def test_trade_notional_friction_is_normalized_once_to_quote_added_capital(basis: str) -> None:
+    cost = scenario(
+        entry_charge="quote_added",
+        entry_fee_bps="1000",
+        exit_fee_bps="0",
+        residual_nonembedded_bps="110",
+        residual_basis="entry_trade_notional",
+        basis=basis,
+        observed_basis_return_bps="1000" if basis == "raw_ask_to_bid" else "0",
+    )
+    trade_notional = cost_hurdle(cost)
+    all_in = cost_hurdle(
+        scenario(
+            entry_charge="quote_added",
+            entry_fee_bps="1000",
+            exit_fee_bps="0",
+            residual_nonembedded_bps="100",
+            residual_basis="all_in_entry_capital",
+            basis=basis,
+            observed_basis_return_bps="1000" if basis == "raw_ask_to_bid" else "0",
+        )
+    )
+    assert (
+        trade_notional.required_raw_ask_to_bid_return_bps
+        == all_in.required_raw_ask_to_bid_return_bps
+        == "1110"
+    )
+    assert trade_notional.net_at_observed_basis_return_bps is not None
+    assert Decimal(trade_notional.net_at_observed_basis_return_bps) == Decimal("-100")
+    assert (
+        trade_notional.net_at_observed_basis_return_bps == all_in.net_at_observed_basis_return_bps
+    )
+    wrong_denominator = cost_hurdle(
+        scenario(
+            entry_charge="quote_added",
+            entry_fee_bps="1000",
+            exit_fee_bps="0",
+            residual_nonembedded_bps="110",
+            residual_basis="all_in_entry_capital",
+        )
+    )
+    assert wrong_denominator.required_raw_ask_to_bid_return_bps == "1121"
+
+
+@pytest.mark.parametrize("basis", [None, "unknown"])
+def test_unknown_friction_units_block_numeric_frontier_and_account_readiness(basis: object) -> None:
+    cost = scenario(residual_basis=basis)
+    result = cost_hurdle(cost)
+    assert result.status == "unknown_nonembedded_friction"
+    assert result.required_basis_return_bps is None
+    assert result.net_at_observed_basis_return_bps is None
+    assert result.observed_target_satisfied_exactly is None
+    assert result.fees_only_raw_floor_bps is not None
+    envelope, manifest = qualified(cost=cost)
+    assessment = report(envelope, manifest)
+    assert assessment.decision == "NO_GO"
+    assert "NONEMBEDDED_FRICTION_UNPROVEN" in assessment.sources[0].reasons
+
+
+def test_base_withheld_cash_outlay_has_no_quote_fee_capital_addition_for_friction() -> None:
+    results = [
+        cost_hurdle(scenario(entry_charge="base_inventory", residual_basis=basis))
+        for basis in ("all_in_entry_capital", "entry_trade_notional")
+    ]
+    assert (
+        results[0].required_raw_ask_to_bid_return_bps
+        == results[1].required_raw_ask_to_bid_return_bps
+    )
+    assert (
+        results[0].net_at_observed_basis_return_bps == results[1].net_at_observed_basis_return_bps
+    )
+
+
+@pytest.mark.parametrize("charge", [None, "unknown"])
+def test_unknown_entry_currency_has_no_frontier_or_readiness(charge: object) -> None:
+    cost = scenario(entry_charge=charge)
+    result = cost_hurdle(cost)
+    assert result.status == "unknown_entry_fee_treatment"
+    assert result.required_basis_return_bps is None
+    assert result.required_raw_ask_to_bid_return_bps is None
+    assert result.fees_only_raw_floor_bps is None
+    assert result.net_at_observed_basis_return_bps is None
+    assert result.observed_target_satisfied_exactly is None
+    envelope, manifest = qualified(cost=cost)
+    assessment = report(envelope, manifest)
+    assert assessment.decision == "NO_GO"
+    assert "ENTRY_FEE_TREATMENT_UNPROVEN" in assessment.sources[0].reasons
+
+
+@pytest.mark.parametrize("embedded", [None, "unknown", "base_inventory"])
+def test_fee_net_currency_must_match_approved_embedding_records(embedded: object) -> None:
+    envelope, manifest = qualified(
+        cost=scenario(entry_charge="quote_added", basis="entry_fee_net_ask_to_bid"),
+        change_proof="execution_relationship",
+        changes={
+            "fee_embedding_records_sha256": "1" * 64,
+            "embedded_entry_charge": embedded,
+        },
+    )
+    assessment = report(envelope, manifest)
+    assert assessment.decision == "NO_GO"
+    assert (
+        "DECLARED_RETURN_BASIS_OR_EMBEDDED_FEE_PROOF_UNSUPPORTED" in assessment.sources[0].reasons
+    )
+    envelope, manifest = qualified(
+        cost=scenario(entry_charge="quote_added", basis="entry_fee_net_ask_to_bid"),
+        change_proof="execution_relationship",
+        changes={"fee_embedding_records_sha256": "1" * 64},
+    )
+    assert report(envelope, manifest).decision == "QUALIFIED_FIXTURE_ONLY"
+
+
+def test_explicit_quote_fee_fixture_does_not_approve_public_tiers_or_unproved_currency() -> None:
+    cost = scenario(entry_charge="quote_added")
+    envelope, manifest = qualified(cost=cost)
+    assert report(envelope, manifest).decision == "QUALIFIED_FIXTURE_ONLY"
+    cases: tuple[dict[str, object], ...] = (
+        {"scope": "public_tier"},
+        {"entry_charge_evidence_sha256": None},
+        {"taker_bps": None},
+    )
+    for changes in cases:
+        envelope, manifest = qualified(cost=cost, change_proof="fee_schedule", changes=changes)
+        assert report(envelope, manifest).decision == "NO_GO"
+
+
+def test_omitted_treatment_proof_is_not_legacy_account_approval() -> None:
+    envelope, manifest = qualified()
+    fee = next(row for row in envelope.evidence if isinstance(row, FeeSchedule))
+    old = fee.model_dump(mode="json")
+    del old["entry_charge_evidence_sha256"]
+    del old["entry_charge_symbols"]
+    parsed = FeeSchedule.model_validate_json(json.dumps(old))
+    assert parsed.entry_charge_evidence_sha256 is None and parsed.entry_charge_symbols is None
+    envelope, manifest = qualified(
+        change_proof="fee_schedule",
+        changes={"entry_charge_evidence_sha256": None, "entry_charge_symbols": None},
+    )
+    assert report(envelope, manifest).decision == "NO_GO"
+
+
+@pytest.mark.parametrize("exit_charge", [None, "unknown", "base_inventory"])
+def test_unknown_or_base_fee_sell_is_not_silently_quote_cash(exit_charge: object) -> None:
+    cost = scenario(exit_charge=exit_charge, exit_preference="base")
+    frontier = cost_hurdle(cost)
+    assert frontier.exit_charge == exit_charge and frontier.exit_preference == "base"
+    assert frontier.status == (
+        "unsupported_exit_base_fee_treatment"
+        if exit_charge == "base_inventory"
+        else "unknown_exit_fee_treatment"
+    )
+    assert frontier.required_raw_ask_to_bid_return_bps is None
+    assert frontier.required_basis_return_bps is None
+    assert frontier.fees_only_raw_floor_bps is None
+    assert frontier.net_at_observed_basis_return_bps is None
+    assert frontier.observed_target_satisfied_exactly is None
+    envelope, manifest = qualified(cost=cost)
+    assert report(envelope, manifest).decision == "NO_GO"
+
+
+def test_preferences_do_not_establish_confirmed_fee_currency() -> None:
+    cost = scenario(entry_preference="quote", exit_preference="base")
+    envelope, manifest = qualified(
+        cost=cost,
+        change_proof="fee_schedule",
+        changes={
+            "entry_preference": "quote",
+            "exit_preference": "base",
+            "entry_charge_evidence_kind": "preference_only",
+            "exit_charge_evidence_kind": "preference_only",
+        },
+    )
+    result = report(envelope, manifest)
+    assert result.decision == "NO_GO"
+    assert "ENTRY_FEE_TREATMENT_UNPROVEN" in result.sources[0].reasons
+    assert "EXIT_FEE_TREATMENT_UNPROVEN" in result.sources[0].reasons
+    envelope, manifest = qualified(
+        cost=cost,
+        change_proof="fee_schedule",
+        changes={"entry_preference": "quote", "exit_preference": "base"},
+    )
+    # Preferences are not guarantees; approved actual settlement records control.
+    assert report(envelope, manifest).decision == "QUALIFIED_FIXTURE_ONLY"
+
+
+@pytest.mark.parametrize("embedded_exit", [None, "unknown", "base_inventory"])
+def test_cash_net_sell_leg_requires_matching_confirmed_embedding(
+    embedded_exit: object,
+) -> None:
+    envelope, manifest = qualified(
+        cost=scenario(basis="cash_net_ask_to_bid"),
+        change_proof="execution_relationship",
+        changes={
+            "fee_embedding_records_sha256": "1" * 64,
+            "embedded_exit_charge": embedded_exit,
+        },
+    )
+    result = report(envelope, manifest)
+    assert result.decision == "NO_GO"
+    assert "DECLARED_RETURN_BASIS_OR_EMBEDDED_FEE_PROOF_UNSUPPORTED" in result.sources[0].reasons
+
+
 def test_unknown_fees_and_friction_have_no_success_shaped_zero_defaults() -> None:
     for field in ("entry_fee_bps", "exit_fee_bps"):
         diagnostic = cost_hurdle(scenario(**{field: None}))
@@ -531,8 +915,12 @@ def test_unknown_fees_and_friction_have_no_success_shaped_zero_defaults() -> Non
     assert diagnostic.fees_only_raw_floor_bps is not None
 
 
-def test_hurdle_target_residual_and_exact_comparison_do_not_depend_on_decimal_context() -> None:
+@pytest.mark.parametrize("charge", ["base_inventory", "quote_added"])
+def test_hurdle_target_residual_and_exact_comparison_do_not_depend_on_decimal_context(
+    charge: str,
+) -> None:
     cost = scenario(
+        entry_charge=charge,
         entry_fee_bps="0",
         exit_fee_bps="0",
         target_net_bps="2",
@@ -545,6 +933,7 @@ def test_hurdle_target_residual_and_exact_comparison_do_not_depend_on_decimal_co
     assert (
         cost_hurdle(
             scenario(
+                entry_charge=charge,
                 entry_fee_bps="0",
                 exit_fee_bps="0",
                 target_net_bps="2",
@@ -559,7 +948,7 @@ def test_hurdle_target_residual_and_exact_comparison_do_not_depend_on_decimal_co
         context.rounding = ROUND_DOWN
         context.traps[Inexact] = True
         assert cost_hurdle(cost) == baseline
-        recurring = scenario()
+        recurring = scenario(entry_charge=charge)
         assert cost_hurdle(recurring).required_raw_ask_to_bid_return_bps is not None
 
 
@@ -602,6 +991,16 @@ def test_real_committed_failed_closeout_is_no_go_with_full_missingness() -> None
     assert Decimal(eth.full_mature_primary_percent) < 19
     assert all(row.discovery_only for row in result.cost_frontiers)
     assert all(row.required_basis_return_bps is None for row in result.cost_frontiers)
+    assert tuple(row.entry_charge for row in result.cost_frontiers) == (
+        "quote_added",
+        "quote_added",
+        "base_inventory",
+    )
+    assert tuple(row.exit_charge for row in result.cost_frontiers) == ("unknown", "unknown", "cash")
+    for row in result.cost_frontiers[:2]:
+        assert row.entry_preference == "quote" and row.exit_preference == "base"
+        assert row.status == "unknown_exit_fee_treatment"
+        assert row.fees_only_raw_floor_bps is None
 
 
 def test_deterministic_json_and_input_output_budgets() -> None:

@@ -59,6 +59,30 @@ and labels remain unchanged.
 The [October 8 validation record](releases/2026-10-08-operations-economics.json)
 records the live readback, preserved source pins and completed checks.
 
+## Bounded crypto access discovery
+
+When the exact pinned v1 owner, source, account and stopped connection are
+still preserved, a separate diagnostic can check documented native
+locations without restarting the worker:
+
+```powershell
+python -m infra.render.crypto_access_probe `
+  --output .\research\results\crypto-access-discovery.json
+```
+
+This uses only paper-account GET checks and market-data authentication/
+subscription messages. It opens one diagnostic socket at a time for
+`us-1`, `eu-1` and `us`, with an eight-second receive bound, capture limits
+and safety/identity checks before and after. Only its own sockets close.
+It exports received native payloads and clocks, never sent credentials.
+Changed ownership, source, account, feed or trading containment fails
+closed. It does not submit orders, evaluate labels or create a study.
+
+The [venue-and-cost investigation](experiments/2026-10-venue-cost-readiness/README.md)
+established current individual access to all three locations without
+406 on October 8. That is not proof of simultaneous quotas, the account's
+paper-fill reference, source quality or an upgrade entitlement.
+
 ## Research remains separate
 
 The fixed Kraken confirmation closed **NO-GO**, with BTC at 17.81% and

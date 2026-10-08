@@ -1,0 +1,59 @@
+{
+  "schema": "venue-cost-readiness-validation-v1",
+  "date": "2026-10-08",
+  "base_commit": "f6907c0e73e6a431728b8659acacdb427b92dce5",
+  "full_pytest": {
+    "passed": 2268,
+    "skipped": 2,
+    "warnings": 34,
+    "elapsed_seconds": 617.51,
+    "real_postgresql_integration_opt_in": true,
+    "configuration": {
+      "CONFIRMATION_PG_VALIDATION_OPT_IN": "yes",
+      "CONFIRMATION_PG_SCRATCH_DATABASE": "tradeagent_confirmation_scratch",
+      "CONFIRMATION_PG_SCRATCH_MAJOR_VERSION": "17",
+      "CONFIRMATION_PG_SCRATCH_URL": "Explicit disposable loopback connection supplied only through process environment; credential omitted"
+    }
+  },
+  "ruff": {
+    "scope": "repository",
+    "result": "passed"
+  },
+  "strict_mypy": {
+    "result": "passed",
+    "files_checked": 134,
+    "explicit_package_bases": true,
+    "scope": [
+      "src/tradeagent",
+      "infra/render/agent_health.py",
+      "infra/render/crypto_access_probe.py",
+      "tests/test_crypto_access_probe.py",
+      "tests/test_kraken_confirmation_pg_validation.py",
+      "tests/test_kraken_confirmation_pg_integration.py",
+      "tests/test_scalping_profitability_readiness.py"
+    ]
+  },
+  "release_line_endings": {
+    "reason": "Windows working CRLF versus canonical Git LF byte identities",
+    "historical_capture_and_original_validation_hashes_preserved": true,
+    "source_ast_equivalence_verified": true,
+    "affected_tests_after_lf_normalization_passed": 173,
+    "ruff_after_normalization": "passed",
+    "strict_mypy_after_normalization": "passed; 134 files",
+    "frozen_historical_sources_or_user_files_normalized": false
+  },
+  "independent_checks": {
+    "account_identity_matches_frozen_account": true,
+    "archived_account_minima_and_fee_counts_match_live_readbacks": true,
+    "public_fee_table_independently_parsed": true,
+    "all_documented_locations_authenticated_sequentially": true,
+    "native_frame_hashes_and_quote_counts_reproduced": true,
+    "sent_credentials_not_exported": true,
+    "postgres_populated_external_witness_unchanged": true,
+    "postgres_owned_schema_removal_verified": true,
+    "actual_frozen_closeout_remains_NO_GO": true,
+    "original_research_arithmetic_unchanged": true,
+    "frozen_experiment_paths_unchanged": true
+  },
+  "interpretation": "Passing code and isolated database checks do not certify source feasibility, actual account settlement, production endurance, model support or profitability."
+}

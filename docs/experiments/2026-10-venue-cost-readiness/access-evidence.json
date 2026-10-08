@@ -1,0 +1,65 @@
+{
+  "schema": "alpaca-crypto-bounded-access-v1",
+  "finished_at": "2026-10-08T15:12:18.201019+00:00",
+  "connections": "Sequential; only diagnostic sockets are opened and closed",
+  "account_identity_matches": true,
+  "stopped_guard_unchanged": true,
+  "orders_submitted": 0,
+  "study_started": false,
+  "coverage_calculated": false,
+  "venue_relationship_proven": false,
+  "interpretation": "Authentication and subscription prove bounded data access only. No short sample or absence of 406 proves execution venue, session quota, quote quality, account upgrade entitlement or profitability.",
+  "locations": [
+    {
+      "location": "us-1",
+      "endpoint": "wss://stream.data.alpaca.markets/v1beta3/crypto/us-1",
+      "started_at": "2026-10-08T15:11:49.285691+00:00",
+      "authenticated": true,
+      "subscription_acknowledged": true,
+      "quote_counts": {
+        "BTC/USD": 187,
+        "ETH/USD": 111
+      },
+      "provider_errors": [],
+      "status": "access_observed",
+      "elapsed_seconds": 8.163708199746907
+    },
+    {
+      "location": "eu-1",
+      "endpoint": "wss://stream.data.alpaca.markets/v1beta3/crypto/eu-1",
+      "started_at": "2026-10-08T15:11:59.139185+00:00",
+      "authenticated": true,
+      "subscription_acknowledged": true,
+      "quote_counts": {
+        "BTC/USD": 177,
+        "ETH/USD": 150
+      },
+      "provider_errors": [],
+      "status": "access_observed",
+      "elapsed_seconds": 8.177946999669075
+    },
+    {
+      "location": "us",
+      "endpoint": "wss://stream.data.alpaca.markets/v1beta3/crypto/us",
+      "started_at": "2026-10-08T15:12:08.847569+00:00",
+      "authenticated": true,
+      "subscription_acknowledged": true,
+      "quote_counts": {
+        "BTC/USD": 32,
+        "ETH/USD": 5
+      },
+      "provider_errors": [],
+      "status": "access_observed",
+      "elapsed_seconds": 8.144558699801564
+    }
+  ],
+  "native_archive": {
+    "path": "access-native-frames.jsonl.gz",
+    "compressed_sha256": "e3e70f079a2dd4f408caf6fa708a23dae48ba0b392b3570489a09cee5175afb1",
+    "decoded_sha256": "6e1b1815238994279f1b0237dffa1adbdcebc490b6be65192cf09d1c15a7478c",
+    "frame_count": 642,
+    "independent_quote_counts_verified": true,
+    "scope": "bounded transport access only; no evaluations or mature labels"
+  },
+  "runner_source_sha256": "86775e287ea9055a10d031129c243c876be30e1117276f9d64d5370971491449"
+}

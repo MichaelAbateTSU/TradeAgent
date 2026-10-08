@@ -1,0 +1,11 @@
+{
+  "owned_schema_absent": true,
+  "external_populated_witness_unchanged": true,
+  "public_bind_mounts": 0,
+  "dedicated_scratch_database": "tradeagent_confirmation_scratch",
+  "postgres_report_sha256": "02762102332269b08554393af5ff1dfa74f89f49eb287b83dab9024bcd88ca7f",
+  "validator_source_sha256": "93835cd7f7bd7ed54b2f9622801fe96cf41d9bb81672bb034d35ba7ad0e65863",
+  "production_database_connections": 0,
+  "source_quality_certified": false,
+  "render_endurance_certified": false
+}

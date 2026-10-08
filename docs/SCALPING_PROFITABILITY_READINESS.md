@@ -70,22 +70,48 @@ and separately authorized paper validation remain necessary.
 
 ## Exact economic hurdles
 
-The shared Decimal fee helper preserves the existing research arithmetic.
-An entry fee paid in base coins reduces inventory; an exit cash fee
-reduces sale proceeds. Raw ask-to-bid returns apply both fee legs
-multiplicatively. A return already net of the entry inventory fee applies
-only the exit fee; a cash-net return deducts neither again. Fee embedding
-must be supported by matching execution evidence rather than asserted
-after a losing result.
+The shared Decimal fee helper preserves the existing Alpaca research
+arithmetic. Under that convention, an entry fee paid in base coins
+reduces inventory and an exit cash fee reduces proceeds. Raw ask-to-bid
+returns apply both fee legs multiplicatively. A return already net of
+the entry inventory fee applies only the exit fee; a cash-net return
+deducts neither again. Fee embedding must be supported by matching
+execution evidence rather than asserted after a losing result.
+
+Fee currency cannot be assumed identical across venues. The
+[venue-and-cost investigation](experiments/2026-10-venue-cost-readiness/README.md)
+confirmed that Kraken documents quote preference for BUY and base
+preference for SELL by default. Quote-funded entry capital and inventory
+reserved for base exit fees require different treatment. Preferences
+alone do not certify account settlement; unknown treatment remains a
+blocker, not an implicit reuse of Alpaca's convention.
+
+The current input schema requires `entry_charge` and `exit_charge`.
+An account-specific `FeeSchedule` must independently evidence both legs
+with `entry_charge_evidence_kind` / `exit_charge_evidence_kind` set to
+`confirmed_fill_fee_records`, matching evidence hashes and both BTC/ETH
+symbols. `preference_only` cannot qualify. Fee-net execution evidence
+must also match its embedded entry/exit treatment and approval hashes.
+
+Supported entry treatments are `base_inventory` and `quote_added`;
+supported exit treatment is `cash`. A base-inventory SELL is explicitly
+unsupported pending a validated settlement/quantity model, not silently
+treated as a USD fee. Unknown/unsupported fee treatment produces null
+numeric frontiers. The corrected Kraken default-preference scenarios
+therefore report `unknown_exit_fee_treatment`; their old assumption-based
+floors below are not returned as confirmed current Kraken hurdles.
 
 Ask-to-bid returns already contain the spread: the frontier does not
 charge it again. Residual nonembedded friction is additional
-entry-notional basis points and must be explicit. Unknown friction means
+cost in either explicitly declared `entry_trade_notional` or
+`all_in_entry_capital` basis points; quote-funded entry adjusts that
+denominator rather than blending the bases. Unknown friction means
 the **full-cost hurdle remains unknown**, not zero. Passive order type
 does not prove maker attribution or guarantee a fill.
 
-The real failed-study command reports the following diagnostic fee-only
-floors for raw ask-to-bid gross return:
+The original failed-study review reported the following diagnostic
+fee-only floors under the explicitly assumed Alpaca-style base-withheld
+entry and quote-withheld exit convention:
 
 | Scenario, not a verified personal tier | Fee-only break-even floor |
 |---|---:|
@@ -98,6 +124,12 @@ nonembedded friction are unverified; the actual output therefore retains
 `unknown_nonembedded_friction` and null full-cost hurdle/expected-net
 values. Public fee scenarios do not certify current rates, personal
 eligibility or live execution.
+
+In particular, the Kraken rows are historical convention-based
+scenarios, not confirmed Kraken settlement. Preserve those archived
+results and consult the additive investigation for supported treatment
+and current evidence; do not rewrite old outputs with a different
+charge basis.
 
 ## Actual result and decision
 

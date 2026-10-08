@@ -1,0 +1,80 @@
+{
+  "schema": "venue-cost-account-evidence-v1",
+  "account_checked_at": "2026-10-08T15:00:59.260340+00:00",
+  "acquisition_methods": ["GET"],
+  "account_endpoint": "https://paper-api.alpaca.markets",
+  "account_digest": "b3ddf697092ad516c7e68024af06916f7c5dc921c8dfd44ff35ea6618b44947f",
+  "account_identity_matches_frozen_account": true,
+  "paper_account": {
+    "status": "ACTIVE",
+    "crypto_status": "ACTIVE",
+    "crypto_tier": 1,
+    "currency": "USD",
+    "trading_blocked": false,
+    "account_blocked": false,
+    "positions": 0,
+    "open_orders": 0
+  },
+  "account_routing_fields_returned": {},
+  "paper_fill_reference_location_verified": false,
+  "live_account_or_jurisdiction_eligibility_verified": false,
+  "assets": {
+    "BTC/USD": {
+      "class": "crypto",
+      "exchange": "CRYPTO",
+      "tradable": true,
+      "min_order_size_base": "0.000012032",
+      "min_trade_increment_base": "0.000000001",
+      "price_increment_usd": "0.000000001",
+      "marginable": false,
+      "shortable": false
+    },
+    "ETH/USD": {
+      "class": "crypto",
+      "exchange": "CRYPTO",
+      "tradable": true,
+      "min_order_size_base": "0.0003877",
+      "min_trade_increment_base": "0.000000001",
+      "price_increment_usd": "0.000000001",
+      "marginable": false,
+      "shortable": false
+    }
+  },
+  "fee_receipts": {
+    "checked_at": "2026-10-08T15:03:44.847358+00:00",
+    "window_start": "2026-09-08T15:03:44.847358+00:00",
+    "window_end": "2026-10-08T15:03:44.847358+00:00",
+    "maximum_pages_per_type": 10,
+    "page_size": 100,
+    "CFEE": {
+      "records": 181,
+      "pages": 2,
+      "pagination_complete": true,
+      "btc_symbol_records": 69,
+      "eth_symbol_records": 24,
+      "symbol_unattributed_records": 88,
+      "cash_net_amount_usd": "-15.34",
+      "explicit_order_id_records": 0
+    },
+    "FEE": {
+      "records": 0,
+      "pages": 1,
+      "pagination_complete": true
+    },
+    "current_per_order_fee_rate_verified": false,
+    "interpretation": "Historical paper receipts demonstrate cash and base charges. They are not a current account fee schedule, order-level attribution or live fee proof; no pairing is synthesized from date, price or quantity."
+  },
+  "kraken_credential_inventory": {
+    "inspected_scopes": ["process environment", "Windows user environment", "repository .env"],
+    "configured_credentials_found": false,
+    "credentials_or_accounts_created": false,
+    "authenticated_TradeVolume_called": false,
+    "personal_account_eligibility_verified": false,
+    "personal_fee_rate_verified": false,
+    "interpretation": "This inventory does not prove that the user has no Kraken account elsewhere."
+  },
+  "account_configuration_changed": false,
+  "orders_submitted": 0,
+  "trading_authorization": "unchanged; expired",
+  "model_state": "unchanged; no_support"
+}

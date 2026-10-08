@@ -9,3 +9,7 @@ src/tradeagent/kraken_confirmation.py text eol=lf
 src/tradeagent/kraken_confirmation_book.py text eol=lf
 src/tradeagent/kraken_confirmation_report.py text eol=lf
 src/tradeagent/kraken_confirmation_runtime.py text eol=lf
+src/tradeagent/kraken_confirmation_pg_validation.py text eol=lf
+src/tradeagent/scalping_cost_math.py text eol=lf
+src/tradeagent/scalping_profitability_readiness.py text eol=lf
+infra/render/crypto_access_probe.py text eol=lf
