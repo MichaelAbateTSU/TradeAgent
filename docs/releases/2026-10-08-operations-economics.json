@@ -1,0 +1,56 @@
+{
+  "schema": "tradeagent-operations-economics-validation-v1",
+  "date": "2026-10-08",
+  "base_commit": "aeeb69184a8b06a903ad1b2d0e6a097e7e8b49af",
+  "scope": "Operator diagnostics and offline economic-research prerequisites; no production restart or strategy promotion",
+  "render_readback": {
+    "observed_at": "2026-10-08T01:48:25.982375-04:00",
+    "acquisition": "GET only",
+    "active_services": ["event", "dashboard", "notifier"],
+    "active_deployment_commit": "94e80ec1e75390a284bb0dbe89f38977a3a5dd1b",
+    "active_processes_healthy": true,
+    "recorder": "Explicitly suspended by hosting; stale heartbeat is not an active process crash",
+    "automatic_deploys": "Disabled for all four inspected services",
+    "operational_findings": [],
+    "production_restarted_or_redeployed": false
+  },
+  "failed_confirmation_readiness": {
+    "protocol_sha256": "e05f3c559cfc3841c8492500aeebdecbcb2812e0b2f4bc743c549ee9ed560f3a",
+    "decision": "NO_GO",
+    "btc_completed": 4616,
+    "eth_completed": 4689,
+    "mature_denominator_per_symbol": 25920,
+    "unwritten_mature_outcomes_per_symbol": 20526,
+    "offline_research_ready": false,
+    "model_ready": false,
+    "trading_allowed": false,
+    "profitability_claim": false,
+    "full_cost_hurdle": null,
+    "cost_evidence": "Historical public and configured fee scenarios are discovery-only; nonembedded friction and personal fee tier are unverified"
+  },
+  "validation": {
+    "full_pytest_passed": 2155,
+    "full_pytest_skipped": 2,
+    "full_pytest_warnings": 34,
+    "render_targeted_tests_passed": 30,
+    "economic_targeted_tests_passed": 61,
+    "ruff": "Passed repository-wide",
+    "strict_mypy": "Passed src/tradeagent and infra/render/agent_health.py; 128 source files",
+    "live_role_diagnostic": "Passed with explicit Windows user-scoped credential selection",
+    "actual_frozen_closeout_cli": "Returned NO_GO with all readiness, trading and profit flags false"
+  },
+  "preserved": {
+    "failed_studies_and_frozen_protocols": true,
+    "trading_authorization": "expired",
+    "model_state": "no_support",
+    "replacement_collection_started": false,
+    "orders_submitted_by_this_work": 0
+  },
+  "remaining_prerequisites": [
+    "Complete independently validated fixed-window source-quality evidence",
+    "Defensible observation-source and execution-venue relationship",
+    "Personal account and jurisdiction eligibility",
+    "Verified account fees and nonembedded execution friction",
+    "Chronological out-of-sample economic support and separately authorized paper execution validation"
+  ]
+}

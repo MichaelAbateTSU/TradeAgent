@@ -21,6 +21,7 @@ from sqlalchemy import select
 
 from tradeagent.persistence import Database, events
 from tradeagent.scalping_config import ScalpingConfig, ScalpQuote
+from tradeagent.scalping_cost_math import long_cash_return_bps, retained_base_quantity
 from tradeagent.scalping_market import NS, MarketEvent, _Book, datetime_ns
 from tradeagent.scalping_store import canonical, scalping_market_batches, scalping_runs, utc
 
@@ -325,8 +326,9 @@ def analyze_signals(
             if entry.continuity_id != current.continuity_id:
                 reasons.append("LOCAL_CONTINUITY_CHANGED")
             if current.quote is not None and entry.quote is not None:
-                retained_quantity = (
-                    policy.notional_usd / entry.quote.ask * (1 - policy.entry_fee_bps / 10000)
+                retained_quantity = retained_base_quantity(
+                    policy.notional_usd / entry.quote.ask,
+                    policy.entry_fee_bps,
                 )
                 if current.quote.bid_size < retained_quantity:
                     reasons.append("INSUFFICIENT_OBSERVED_EXIT_SIZE")
@@ -367,13 +369,7 @@ def analyze_signals(
             price_ratio = current.quote.bid / entry.quote.ask
             gross = float((price_ratio - 1) * 10000)
             net = float(
-                (
-                    price_ratio
-                    * (1 - policy.entry_fee_bps / 10000)
-                    * (1 - policy.exit_fee_bps / 10000)
-                    - 1
-                )
-                * 10000
+                long_cash_return_bps(price_ratio, policy.entry_fee_bps, policy.exit_fee_bps)
             )
         rows.append(
             {

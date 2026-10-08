@@ -100,6 +100,11 @@ verified all 1,632,695 native book updates and separately identified reporting-i
 scheduling/lookup failures, genuine freshness/size limitations and process-loss
 missingness. The failed studies remain unchanged and **NO-GO**; an observation-layer
 repair does not start a replacement window, research v2, model promotion or orders.
+The [role-aware Render diagnosis](docs/RENDER_AGENT_OPERATIONS.md) distinguishes
+healthy processes from intentionally suspended roles and preserved failed-study pauses.
+The [offline profitability-readiness gate](docs/SCALPING_PROFITABILITY_READINESS.md)
+checks approved source/execution/account/cost evidence and exact fee hurdles before
+further economic research; it does not fit or promote a model from failed labels.
 Older commands below retain their original research/risk policies; v30 does not rewrite
 their immutable cohorts or historical outcomes.
 

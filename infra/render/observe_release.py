@@ -10,7 +10,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 import httpx
 
@@ -22,7 +22,14 @@ SERVICES = {
 }
 DATABASE = "dpg-dadn7nht0dsc73f9jja0-a"
 BASE_URL = "https://tradeagent-runtime-dashboard.onrender.com"
-DATABASE_PROFILES = {
+
+
+class DatabaseProfile(TypedDict):
+    plan: str
+    maximum_memory_mib: int
+
+
+DATABASE_PROFILES: dict[str, DatabaseProfile] = {
     "pg-256mb-v1": {"plan": "0.1c-256mb", "maximum_memory_mib": 230},
     "pg-1gb-v1": {"plan": "0.5c-1g", "maximum_memory_mib": 800},
 }
