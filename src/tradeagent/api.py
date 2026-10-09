@@ -785,6 +785,12 @@ def create_app(
             "live_trading_available": False,
             "check": "process_liveness_only",
             "dependencies": "/ready",
+            "investigation_phase": {
+                "active": True,
+                "started": "2026-10-09",
+                "review_due": "2026-10-30",
+                "description": "3-week paper trading validation",
+            },
         }
 
     @app.get("/ready")
